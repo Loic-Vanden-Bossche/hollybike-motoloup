@@ -10,7 +10,7 @@ part 'image_path_dto.freezed.dart';
 part 'image_path_dto.g.dart';
 
 @freezed
-class ImagePathDto with _$ImagePathDto {
+sealed class ImagePathDto with _$ImagePathDto {
   const factory ImagePathDto({
     required String path,
     required String key,

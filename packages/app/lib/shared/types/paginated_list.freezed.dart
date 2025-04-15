@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,254 +10,157 @@ part of 'paginated_list.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-PaginatedList<T> _$PaginatedListFromJson<T>(
-    Map<String, dynamic> json, T Function(Object?) fromJsonT) {
-  return _PaginatedList<T>.fromJson(json, fromJsonT);
-}
 
 /// @nodoc
 mixin _$PaginatedList<T> {
-  int get page => throw _privateConstructorUsedError;
-  @JsonKey(name: "total_page")
-  int get totalPages => throw _privateConstructorUsedError;
-  @JsonKey(name: "per_page")
-  int get perPage => throw _privateConstructorUsedError;
-  @JsonKey(name: "total_data")
-  int get totalItems => throw _privateConstructorUsedError;
-  @JsonKey(name: "data")
-  List<T> get items => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson(Object? Function(T) toJsonT) =>
-      throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $PaginatedListCopyWith<T, PaginatedList<T>> get copyWith =>
-      throw _privateConstructorUsedError;
+ int get page;@JsonKey(name: "total_page") int get totalPages;@JsonKey(name: "per_page") int get perPage;@JsonKey(name: "total_data") int get totalItems;@JsonKey(name: "data") List<T> get items;
+/// Create a copy of PaginatedList
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$PaginatedListCopyWith<T, PaginatedList<T>> get copyWith => _$PaginatedListCopyWithImpl<T, PaginatedList<T>>(this as PaginatedList<T>, _$identity);
+
+  /// Serializes this PaginatedList to a JSON map.
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT);
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is PaginatedList<T>&&(identical(other.page, page) || other.page == page)&&(identical(other.totalPages, totalPages) || other.totalPages == totalPages)&&(identical(other.perPage, perPage) || other.perPage == perPage)&&(identical(other.totalItems, totalItems) || other.totalItems == totalItems)&&const DeepCollectionEquality().equals(other.items, items));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,page,totalPages,perPage,totalItems,const DeepCollectionEquality().hash(items));
+
+@override
+String toString() {
+  return 'PaginatedList<$T>(page: $page, totalPages: $totalPages, perPage: $perPage, totalItems: $totalItems, items: $items)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $PaginatedListCopyWith<T, $Res> {
-  factory $PaginatedListCopyWith(
-          PaginatedList<T> value, $Res Function(PaginatedList<T>) then) =
-      _$PaginatedListCopyWithImpl<T, $Res, PaginatedList<T>>;
-  @useResult
-  $Res call(
-      {int page,
-      @JsonKey(name: "total_page") int totalPages,
-      @JsonKey(name: "per_page") int perPage,
-      @JsonKey(name: "total_data") int totalItems,
-      @JsonKey(name: "data") List<T> items});
-}
+abstract mixin class $PaginatedListCopyWith<T,$Res>  {
+  factory $PaginatedListCopyWith(PaginatedList<T> value, $Res Function(PaginatedList<T>) _then) = _$PaginatedListCopyWithImpl;
+@useResult
+$Res call({
+ int page,@JsonKey(name: "total_page") int totalPages,@JsonKey(name: "per_page") int perPage,@JsonKey(name: "total_data") int totalItems,@JsonKey(name: "data") List<T> items
+});
 
+
+
+
+}
 /// @nodoc
-class _$PaginatedListCopyWithImpl<T, $Res, $Val extends PaginatedList<T>>
+class _$PaginatedListCopyWithImpl<T,$Res>
     implements $PaginatedListCopyWith<T, $Res> {
-  _$PaginatedListCopyWithImpl(this._value, this._then);
+  _$PaginatedListCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final PaginatedList<T> _self;
+  final $Res Function(PaginatedList<T>) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? page = null,
-    Object? totalPages = null,
-    Object? perPage = null,
-    Object? totalItems = null,
-    Object? items = null,
-  }) {
-    return _then(_value.copyWith(
-      page: null == page
-          ? _value.page
-          : page // ignore: cast_nullable_to_non_nullable
-              as int,
-      totalPages: null == totalPages
-          ? _value.totalPages
-          : totalPages // ignore: cast_nullable_to_non_nullable
-              as int,
-      perPage: null == perPage
-          ? _value.perPage
-          : perPage // ignore: cast_nullable_to_non_nullable
-              as int,
-      totalItems: null == totalItems
-          ? _value.totalItems
-          : totalItems // ignore: cast_nullable_to_non_nullable
-              as int,
-      items: null == items
-          ? _value.items
-          : items // ignore: cast_nullable_to_non_nullable
-              as List<T>,
-    ) as $Val);
-  }
+/// Create a copy of PaginatedList
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? page = null,Object? totalPages = null,Object? perPage = null,Object? totalItems = null,Object? items = null,}) {
+  return _then(_self.copyWith(
+page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,totalPages: null == totalPages ? _self.totalPages : totalPages // ignore: cast_nullable_to_non_nullable
+as int,perPage: null == perPage ? _self.perPage : perPage // ignore: cast_nullable_to_non_nullable
+as int,totalItems: null == totalItems ? _self.totalItems : totalItems // ignore: cast_nullable_to_non_nullable
+as int,items: null == items ? _self.items : items // ignore: cast_nullable_to_non_nullable
+as List<T>,
+  ));
 }
 
-/// @nodoc
-abstract class _$$PaginatedListImplCopyWith<T, $Res>
-    implements $PaginatedListCopyWith<T, $Res> {
-  factory _$$PaginatedListImplCopyWith(_$PaginatedListImpl<T> value,
-          $Res Function(_$PaginatedListImpl<T>) then) =
-      __$$PaginatedListImplCopyWithImpl<T, $Res>;
-  @override
-  @useResult
-  $Res call(
-      {int page,
-      @JsonKey(name: "total_page") int totalPages,
-      @JsonKey(name: "per_page") int perPage,
-      @JsonKey(name: "total_data") int totalItems,
-      @JsonKey(name: "data") List<T> items});
 }
 
-/// @nodoc
-class __$$PaginatedListImplCopyWithImpl<T, $Res>
-    extends _$PaginatedListCopyWithImpl<T, $Res, _$PaginatedListImpl<T>>
-    implements _$$PaginatedListImplCopyWith<T, $Res> {
-  __$$PaginatedListImplCopyWithImpl(_$PaginatedListImpl<T> _value,
-      $Res Function(_$PaginatedListImpl<T>) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? page = null,
-    Object? totalPages = null,
-    Object? perPage = null,
-    Object? totalItems = null,
-    Object? items = null,
-  }) {
-    return _then(_$PaginatedListImpl<T>(
-      page: null == page
-          ? _value.page
-          : page // ignore: cast_nullable_to_non_nullable
-              as int,
-      totalPages: null == totalPages
-          ? _value.totalPages
-          : totalPages // ignore: cast_nullable_to_non_nullable
-              as int,
-      perPage: null == perPage
-          ? _value.perPage
-          : perPage // ignore: cast_nullable_to_non_nullable
-              as int,
-      totalItems: null == totalItems
-          ? _value.totalItems
-          : totalItems // ignore: cast_nullable_to_non_nullable
-              as int,
-      items: null == items
-          ? _value._items
-          : items // ignore: cast_nullable_to_non_nullable
-              as List<T>,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable(genericArgumentFactories: true)
-class _$PaginatedListImpl<T> extends _PaginatedList<T> {
-  const _$PaginatedListImpl(
-      {required this.page,
-      @JsonKey(name: "total_page") required this.totalPages,
-      @JsonKey(name: "per_page") required this.perPage,
-      @JsonKey(name: "total_data") required this.totalItems,
-      @JsonKey(name: "data") required final List<T> items})
-      : _items = items,
-        super._();
 
-  factory _$PaginatedListImpl.fromJson(
-          Map<String, dynamic> json, T Function(Object?) fromJsonT) =>
-      _$$PaginatedListImplFromJson(json, fromJsonT);
+class _PaginatedList<T> extends PaginatedList<T> {
+  const _PaginatedList({required this.page, @JsonKey(name: "total_page") required this.totalPages, @JsonKey(name: "per_page") required this.perPage, @JsonKey(name: "total_data") required this.totalItems, @JsonKey(name: "data") required final  List<T> items}): _items = items,super._();
+  factory _PaginatedList.fromJson(Map<String, dynamic> json,T Function(Object?) fromJsonT) => _$PaginatedListFromJson(json,fromJsonT);
 
-  @override
-  final int page;
-  @override
-  @JsonKey(name: "total_page")
-  final int totalPages;
-  @override
-  @JsonKey(name: "per_page")
-  final int perPage;
-  @override
-  @JsonKey(name: "total_data")
-  final int totalItems;
-  final List<T> _items;
-  @override
-  @JsonKey(name: "data")
-  List<T> get items {
-    if (_items is EqualUnmodifiableListView) return _items;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_items);
-  }
-
-  @override
-  String toString() {
-    return 'PaginatedList<$T>(page: $page, totalPages: $totalPages, perPage: $perPage, totalItems: $totalItems, items: $items)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$PaginatedListImpl<T> &&
-            (identical(other.page, page) || other.page == page) &&
-            (identical(other.totalPages, totalPages) ||
-                other.totalPages == totalPages) &&
-            (identical(other.perPage, perPage) || other.perPage == perPage) &&
-            (identical(other.totalItems, totalItems) ||
-                other.totalItems == totalItems) &&
-            const DeepCollectionEquality().equals(other._items, _items));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, page, totalPages, perPage,
-      totalItems, const DeepCollectionEquality().hash(_items));
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$PaginatedListImplCopyWith<T, _$PaginatedListImpl<T>> get copyWith =>
-      __$$PaginatedListImplCopyWithImpl<T, _$PaginatedListImpl<T>>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson(Object? Function(T) toJsonT) {
-    return _$$PaginatedListImplToJson<T>(this, toJsonT);
-  }
+@override final  int page;
+@override@JsonKey(name: "total_page") final  int totalPages;
+@override@JsonKey(name: "per_page") final  int perPage;
+@override@JsonKey(name: "total_data") final  int totalItems;
+ final  List<T> _items;
+@override@JsonKey(name: "data") List<T> get items {
+  if (_items is EqualUnmodifiableListView) return _items;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_items);
 }
 
-abstract class _PaginatedList<T> extends PaginatedList<T> {
-  const factory _PaginatedList(
-          {required final int page,
-          @JsonKey(name: "total_page") required final int totalPages,
-          @JsonKey(name: "per_page") required final int perPage,
-          @JsonKey(name: "total_data") required final int totalItems,
-          @JsonKey(name: "data") required final List<T> items}) =
-      _$PaginatedListImpl<T>;
-  const _PaginatedList._() : super._();
 
-  factory _PaginatedList.fromJson(
-          Map<String, dynamic> json, T Function(Object?) fromJsonT) =
-      _$PaginatedListImpl<T>.fromJson;
+/// Create a copy of PaginatedList
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$PaginatedListCopyWith<T, _PaginatedList<T>> get copyWith => __$PaginatedListCopyWithImpl<T, _PaginatedList<T>>(this, _$identity);
 
-  @override
-  int get page;
-  @override
-  @JsonKey(name: "total_page")
-  int get totalPages;
-  @override
-  @JsonKey(name: "per_page")
-  int get perPage;
-  @override
-  @JsonKey(name: "total_data")
-  int get totalItems;
-  @override
-  @JsonKey(name: "data")
-  List<T> get items;
-  @override
-  @JsonKey(ignore: true)
-  _$$PaginatedListImplCopyWith<T, _$PaginatedListImpl<T>> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+Map<String, dynamic> toJson(Object? Function(T) toJsonT) {
+  return _$PaginatedListToJson<T>(this, toJsonT);
 }
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _PaginatedList<T>&&(identical(other.page, page) || other.page == page)&&(identical(other.totalPages, totalPages) || other.totalPages == totalPages)&&(identical(other.perPage, perPage) || other.perPage == perPage)&&(identical(other.totalItems, totalItems) || other.totalItems == totalItems)&&const DeepCollectionEquality().equals(other._items, _items));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,page,totalPages,perPage,totalItems,const DeepCollectionEquality().hash(_items));
+
+@override
+String toString() {
+  return 'PaginatedList<$T>(page: $page, totalPages: $totalPages, perPage: $perPage, totalItems: $totalItems, items: $items)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$PaginatedListCopyWith<T,$Res> implements $PaginatedListCopyWith<T, $Res> {
+  factory _$PaginatedListCopyWith(_PaginatedList<T> value, $Res Function(_PaginatedList<T>) _then) = __$PaginatedListCopyWithImpl;
+@override @useResult
+$Res call({
+ int page,@JsonKey(name: "total_page") int totalPages,@JsonKey(name: "per_page") int perPage,@JsonKey(name: "total_data") int totalItems,@JsonKey(name: "data") List<T> items
+});
+
+
+
+
+}
+/// @nodoc
+class __$PaginatedListCopyWithImpl<T,$Res>
+    implements _$PaginatedListCopyWith<T, $Res> {
+  __$PaginatedListCopyWithImpl(this._self, this._then);
+
+  final _PaginatedList<T> _self;
+  final $Res Function(_PaginatedList<T>) _then;
+
+/// Create a copy of PaginatedList
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? page = null,Object? totalPages = null,Object? perPage = null,Object? totalItems = null,Object? items = null,}) {
+  return _then(_PaginatedList<T>(
+page: null == page ? _self.page : page // ignore: cast_nullable_to_non_nullable
+as int,totalPages: null == totalPages ? _self.totalPages : totalPages // ignore: cast_nullable_to_non_nullable
+as int,perPage: null == perPage ? _self.perPage : perPage // ignore: cast_nullable_to_non_nullable
+as int,totalItems: null == totalItems ? _self.totalItems : totalItems // ignore: cast_nullable_to_non_nullable
+as int,items: null == items ? _self._items : items // ignore: cast_nullable_to_non_nullable
+as List<T>,
+  ));
+}
+
+
+}
+
+// dart format on

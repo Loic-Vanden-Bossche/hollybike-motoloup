@@ -11,7 +11,7 @@ part 'websocket_added_to_event.freezed.dart';
 part 'websocket_added_to_event.g.dart';
 
 @freezed
-class WebsocketAddedToEvent
+sealed class WebsocketAddedToEvent
     with _$WebsocketAddedToEvent
     implements WebsocketBody {
   const factory WebsocketAddedToEvent({

@@ -8,7 +8,7 @@ part 'weather_forecast_response.freezed.dart';
 part 'weather_forecast_response.g.dart';
 
 @freezed
-class WeatherForecastResponse with _$WeatherForecastResponse {
+sealed class WeatherForecastResponse with _$WeatherForecastResponse {
   const factory WeatherForecastResponse({
     required double latitude,
     required double longitude,
@@ -27,7 +27,7 @@ class WeatherForecastResponse with _$WeatherForecastResponse {
 }
 
 @freezed
-class HourlyUnits with _$HourlyUnits {
+sealed class HourlyUnits with _$HourlyUnits {
   const factory HourlyUnits({
     required String time,
     @JsonKey(name: 'temperature_2m') required String temperature2m,
@@ -38,7 +38,7 @@ class HourlyUnits with _$HourlyUnits {
 }
 
 @freezed
-class Hourly with _$Hourly {
+sealed class Hourly with _$Hourly {
   const factory Hourly({
     required List<String> time,
     @JsonKey(name: 'temperature_2m') required List<double?> temperature2m,
@@ -49,7 +49,7 @@ class Hourly with _$Hourly {
 }
 
 @freezed
-class DailyUnits with _$DailyUnits {
+sealed class DailyUnits with _$DailyUnits {
   const factory DailyUnits({
     required String time,
     @JsonKey(name: 'weather_code') required String weatherCode,
@@ -63,7 +63,7 @@ class DailyUnits with _$DailyUnits {
 }
 
 @freezed
-class Daily with _$Daily {
+sealed class Daily with _$Daily {
   const factory Daily({
     required List<String> time,
     @JsonKey(name: 'weather_code') required List<int?> weatherCode,

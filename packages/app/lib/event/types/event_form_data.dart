@@ -11,7 +11,7 @@ part 'event_form_data.freezed.dart';
 part 'event_form_data.g.dart';
 
 @freezed
-class EventFormData with _$EventFormData {
+sealed class EventFormData with _$EventFormData {
   const EventFormData._();
 
   const factory EventFormData({

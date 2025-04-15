@@ -14,7 +14,7 @@ part 'event_participation.freezed.dart';
 part 'event_participation.g.dart';
 
 @freezed
-class EventParticipation with _$EventParticipation {
+sealed class EventParticipation with _$EventParticipation {
   const EventParticipation._();
 
   const factory EventParticipation({

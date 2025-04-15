@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'minimal_event.dart';
@@ -10,16 +6,17 @@ part of 'minimal_event.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$MinimalEventImpl _$$MinimalEventImplFromJson(Map<String, dynamic> json) =>
-    _$MinimalEventImpl(
+_MinimalEvent _$MinimalEventFromJson(Map<String, dynamic> json) =>
+    _MinimalEvent(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       owner: MinimalUser.fromJson(json['owner'] as Map<String, dynamic>),
       status: $enumDecode(_$EventStatusStateEnumMap, json['status']),
       startDate: DateTime.parse(json['start_date_time'] as String),
-      endDate: json['end_date_time'] == null
-          ? null
-          : DateTime.parse(json['end_date_time'] as String),
+      endDate:
+          json['end_date_time'] == null
+              ? null
+              : DateTime.parse(json['end_date_time'] as String),
       createdAt: DateTime.parse(json['create_date_time'] as String),
       updatedAt: DateTime.parse(json['update_date_time'] as String),
       description: json['description'] as String?,
@@ -27,7 +24,7 @@ _$MinimalEventImpl _$$MinimalEventImplFromJson(Map<String, dynamic> json) =>
       imageKey: json['image_key'] as String?,
     );
 
-Map<String, dynamic> _$$MinimalEventImplToJson(_$MinimalEventImpl instance) =>
+Map<String, dynamic> _$MinimalEventToJson(_MinimalEvent instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

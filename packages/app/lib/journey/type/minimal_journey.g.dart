@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'minimal_journey.dart';
@@ -10,19 +6,22 @@ part of 'minimal_journey.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$MinimalJourneyImpl _$$MinimalJourneyImplFromJson(Map<String, dynamic> json) =>
-    _$MinimalJourneyImpl(
+_MinimalJourney _$MinimalJourneyFromJson(Map<String, dynamic> json) =>
+    _MinimalJourney(
       id: (json['id'] as num).toInt(),
       file: json['file'] as String?,
-      start: json['start'] == null
-          ? null
-          : Position.fromJson(json['start'] as Map<String, dynamic>),
-      end: json['end'] == null
-          ? null
-          : Position.fromJson(json['end'] as Map<String, dynamic>),
-      destination: json['destination'] == null
-          ? null
-          : Position.fromJson(json['destination'] as Map<String, dynamic>),
+      start:
+          json['start'] == null
+              ? null
+              : Position.fromJson(json['start'] as Map<String, dynamic>),
+      end:
+          json['end'] == null
+              ? null
+              : Position.fromJson(json['end'] as Map<String, dynamic>),
+      destination:
+          json['destination'] == null
+              ? null
+              : Position.fromJson(json['destination'] as Map<String, dynamic>),
       totalDistance: (json['totalDistance'] as num?)?.toInt(),
       minElevation: (json['minElevation'] as num?)?.toInt(),
       maxElevation: (json['maxElevation'] as num?)?.toInt(),
@@ -32,8 +31,7 @@ _$MinimalJourneyImpl _$$MinimalJourneyImplFromJson(Map<String, dynamic> json) =>
       previewImageKey: json['preview_image_key'] as String?,
     );
 
-Map<String, dynamic> _$$MinimalJourneyImplToJson(
-        _$MinimalJourneyImpl instance) =>
+Map<String, dynamic> _$MinimalJourneyToJson(_MinimalJourney instance) =>
     <String, dynamic>{
       'id': instance.id,
       'file': instance.file,

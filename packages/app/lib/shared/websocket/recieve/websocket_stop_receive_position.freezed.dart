@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,179 +10,142 @@ part of 'websocket_stop_receive_position.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-WebsocketStopReceivePosition _$WebsocketStopReceivePositionFromJson(
-    Map<String, dynamic> json) {
-  return _WebsocketStopReceivePosition.fromJson(json);
-}
 
 /// @nodoc
 mixin _$WebsocketStopReceivePosition {
-  String get type => throw _privateConstructorUsedError;
-  @JsonKey(name: "user")
-  int get userId => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $WebsocketStopReceivePositionCopyWith<WebsocketStopReceivePosition>
-      get copyWith => throw _privateConstructorUsedError;
+ String get type;@JsonKey(name: "user") int get userId;
+/// Create a copy of WebsocketStopReceivePosition
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WebsocketStopReceivePositionCopyWith<WebsocketStopReceivePosition> get copyWith => _$WebsocketStopReceivePositionCopyWithImpl<WebsocketStopReceivePosition>(this as WebsocketStopReceivePosition, _$identity);
+
+  /// Serializes this WebsocketStopReceivePosition to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WebsocketStopReceivePosition&&(identical(other.type, type) || other.type == type)&&(identical(other.userId, userId) || other.userId == userId));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,userId);
+
+@override
+String toString() {
+  return 'WebsocketStopReceivePosition(type: $type, userId: $userId)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $WebsocketStopReceivePositionCopyWith<$Res> {
-  factory $WebsocketStopReceivePositionCopyWith(
-          WebsocketStopReceivePosition value,
-          $Res Function(WebsocketStopReceivePosition) then) =
-      _$WebsocketStopReceivePositionCopyWithImpl<$Res,
-          WebsocketStopReceivePosition>;
-  @useResult
-  $Res call({String type, @JsonKey(name: "user") int userId});
-}
+abstract mixin class $WebsocketStopReceivePositionCopyWith<$Res>  {
+  factory $WebsocketStopReceivePositionCopyWith(WebsocketStopReceivePosition value, $Res Function(WebsocketStopReceivePosition) _then) = _$WebsocketStopReceivePositionCopyWithImpl;
+@useResult
+$Res call({
+ String type,@JsonKey(name: "user") int userId
+});
 
+
+
+
+}
 /// @nodoc
-class _$WebsocketStopReceivePositionCopyWithImpl<$Res,
-        $Val extends WebsocketStopReceivePosition>
+class _$WebsocketStopReceivePositionCopyWithImpl<$Res>
     implements $WebsocketStopReceivePositionCopyWith<$Res> {
-  _$WebsocketStopReceivePositionCopyWithImpl(this._value, this._then);
+  _$WebsocketStopReceivePositionCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final WebsocketStopReceivePosition _self;
+  final $Res Function(WebsocketStopReceivePosition) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? userId = null,
-  }) {
-    return _then(_value.copyWith(
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as int,
-    ) as $Val);
-  }
+/// Create a copy of WebsocketStopReceivePosition
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? userId = null,}) {
+  return _then(_self.copyWith(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
 }
 
-/// @nodoc
-abstract class _$$WebsocketStopReceivePositionImplCopyWith<$Res>
-    implements $WebsocketStopReceivePositionCopyWith<$Res> {
-  factory _$$WebsocketStopReceivePositionImplCopyWith(
-          _$WebsocketStopReceivePositionImpl value,
-          $Res Function(_$WebsocketStopReceivePositionImpl) then) =
-      __$$WebsocketStopReceivePositionImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String type, @JsonKey(name: "user") int userId});
 }
 
-/// @nodoc
-class __$$WebsocketStopReceivePositionImplCopyWithImpl<$Res>
-    extends _$WebsocketStopReceivePositionCopyWithImpl<$Res,
-        _$WebsocketStopReceivePositionImpl>
-    implements _$$WebsocketStopReceivePositionImplCopyWith<$Res> {
-  __$$WebsocketStopReceivePositionImplCopyWithImpl(
-      _$WebsocketStopReceivePositionImpl _value,
-      $Res Function(_$WebsocketStopReceivePositionImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? userId = null,
-  }) {
-    return _then(_$WebsocketStopReceivePositionImpl(
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as int,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$WebsocketStopReceivePositionImpl
-    implements _WebsocketStopReceivePosition {
-  const _$WebsocketStopReceivePositionImpl(
-      {required this.type, @JsonKey(name: "user") required this.userId});
 
-  factory _$WebsocketStopReceivePositionImpl.fromJson(
-          Map<String, dynamic> json) =>
-      _$$WebsocketStopReceivePositionImplFromJson(json);
+class _WebsocketStopReceivePosition implements WebsocketStopReceivePosition {
+  const _WebsocketStopReceivePosition({required this.type, @JsonKey(name: "user") required this.userId});
+  factory _WebsocketStopReceivePosition.fromJson(Map<String, dynamic> json) => _$WebsocketStopReceivePositionFromJson(json);
 
-  @override
-  final String type;
-  @override
-  @JsonKey(name: "user")
-  final int userId;
+@override final  String type;
+@override@JsonKey(name: "user") final  int userId;
 
-  @override
-  String toString() {
-    return 'WebsocketStopReceivePosition(type: $type, userId: $userId)';
-  }
+/// Create a copy of WebsocketStopReceivePosition
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WebsocketStopReceivePositionCopyWith<_WebsocketStopReceivePosition> get copyWith => __$WebsocketStopReceivePositionCopyWithImpl<_WebsocketStopReceivePosition>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WebsocketStopReceivePositionImpl &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.userId, userId) || other.userId == userId));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, type, userId);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WebsocketStopReceivePositionImplCopyWith<
-          _$WebsocketStopReceivePositionImpl>
-      get copyWith => __$$WebsocketStopReceivePositionImplCopyWithImpl<
-          _$WebsocketStopReceivePositionImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$WebsocketStopReceivePositionImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$WebsocketStopReceivePositionToJson(this, );
 }
 
-abstract class _WebsocketStopReceivePosition
-    implements WebsocketStopReceivePosition {
-  const factory _WebsocketStopReceivePosition(
-          {required final String type,
-          @JsonKey(name: "user") required final int userId}) =
-      _$WebsocketStopReceivePositionImpl;
-
-  factory _WebsocketStopReceivePosition.fromJson(Map<String, dynamic> json) =
-      _$WebsocketStopReceivePositionImpl.fromJson;
-
-  @override
-  String get type;
-  @override
-  @JsonKey(name: "user")
-  int get userId;
-  @override
-  @JsonKey(ignore: true)
-  _$$WebsocketStopReceivePositionImplCopyWith<
-          _$WebsocketStopReceivePositionImpl>
-      get copyWith => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WebsocketStopReceivePosition&&(identical(other.type, type) || other.type == type)&&(identical(other.userId, userId) || other.userId == userId));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,userId);
+
+@override
+String toString() {
+  return 'WebsocketStopReceivePosition(type: $type, userId: $userId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WebsocketStopReceivePositionCopyWith<$Res> implements $WebsocketStopReceivePositionCopyWith<$Res> {
+  factory _$WebsocketStopReceivePositionCopyWith(_WebsocketStopReceivePosition value, $Res Function(_WebsocketStopReceivePosition) _then) = __$WebsocketStopReceivePositionCopyWithImpl;
+@override @useResult
+$Res call({
+ String type,@JsonKey(name: "user") int userId
+});
+
+
+
+
+}
+/// @nodoc
+class __$WebsocketStopReceivePositionCopyWithImpl<$Res>
+    implements _$WebsocketStopReceivePositionCopyWith<$Res> {
+  __$WebsocketStopReceivePositionCopyWithImpl(this._self, this._then);
+
+  final _WebsocketStopReceivePosition _self;
+  final $Res Function(_WebsocketStopReceivePosition) _then;
+
+/// Create a copy of WebsocketStopReceivePosition
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? userId = null,}) {
+  return _then(_WebsocketStopReceivePosition(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+// dart format on

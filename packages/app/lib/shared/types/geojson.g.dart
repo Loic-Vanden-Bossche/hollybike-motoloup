@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'geojson.dart';
@@ -10,14 +6,13 @@ part of 'geojson.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$GeoJSONImpl _$$GeoJSONImplFromJson(Map<String, dynamic> json) =>
-    _$GeoJSONImpl(
-      bbox: (json['bbox'] as List<dynamic>)
+_GeoJSON _$GeoJSONFromJson(Map<String, dynamic> json) => _GeoJSON(
+  bbox:
+      (json['bbox'] as List<dynamic>)
           .map((e) => (e as num).toDouble())
           .toList(),
-    );
+);
 
-Map<String, dynamic> _$$GeoJSONImplToJson(_$GeoJSONImpl instance) =>
-    <String, dynamic>{
-      'bbox': instance.bbox,
-    };
+Map<String, dynamic> _$GeoJSONToJson(_GeoJSON instance) => <String, dynamic>{
+  'bbox': instance.bbox,
+};

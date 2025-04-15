@@ -10,7 +10,7 @@ part 'update_profile.freezed.dart';
 part 'update_profile.g.dart';
 
 @freezed
-class UpdateProfile with _$UpdateProfile {
+sealed class UpdateProfile with _$UpdateProfile {
   const factory UpdateProfile({
     required String username,
     String? role,

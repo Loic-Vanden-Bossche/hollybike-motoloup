@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,236 +10,154 @@ part of 'event_image.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-EventImage _$EventImageFromJson(Map<String, dynamic> json) {
-  return _EventImage.fromJson(json);
-}
 
 /// @nodoc
 mixin _$EventImage {
-  int get id => throw _privateConstructorUsedError;
-  String get key => throw _privateConstructorUsedError;
-  String get url => throw _privateConstructorUsedError;
-  int get size => throw _privateConstructorUsedError;
-  int get width => throw _privateConstructorUsedError;
-  int get height => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $EventImageCopyWith<EventImage> get copyWith =>
-      throw _privateConstructorUsedError;
+ int get id; String get key; String get url; int get size; int get width; int get height;
+/// Create a copy of EventImage
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$EventImageCopyWith<EventImage> get copyWith => _$EventImageCopyWithImpl<EventImage>(this as EventImage, _$identity);
+
+  /// Serializes this EventImage to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventImage&&(identical(other.id, id) || other.id == id)&&(identical(other.key, key) || other.key == key)&&(identical(other.url, url) || other.url == url)&&(identical(other.size, size) || other.size == size)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,key,url,size,width,height);
+
+@override
+String toString() {
+  return 'EventImage(id: $id, key: $key, url: $url, size: $size, width: $width, height: $height)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $EventImageCopyWith<$Res> {
-  factory $EventImageCopyWith(
-          EventImage value, $Res Function(EventImage) then) =
-      _$EventImageCopyWithImpl<$Res, EventImage>;
-  @useResult
-  $Res call({int id, String key, String url, int size, int width, int height});
-}
+abstract mixin class $EventImageCopyWith<$Res>  {
+  factory $EventImageCopyWith(EventImage value, $Res Function(EventImage) _then) = _$EventImageCopyWithImpl;
+@useResult
+$Res call({
+ int id, String key, String url, int size, int width, int height
+});
 
+
+
+
+}
 /// @nodoc
-class _$EventImageCopyWithImpl<$Res, $Val extends EventImage>
+class _$EventImageCopyWithImpl<$Res>
     implements $EventImageCopyWith<$Res> {
-  _$EventImageCopyWithImpl(this._value, this._then);
+  _$EventImageCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final EventImage _self;
+  final $Res Function(EventImage) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? key = null,
-    Object? url = null,
-    Object? size = null,
-    Object? width = null,
-    Object? height = null,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      key: null == key
-          ? _value.key
-          : key // ignore: cast_nullable_to_non_nullable
-              as String,
-      url: null == url
-          ? _value.url
-          : url // ignore: cast_nullable_to_non_nullable
-              as String,
-      size: null == size
-          ? _value.size
-          : size // ignore: cast_nullable_to_non_nullable
-              as int,
-      width: null == width
-          ? _value.width
-          : width // ignore: cast_nullable_to_non_nullable
-              as int,
-      height: null == height
-          ? _value.height
-          : height // ignore: cast_nullable_to_non_nullable
-              as int,
-    ) as $Val);
-  }
+/// Create a copy of EventImage
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? key = null,Object? url = null,Object? size = null,Object? width = null,Object? height = null,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
+as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,width: null == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
+as int,height: null == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
 }
 
-/// @nodoc
-abstract class _$$EventImageImplCopyWith<$Res>
-    implements $EventImageCopyWith<$Res> {
-  factory _$$EventImageImplCopyWith(
-          _$EventImageImpl value, $Res Function(_$EventImageImpl) then) =
-      __$$EventImageImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({int id, String key, String url, int size, int width, int height});
 }
 
-/// @nodoc
-class __$$EventImageImplCopyWithImpl<$Res>
-    extends _$EventImageCopyWithImpl<$Res, _$EventImageImpl>
-    implements _$$EventImageImplCopyWith<$Res> {
-  __$$EventImageImplCopyWithImpl(
-      _$EventImageImpl _value, $Res Function(_$EventImageImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? key = null,
-    Object? url = null,
-    Object? size = null,
-    Object? width = null,
-    Object? height = null,
-  }) {
-    return _then(_$EventImageImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      key: null == key
-          ? _value.key
-          : key // ignore: cast_nullable_to_non_nullable
-              as String,
-      url: null == url
-          ? _value.url
-          : url // ignore: cast_nullable_to_non_nullable
-              as String,
-      size: null == size
-          ? _value.size
-          : size // ignore: cast_nullable_to_non_nullable
-              as int,
-      width: null == width
-          ? _value.width
-          : width // ignore: cast_nullable_to_non_nullable
-              as int,
-      height: null == height
-          ? _value.height
-          : height // ignore: cast_nullable_to_non_nullable
-              as int,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$EventImageImpl implements _EventImage {
-  const _$EventImageImpl(
-      {required this.id,
-      required this.key,
-      required this.url,
-      required this.size,
-      required this.width,
-      required this.height});
 
-  factory _$EventImageImpl.fromJson(Map<String, dynamic> json) =>
-      _$$EventImageImplFromJson(json);
+class _EventImage implements EventImage {
+  const _EventImage({required this.id, required this.key, required this.url, required this.size, required this.width, required this.height});
+  factory _EventImage.fromJson(Map<String, dynamic> json) => _$EventImageFromJson(json);
 
-  @override
-  final int id;
-  @override
-  final String key;
-  @override
-  final String url;
-  @override
-  final int size;
-  @override
-  final int width;
-  @override
-  final int height;
+@override final  int id;
+@override final  String key;
+@override final  String url;
+@override final  int size;
+@override final  int width;
+@override final  int height;
 
-  @override
-  String toString() {
-    return 'EventImage(id: $id, key: $key, url: $url, size: $size, width: $width, height: $height)';
-  }
+/// Create a copy of EventImage
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$EventImageCopyWith<_EventImage> get copyWith => __$EventImageCopyWithImpl<_EventImage>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$EventImageImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.key, key) || other.key == key) &&
-            (identical(other.url, url) || other.url == url) &&
-            (identical(other.size, size) || other.size == size) &&
-            (identical(other.width, width) || other.width == width) &&
-            (identical(other.height, height) || other.height == height));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, id, key, url, size, width, height);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$EventImageImplCopyWith<_$EventImageImpl> get copyWith =>
-      __$$EventImageImplCopyWithImpl<_$EventImageImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$EventImageImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$EventImageToJson(this, );
 }
 
-abstract class _EventImage implements EventImage {
-  const factory _EventImage(
-      {required final int id,
-      required final String key,
-      required final String url,
-      required final int size,
-      required final int width,
-      required final int height}) = _$EventImageImpl;
-
-  factory _EventImage.fromJson(Map<String, dynamic> json) =
-      _$EventImageImpl.fromJson;
-
-  @override
-  int get id;
-  @override
-  String get key;
-  @override
-  String get url;
-  @override
-  int get size;
-  @override
-  int get width;
-  @override
-  int get height;
-  @override
-  @JsonKey(ignore: true)
-  _$$EventImageImplCopyWith<_$EventImageImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventImage&&(identical(other.id, id) || other.id == id)&&(identical(other.key, key) || other.key == key)&&(identical(other.url, url) || other.url == url)&&(identical(other.size, size) || other.size == size)&&(identical(other.width, width) || other.width == width)&&(identical(other.height, height) || other.height == height));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,key,url,size,width,height);
+
+@override
+String toString() {
+  return 'EventImage(id: $id, key: $key, url: $url, size: $size, width: $width, height: $height)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$EventImageCopyWith<$Res> implements $EventImageCopyWith<$Res> {
+  factory _$EventImageCopyWith(_EventImage value, $Res Function(_EventImage) _then) = __$EventImageCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String key, String url, int size, int width, int height
+});
+
+
+
+
+}
+/// @nodoc
+class __$EventImageCopyWithImpl<$Res>
+    implements _$EventImageCopyWith<$Res> {
+  __$EventImageCopyWithImpl(this._self, this._then);
+
+  final _EventImage _self;
+  final $Res Function(_EventImage) _then;
+
+/// Create a copy of EventImage
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? key = null,Object? url = null,Object? size = null,Object? width = null,Object? height = null,}) {
+  return _then(_EventImage(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,key: null == key ? _self.key : key // ignore: cast_nullable_to_non_nullable
+as String,url: null == url ? _self.url : url // ignore: cast_nullable_to_non_nullable
+as String,size: null == size ? _self.size : size // ignore: cast_nullable_to_non_nullable
+as int,width: null == width ? _self.width : width // ignore: cast_nullable_to_non_nullable
+as int,height: null == height ? _self.height : height // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+// dart format on

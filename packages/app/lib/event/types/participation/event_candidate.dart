@@ -10,7 +10,7 @@ part 'event_candidate.freezed.dart';
 part 'event_candidate.g.dart';
 
 @freezed
-class EventCandidate with _$EventCandidate {
+sealed class EventCandidate with _$EventCandidate {
   const factory EventCandidate({
     required int id,
     required String username,

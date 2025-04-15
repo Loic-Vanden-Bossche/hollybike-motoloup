@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'websocket_subscribe.dart';
@@ -10,16 +6,11 @@ part of 'websocket_subscribe.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$WebsocketSubscribeImpl _$$WebsocketSubscribeImplFromJson(
-        Map<String, dynamic> json) =>
-    _$WebsocketSubscribeImpl(
+_WebsocketSubscribe _$WebsocketSubscribeFromJson(Map<String, dynamic> json) =>
+    _WebsocketSubscribe(
       token: json['token'] as String,
       type: json['type'] as String? ?? "subscribe",
     );
 
-Map<String, dynamic> _$$WebsocketSubscribeImplToJson(
-        _$WebsocketSubscribeImpl instance) =>
-    <String, dynamic>{
-      'token': instance.token,
-      'type': instance.type,
-    };
+Map<String, dynamic> _$WebsocketSubscribeToJson(_WebsocketSubscribe instance) =>
+    <String, dynamic>{'token': instance.token, 'type': instance.type};

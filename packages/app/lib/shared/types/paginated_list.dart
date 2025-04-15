@@ -15,7 +15,7 @@ enum RefreshedType {
 }
 
 @Freezed(genericArgumentFactories: true)
-class PaginatedList<T> with _$PaginatedList<T> {
+sealed class PaginatedList<T> with _$PaginatedList<T> {
   const PaginatedList._();
 
   const factory PaginatedList({

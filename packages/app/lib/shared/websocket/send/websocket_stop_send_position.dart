@@ -11,7 +11,7 @@ part 'websocket_stop_send_position.freezed.dart';
 part 'websocket_stop_send_position.g.dart';
 
 @freezed
-class WebsocketStopSendPosition
+sealed class WebsocketStopSendPosition
     with _$WebsocketStopSendPosition
     implements WebsocketBody {
   const factory WebsocketStopSendPosition({

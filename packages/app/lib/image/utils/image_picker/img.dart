@@ -5,7 +5,7 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-import 'package:photo_gallery/photo_gallery.dart';
+// import 'package:photo_gallery/photo_gallery.dart';
 
 class Img {
   final Image image;
@@ -44,19 +44,21 @@ class Img {
   }
 
   static Future<Img> fromMediumId(String mediumId) async {
-    final file = await PhotoGallery.getMedium(mediumId: mediumId)
-        .then((value) => value.getFile());
+    // final file = await PhotoGallery.getMedium(mediumId: mediumId)
+    //     .then((value) => value.getFile());
     final image = Image(
       height: double.infinity,
       width: double.infinity,
       fit: BoxFit.cover,
-      image: ThumbnailProvider(
-        mediumId: mediumId,
-        mediumType: MediumType.image,
-        width: 512,
-        height: 512,
-        highQuality: true,
-      ),
+      // image: ThumbnailProvider(
+      //   mediumId: mediumId,
+      //   mediumType: MediumType.image,
+      //   width: 512,
+      //   height: 512,
+      //   highQuality: true,
+      // ),
+      // dummy image for now
+      image: const AssetImage('assets/images/placeholder.png'),
       frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
         if (wasSynchronouslyLoaded) {
           return child;
@@ -72,7 +74,7 @@ class Img {
 
     return Img(
       image: image,
-      file: file,
+      file: File(''),
       mediumId: mediumId,
     );
   }

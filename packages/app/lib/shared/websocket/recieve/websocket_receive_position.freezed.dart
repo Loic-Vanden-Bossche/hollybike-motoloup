@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,281 +10,157 @@ part of 'websocket_receive_position.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-WebsocketReceivePosition _$WebsocketReceivePositionFromJson(
-    Map<String, dynamic> json) {
-  return _WebsocketReceivePosition.fromJson(json);
-}
 
 /// @nodoc
 mixin _$WebsocketReceivePosition {
-  String get type => throw _privateConstructorUsedError;
-  double get latitude => throw _privateConstructorUsedError;
-  double get longitude => throw _privateConstructorUsedError;
-  double get altitude => throw _privateConstructorUsedError;
-  DateTime get time => throw _privateConstructorUsedError;
-  double get speed => throw _privateConstructorUsedError;
-  @JsonKey(name: "user")
-  int get userId => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $WebsocketReceivePositionCopyWith<WebsocketReceivePosition> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get type; double get latitude; double get longitude; double get altitude; DateTime get time; double get speed;@JsonKey(name: "user") int get userId;
+/// Create a copy of WebsocketReceivePosition
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WebsocketReceivePositionCopyWith<WebsocketReceivePosition> get copyWith => _$WebsocketReceivePositionCopyWithImpl<WebsocketReceivePosition>(this as WebsocketReceivePosition, _$identity);
+
+  /// Serializes this WebsocketReceivePosition to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WebsocketReceivePosition&&(identical(other.type, type) || other.type == type)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.altitude, altitude) || other.altitude == altitude)&&(identical(other.time, time) || other.time == time)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.userId, userId) || other.userId == userId));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,latitude,longitude,altitude,time,speed,userId);
+
+@override
+String toString() {
+  return 'WebsocketReceivePosition(type: $type, latitude: $latitude, longitude: $longitude, altitude: $altitude, time: $time, speed: $speed, userId: $userId)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $WebsocketReceivePositionCopyWith<$Res> {
-  factory $WebsocketReceivePositionCopyWith(WebsocketReceivePosition value,
-          $Res Function(WebsocketReceivePosition) then) =
-      _$WebsocketReceivePositionCopyWithImpl<$Res, WebsocketReceivePosition>;
-  @useResult
-  $Res call(
-      {String type,
-      double latitude,
-      double longitude,
-      double altitude,
-      DateTime time,
-      double speed,
-      @JsonKey(name: "user") int userId});
-}
+abstract mixin class $WebsocketReceivePositionCopyWith<$Res>  {
+  factory $WebsocketReceivePositionCopyWith(WebsocketReceivePosition value, $Res Function(WebsocketReceivePosition) _then) = _$WebsocketReceivePositionCopyWithImpl;
+@useResult
+$Res call({
+ String type, double latitude, double longitude, double altitude, DateTime time, double speed,@JsonKey(name: "user") int userId
+});
 
+
+
+
+}
 /// @nodoc
-class _$WebsocketReceivePositionCopyWithImpl<$Res,
-        $Val extends WebsocketReceivePosition>
+class _$WebsocketReceivePositionCopyWithImpl<$Res>
     implements $WebsocketReceivePositionCopyWith<$Res> {
-  _$WebsocketReceivePositionCopyWithImpl(this._value, this._then);
+  _$WebsocketReceivePositionCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final WebsocketReceivePosition _self;
+  final $Res Function(WebsocketReceivePosition) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? latitude = null,
-    Object? longitude = null,
-    Object? altitude = null,
-    Object? time = null,
-    Object? speed = null,
-    Object? userId = null,
-  }) {
-    return _then(_value.copyWith(
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      latitude: null == latitude
-          ? _value.latitude
-          : latitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      longitude: null == longitude
-          ? _value.longitude
-          : longitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      altitude: null == altitude
-          ? _value.altitude
-          : altitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      speed: null == speed
-          ? _value.speed
-          : speed // ignore: cast_nullable_to_non_nullable
-              as double,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as int,
-    ) as $Val);
-  }
+/// Create a copy of WebsocketReceivePosition
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? latitude = null,Object? longitude = null,Object? altitude = null,Object? time = null,Object? speed = null,Object? userId = null,}) {
+  return _then(_self.copyWith(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,latitude: null == latitude ? _self.latitude : latitude // ignore: cast_nullable_to_non_nullable
+as double,longitude: null == longitude ? _self.longitude : longitude // ignore: cast_nullable_to_non_nullable
+as double,altitude: null == altitude ? _self.altitude : altitude // ignore: cast_nullable_to_non_nullable
+as double,time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as DateTime,speed: null == speed ? _self.speed : speed // ignore: cast_nullable_to_non_nullable
+as double,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
 }
 
-/// @nodoc
-abstract class _$$WebsocketReceivePositionImplCopyWith<$Res>
-    implements $WebsocketReceivePositionCopyWith<$Res> {
-  factory _$$WebsocketReceivePositionImplCopyWith(
-          _$WebsocketReceivePositionImpl value,
-          $Res Function(_$WebsocketReceivePositionImpl) then) =
-      __$$WebsocketReceivePositionImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String type,
-      double latitude,
-      double longitude,
-      double altitude,
-      DateTime time,
-      double speed,
-      @JsonKey(name: "user") int userId});
 }
 
-/// @nodoc
-class __$$WebsocketReceivePositionImplCopyWithImpl<$Res>
-    extends _$WebsocketReceivePositionCopyWithImpl<$Res,
-        _$WebsocketReceivePositionImpl>
-    implements _$$WebsocketReceivePositionImplCopyWith<$Res> {
-  __$$WebsocketReceivePositionImplCopyWithImpl(
-      _$WebsocketReceivePositionImpl _value,
-      $Res Function(_$WebsocketReceivePositionImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? latitude = null,
-    Object? longitude = null,
-    Object? altitude = null,
-    Object? time = null,
-    Object? speed = null,
-    Object? userId = null,
-  }) {
-    return _then(_$WebsocketReceivePositionImpl(
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      latitude: null == latitude
-          ? _value.latitude
-          : latitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      longitude: null == longitude
-          ? _value.longitude
-          : longitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      altitude: null == altitude
-          ? _value.altitude
-          : altitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      speed: null == speed
-          ? _value.speed
-          : speed // ignore: cast_nullable_to_non_nullable
-              as double,
-      userId: null == userId
-          ? _value.userId
-          : userId // ignore: cast_nullable_to_non_nullable
-              as int,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$WebsocketReceivePositionImpl implements _WebsocketReceivePosition {
-  const _$WebsocketReceivePositionImpl(
-      {required this.type,
-      required this.latitude,
-      required this.longitude,
-      required this.altitude,
-      required this.time,
-      required this.speed,
-      @JsonKey(name: "user") required this.userId});
 
-  factory _$WebsocketReceivePositionImpl.fromJson(Map<String, dynamic> json) =>
-      _$$WebsocketReceivePositionImplFromJson(json);
+class _WebsocketReceivePosition implements WebsocketReceivePosition {
+  const _WebsocketReceivePosition({required this.type, required this.latitude, required this.longitude, required this.altitude, required this.time, required this.speed, @JsonKey(name: "user") required this.userId});
+  factory _WebsocketReceivePosition.fromJson(Map<String, dynamic> json) => _$WebsocketReceivePositionFromJson(json);
 
-  @override
-  final String type;
-  @override
-  final double latitude;
-  @override
-  final double longitude;
-  @override
-  final double altitude;
-  @override
-  final DateTime time;
-  @override
-  final double speed;
-  @override
-  @JsonKey(name: "user")
-  final int userId;
+@override final  String type;
+@override final  double latitude;
+@override final  double longitude;
+@override final  double altitude;
+@override final  DateTime time;
+@override final  double speed;
+@override@JsonKey(name: "user") final  int userId;
 
-  @override
-  String toString() {
-    return 'WebsocketReceivePosition(type: $type, latitude: $latitude, longitude: $longitude, altitude: $altitude, time: $time, speed: $speed, userId: $userId)';
-  }
+/// Create a copy of WebsocketReceivePosition
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WebsocketReceivePositionCopyWith<_WebsocketReceivePosition> get copyWith => __$WebsocketReceivePositionCopyWithImpl<_WebsocketReceivePosition>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WebsocketReceivePositionImpl &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.latitude, latitude) ||
-                other.latitude == latitude) &&
-            (identical(other.longitude, longitude) ||
-                other.longitude == longitude) &&
-            (identical(other.altitude, altitude) ||
-                other.altitude == altitude) &&
-            (identical(other.time, time) || other.time == time) &&
-            (identical(other.speed, speed) || other.speed == speed) &&
-            (identical(other.userId, userId) || other.userId == userId));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, type, latitude, longitude, altitude, time, speed, userId);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WebsocketReceivePositionImplCopyWith<_$WebsocketReceivePositionImpl>
-      get copyWith => __$$WebsocketReceivePositionImplCopyWithImpl<
-          _$WebsocketReceivePositionImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$WebsocketReceivePositionImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$WebsocketReceivePositionToJson(this, );
 }
 
-abstract class _WebsocketReceivePosition implements WebsocketReceivePosition {
-  const factory _WebsocketReceivePosition(
-          {required final String type,
-          required final double latitude,
-          required final double longitude,
-          required final double altitude,
-          required final DateTime time,
-          required final double speed,
-          @JsonKey(name: "user") required final int userId}) =
-      _$WebsocketReceivePositionImpl;
-
-  factory _WebsocketReceivePosition.fromJson(Map<String, dynamic> json) =
-      _$WebsocketReceivePositionImpl.fromJson;
-
-  @override
-  String get type;
-  @override
-  double get latitude;
-  @override
-  double get longitude;
-  @override
-  double get altitude;
-  @override
-  DateTime get time;
-  @override
-  double get speed;
-  @override
-  @JsonKey(name: "user")
-  int get userId;
-  @override
-  @JsonKey(ignore: true)
-  _$$WebsocketReceivePositionImplCopyWith<_$WebsocketReceivePositionImpl>
-      get copyWith => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WebsocketReceivePosition&&(identical(other.type, type) || other.type == type)&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.altitude, altitude) || other.altitude == altitude)&&(identical(other.time, time) || other.time == time)&&(identical(other.speed, speed) || other.speed == speed)&&(identical(other.userId, userId) || other.userId == userId));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,latitude,longitude,altitude,time,speed,userId);
+
+@override
+String toString() {
+  return 'WebsocketReceivePosition(type: $type, latitude: $latitude, longitude: $longitude, altitude: $altitude, time: $time, speed: $speed, userId: $userId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WebsocketReceivePositionCopyWith<$Res> implements $WebsocketReceivePositionCopyWith<$Res> {
+  factory _$WebsocketReceivePositionCopyWith(_WebsocketReceivePosition value, $Res Function(_WebsocketReceivePosition) _then) = __$WebsocketReceivePositionCopyWithImpl;
+@override @useResult
+$Res call({
+ String type, double latitude, double longitude, double altitude, DateTime time, double speed,@JsonKey(name: "user") int userId
+});
+
+
+
+
+}
+/// @nodoc
+class __$WebsocketReceivePositionCopyWithImpl<$Res>
+    implements _$WebsocketReceivePositionCopyWith<$Res> {
+  __$WebsocketReceivePositionCopyWithImpl(this._self, this._then);
+
+  final _WebsocketReceivePosition _self;
+  final $Res Function(_WebsocketReceivePosition) _then;
+
+/// Create a copy of WebsocketReceivePosition
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? latitude = null,Object? longitude = null,Object? altitude = null,Object? time = null,Object? speed = null,Object? userId = null,}) {
+  return _then(_WebsocketReceivePosition(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,latitude: null == latitude ? _self.latitude : latitude // ignore: cast_nullable_to_non_nullable
+as double,longitude: null == longitude ? _self.longitude : longitude // ignore: cast_nullable_to_non_nullable
+as double,altitude: null == altitude ? _self.altitude : altitude // ignore: cast_nullable_to_non_nullable
+as double,time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as DateTime,speed: null == speed ? _self.speed : speed // ignore: cast_nullable_to_non_nullable
+as double,userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+// dart format on

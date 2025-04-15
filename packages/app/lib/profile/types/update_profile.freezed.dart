@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,162 +10,142 @@ part of 'update_profile.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-UpdateProfile _$UpdateProfileFromJson(Map<String, dynamic> json) {
-  return _UpdateProfile.fromJson(json);
-}
 
 /// @nodoc
 mixin _$UpdateProfile {
-  String get username => throw _privateConstructorUsedError;
-  String? get role => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $UpdateProfileCopyWith<UpdateProfile> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get username; String? get role;
+/// Create a copy of UpdateProfile
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UpdateProfileCopyWith<UpdateProfile> get copyWith => _$UpdateProfileCopyWithImpl<UpdateProfile>(this as UpdateProfile, _$identity);
+
+  /// Serializes this UpdateProfile to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdateProfile&&(identical(other.username, username) || other.username == username)&&(identical(other.role, role) || other.role == role));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,username,role);
+
+@override
+String toString() {
+  return 'UpdateProfile(username: $username, role: $role)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $UpdateProfileCopyWith<$Res> {
-  factory $UpdateProfileCopyWith(
-          UpdateProfile value, $Res Function(UpdateProfile) then) =
-      _$UpdateProfileCopyWithImpl<$Res, UpdateProfile>;
-  @useResult
-  $Res call({String username, String? role});
-}
+abstract mixin class $UpdateProfileCopyWith<$Res>  {
+  factory $UpdateProfileCopyWith(UpdateProfile value, $Res Function(UpdateProfile) _then) = _$UpdateProfileCopyWithImpl;
+@useResult
+$Res call({
+ String username, String? role
+});
 
+
+
+
+}
 /// @nodoc
-class _$UpdateProfileCopyWithImpl<$Res, $Val extends UpdateProfile>
+class _$UpdateProfileCopyWithImpl<$Res>
     implements $UpdateProfileCopyWith<$Res> {
-  _$UpdateProfileCopyWithImpl(this._value, this._then);
+  _$UpdateProfileCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final UpdateProfile _self;
+  final $Res Function(UpdateProfile) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? username = null,
-    Object? role = freezed,
-  }) {
-    return _then(_value.copyWith(
-      username: null == username
-          ? _value.username
-          : username // ignore: cast_nullable_to_non_nullable
-              as String,
-      role: freezed == role
-          ? _value.role
-          : role // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
-  }
+/// Create a copy of UpdateProfile
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? username = null,Object? role = freezed,}) {
+  return _then(_self.copyWith(
+username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$UpdateProfileImplCopyWith<$Res>
-    implements $UpdateProfileCopyWith<$Res> {
-  factory _$$UpdateProfileImplCopyWith(
-          _$UpdateProfileImpl value, $Res Function(_$UpdateProfileImpl) then) =
-      __$$UpdateProfileImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String username, String? role});
 }
 
-/// @nodoc
-class __$$UpdateProfileImplCopyWithImpl<$Res>
-    extends _$UpdateProfileCopyWithImpl<$Res, _$UpdateProfileImpl>
-    implements _$$UpdateProfileImplCopyWith<$Res> {
-  __$$UpdateProfileImplCopyWithImpl(
-      _$UpdateProfileImpl _value, $Res Function(_$UpdateProfileImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? username = null,
-    Object? role = freezed,
-  }) {
-    return _then(_$UpdateProfileImpl(
-      username: null == username
-          ? _value.username
-          : username // ignore: cast_nullable_to_non_nullable
-              as String,
-      role: freezed == role
-          ? _value.role
-          : role // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$UpdateProfileImpl implements _UpdateProfile {
-  const _$UpdateProfileImpl({required this.username, this.role});
 
-  factory _$UpdateProfileImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UpdateProfileImplFromJson(json);
+class _UpdateProfile implements UpdateProfile {
+  const _UpdateProfile({required this.username, this.role});
+  factory _UpdateProfile.fromJson(Map<String, dynamic> json) => _$UpdateProfileFromJson(json);
 
-  @override
-  final String username;
-  @override
-  final String? role;
+@override final  String username;
+@override final  String? role;
 
-  @override
-  String toString() {
-    return 'UpdateProfile(username: $username, role: $role)';
-  }
+/// Create a copy of UpdateProfile
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdateProfileCopyWith<_UpdateProfile> get copyWith => __$UpdateProfileCopyWithImpl<_UpdateProfile>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdateProfileImpl &&
-            (identical(other.username, username) ||
-                other.username == username) &&
-            (identical(other.role, role) || other.role == role));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, username, role);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdateProfileImplCopyWith<_$UpdateProfileImpl> get copyWith =>
-      __$$UpdateProfileImplCopyWithImpl<_$UpdateProfileImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$UpdateProfileImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$UpdateProfileToJson(this, );
 }
 
-abstract class _UpdateProfile implements UpdateProfile {
-  const factory _UpdateProfile(
-      {required final String username,
-      final String? role}) = _$UpdateProfileImpl;
-
-  factory _UpdateProfile.fromJson(Map<String, dynamic> json) =
-      _$UpdateProfileImpl.fromJson;
-
-  @override
-  String get username;
-  @override
-  String? get role;
-  @override
-  @JsonKey(ignore: true)
-  _$$UpdateProfileImplCopyWith<_$UpdateProfileImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdateProfile&&(identical(other.username, username) || other.username == username)&&(identical(other.role, role) || other.role == role));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,username,role);
+
+@override
+String toString() {
+  return 'UpdateProfile(username: $username, role: $role)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$UpdateProfileCopyWith<$Res> implements $UpdateProfileCopyWith<$Res> {
+  factory _$UpdateProfileCopyWith(_UpdateProfile value, $Res Function(_UpdateProfile) _then) = __$UpdateProfileCopyWithImpl;
+@override @useResult
+$Res call({
+ String username, String? role
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdateProfileCopyWithImpl<$Res>
+    implements _$UpdateProfileCopyWith<$Res> {
+  __$UpdateProfileCopyWithImpl(this._self, this._then);
+
+  final _UpdateProfile _self;
+  final $Res Function(_UpdateProfile) _then;
+
+/// Create a copy of UpdateProfile
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? username = null,Object? role = freezed,}) {
+  return _then(_UpdateProfile(
+username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+// dart format on

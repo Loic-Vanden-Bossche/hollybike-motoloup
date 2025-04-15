@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,273 +10,157 @@ part of 'event_expense.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-EventExpense _$EventExpenseFromJson(Map<String, dynamic> json) {
-  return _EventExpense.fromJson(json);
-}
 
 /// @nodoc
 mixin _$EventExpense {
-  int get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
-  String? get description => throw _privateConstructorUsedError;
-  DateTime get date => throw _privateConstructorUsedError;
-  int get amount => throw _privateConstructorUsedError;
-  String? get proof => throw _privateConstructorUsedError;
-  @JsonKey(name: 'proof_key')
-  String? get proofKey => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $EventExpenseCopyWith<EventExpense> get copyWith =>
-      throw _privateConstructorUsedError;
+ int get id; String get name; String? get description; DateTime get date; int get amount; String? get proof;@JsonKey(name: 'proof_key') String? get proofKey;
+/// Create a copy of EventExpense
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$EventExpenseCopyWith<EventExpense> get copyWith => _$EventExpenseCopyWithImpl<EventExpense>(this as EventExpense, _$identity);
+
+  /// Serializes this EventExpense to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventExpense&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.proof, proof) || other.proof == proof)&&(identical(other.proofKey, proofKey) || other.proofKey == proofKey));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,description,date,amount,proof,proofKey);
+
+@override
+String toString() {
+  return 'EventExpense(id: $id, name: $name, description: $description, date: $date, amount: $amount, proof: $proof, proofKey: $proofKey)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $EventExpenseCopyWith<$Res> {
-  factory $EventExpenseCopyWith(
-          EventExpense value, $Res Function(EventExpense) then) =
-      _$EventExpenseCopyWithImpl<$Res, EventExpense>;
-  @useResult
-  $Res call(
-      {int id,
-      String name,
-      String? description,
-      DateTime date,
-      int amount,
-      String? proof,
-      @JsonKey(name: 'proof_key') String? proofKey});
-}
+abstract mixin class $EventExpenseCopyWith<$Res>  {
+  factory $EventExpenseCopyWith(EventExpense value, $Res Function(EventExpense) _then) = _$EventExpenseCopyWithImpl;
+@useResult
+$Res call({
+ int id, String name, String? description, DateTime date, int amount, String? proof,@JsonKey(name: 'proof_key') String? proofKey
+});
 
+
+
+
+}
 /// @nodoc
-class _$EventExpenseCopyWithImpl<$Res, $Val extends EventExpense>
+class _$EventExpenseCopyWithImpl<$Res>
     implements $EventExpenseCopyWith<$Res> {
-  _$EventExpenseCopyWithImpl(this._value, this._then);
+  _$EventExpenseCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final EventExpense _self;
+  final $Res Function(EventExpense) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? description = freezed,
-    Object? date = null,
-    Object? amount = null,
-    Object? proof = freezed,
-    Object? proofKey = freezed,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: freezed == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String?,
-      date: null == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      amount: null == amount
-          ? _value.amount
-          : amount // ignore: cast_nullable_to_non_nullable
-              as int,
-      proof: freezed == proof
-          ? _value.proof
-          : proof // ignore: cast_nullable_to_non_nullable
-              as String?,
-      proofKey: freezed == proofKey
-          ? _value.proofKey
-          : proofKey // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
-  }
+/// Create a copy of EventExpense
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? description = freezed,Object? date = null,Object? amount = null,Object? proof = freezed,Object? proofKey = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
+as DateTime,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,proof: freezed == proof ? _self.proof : proof // ignore: cast_nullable_to_non_nullable
+as String?,proofKey: freezed == proofKey ? _self.proofKey : proofKey // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$EventExpenseImplCopyWith<$Res>
-    implements $EventExpenseCopyWith<$Res> {
-  factory _$$EventExpenseImplCopyWith(
-          _$EventExpenseImpl value, $Res Function(_$EventExpenseImpl) then) =
-      __$$EventExpenseImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {int id,
-      String name,
-      String? description,
-      DateTime date,
-      int amount,
-      String? proof,
-      @JsonKey(name: 'proof_key') String? proofKey});
 }
 
-/// @nodoc
-class __$$EventExpenseImplCopyWithImpl<$Res>
-    extends _$EventExpenseCopyWithImpl<$Res, _$EventExpenseImpl>
-    implements _$$EventExpenseImplCopyWith<$Res> {
-  __$$EventExpenseImplCopyWithImpl(
-      _$EventExpenseImpl _value, $Res Function(_$EventExpenseImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? name = null,
-    Object? description = freezed,
-    Object? date = null,
-    Object? amount = null,
-    Object? proof = freezed,
-    Object? proofKey = freezed,
-  }) {
-    return _then(_$EventExpenseImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-      description: freezed == description
-          ? _value.description
-          : description // ignore: cast_nullable_to_non_nullable
-              as String?,
-      date: null == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      amount: null == amount
-          ? _value.amount
-          : amount // ignore: cast_nullable_to_non_nullable
-              as int,
-      proof: freezed == proof
-          ? _value.proof
-          : proof // ignore: cast_nullable_to_non_nullable
-              as String?,
-      proofKey: freezed == proofKey
-          ? _value.proofKey
-          : proofKey // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$EventExpenseImpl implements _EventExpense {
-  const _$EventExpenseImpl(
-      {required this.id,
-      required this.name,
-      this.description,
-      required this.date,
-      required this.amount,
-      this.proof,
-      @JsonKey(name: 'proof_key') this.proofKey});
 
-  factory _$EventExpenseImpl.fromJson(Map<String, dynamic> json) =>
-      _$$EventExpenseImplFromJson(json);
+class _EventExpense implements EventExpense {
+  const _EventExpense({required this.id, required this.name, this.description, required this.date, required this.amount, this.proof, @JsonKey(name: 'proof_key') this.proofKey});
+  factory _EventExpense.fromJson(Map<String, dynamic> json) => _$EventExpenseFromJson(json);
 
-  @override
-  final int id;
-  @override
-  final String name;
-  @override
-  final String? description;
-  @override
-  final DateTime date;
-  @override
-  final int amount;
-  @override
-  final String? proof;
-  @override
-  @JsonKey(name: 'proof_key')
-  final String? proofKey;
+@override final  int id;
+@override final  String name;
+@override final  String? description;
+@override final  DateTime date;
+@override final  int amount;
+@override final  String? proof;
+@override@JsonKey(name: 'proof_key') final  String? proofKey;
 
-  @override
-  String toString() {
-    return 'EventExpense(id: $id, name: $name, description: $description, date: $date, amount: $amount, proof: $proof, proofKey: $proofKey)';
-  }
+/// Create a copy of EventExpense
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$EventExpenseCopyWith<_EventExpense> get copyWith => __$EventExpenseCopyWithImpl<_EventExpense>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$EventExpenseImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name) &&
-            (identical(other.description, description) ||
-                other.description == description) &&
-            (identical(other.date, date) || other.date == date) &&
-            (identical(other.amount, amount) || other.amount == amount) &&
-            (identical(other.proof, proof) || other.proof == proof) &&
-            (identical(other.proofKey, proofKey) ||
-                other.proofKey == proofKey));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, id, name, description, date, amount, proof, proofKey);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$EventExpenseImplCopyWith<_$EventExpenseImpl> get copyWith =>
-      __$$EventExpenseImplCopyWithImpl<_$EventExpenseImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$EventExpenseImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$EventExpenseToJson(this, );
 }
 
-abstract class _EventExpense implements EventExpense {
-  const factory _EventExpense(
-      {required final int id,
-      required final String name,
-      final String? description,
-      required final DateTime date,
-      required final int amount,
-      final String? proof,
-      @JsonKey(name: 'proof_key') final String? proofKey}) = _$EventExpenseImpl;
-
-  factory _EventExpense.fromJson(Map<String, dynamic> json) =
-      _$EventExpenseImpl.fromJson;
-
-  @override
-  int get id;
-  @override
-  String get name;
-  @override
-  String? get description;
-  @override
-  DateTime get date;
-  @override
-  int get amount;
-  @override
-  String? get proof;
-  @override
-  @JsonKey(name: 'proof_key')
-  String? get proofKey;
-  @override
-  @JsonKey(ignore: true)
-  _$$EventExpenseImplCopyWith<_$EventExpenseImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventExpense&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.description, description) || other.description == description)&&(identical(other.date, date) || other.date == date)&&(identical(other.amount, amount) || other.amount == amount)&&(identical(other.proof, proof) || other.proof == proof)&&(identical(other.proofKey, proofKey) || other.proofKey == proofKey));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,name,description,date,amount,proof,proofKey);
+
+@override
+String toString() {
+  return 'EventExpense(id: $id, name: $name, description: $description, date: $date, amount: $amount, proof: $proof, proofKey: $proofKey)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$EventExpenseCopyWith<$Res> implements $EventExpenseCopyWith<$Res> {
+  factory _$EventExpenseCopyWith(_EventExpense value, $Res Function(_EventExpense) _then) = __$EventExpenseCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String name, String? description, DateTime date, int amount, String? proof,@JsonKey(name: 'proof_key') String? proofKey
+});
+
+
+
+
+}
+/// @nodoc
+class __$EventExpenseCopyWithImpl<$Res>
+    implements _$EventExpenseCopyWith<$Res> {
+  __$EventExpenseCopyWithImpl(this._self, this._then);
+
+  final _EventExpense _self;
+  final $Res Function(_EventExpense) _then;
+
+/// Create a copy of EventExpense
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? description = freezed,Object? date = null,Object? amount = null,Object? proof = freezed,Object? proofKey = freezed,}) {
+  return _then(_EventExpense(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
+as String?,date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
+as DateTime,amount: null == amount ? _self.amount : amount // ignore: cast_nullable_to_non_nullable
+as int,proof: freezed == proof ? _self.proof : proof // ignore: cast_nullable_to_non_nullable
+as String?,proofKey: freezed == proofKey ? _self.proofKey : proofKey // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+// dart format on

@@ -10,7 +10,7 @@ part 'update_password.freezed.dart';
 part 'update_password.g.dart';
 
 @freezed
-class UpdatePassword with _$UpdatePassword {
+sealed class UpdatePassword with _$UpdatePassword {
   const factory UpdatePassword({
     @JsonKey(name: 'old_password') required String oldPassword,
     @JsonKey(name: 'new_password') required String newPassword,

@@ -12,7 +12,7 @@ part 'user_journey.freezed.dart';
 part 'user_journey.g.dart';
 
 @freezed
-class UserJourney with _$UserJourney {
+sealed class UserJourney with _$UserJourney {
   const UserJourney._();
 
   const factory UserJourney({

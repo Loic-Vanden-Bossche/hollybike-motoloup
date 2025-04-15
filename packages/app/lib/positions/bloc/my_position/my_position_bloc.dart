@@ -7,7 +7,7 @@ import 'dart:developer';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:background_locator_2/background_locator.dart';
+// import 'package:background_locator_2/background_locator.dart';
 import 'package:bloc/bloc.dart';
 import 'package:hollybike/event/services/event/event_repository.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_state.dart';
@@ -58,32 +58,32 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     final prefs = await SharedPreferences.getInstance();
     final eventId = prefs.getInt('tracking_event_id');
 
-    final isRunning = await BackgroundLocator.isServiceRunning();
-
-    emit(MyPositionInitialized(state.copyWith(
-      isRunning: isRunning,
-      eventId: isRunning ? eventId : null,
-    )));
-
-    posCount = 0;
-
-    port.listen(
-      (_) {
-        final eventId = state.eventId;
-        if (eventId == null) return;
-
-        posCount++;
-
-        if (posCount >= 2) {
-          eventRepository.onUserPositionSent(eventId);
-        }
-      },
-    );
+    // final isRunning = await BackgroundLocator.isServiceRunning();
+    //
+    // emit(MyPositionInitialized(state.copyWith(
+    //   isRunning: isRunning,
+    //   eventId: isRunning ? eventId : null,
+    // )));
+    //
+    // posCount = 0;
+    //
+    // port.listen(
+    //   (_) {
+    //     final eventId = state.eventId;
+    //     if (eventId == null) return;
+    //
+    //     posCount++;
+    //
+    //     if (posCount >= 2) {
+    //       eventRepository.onUserPositionSent(eventId);
+    //     }
+    //   },
+    // );
   }
 
   Future<void> initPlatformState() async {
     log('Initializing Background Locator...');
-    await BackgroundLocator.initialize();
+    // await BackgroundLocator.initialize();
     log('Background Locator initialization done');
   }
 
@@ -98,7 +98,7 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     await prefs.setInt('tracking_event_id', event.eventId);
 
     if (state.isRunning) {
-      await BackgroundLocator.unRegisterLocationUpdate();
+      // await BackgroundLocator.unRegisterLocationUpdate();
     }
 
     try {
@@ -115,15 +115,15 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
       return;
     }
 
-    final running = await BackgroundLocator.isServiceRunning();
-
-    posCount = 0;
-
-    emit(MyPositionStarted(state.copyWith(
-      isRunning: running,
-      status: running ? MyPositionStatus.success : MyPositionStatus.error,
-      eventId: event.eventId,
-    )));
+    // final running = await BackgroundLocator.isServiceRunning();
+    //
+    // posCount = 0;
+    //
+    // emit(MyPositionStarted(state.copyWith(
+    //   isRunning: running,
+    //   status: running ? MyPositionStatus.success : MyPositionStatus.error,
+    //   eventId: event.eventId,
+    // )));
   }
 
   void _onDisableSendPositions(
@@ -132,15 +132,15 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
   ) async {
     emit(MyPositionLoading(state));
 
-    await BackgroundLocator.unRegisterLocationUpdate();
-
-    final running = await BackgroundLocator.isServiceRunning();
-
-    posCount = 0;
-
-    emit(MyPositionStopped(state.copyWith(
-      isRunning: running,
-      status: running ? MyPositionStatus.error : MyPositionStatus.success,
-    )));
+    // await BackgroundLocator.unRegisterLocationUpdate();
+    //
+    // final running = await BackgroundLocator.isServiceRunning();
+    //
+    // posCount = 0;
+    //
+    // emit(MyPositionStopped(state.copyWith(
+    //   isRunning: running,
+    //   status: running ? MyPositionStatus.error : MyPositionStatus.success,
+    // )));
   }
 }

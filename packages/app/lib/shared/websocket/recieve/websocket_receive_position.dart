@@ -11,7 +11,7 @@ part 'websocket_receive_position.freezed.dart';
 part 'websocket_receive_position.g.dart';
 
 @freezed
-class WebsocketReceivePosition
+sealed class WebsocketReceivePosition
     with _$WebsocketReceivePosition
     implements WebsocketBody {
   const factory WebsocketReceivePosition({

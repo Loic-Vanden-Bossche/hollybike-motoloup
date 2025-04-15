@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,163 +10,142 @@ part of 'websocket_error.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-WebsocketError _$WebsocketErrorFromJson(Map<String, dynamic> json) {
-  return _WebsocketError.fromJson(json);
-}
 
 /// @nodoc
 mixin _$WebsocketError {
-  String get message => throw _privateConstructorUsedError;
-  String get type => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $WebsocketErrorCopyWith<WebsocketError> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get message; String get type;
+/// Create a copy of WebsocketError
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WebsocketErrorCopyWith<WebsocketError> get copyWith => _$WebsocketErrorCopyWithImpl<WebsocketError>(this as WebsocketError, _$identity);
+
+  /// Serializes this WebsocketError to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WebsocketError&&(identical(other.message, message) || other.message == message)&&(identical(other.type, type) || other.type == type));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,message,type);
+
+@override
+String toString() {
+  return 'WebsocketError(message: $message, type: $type)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $WebsocketErrorCopyWith<$Res> {
-  factory $WebsocketErrorCopyWith(
-          WebsocketError value, $Res Function(WebsocketError) then) =
-      _$WebsocketErrorCopyWithImpl<$Res, WebsocketError>;
-  @useResult
-  $Res call({String message, String type});
-}
+abstract mixin class $WebsocketErrorCopyWith<$Res>  {
+  factory $WebsocketErrorCopyWith(WebsocketError value, $Res Function(WebsocketError) _then) = _$WebsocketErrorCopyWithImpl;
+@useResult
+$Res call({
+ String message, String type
+});
 
+
+
+
+}
 /// @nodoc
-class _$WebsocketErrorCopyWithImpl<$Res, $Val extends WebsocketError>
+class _$WebsocketErrorCopyWithImpl<$Res>
     implements $WebsocketErrorCopyWith<$Res> {
-  _$WebsocketErrorCopyWithImpl(this._value, this._then);
+  _$WebsocketErrorCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final WebsocketError _self;
+  final $Res Function(WebsocketError) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? message = null,
-    Object? type = null,
-  }) {
-    return _then(_value.copyWith(
-      message: null == message
-          ? _value.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
-  }
+/// Create a copy of WebsocketError
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? message = null,Object? type = null,}) {
+  return _then(_self.copyWith(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$WebsocketErrorImplCopyWith<$Res>
-    implements $WebsocketErrorCopyWith<$Res> {
-  factory _$$WebsocketErrorImplCopyWith(_$WebsocketErrorImpl value,
-          $Res Function(_$WebsocketErrorImpl) then) =
-      __$$WebsocketErrorImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String message, String type});
 }
 
-/// @nodoc
-class __$$WebsocketErrorImplCopyWithImpl<$Res>
-    extends _$WebsocketErrorCopyWithImpl<$Res, _$WebsocketErrorImpl>
-    implements _$$WebsocketErrorImplCopyWith<$Res> {
-  __$$WebsocketErrorImplCopyWithImpl(
-      _$WebsocketErrorImpl _value, $Res Function(_$WebsocketErrorImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? message = null,
-    Object? type = null,
-  }) {
-    return _then(_$WebsocketErrorImpl(
-      message: null == message
-          ? _value.message
-          : message // ignore: cast_nullable_to_non_nullable
-              as String,
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$WebsocketErrorImpl implements _WebsocketError {
-  const _$WebsocketErrorImpl({required this.message, this.type = "subscribed"});
 
-  factory _$WebsocketErrorImpl.fromJson(Map<String, dynamic> json) =>
-      _$$WebsocketErrorImplFromJson(json);
+class _WebsocketError implements WebsocketError {
+  const _WebsocketError({required this.message, this.type = "subscribed"});
+  factory _WebsocketError.fromJson(Map<String, dynamic> json) => _$WebsocketErrorFromJson(json);
 
-  @override
-  final String message;
-  @override
-  @JsonKey()
-  final String type;
+@override final  String message;
+@override@JsonKey() final  String type;
 
-  @override
-  String toString() {
-    return 'WebsocketError(message: $message, type: $type)';
-  }
+/// Create a copy of WebsocketError
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WebsocketErrorCopyWith<_WebsocketError> get copyWith => __$WebsocketErrorCopyWithImpl<_WebsocketError>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WebsocketErrorImpl &&
-            (identical(other.message, message) || other.message == message) &&
-            (identical(other.type, type) || other.type == type));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, message, type);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WebsocketErrorImplCopyWith<_$WebsocketErrorImpl> get copyWith =>
-      __$$WebsocketErrorImplCopyWithImpl<_$WebsocketErrorImpl>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$WebsocketErrorImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$WebsocketErrorToJson(this, );
 }
 
-abstract class _WebsocketError implements WebsocketError {
-  const factory _WebsocketError(
-      {required final String message,
-      final String type}) = _$WebsocketErrorImpl;
-
-  factory _WebsocketError.fromJson(Map<String, dynamic> json) =
-      _$WebsocketErrorImpl.fromJson;
-
-  @override
-  String get message;
-  @override
-  String get type;
-  @override
-  @JsonKey(ignore: true)
-  _$$WebsocketErrorImplCopyWith<_$WebsocketErrorImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WebsocketError&&(identical(other.message, message) || other.message == message)&&(identical(other.type, type) || other.type == type));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,message,type);
+
+@override
+String toString() {
+  return 'WebsocketError(message: $message, type: $type)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WebsocketErrorCopyWith<$Res> implements $WebsocketErrorCopyWith<$Res> {
+  factory _$WebsocketErrorCopyWith(_WebsocketError value, $Res Function(_WebsocketError) _then) = __$WebsocketErrorCopyWithImpl;
+@override @useResult
+$Res call({
+ String message, String type
+});
+
+
+
+
+}
+/// @nodoc
+class __$WebsocketErrorCopyWithImpl<$Res>
+    implements _$WebsocketErrorCopyWith<$Res> {
+  __$WebsocketErrorCopyWithImpl(this._self, this._then);
+
+  final _WebsocketError _self;
+  final $Res Function(_WebsocketError) _then;
+
+/// Create a copy of WebsocketError
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? message = null,Object? type = null,}) {
+  return _then(_WebsocketError(
+message: null == message ? _self.message : message // ignore: cast_nullable_to_non_nullable
+as String,type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+// dart format on

@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,168 +10,142 @@ part of 'websocket_message.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-WebsocketMessage<T> _$WebsocketMessageFromJson<T extends WebsocketBody>(
-    Map<String, dynamic> json, T Function(Object?) fromJsonT) {
-  return _WebsocketMessage<T>.fromJson(json, fromJsonT);
-}
 
 /// @nodoc
 mixin _$WebsocketMessage<T extends WebsocketBody> {
-  String get channel => throw _privateConstructorUsedError;
-  T get data => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson(Object? Function(T) toJsonT) =>
-      throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $WebsocketMessageCopyWith<T, WebsocketMessage<T>> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get channel; T get data;
+/// Create a copy of WebsocketMessage
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WebsocketMessageCopyWith<T, WebsocketMessage<T>> get copyWith => _$WebsocketMessageCopyWithImpl<T, WebsocketMessage<T>>(this as WebsocketMessage<T>, _$identity);
+
+  /// Serializes this WebsocketMessage to a JSON map.
+  Map<String, dynamic> toJson(Object? Function(T) toJsonT);
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WebsocketMessage<T>&&(identical(other.channel, channel) || other.channel == channel)&&const DeepCollectionEquality().equals(other.data, data));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,channel,const DeepCollectionEquality().hash(data));
+
+@override
+String toString() {
+  return 'WebsocketMessage<$T>(channel: $channel, data: $data)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $WebsocketMessageCopyWith<T extends WebsocketBody, $Res> {
-  factory $WebsocketMessageCopyWith(
-          WebsocketMessage<T> value, $Res Function(WebsocketMessage<T>) then) =
-      _$WebsocketMessageCopyWithImpl<T, $Res, WebsocketMessage<T>>;
-  @useResult
-  $Res call({String channel, T data});
-}
+abstract mixin class $WebsocketMessageCopyWith<T extends WebsocketBody,$Res>  {
+  factory $WebsocketMessageCopyWith(WebsocketMessage<T> value, $Res Function(WebsocketMessage<T>) _then) = _$WebsocketMessageCopyWithImpl;
+@useResult
+$Res call({
+ String channel, T data
+});
 
+
+
+
+}
 /// @nodoc
-class _$WebsocketMessageCopyWithImpl<T extends WebsocketBody, $Res,
-        $Val extends WebsocketMessage<T>>
+class _$WebsocketMessageCopyWithImpl<T extends WebsocketBody,$Res>
     implements $WebsocketMessageCopyWith<T, $Res> {
-  _$WebsocketMessageCopyWithImpl(this._value, this._then);
+  _$WebsocketMessageCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final WebsocketMessage<T> _self;
+  final $Res Function(WebsocketMessage<T>) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? channel = null,
-    Object? data = null,
-  }) {
-    return _then(_value.copyWith(
-      channel: null == channel
-          ? _value.channel
-          : channel // ignore: cast_nullable_to_non_nullable
-              as String,
-      data: null == data
-          ? _value.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as T,
-    ) as $Val);
-  }
+/// Create a copy of WebsocketMessage
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? channel = null,Object? data = null,}) {
+  return _then(_self.copyWith(
+channel: null == channel ? _self.channel : channel // ignore: cast_nullable_to_non_nullable
+as String,data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
+as T,
+  ));
 }
 
-/// @nodoc
-abstract class _$$WebsocketMessageImplCopyWith<T extends WebsocketBody, $Res>
-    implements $WebsocketMessageCopyWith<T, $Res> {
-  factory _$$WebsocketMessageImplCopyWith(_$WebsocketMessageImpl<T> value,
-          $Res Function(_$WebsocketMessageImpl<T>) then) =
-      __$$WebsocketMessageImplCopyWithImpl<T, $Res>;
-  @override
-  @useResult
-  $Res call({String channel, T data});
 }
 
-/// @nodoc
-class __$$WebsocketMessageImplCopyWithImpl<T extends WebsocketBody, $Res>
-    extends _$WebsocketMessageCopyWithImpl<T, $Res, _$WebsocketMessageImpl<T>>
-    implements _$$WebsocketMessageImplCopyWith<T, $Res> {
-  __$$WebsocketMessageImplCopyWithImpl(_$WebsocketMessageImpl<T> _value,
-      $Res Function(_$WebsocketMessageImpl<T>) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? channel = null,
-    Object? data = null,
-  }) {
-    return _then(_$WebsocketMessageImpl<T>(
-      channel: null == channel
-          ? _value.channel
-          : channel // ignore: cast_nullable_to_non_nullable
-              as String,
-      data: null == data
-          ? _value.data
-          : data // ignore: cast_nullable_to_non_nullable
-              as T,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable(genericArgumentFactories: true)
-class _$WebsocketMessageImpl<T extends WebsocketBody>
-    implements _WebsocketMessage<T> {
-  const _$WebsocketMessageImpl({required this.channel, required this.data});
 
-  factory _$WebsocketMessageImpl.fromJson(
-          Map<String, dynamic> json, T Function(Object?) fromJsonT) =>
-      _$$WebsocketMessageImplFromJson(json, fromJsonT);
+class _WebsocketMessage<T extends WebsocketBody> implements WebsocketMessage<T> {
+  const _WebsocketMessage({required this.channel, required this.data});
+  factory _WebsocketMessage.fromJson(Map<String, dynamic> json,T Function(Object?) fromJsonT) => _$WebsocketMessageFromJson(json,fromJsonT);
 
-  @override
-  final String channel;
-  @override
-  final T data;
+@override final  String channel;
+@override final  T data;
 
-  @override
-  String toString() {
-    return 'WebsocketMessage<$T>(channel: $channel, data: $data)';
-  }
+/// Create a copy of WebsocketMessage
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WebsocketMessageCopyWith<T, _WebsocketMessage<T>> get copyWith => __$WebsocketMessageCopyWithImpl<T, _WebsocketMessage<T>>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WebsocketMessageImpl<T> &&
-            (identical(other.channel, channel) || other.channel == channel) &&
-            const DeepCollectionEquality().equals(other.data, data));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, channel, const DeepCollectionEquality().hash(data));
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WebsocketMessageImplCopyWith<T, _$WebsocketMessageImpl<T>> get copyWith =>
-      __$$WebsocketMessageImplCopyWithImpl<T, _$WebsocketMessageImpl<T>>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson(Object? Function(T) toJsonT) {
-    return _$$WebsocketMessageImplToJson<T>(this, toJsonT);
-  }
+@override
+Map<String, dynamic> toJson(Object? Function(T) toJsonT) {
+  return _$WebsocketMessageToJson<T>(this, toJsonT);
 }
 
-abstract class _WebsocketMessage<T extends WebsocketBody>
-    implements WebsocketMessage<T> {
-  const factory _WebsocketMessage(
-      {required final String channel,
-      required final T data}) = _$WebsocketMessageImpl<T>;
-
-  factory _WebsocketMessage.fromJson(
-          Map<String, dynamic> json, T Function(Object?) fromJsonT) =
-      _$WebsocketMessageImpl<T>.fromJson;
-
-  @override
-  String get channel;
-  @override
-  T get data;
-  @override
-  @JsonKey(ignore: true)
-  _$$WebsocketMessageImplCopyWith<T, _$WebsocketMessageImpl<T>> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WebsocketMessage<T>&&(identical(other.channel, channel) || other.channel == channel)&&const DeepCollectionEquality().equals(other.data, data));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,channel,const DeepCollectionEquality().hash(data));
+
+@override
+String toString() {
+  return 'WebsocketMessage<$T>(channel: $channel, data: $data)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WebsocketMessageCopyWith<T extends WebsocketBody,$Res> implements $WebsocketMessageCopyWith<T, $Res> {
+  factory _$WebsocketMessageCopyWith(_WebsocketMessage<T> value, $Res Function(_WebsocketMessage<T>) _then) = __$WebsocketMessageCopyWithImpl;
+@override @useResult
+$Res call({
+ String channel, T data
+});
+
+
+
+
+}
+/// @nodoc
+class __$WebsocketMessageCopyWithImpl<T extends WebsocketBody,$Res>
+    implements _$WebsocketMessageCopyWith<T, $Res> {
+  __$WebsocketMessageCopyWithImpl(this._self, this._then);
+
+  final _WebsocketMessage<T> _self;
+  final $Res Function(_WebsocketMessage<T>) _then;
+
+/// Create a copy of WebsocketMessage
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? channel = null,Object? data = null,}) {
+  return _then(_WebsocketMessage<T>(
+channel: null == channel ? _self.channel : channel // ignore: cast_nullable_to_non_nullable
+as String,data: null == data ? _self.data : data // ignore: cast_nullable_to_non_nullable
+as T,
+  ));
+}
+
+
+}
+
+// dart format on

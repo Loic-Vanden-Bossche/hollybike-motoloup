@@ -13,7 +13,7 @@ import 'package:hollybike/image/widgets/image_picker/image_picker_thumbnail.dart
 import 'package:hollybike/shared/utils/permissions.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_gallery/photo_gallery.dart';
+// import 'package:photo_gallery/photo_gallery.dart';
 
 import 'image_picker_camera_button.dart';
 
@@ -113,23 +113,23 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
   }
 
   void _loadImages() {
-    PhotoGallery.listAlbums(
-      mediumType: MediumType.image,
-      newest: true,
-      hideIfEmpty: true,
-    ).then((albums) async {
-      final album = albums.firstOrNull;
-
-      if (album != null) {
-        final mediaPage = await album.listMedia(
-          take: 10,
-        );
-
-        setState(() {
-          mediumIdList.addAll(mediaPage.items.map((e) => e.id));
-        });
-      }
-    });
+    // PhotoGallery.listAlbums(
+    //   mediumType: MediumType.image,
+    //   newest: true,
+    //   hideIfEmpty: true,
+    // ).then((albums) async {
+    //   final album = albums.firstOrNull;
+    //
+    //   if (album != null) {
+    //     final mediaPage = await album.listMedia(
+    //       take: 10,
+    //     );
+    //
+    //     setState(() {
+    //       mediumIdList.addAll(mediaPage.items.map((e) => e.id));
+    //     });
+    //   }
+    // });
   }
 
   Future<bool> _checkImagesPermission() async {

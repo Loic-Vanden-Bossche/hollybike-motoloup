@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,202 +10,145 @@ part of 'update_password.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-UpdatePassword _$UpdatePasswordFromJson(Map<String, dynamic> json) {
-  return _UpdatePassword.fromJson(json);
-}
 
 /// @nodoc
 mixin _$UpdatePassword {
-  @JsonKey(name: 'old_password')
-  String get oldPassword => throw _privateConstructorUsedError;
-  @JsonKey(name: 'new_password')
-  String get newPassword => throw _privateConstructorUsedError;
-  @JsonKey(name: 'new_password_again')
-  String get newPasswordAgain => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $UpdatePasswordCopyWith<UpdatePassword> get copyWith =>
-      throw _privateConstructorUsedError;
+@JsonKey(name: 'old_password') String get oldPassword;@JsonKey(name: 'new_password') String get newPassword;@JsonKey(name: 'new_password_again') String get newPasswordAgain;
+/// Create a copy of UpdatePassword
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$UpdatePasswordCopyWith<UpdatePassword> get copyWith => _$UpdatePasswordCopyWithImpl<UpdatePassword>(this as UpdatePassword, _$identity);
+
+  /// Serializes this UpdatePassword to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UpdatePassword&&(identical(other.oldPassword, oldPassword) || other.oldPassword == oldPassword)&&(identical(other.newPassword, newPassword) || other.newPassword == newPassword)&&(identical(other.newPasswordAgain, newPasswordAgain) || other.newPasswordAgain == newPasswordAgain));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,oldPassword,newPassword,newPasswordAgain);
+
+@override
+String toString() {
+  return 'UpdatePassword(oldPassword: $oldPassword, newPassword: $newPassword, newPasswordAgain: $newPasswordAgain)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $UpdatePasswordCopyWith<$Res> {
-  factory $UpdatePasswordCopyWith(
-          UpdatePassword value, $Res Function(UpdatePassword) then) =
-      _$UpdatePasswordCopyWithImpl<$Res, UpdatePassword>;
-  @useResult
-  $Res call(
-      {@JsonKey(name: 'old_password') String oldPassword,
-      @JsonKey(name: 'new_password') String newPassword,
-      @JsonKey(name: 'new_password_again') String newPasswordAgain});
-}
+abstract mixin class $UpdatePasswordCopyWith<$Res>  {
+  factory $UpdatePasswordCopyWith(UpdatePassword value, $Res Function(UpdatePassword) _then) = _$UpdatePasswordCopyWithImpl;
+@useResult
+$Res call({
+@JsonKey(name: 'old_password') String oldPassword,@JsonKey(name: 'new_password') String newPassword,@JsonKey(name: 'new_password_again') String newPasswordAgain
+});
 
+
+
+
+}
 /// @nodoc
-class _$UpdatePasswordCopyWithImpl<$Res, $Val extends UpdatePassword>
+class _$UpdatePasswordCopyWithImpl<$Res>
     implements $UpdatePasswordCopyWith<$Res> {
-  _$UpdatePasswordCopyWithImpl(this._value, this._then);
+  _$UpdatePasswordCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final UpdatePassword _self;
+  final $Res Function(UpdatePassword) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? oldPassword = null,
-    Object? newPassword = null,
-    Object? newPasswordAgain = null,
-  }) {
-    return _then(_value.copyWith(
-      oldPassword: null == oldPassword
-          ? _value.oldPassword
-          : oldPassword // ignore: cast_nullable_to_non_nullable
-              as String,
-      newPassword: null == newPassword
-          ? _value.newPassword
-          : newPassword // ignore: cast_nullable_to_non_nullable
-              as String,
-      newPasswordAgain: null == newPasswordAgain
-          ? _value.newPasswordAgain
-          : newPasswordAgain // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
-  }
+/// Create a copy of UpdatePassword
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? oldPassword = null,Object? newPassword = null,Object? newPasswordAgain = null,}) {
+  return _then(_self.copyWith(
+oldPassword: null == oldPassword ? _self.oldPassword : oldPassword // ignore: cast_nullable_to_non_nullable
+as String,newPassword: null == newPassword ? _self.newPassword : newPassword // ignore: cast_nullable_to_non_nullable
+as String,newPasswordAgain: null == newPasswordAgain ? _self.newPasswordAgain : newPasswordAgain // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$UpdatePasswordImplCopyWith<$Res>
-    implements $UpdatePasswordCopyWith<$Res> {
-  factory _$$UpdatePasswordImplCopyWith(_$UpdatePasswordImpl value,
-          $Res Function(_$UpdatePasswordImpl) then) =
-      __$$UpdatePasswordImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {@JsonKey(name: 'old_password') String oldPassword,
-      @JsonKey(name: 'new_password') String newPassword,
-      @JsonKey(name: 'new_password_again') String newPasswordAgain});
 }
 
-/// @nodoc
-class __$$UpdatePasswordImplCopyWithImpl<$Res>
-    extends _$UpdatePasswordCopyWithImpl<$Res, _$UpdatePasswordImpl>
-    implements _$$UpdatePasswordImplCopyWith<$Res> {
-  __$$UpdatePasswordImplCopyWithImpl(
-      _$UpdatePasswordImpl _value, $Res Function(_$UpdatePasswordImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? oldPassword = null,
-    Object? newPassword = null,
-    Object? newPasswordAgain = null,
-  }) {
-    return _then(_$UpdatePasswordImpl(
-      oldPassword: null == oldPassword
-          ? _value.oldPassword
-          : oldPassword // ignore: cast_nullable_to_non_nullable
-              as String,
-      newPassword: null == newPassword
-          ? _value.newPassword
-          : newPassword // ignore: cast_nullable_to_non_nullable
-              as String,
-      newPasswordAgain: null == newPasswordAgain
-          ? _value.newPasswordAgain
-          : newPasswordAgain // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$UpdatePasswordImpl implements _UpdatePassword {
-  const _$UpdatePasswordImpl(
-      {@JsonKey(name: 'old_password') required this.oldPassword,
-      @JsonKey(name: 'new_password') required this.newPassword,
-      @JsonKey(name: 'new_password_again') required this.newPasswordAgain});
 
-  factory _$UpdatePasswordImpl.fromJson(Map<String, dynamic> json) =>
-      _$$UpdatePasswordImplFromJson(json);
+class _UpdatePassword implements UpdatePassword {
+  const _UpdatePassword({@JsonKey(name: 'old_password') required this.oldPassword, @JsonKey(name: 'new_password') required this.newPassword, @JsonKey(name: 'new_password_again') required this.newPasswordAgain});
+  factory _UpdatePassword.fromJson(Map<String, dynamic> json) => _$UpdatePasswordFromJson(json);
 
-  @override
-  @JsonKey(name: 'old_password')
-  final String oldPassword;
-  @override
-  @JsonKey(name: 'new_password')
-  final String newPassword;
-  @override
-  @JsonKey(name: 'new_password_again')
-  final String newPasswordAgain;
+@override@JsonKey(name: 'old_password') final  String oldPassword;
+@override@JsonKey(name: 'new_password') final  String newPassword;
+@override@JsonKey(name: 'new_password_again') final  String newPasswordAgain;
 
-  @override
-  String toString() {
-    return 'UpdatePassword(oldPassword: $oldPassword, newPassword: $newPassword, newPasswordAgain: $newPasswordAgain)';
-  }
+/// Create a copy of UpdatePassword
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$UpdatePasswordCopyWith<_UpdatePassword> get copyWith => __$UpdatePasswordCopyWithImpl<_UpdatePassword>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$UpdatePasswordImpl &&
-            (identical(other.oldPassword, oldPassword) ||
-                other.oldPassword == oldPassword) &&
-            (identical(other.newPassword, newPassword) ||
-                other.newPassword == newPassword) &&
-            (identical(other.newPasswordAgain, newPasswordAgain) ||
-                other.newPasswordAgain == newPasswordAgain));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, oldPassword, newPassword, newPasswordAgain);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$UpdatePasswordImplCopyWith<_$UpdatePasswordImpl> get copyWith =>
-      __$$UpdatePasswordImplCopyWithImpl<_$UpdatePasswordImpl>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$UpdatePasswordImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$UpdatePasswordToJson(this, );
 }
 
-abstract class _UpdatePassword implements UpdatePassword {
-  const factory _UpdatePassword(
-      {@JsonKey(name: 'old_password') required final String oldPassword,
-      @JsonKey(name: 'new_password') required final String newPassword,
-      @JsonKey(name: 'new_password_again')
-      required final String newPasswordAgain}) = _$UpdatePasswordImpl;
-
-  factory _UpdatePassword.fromJson(Map<String, dynamic> json) =
-      _$UpdatePasswordImpl.fromJson;
-
-  @override
-  @JsonKey(name: 'old_password')
-  String get oldPassword;
-  @override
-  @JsonKey(name: 'new_password')
-  String get newPassword;
-  @override
-  @JsonKey(name: 'new_password_again')
-  String get newPasswordAgain;
-  @override
-  @JsonKey(ignore: true)
-  _$$UpdatePasswordImplCopyWith<_$UpdatePasswordImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UpdatePassword&&(identical(other.oldPassword, oldPassword) || other.oldPassword == oldPassword)&&(identical(other.newPassword, newPassword) || other.newPassword == newPassword)&&(identical(other.newPasswordAgain, newPasswordAgain) || other.newPasswordAgain == newPasswordAgain));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,oldPassword,newPassword,newPasswordAgain);
+
+@override
+String toString() {
+  return 'UpdatePassword(oldPassword: $oldPassword, newPassword: $newPassword, newPasswordAgain: $newPasswordAgain)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$UpdatePasswordCopyWith<$Res> implements $UpdatePasswordCopyWith<$Res> {
+  factory _$UpdatePasswordCopyWith(_UpdatePassword value, $Res Function(_UpdatePassword) _then) = __$UpdatePasswordCopyWithImpl;
+@override @useResult
+$Res call({
+@JsonKey(name: 'old_password') String oldPassword,@JsonKey(name: 'new_password') String newPassword,@JsonKey(name: 'new_password_again') String newPasswordAgain
+});
+
+
+
+
+}
+/// @nodoc
+class __$UpdatePasswordCopyWithImpl<$Res>
+    implements _$UpdatePasswordCopyWith<$Res> {
+  __$UpdatePasswordCopyWithImpl(this._self, this._then);
+
+  final _UpdatePassword _self;
+  final $Res Function(_UpdatePassword) _then;
+
+/// Create a copy of UpdatePassword
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? oldPassword = null,Object? newPassword = null,Object? newPasswordAgain = null,}) {
+  return _then(_UpdatePassword(
+oldPassword: null == oldPassword ? _self.oldPassword : oldPassword // ignore: cast_nullable_to_non_nullable
+as String,newPassword: null == newPassword ? _self.newPassword : newPassword // ignore: cast_nullable_to_non_nullable
+as String,newPasswordAgain: null == newPasswordAgain ? _self.newPasswordAgain : newPasswordAgain // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+// dart format on

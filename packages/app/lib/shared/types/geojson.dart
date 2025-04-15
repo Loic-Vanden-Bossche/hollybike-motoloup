@@ -11,7 +11,7 @@ part 'geojson.freezed.dart';
 part 'geojson.g.dart';
 
 @freezed
-class GeoJSON with _$GeoJSON {
+sealed class GeoJSON with _$GeoJSON {
   const GeoJSON._();
 
   const factory GeoJSON({

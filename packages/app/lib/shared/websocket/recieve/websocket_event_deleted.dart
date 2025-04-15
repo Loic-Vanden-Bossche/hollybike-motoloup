@@ -11,7 +11,7 @@ part 'websocket_event_deleted.freezed.dart';
 part 'websocket_event_deleted.g.dart';
 
 @freezed
-class WebsocketEventDeleted
+sealed class WebsocketEventDeleted
     with _$WebsocketEventDeleted
     implements WebsocketBody {
   const factory WebsocketEventDeleted({

@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,291 +10,169 @@ part of 'minimal_user.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
 
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
+/// @nodoc
+mixin _$MinimalUser implements DiagnosticableTreeMixin {
 
-MinimalUser _$MinimalUserFromJson(Map<String, dynamic> json) {
-  return _MinimalUser.fromJson(json);
+ int get id; String get username; UserScope get scope; UserStatus get status;@JsonKey(name: "profile_picture") String? get profilePicture;@JsonKey(name: "profile_picture_key") String? get profilePictureKey; String? get role;
+/// Create a copy of MinimalUser
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$MinimalUserCopyWith<MinimalUser> get copyWith => _$MinimalUserCopyWithImpl<MinimalUser>(this as MinimalUser, _$identity);
+
+  /// Serializes this MinimalUser to a JSON map.
+  Map<String, dynamic> toJson();
+
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'MinimalUser'))
+    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('username', username))..add(DiagnosticsProperty('scope', scope))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('profilePicture', profilePicture))..add(DiagnosticsProperty('profilePictureKey', profilePictureKey))..add(DiagnosticsProperty('role', role));
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MinimalUser&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.scope, scope) || other.scope == scope)&&(identical(other.status, status) || other.status == status)&&(identical(other.profilePicture, profilePicture) || other.profilePicture == profilePicture)&&(identical(other.profilePictureKey, profilePictureKey) || other.profilePictureKey == profilePictureKey)&&(identical(other.role, role) || other.role == role));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,username,scope,status,profilePicture,profilePictureKey,role);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'MinimalUser(id: $id, username: $username, scope: $scope, status: $status, profilePicture: $profilePicture, profilePictureKey: $profilePictureKey, role: $role)';
+}
+
+
 }
 
 /// @nodoc
-mixin _$MinimalUser {
-  int get id => throw _privateConstructorUsedError;
-  String get username => throw _privateConstructorUsedError;
-  UserScope get scope => throw _privateConstructorUsedError;
-  UserStatus get status => throw _privateConstructorUsedError;
-  @JsonKey(name: "profile_picture")
-  String? get profilePicture => throw _privateConstructorUsedError;
-  @JsonKey(name: "profile_picture_key")
-  String? get profilePictureKey => throw _privateConstructorUsedError;
-  String? get role => throw _privateConstructorUsedError;
+abstract mixin class $MinimalUserCopyWith<$Res>  {
+  factory $MinimalUserCopyWith(MinimalUser value, $Res Function(MinimalUser) _then) = _$MinimalUserCopyWithImpl;
+@useResult
+$Res call({
+ int id, String username, UserScope scope, UserStatus status,@JsonKey(name: "profile_picture") String? profilePicture,@JsonKey(name: "profile_picture_key") String? profilePictureKey, String? role
+});
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $MinimalUserCopyWith<MinimalUser> get copyWith =>
-      throw _privateConstructorUsedError;
+
+
+
 }
-
 /// @nodoc
-abstract class $MinimalUserCopyWith<$Res> {
-  factory $MinimalUserCopyWith(
-          MinimalUser value, $Res Function(MinimalUser) then) =
-      _$MinimalUserCopyWithImpl<$Res, MinimalUser>;
-  @useResult
-  $Res call(
-      {int id,
-      String username,
-      UserScope scope,
-      UserStatus status,
-      @JsonKey(name: "profile_picture") String? profilePicture,
-      @JsonKey(name: "profile_picture_key") String? profilePictureKey,
-      String? role});
-}
-
-/// @nodoc
-class _$MinimalUserCopyWithImpl<$Res, $Val extends MinimalUser>
+class _$MinimalUserCopyWithImpl<$Res>
     implements $MinimalUserCopyWith<$Res> {
-  _$MinimalUserCopyWithImpl(this._value, this._then);
+  _$MinimalUserCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final MinimalUser _self;
+  final $Res Function(MinimalUser) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? username = null,
-    Object? scope = null,
-    Object? status = null,
-    Object? profilePicture = freezed,
-    Object? profilePictureKey = freezed,
-    Object? role = freezed,
-  }) {
-    return _then(_value.copyWith(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      username: null == username
-          ? _value.username
-          : username // ignore: cast_nullable_to_non_nullable
-              as String,
-      scope: null == scope
-          ? _value.scope
-          : scope // ignore: cast_nullable_to_non_nullable
-              as UserScope,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as UserStatus,
-      profilePicture: freezed == profilePicture
-          ? _value.profilePicture
-          : profilePicture // ignore: cast_nullable_to_non_nullable
-              as String?,
-      profilePictureKey: freezed == profilePictureKey
-          ? _value.profilePictureKey
-          : profilePictureKey // ignore: cast_nullable_to_non_nullable
-              as String?,
-      role: freezed == role
-          ? _value.role
-          : role // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ) as $Val);
-  }
+/// Create a copy of MinimalUser
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? username = null,Object? scope = null,Object? status = null,Object? profilePicture = freezed,Object? profilePictureKey = freezed,Object? role = freezed,}) {
+  return _then(_self.copyWith(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,scope: null == scope ? _self.scope : scope // ignore: cast_nullable_to_non_nullable
+as UserScope,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as UserStatus,profilePicture: freezed == profilePicture ? _self.profilePicture : profilePicture // ignore: cast_nullable_to_non_nullable
+as String?,profilePictureKey: freezed == profilePictureKey ? _self.profilePictureKey : profilePictureKey // ignore: cast_nullable_to_non_nullable
+as String?,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
 }
 
-/// @nodoc
-abstract class _$$MinimalUserImplCopyWith<$Res>
-    implements $MinimalUserCopyWith<$Res> {
-  factory _$$MinimalUserImplCopyWith(
-          _$MinimalUserImpl value, $Res Function(_$MinimalUserImpl) then) =
-      __$$MinimalUserImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {int id,
-      String username,
-      UserScope scope,
-      UserStatus status,
-      @JsonKey(name: "profile_picture") String? profilePicture,
-      @JsonKey(name: "profile_picture_key") String? profilePictureKey,
-      String? role});
 }
 
-/// @nodoc
-class __$$MinimalUserImplCopyWithImpl<$Res>
-    extends _$MinimalUserCopyWithImpl<$Res, _$MinimalUserImpl>
-    implements _$$MinimalUserImplCopyWith<$Res> {
-  __$$MinimalUserImplCopyWithImpl(
-      _$MinimalUserImpl _value, $Res Function(_$MinimalUserImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? id = null,
-    Object? username = null,
-    Object? scope = null,
-    Object? status = null,
-    Object? profilePicture = freezed,
-    Object? profilePictureKey = freezed,
-    Object? role = freezed,
-  }) {
-    return _then(_$MinimalUserImpl(
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      username: null == username
-          ? _value.username
-          : username // ignore: cast_nullable_to_non_nullable
-              as String,
-      scope: null == scope
-          ? _value.scope
-          : scope // ignore: cast_nullable_to_non_nullable
-              as UserScope,
-      status: null == status
-          ? _value.status
-          : status // ignore: cast_nullable_to_non_nullable
-              as UserStatus,
-      profilePicture: freezed == profilePicture
-          ? _value.profilePicture
-          : profilePicture // ignore: cast_nullable_to_non_nullable
-              as String?,
-      profilePictureKey: freezed == profilePictureKey
-          ? _value.profilePictureKey
-          : profilePictureKey // ignore: cast_nullable_to_non_nullable
-              as String?,
-      role: freezed == role
-          ? _value.role
-          : role // ignore: cast_nullable_to_non_nullable
-              as String?,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$MinimalUserImpl with DiagnosticableTreeMixin implements _MinimalUser {
-  const _$MinimalUserImpl(
-      {required this.id,
-      required this.username,
-      required this.scope,
-      required this.status,
-      @JsonKey(name: "profile_picture") this.profilePicture,
-      @JsonKey(name: "profile_picture_key") this.profilePictureKey,
-      this.role});
 
-  factory _$MinimalUserImpl.fromJson(Map<String, dynamic> json) =>
-      _$$MinimalUserImplFromJson(json);
+class _MinimalUser with DiagnosticableTreeMixin implements MinimalUser {
+  const _MinimalUser({required this.id, required this.username, required this.scope, required this.status, @JsonKey(name: "profile_picture") this.profilePicture, @JsonKey(name: "profile_picture_key") this.profilePictureKey, this.role});
+  factory _MinimalUser.fromJson(Map<String, dynamic> json) => _$MinimalUserFromJson(json);
 
-  @override
-  final int id;
-  @override
-  final String username;
-  @override
-  final UserScope scope;
-  @override
-  final UserStatus status;
-  @override
-  @JsonKey(name: "profile_picture")
-  final String? profilePicture;
-  @override
-  @JsonKey(name: "profile_picture_key")
-  final String? profilePictureKey;
-  @override
-  final String? role;
+@override final  int id;
+@override final  String username;
+@override final  UserScope scope;
+@override final  UserStatus status;
+@override@JsonKey(name: "profile_picture") final  String? profilePicture;
+@override@JsonKey(name: "profile_picture_key") final  String? profilePictureKey;
+@override final  String? role;
 
-  @override
-  String toString({DiagnosticLevel minLevel = DiagnosticLevel.info}) {
-    return 'MinimalUser(id: $id, username: $username, scope: $scope, status: $status, profilePicture: $profilePicture, profilePictureKey: $profilePictureKey, role: $role)';
-  }
+/// Create a copy of MinimalUser
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$MinimalUserCopyWith<_MinimalUser> get copyWith => __$MinimalUserCopyWithImpl<_MinimalUser>(this, _$identity);
 
-  @override
-  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
-    super.debugFillProperties(properties);
-    properties
-      ..add(DiagnosticsProperty('type', 'MinimalUser'))
-      ..add(DiagnosticsProperty('id', id))
-      ..add(DiagnosticsProperty('username', username))
-      ..add(DiagnosticsProperty('scope', scope))
-      ..add(DiagnosticsProperty('status', status))
-      ..add(DiagnosticsProperty('profilePicture', profilePicture))
-      ..add(DiagnosticsProperty('profilePictureKey', profilePictureKey))
-      ..add(DiagnosticsProperty('role', role));
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$MinimalUserImpl &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.username, username) ||
-                other.username == username) &&
-            (identical(other.scope, scope) || other.scope == scope) &&
-            (identical(other.status, status) || other.status == status) &&
-            (identical(other.profilePicture, profilePicture) ||
-                other.profilePicture == profilePicture) &&
-            (identical(other.profilePictureKey, profilePictureKey) ||
-                other.profilePictureKey == profilePictureKey) &&
-            (identical(other.role, role) || other.role == role));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, id, username, scope, status,
-      profilePicture, profilePictureKey, role);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$MinimalUserImplCopyWith<_$MinimalUserImpl> get copyWith =>
-      __$$MinimalUserImplCopyWithImpl<_$MinimalUserImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$MinimalUserImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$MinimalUserToJson(this, );
+}
+@override
+void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+  properties
+    ..add(DiagnosticsProperty('type', 'MinimalUser'))
+    ..add(DiagnosticsProperty('id', id))..add(DiagnosticsProperty('username', username))..add(DiagnosticsProperty('scope', scope))..add(DiagnosticsProperty('status', status))..add(DiagnosticsProperty('profilePicture', profilePicture))..add(DiagnosticsProperty('profilePictureKey', profilePictureKey))..add(DiagnosticsProperty('role', role));
 }
 
-abstract class _MinimalUser implements MinimalUser {
-  const factory _MinimalUser(
-      {required final int id,
-      required final String username,
-      required final UserScope scope,
-      required final UserStatus status,
-      @JsonKey(name: "profile_picture") final String? profilePicture,
-      @JsonKey(name: "profile_picture_key") final String? profilePictureKey,
-      final String? role}) = _$MinimalUserImpl;
-
-  factory _MinimalUser.fromJson(Map<String, dynamic> json) =
-      _$MinimalUserImpl.fromJson;
-
-  @override
-  int get id;
-  @override
-  String get username;
-  @override
-  UserScope get scope;
-  @override
-  UserStatus get status;
-  @override
-  @JsonKey(name: "profile_picture")
-  String? get profilePicture;
-  @override
-  @JsonKey(name: "profile_picture_key")
-  String? get profilePictureKey;
-  @override
-  String? get role;
-  @override
-  @JsonKey(ignore: true)
-  _$$MinimalUserImplCopyWith<_$MinimalUserImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MinimalUser&&(identical(other.id, id) || other.id == id)&&(identical(other.username, username) || other.username == username)&&(identical(other.scope, scope) || other.scope == scope)&&(identical(other.status, status) || other.status == status)&&(identical(other.profilePicture, profilePicture) || other.profilePicture == profilePicture)&&(identical(other.profilePictureKey, profilePictureKey) || other.profilePictureKey == profilePictureKey)&&(identical(other.role, role) || other.role == role));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,id,username,scope,status,profilePicture,profilePictureKey,role);
+
+@override
+String toString({ DiagnosticLevel minLevel = DiagnosticLevel.info }) {
+  return 'MinimalUser(id: $id, username: $username, scope: $scope, status: $status, profilePicture: $profilePicture, profilePictureKey: $profilePictureKey, role: $role)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$MinimalUserCopyWith<$Res> implements $MinimalUserCopyWith<$Res> {
+  factory _$MinimalUserCopyWith(_MinimalUser value, $Res Function(_MinimalUser) _then) = __$MinimalUserCopyWithImpl;
+@override @useResult
+$Res call({
+ int id, String username, UserScope scope, UserStatus status,@JsonKey(name: "profile_picture") String? profilePicture,@JsonKey(name: "profile_picture_key") String? profilePictureKey, String? role
+});
+
+
+
+
+}
+/// @nodoc
+class __$MinimalUserCopyWithImpl<$Res>
+    implements _$MinimalUserCopyWith<$Res> {
+  __$MinimalUserCopyWithImpl(this._self, this._then);
+
+  final _MinimalUser _self;
+  final $Res Function(_MinimalUser) _then;
+
+/// Create a copy of MinimalUser
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? username = null,Object? scope = null,Object? status = null,Object? profilePicture = freezed,Object? profilePictureKey = freezed,Object? role = freezed,}) {
+  return _then(_MinimalUser(
+id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,username: null == username ? _self.username : username // ignore: cast_nullable_to_non_nullable
+as String,scope: null == scope ? _self.scope : scope // ignore: cast_nullable_to_non_nullable
+as UserScope,status: null == status ? _self.status : status // ignore: cast_nullable_to_non_nullable
+as UserStatus,profilePicture: freezed == profilePicture ? _self.profilePicture : profilePicture // ignore: cast_nullable_to_non_nullable
+as String?,profilePictureKey: freezed == profilePictureKey ? _self.profilePictureKey : profilePictureKey // ignore: cast_nullable_to_non_nullable
+as String?,role: freezed == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as String?,
+  ));
+}
+
+
+}
+
+// dart format on

@@ -22,7 +22,7 @@ enum PositionType {
 }
 
 @freezed
-class Position with _$Position {
+sealed class Position with _$Position {
   const Position._();
 
   const factory Position({

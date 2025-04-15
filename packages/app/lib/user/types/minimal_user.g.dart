@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'minimal_user.dart';
@@ -10,18 +6,17 @@ part of 'minimal_user.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$MinimalUserImpl _$$MinimalUserImplFromJson(Map<String, dynamic> json) =>
-    _$MinimalUserImpl(
-      id: (json['id'] as num).toInt(),
-      username: json['username'] as String,
-      scope: $enumDecode(_$UserScopeEnumMap, json['scope']),
-      status: $enumDecode(_$UserStatusEnumMap, json['status']),
-      profilePicture: json['profile_picture'] as String?,
-      profilePictureKey: json['profile_picture_key'] as String?,
-      role: json['role'] as String?,
-    );
+_MinimalUser _$MinimalUserFromJson(Map<String, dynamic> json) => _MinimalUser(
+  id: (json['id'] as num).toInt(),
+  username: json['username'] as String,
+  scope: $enumDecode(_$UserScopeEnumMap, json['scope']),
+  status: $enumDecode(_$UserStatusEnumMap, json['status']),
+  profilePicture: json['profile_picture'] as String?,
+  profilePictureKey: json['profile_picture_key'] as String?,
+  role: json['role'] as String?,
+);
 
-Map<String, dynamic> _$$MinimalUserImplToJson(_$MinimalUserImpl instance) =>
+Map<String, dynamic> _$MinimalUserToJson(_MinimalUser instance) =>
     <String, dynamic>{
       'id': instance.id,
       'username': instance.username,

@@ -14,7 +14,7 @@ part 'minimal_event.freezed.dart';
 part 'minimal_event.g.dart';
 
 @freezed
-class MinimalEvent with _$MinimalEvent {
+sealed class MinimalEvent with _$MinimalEvent {
   const MinimalEvent._();
 
   const factory MinimalEvent({

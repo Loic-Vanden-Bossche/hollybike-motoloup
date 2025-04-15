@@ -13,7 +13,7 @@ part 'event_image_details.freezed.dart';
 part 'event_image_details.g.dart';
 
 @freezed
-class EventImageDetails with _$EventImageDetails {
+sealed class EventImageDetails with _$EventImageDetails {
   const factory EventImageDetails({
     required bool isOwner,
     required MinimalUser owner,

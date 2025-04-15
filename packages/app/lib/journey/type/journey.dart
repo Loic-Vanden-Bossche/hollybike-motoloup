@@ -14,7 +14,7 @@ part 'journey.freezed.dart';
 part 'journey.g.dart';
 
 @freezed
-class Journey with _$Journey {
+sealed class Journey with _$Journey {
   const Journey._();
 
   const factory Journey({

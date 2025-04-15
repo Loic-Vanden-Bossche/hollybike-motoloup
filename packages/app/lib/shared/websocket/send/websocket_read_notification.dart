@@ -11,7 +11,7 @@ part 'websocket_read_notification.freezed.dart';
 part 'websocket_read_notification.g.dart';
 
 @freezed
-class WebsocketReadNotification
+sealed class WebsocketReadNotification
     with _$WebsocketReadNotification
     implements WebsocketBody {
   const factory WebsocketReadNotification({

@@ -6,8 +6,8 @@ import 'dart:developer';
 import 'dart:isolate';
 import 'dart:ui';
 
-import 'package:background_locator_2/background_locator.dart';
-import 'package:background_locator_2/location_dto.dart';
+// import 'package:background_locator_2/background_locator.dart';
+// import 'package:background_locator_2/location_dto.dart';
 import 'package:hollybike/shared/websocket/recieve/websocket_subscribed.dart';
 import 'package:hollybike/shared/websocket/send/websocket_send_position.dart';
 import 'package:hollybike/shared/websocket/websocket_client.dart';
@@ -38,12 +38,12 @@ class MyPositionServiceRepository {
   double accelerationY = 0;
   double accelerationZ = 0;
 
-  final _locationBuffer = <LocationDto>[];
+  // final _locationBuffer = <LocationDto>[];
 
   Future<void> init(Map<dynamic, dynamic> params) async {
     await initParams(params).catchError((e) {
       log('Error while init callback: $e', stackTrace: StackTrace.current);
-      BackgroundLocator.unRegisterLocationUpdate();
+      // BackgroundLocator.unRegisterLocationUpdate();
     });
 
     userAccelerometerEventStream().listen((event) {
@@ -135,45 +135,45 @@ class MyPositionServiceRepository {
     _client?.close();
   }
 
-  Future<void> callback(LocationDto locationDto) async {
-    if (_client == null) {
-      _locationBuffer.add(locationDto);
-      return;
-    }
-
-    if (_locationBuffer.isNotEmpty) {
-      final buffer = List<LocationDto>.from(_locationBuffer);
-      _locationBuffer.clear();
-
-      for (final location in buffer) {
-        _sendLocation(location);
-      }
-    }
-
-    _sendLocation(locationDto);
-
-    final SendPort? send = IsolateNameServer.lookupPortByName(isolateName);
-    send?.send(locationDto.toJson());
-  }
-
-  void _sendLocation(LocationDto location) {
-    _client?.sendUserPosition(
-      _channel,
-      WebsocketSendPosition(
-        latitude: keepFiveDigits(location.latitude),
-        longitude: keepFiveDigits(location.longitude),
-        altitude: keepFiveDigits(location.altitude),
-        time: timestampToDateTime(location.time),
-        speed: keepFiveDigits(location.speed),
-        heading: location.heading,
-        accelerationX: keepFiveDigits(accelerationX),
-        accelerationY: keepFiveDigits(accelerationY),
-        accelerationZ: keepFiveDigits(accelerationZ),
-        speedAccuracy: keepFiveDigits(location.speedAccuracy),
-        accuracy: keepFiveDigits(location.accuracy),
-      ),
-    );
-  }
+  // Future<void> callback(LocationDto locationDto) async {
+  //   if (_client == null) {
+  //     _locationBuffer.add(locationDto);
+  //     return;
+  //   }
+  //
+  //   if (_locationBuffer.isNotEmpty) {
+  //     final buffer = List<LocationDto>.from(_locationBuffer);
+  //     _locationBuffer.clear();
+  //
+  //     for (final location in buffer) {
+  //       _sendLocation(location);
+  //     }
+  //   }
+  //
+  //   _sendLocation(locationDto);
+  //
+  //   final SendPort? send = IsolateNameServer.lookupPortByName(isolateName);
+  //   send?.send(locationDto.toJson());
+  // }
+  //
+  // void _sendLocation(LocationDto location) {
+  //   _client?.sendUserPosition(
+  //     _channel,
+  //     WebsocketSendPosition(
+  //       latitude: keepFiveDigits(location.latitude),
+  //       longitude: keepFiveDigits(location.longitude),
+  //       altitude: keepFiveDigits(location.altitude),
+  //       time: timestampToDateTime(location.time),
+  //       speed: keepFiveDigits(location.speed),
+  //       heading: location.heading,
+  //       accelerationX: keepFiveDigits(accelerationX),
+  //       accelerationY: keepFiveDigits(accelerationY),
+  //       accelerationZ: keepFiveDigits(accelerationZ),
+  //       speedAccuracy: keepFiveDigits(location.speedAccuracy),
+  //       accuracy: keepFiveDigits(location.accuracy),
+  //     ),
+  //   );
+  // }
 }
 
 DateTime timestampToDateTime(double timestamp) {

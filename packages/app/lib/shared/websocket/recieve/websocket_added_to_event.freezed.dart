@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,217 +10,148 @@ part of 'websocket_added_to_event.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-WebsocketAddedToEvent _$WebsocketAddedToEventFromJson(
-    Map<String, dynamic> json) {
-  return _WebsocketAddedToEvent.fromJson(json);
-}
 
 /// @nodoc
 mixin _$WebsocketAddedToEvent {
-  String get type => throw _privateConstructorUsedError;
-  @JsonKey(name: 'notification_id')
-  int get notificationId => throw _privateConstructorUsedError;
-  int get id => throw _privateConstructorUsedError;
-  String get name => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $WebsocketAddedToEventCopyWith<WebsocketAddedToEvent> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get type;@JsonKey(name: 'notification_id') int get notificationId; int get id; String get name;
+/// Create a copy of WebsocketAddedToEvent
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WebsocketAddedToEventCopyWith<WebsocketAddedToEvent> get copyWith => _$WebsocketAddedToEventCopyWithImpl<WebsocketAddedToEvent>(this as WebsocketAddedToEvent, _$identity);
+
+  /// Serializes this WebsocketAddedToEvent to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WebsocketAddedToEvent&&(identical(other.type, type) || other.type == type)&&(identical(other.notificationId, notificationId) || other.notificationId == notificationId)&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,notificationId,id,name);
+
+@override
+String toString() {
+  return 'WebsocketAddedToEvent(type: $type, notificationId: $notificationId, id: $id, name: $name)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $WebsocketAddedToEventCopyWith<$Res> {
-  factory $WebsocketAddedToEventCopyWith(WebsocketAddedToEvent value,
-          $Res Function(WebsocketAddedToEvent) then) =
-      _$WebsocketAddedToEventCopyWithImpl<$Res, WebsocketAddedToEvent>;
-  @useResult
-  $Res call(
-      {String type,
-      @JsonKey(name: 'notification_id') int notificationId,
-      int id,
-      String name});
-}
+abstract mixin class $WebsocketAddedToEventCopyWith<$Res>  {
+  factory $WebsocketAddedToEventCopyWith(WebsocketAddedToEvent value, $Res Function(WebsocketAddedToEvent) _then) = _$WebsocketAddedToEventCopyWithImpl;
+@useResult
+$Res call({
+ String type,@JsonKey(name: 'notification_id') int notificationId, int id, String name
+});
 
+
+
+
+}
 /// @nodoc
-class _$WebsocketAddedToEventCopyWithImpl<$Res,
-        $Val extends WebsocketAddedToEvent>
+class _$WebsocketAddedToEventCopyWithImpl<$Res>
     implements $WebsocketAddedToEventCopyWith<$Res> {
-  _$WebsocketAddedToEventCopyWithImpl(this._value, this._then);
+  _$WebsocketAddedToEventCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final WebsocketAddedToEvent _self;
+  final $Res Function(WebsocketAddedToEvent) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? notificationId = null,
-    Object? id = null,
-    Object? name = null,
-  }) {
-    return _then(_value.copyWith(
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      notificationId: null == notificationId
-          ? _value.notificationId
-          : notificationId // ignore: cast_nullable_to_non_nullable
-              as int,
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
-  }
+/// Create a copy of WebsocketAddedToEvent
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? notificationId = null,Object? id = null,Object? name = null,}) {
+  return _then(_self.copyWith(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,notificationId: null == notificationId ? _self.notificationId : notificationId // ignore: cast_nullable_to_non_nullable
+as int,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$WebsocketAddedToEventImplCopyWith<$Res>
-    implements $WebsocketAddedToEventCopyWith<$Res> {
-  factory _$$WebsocketAddedToEventImplCopyWith(
-          _$WebsocketAddedToEventImpl value,
-          $Res Function(_$WebsocketAddedToEventImpl) then) =
-      __$$WebsocketAddedToEventImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String type,
-      @JsonKey(name: 'notification_id') int notificationId,
-      int id,
-      String name});
 }
 
-/// @nodoc
-class __$$WebsocketAddedToEventImplCopyWithImpl<$Res>
-    extends _$WebsocketAddedToEventCopyWithImpl<$Res,
-        _$WebsocketAddedToEventImpl>
-    implements _$$WebsocketAddedToEventImplCopyWith<$Res> {
-  __$$WebsocketAddedToEventImplCopyWithImpl(_$WebsocketAddedToEventImpl _value,
-      $Res Function(_$WebsocketAddedToEventImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? notificationId = null,
-    Object? id = null,
-    Object? name = null,
-  }) {
-    return _then(_$WebsocketAddedToEventImpl(
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      notificationId: null == notificationId
-          ? _value.notificationId
-          : notificationId // ignore: cast_nullable_to_non_nullable
-              as int,
-      id: null == id
-          ? _value.id
-          : id // ignore: cast_nullable_to_non_nullable
-              as int,
-      name: null == name
-          ? _value.name
-          : name // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$WebsocketAddedToEventImpl implements _WebsocketAddedToEvent {
-  const _$WebsocketAddedToEventImpl(
-      {this.type = "AddedToEventNotification",
-      @JsonKey(name: 'notification_id') required this.notificationId,
-      required this.id,
-      required this.name});
 
-  factory _$WebsocketAddedToEventImpl.fromJson(Map<String, dynamic> json) =>
-      _$$WebsocketAddedToEventImplFromJson(json);
+class _WebsocketAddedToEvent implements WebsocketAddedToEvent {
+  const _WebsocketAddedToEvent({this.type = "AddedToEventNotification", @JsonKey(name: 'notification_id') required this.notificationId, required this.id, required this.name});
+  factory _WebsocketAddedToEvent.fromJson(Map<String, dynamic> json) => _$WebsocketAddedToEventFromJson(json);
 
-  @override
-  @JsonKey()
-  final String type;
-  @override
-  @JsonKey(name: 'notification_id')
-  final int notificationId;
-  @override
-  final int id;
-  @override
-  final String name;
+@override@JsonKey() final  String type;
+@override@JsonKey(name: 'notification_id') final  int notificationId;
+@override final  int id;
+@override final  String name;
 
-  @override
-  String toString() {
-    return 'WebsocketAddedToEvent(type: $type, notificationId: $notificationId, id: $id, name: $name)';
-  }
+/// Create a copy of WebsocketAddedToEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WebsocketAddedToEventCopyWith<_WebsocketAddedToEvent> get copyWith => __$WebsocketAddedToEventCopyWithImpl<_WebsocketAddedToEvent>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WebsocketAddedToEventImpl &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.notificationId, notificationId) ||
-                other.notificationId == notificationId) &&
-            (identical(other.id, id) || other.id == id) &&
-            (identical(other.name, name) || other.name == name));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, type, notificationId, id, name);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WebsocketAddedToEventImplCopyWith<_$WebsocketAddedToEventImpl>
-      get copyWith => __$$WebsocketAddedToEventImplCopyWithImpl<
-          _$WebsocketAddedToEventImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$WebsocketAddedToEventImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$WebsocketAddedToEventToJson(this, );
 }
 
-abstract class _WebsocketAddedToEvent implements WebsocketAddedToEvent {
-  const factory _WebsocketAddedToEvent(
-      {final String type,
-      @JsonKey(name: 'notification_id') required final int notificationId,
-      required final int id,
-      required final String name}) = _$WebsocketAddedToEventImpl;
-
-  factory _WebsocketAddedToEvent.fromJson(Map<String, dynamic> json) =
-      _$WebsocketAddedToEventImpl.fromJson;
-
-  @override
-  String get type;
-  @override
-  @JsonKey(name: 'notification_id')
-  int get notificationId;
-  @override
-  int get id;
-  @override
-  String get name;
-  @override
-  @JsonKey(ignore: true)
-  _$$WebsocketAddedToEventImplCopyWith<_$WebsocketAddedToEventImpl>
-      get copyWith => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WebsocketAddedToEvent&&(identical(other.type, type) || other.type == type)&&(identical(other.notificationId, notificationId) || other.notificationId == notificationId)&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,notificationId,id,name);
+
+@override
+String toString() {
+  return 'WebsocketAddedToEvent(type: $type, notificationId: $notificationId, id: $id, name: $name)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WebsocketAddedToEventCopyWith<$Res> implements $WebsocketAddedToEventCopyWith<$Res> {
+  factory _$WebsocketAddedToEventCopyWith(_WebsocketAddedToEvent value, $Res Function(_WebsocketAddedToEvent) _then) = __$WebsocketAddedToEventCopyWithImpl;
+@override @useResult
+$Res call({
+ String type,@JsonKey(name: 'notification_id') int notificationId, int id, String name
+});
+
+
+
+
+}
+/// @nodoc
+class __$WebsocketAddedToEventCopyWithImpl<$Res>
+    implements _$WebsocketAddedToEventCopyWith<$Res> {
+  __$WebsocketAddedToEventCopyWithImpl(this._self, this._then);
+
+  final _WebsocketAddedToEvent _self;
+  final $Res Function(_WebsocketAddedToEvent) _then;
+
+/// Create a copy of WebsocketAddedToEvent
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? notificationId = null,Object? id = null,Object? name = null,}) {
+  return _then(_WebsocketAddedToEvent(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,notificationId: null == notificationId ? _self.notificationId : notificationId // ignore: cast_nullable_to_non_nullable
+as int,id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
+as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
+// dart format on

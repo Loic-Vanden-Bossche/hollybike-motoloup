@@ -10,7 +10,7 @@ part 'event_image.freezed.dart';
 part 'event_image.g.dart';
 
 @freezed
-class EventImage with _$EventImage {
+sealed class EventImage with _$EventImage {
   const factory EventImage({
     required int id,
     required String key,

@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'event_image_details.dart';
@@ -10,23 +6,23 @@ part of 'event_image_details.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$EventImageDetailsImpl _$$EventImageDetailsImplFromJson(
-        Map<String, dynamic> json) =>
-    _$EventImageDetailsImpl(
+_EventImageDetails _$EventImageDetailsFromJson(Map<String, dynamic> json) =>
+    _EventImageDetails(
       isOwner: json['isOwner'] as bool,
       owner: MinimalUser.fromJson(json['owner'] as Map<String, dynamic>),
       event: MinimalEvent.fromJson(json['event'] as Map<String, dynamic>),
-      position: json['position'] == null
-          ? null
-          : Position.fromJson(json['position'] as Map<String, dynamic>),
-      takenDateTime: json['taken_date_time'] == null
-          ? null
-          : DateTime.parse(json['taken_date_time'] as String),
+      position:
+          json['position'] == null
+              ? null
+              : Position.fromJson(json['position'] as Map<String, dynamic>),
+      takenDateTime:
+          json['taken_date_time'] == null
+              ? null
+              : DateTime.parse(json['taken_date_time'] as String),
       uploadDateTime: DateTime.parse(json['uploaded_date_time'] as String),
     );
 
-Map<String, dynamic> _$$EventImageDetailsImplToJson(
-        _$EventImageDetailsImpl instance) =>
+Map<String, dynamic> _$EventImageDetailsToJson(_EventImageDetails instance) =>
     <String, dynamic>{
       'isOwner': instance.isOwner,
       'owner': instance.owner,

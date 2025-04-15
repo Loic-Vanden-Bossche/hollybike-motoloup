@@ -12,7 +12,7 @@ part 'event_caller_participation.freezed.dart';
 part 'event_caller_participation.g.dart';
 
 @freezed
-class EventCallerParticipation with _$EventCallerParticipation {
+sealed class EventCallerParticipation with _$EventCallerParticipation {
   const factory EventCallerParticipation({
     required int userId,
     required bool isImagesPublic,

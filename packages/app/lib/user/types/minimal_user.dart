@@ -11,7 +11,7 @@ part 'minimal_user.freezed.dart';
 part 'minimal_user.g.dart';
 
 @freezed
-class MinimalUser with _$MinimalUser {
+sealed class MinimalUser with _$MinimalUser {
   const factory MinimalUser({
     required int id,
     required String username,

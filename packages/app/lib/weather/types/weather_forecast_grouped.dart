@@ -10,7 +10,7 @@ import 'package:intl/intl.dart';
 part 'weather_forecast_grouped.freezed.dart';
 
 @freezed
-class WeatherForecastGrouped with _$WeatherForecastGrouped {
+sealed class WeatherForecastGrouped with _$WeatherForecastGrouped {
   const factory WeatherForecastGrouped({
     required List<DailyWeatherGrouped> dailyWeather,
   }) = _WeatherForecastGrouped;
@@ -88,7 +88,7 @@ class WeatherForecastGrouped with _$WeatherForecastGrouped {
 }
 
 @freezed
-class DailyWeatherGrouped with _$DailyWeatherGrouped {
+sealed class DailyWeatherGrouped with _$DailyWeatherGrouped {
   const factory DailyWeatherGrouped({
     required String date,
     required String maxTemperature,
@@ -99,7 +99,7 @@ class DailyWeatherGrouped with _$DailyWeatherGrouped {
 }
 
 @freezed
-class HourlyWeather with _$HourlyWeather {
+sealed class HourlyWeather with _$HourlyWeather {
   const factory HourlyWeather({
     required String time,
     required DateTime rawTime,

@@ -12,7 +12,7 @@ part 'websocket_event_status_updated.freezed.dart';
 part 'websocket_event_status_updated.g.dart';
 
 @freezed
-class WebsocketEventStatusUpdated
+sealed class WebsocketEventStatusUpdated
     with _$WebsocketEventStatusUpdated
     implements WebsocketBody {
   const factory WebsocketEventStatusUpdated({

@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'event_participation.dart';
@@ -10,20 +6,19 @@ part of 'event_participation.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$EventParticipationImpl _$$EventParticipationImplFromJson(
-        Map<String, dynamic> json) =>
-    _$EventParticipationImpl(
+_EventParticipation _$EventParticipationFromJson(Map<String, dynamic> json) =>
+    _EventParticipation(
       user: MinimalUser.fromJson(json['user'] as Map<String, dynamic>),
       isImagesPublic: json['isImagesPublic'] as bool,
       role: $enumDecode(_$EventRoleEnumMap, json['role']),
       joinedDateTime: DateTime.parse(json['joinedDateTime'] as String),
-      journey: json['journey'] == null
-          ? null
-          : UserJourney.fromJson(json['journey'] as Map<String, dynamic>),
+      journey:
+          json['journey'] == null
+              ? null
+              : UserJourney.fromJson(json['journey'] as Map<String, dynamic>),
     );
 
-Map<String, dynamic> _$$EventParticipationImplToJson(
-        _$EventParticipationImpl instance) =>
+Map<String, dynamic> _$EventParticipationToJson(_EventParticipation instance) =>
     <String, dynamic>{
       'user': instance.user,
       'isImagesPublic': instance.isImagesPublic,

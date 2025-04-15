@@ -8,6 +8,7 @@ import 'dart:io';
 import 'dart:math' as math;
 
 import 'package:hollybike/auth/types/auth_session.dart';
+import 'package:hollybike/shared/types/json_map.dart';
 import 'package:hollybike/shared/websocket/recieve/websocket_added_to_event.dart';
 import 'package:hollybike/shared/websocket/recieve/websocket_event_deleted.dart';
 import 'package:hollybike/shared/websocket/recieve/websocket_event_published.dart';
@@ -84,7 +85,8 @@ class WebsocketClient {
   }
 
   WebsocketMessage parseMessage(String data) {
-    return WebsocketMessage.fromJson(jsonDecode(data), (json) {
+    return WebsocketMessage.fromJson(jsonDecode(data), (rawJson) {
+      final json = rawJson as JsonMap;
       switch (json['type']) {
         case 'subscribed':
           return WebsocketSubscribed.fromJson(json);

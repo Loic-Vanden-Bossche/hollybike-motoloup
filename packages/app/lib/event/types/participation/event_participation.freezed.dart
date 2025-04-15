@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,261 +10,193 @@ part of 'event_participation.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-EventParticipation _$EventParticipationFromJson(Map<String, dynamic> json) {
-  return _EventParticipation.fromJson(json);
-}
 
 /// @nodoc
 mixin _$EventParticipation {
-  MinimalUser get user => throw _privateConstructorUsedError;
-  bool get isImagesPublic => throw _privateConstructorUsedError;
-  EventRole get role => throw _privateConstructorUsedError;
-  DateTime get joinedDateTime => throw _privateConstructorUsedError;
-  UserJourney? get journey => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $EventParticipationCopyWith<EventParticipation> get copyWith =>
-      throw _privateConstructorUsedError;
+ MinimalUser get user; bool get isImagesPublic; EventRole get role; DateTime get joinedDateTime; UserJourney? get journey;
+/// Create a copy of EventParticipation
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$EventParticipationCopyWith<EventParticipation> get copyWith => _$EventParticipationCopyWithImpl<EventParticipation>(this as EventParticipation, _$identity);
+
+  /// Serializes this EventParticipation to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventParticipation&&(identical(other.user, user) || other.user == user)&&(identical(other.isImagesPublic, isImagesPublic) || other.isImagesPublic == isImagesPublic)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedDateTime, joinedDateTime) || other.joinedDateTime == joinedDateTime)&&(identical(other.journey, journey) || other.journey == journey));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,user,isImagesPublic,role,joinedDateTime,journey);
+
+@override
+String toString() {
+  return 'EventParticipation(user: $user, isImagesPublic: $isImagesPublic, role: $role, joinedDateTime: $joinedDateTime, journey: $journey)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $EventParticipationCopyWith<$Res> {
-  factory $EventParticipationCopyWith(
-          EventParticipation value, $Res Function(EventParticipation) then) =
-      _$EventParticipationCopyWithImpl<$Res, EventParticipation>;
-  @useResult
-  $Res call(
-      {MinimalUser user,
-      bool isImagesPublic,
-      EventRole role,
-      DateTime joinedDateTime,
-      UserJourney? journey});
+abstract mixin class $EventParticipationCopyWith<$Res>  {
+  factory $EventParticipationCopyWith(EventParticipation value, $Res Function(EventParticipation) _then) = _$EventParticipationCopyWithImpl;
+@useResult
+$Res call({
+ MinimalUser user, bool isImagesPublic, EventRole role, DateTime joinedDateTime, UserJourney? journey
+});
 
-  $MinimalUserCopyWith<$Res> get user;
-  $UserJourneyCopyWith<$Res>? get journey;
+
+$MinimalUserCopyWith<$Res> get user;$UserJourneyCopyWith<$Res>? get journey;
+
 }
-
 /// @nodoc
-class _$EventParticipationCopyWithImpl<$Res, $Val extends EventParticipation>
+class _$EventParticipationCopyWithImpl<$Res>
     implements $EventParticipationCopyWith<$Res> {
-  _$EventParticipationCopyWithImpl(this._value, this._then);
+  _$EventParticipationCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final EventParticipation _self;
+  final $Res Function(EventParticipation) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? user = null,
-    Object? isImagesPublic = null,
-    Object? role = null,
-    Object? joinedDateTime = null,
-    Object? journey = freezed,
-  }) {
-    return _then(_value.copyWith(
-      user: null == user
-          ? _value.user
-          : user // ignore: cast_nullable_to_non_nullable
-              as MinimalUser,
-      isImagesPublic: null == isImagesPublic
-          ? _value.isImagesPublic
-          : isImagesPublic // ignore: cast_nullable_to_non_nullable
-              as bool,
-      role: null == role
-          ? _value.role
-          : role // ignore: cast_nullable_to_non_nullable
-              as EventRole,
-      joinedDateTime: null == joinedDateTime
-          ? _value.joinedDateTime
-          : joinedDateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      journey: freezed == journey
-          ? _value.journey
-          : journey // ignore: cast_nullable_to_non_nullable
-              as UserJourney?,
-    ) as $Val);
+/// Create a copy of EventParticipation
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? user = null,Object? isImagesPublic = null,Object? role = null,Object? joinedDateTime = null,Object? journey = freezed,}) {
+  return _then(_self.copyWith(
+user: null == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
+as MinimalUser,isImagesPublic: null == isImagesPublic ? _self.isImagesPublic : isImagesPublic // ignore: cast_nullable_to_non_nullable
+as bool,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as EventRole,joinedDateTime: null == joinedDateTime ? _self.joinedDateTime : joinedDateTime // ignore: cast_nullable_to_non_nullable
+as DateTime,journey: freezed == journey ? _self.journey : journey // ignore: cast_nullable_to_non_nullable
+as UserJourney?,
+  ));
+}
+/// Create a copy of EventParticipation
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$MinimalUserCopyWith<$Res> get user {
+  
+  return $MinimalUserCopyWith<$Res>(_self.user, (value) {
+    return _then(_self.copyWith(user: value));
+  });
+}/// Create a copy of EventParticipation
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UserJourneyCopyWith<$Res>? get journey {
+    if (_self.journey == null) {
+    return null;
   }
 
-  @override
-  @pragma('vm:prefer-inline')
-  $MinimalUserCopyWith<$Res> get user {
-    return $MinimalUserCopyWith<$Res>(_value.user, (value) {
-      return _then(_value.copyWith(user: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $UserJourneyCopyWith<$Res>? get journey {
-    if (_value.journey == null) {
-      return null;
-    }
-
-    return $UserJourneyCopyWith<$Res>(_value.journey!, (value) {
-      return _then(_value.copyWith(journey: value) as $Val);
-    });
-  }
+  return $UserJourneyCopyWith<$Res>(_self.journey!, (value) {
+    return _then(_self.copyWith(journey: value));
+  });
+}
 }
 
-/// @nodoc
-abstract class _$$EventParticipationImplCopyWith<$Res>
-    implements $EventParticipationCopyWith<$Res> {
-  factory _$$EventParticipationImplCopyWith(_$EventParticipationImpl value,
-          $Res Function(_$EventParticipationImpl) then) =
-      __$$EventParticipationImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {MinimalUser user,
-      bool isImagesPublic,
-      EventRole role,
-      DateTime joinedDateTime,
-      UserJourney? journey});
-
-  @override
-  $MinimalUserCopyWith<$Res> get user;
-  @override
-  $UserJourneyCopyWith<$Res>? get journey;
-}
-
-/// @nodoc
-class __$$EventParticipationImplCopyWithImpl<$Res>
-    extends _$EventParticipationCopyWithImpl<$Res, _$EventParticipationImpl>
-    implements _$$EventParticipationImplCopyWith<$Res> {
-  __$$EventParticipationImplCopyWithImpl(_$EventParticipationImpl _value,
-      $Res Function(_$EventParticipationImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? user = null,
-    Object? isImagesPublic = null,
-    Object? role = null,
-    Object? joinedDateTime = null,
-    Object? journey = freezed,
-  }) {
-    return _then(_$EventParticipationImpl(
-      user: null == user
-          ? _value.user
-          : user // ignore: cast_nullable_to_non_nullable
-              as MinimalUser,
-      isImagesPublic: null == isImagesPublic
-          ? _value.isImagesPublic
-          : isImagesPublic // ignore: cast_nullable_to_non_nullable
-              as bool,
-      role: null == role
-          ? _value.role
-          : role // ignore: cast_nullable_to_non_nullable
-              as EventRole,
-      joinedDateTime: null == joinedDateTime
-          ? _value.joinedDateTime
-          : joinedDateTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      journey: freezed == journey
-          ? _value.journey
-          : journey // ignore: cast_nullable_to_non_nullable
-              as UserJourney?,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$EventParticipationImpl extends _EventParticipation {
-  const _$EventParticipationImpl(
-      {required this.user,
-      required this.isImagesPublic,
-      required this.role,
-      required this.joinedDateTime,
-      required this.journey})
-      : super._();
 
-  factory _$EventParticipationImpl.fromJson(Map<String, dynamic> json) =>
-      _$$EventParticipationImplFromJson(json);
+class _EventParticipation extends EventParticipation {
+  const _EventParticipation({required this.user, required this.isImagesPublic, required this.role, required this.joinedDateTime, required this.journey}): super._();
+  factory _EventParticipation.fromJson(Map<String, dynamic> json) => _$EventParticipationFromJson(json);
 
-  @override
-  final MinimalUser user;
-  @override
-  final bool isImagesPublic;
-  @override
-  final EventRole role;
-  @override
-  final DateTime joinedDateTime;
-  @override
-  final UserJourney? journey;
+@override final  MinimalUser user;
+@override final  bool isImagesPublic;
+@override final  EventRole role;
+@override final  DateTime joinedDateTime;
+@override final  UserJourney? journey;
 
-  @override
-  String toString() {
-    return 'EventParticipation(user: $user, isImagesPublic: $isImagesPublic, role: $role, joinedDateTime: $joinedDateTime, journey: $journey)';
-  }
+/// Create a copy of EventParticipation
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$EventParticipationCopyWith<_EventParticipation> get copyWith => __$EventParticipationCopyWithImpl<_EventParticipation>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$EventParticipationImpl &&
-            (identical(other.user, user) || other.user == user) &&
-            (identical(other.isImagesPublic, isImagesPublic) ||
-                other.isImagesPublic == isImagesPublic) &&
-            (identical(other.role, role) || other.role == role) &&
-            (identical(other.joinedDateTime, joinedDateTime) ||
-                other.joinedDateTime == joinedDateTime) &&
-            (identical(other.journey, journey) || other.journey == journey));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, user, isImagesPublic, role, joinedDateTime, journey);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$EventParticipationImplCopyWith<_$EventParticipationImpl> get copyWith =>
-      __$$EventParticipationImplCopyWithImpl<_$EventParticipationImpl>(
-          this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$EventParticipationImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$EventParticipationToJson(this, );
 }
 
-abstract class _EventParticipation extends EventParticipation {
-  const factory _EventParticipation(
-      {required final MinimalUser user,
-      required final bool isImagesPublic,
-      required final EventRole role,
-      required final DateTime joinedDateTime,
-      required final UserJourney? journey}) = _$EventParticipationImpl;
-  const _EventParticipation._() : super._();
-
-  factory _EventParticipation.fromJson(Map<String, dynamic> json) =
-      _$EventParticipationImpl.fromJson;
-
-  @override
-  MinimalUser get user;
-  @override
-  bool get isImagesPublic;
-  @override
-  EventRole get role;
-  @override
-  DateTime get joinedDateTime;
-  @override
-  UserJourney? get journey;
-  @override
-  @JsonKey(ignore: true)
-  _$$EventParticipationImplCopyWith<_$EventParticipationImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventParticipation&&(identical(other.user, user) || other.user == user)&&(identical(other.isImagesPublic, isImagesPublic) || other.isImagesPublic == isImagesPublic)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedDateTime, joinedDateTime) || other.joinedDateTime == joinedDateTime)&&(identical(other.journey, journey) || other.journey == journey));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,user,isImagesPublic,role,joinedDateTime,journey);
+
+@override
+String toString() {
+  return 'EventParticipation(user: $user, isImagesPublic: $isImagesPublic, role: $role, joinedDateTime: $joinedDateTime, journey: $journey)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$EventParticipationCopyWith<$Res> implements $EventParticipationCopyWith<$Res> {
+  factory _$EventParticipationCopyWith(_EventParticipation value, $Res Function(_EventParticipation) _then) = __$EventParticipationCopyWithImpl;
+@override @useResult
+$Res call({
+ MinimalUser user, bool isImagesPublic, EventRole role, DateTime joinedDateTime, UserJourney? journey
+});
+
+
+@override $MinimalUserCopyWith<$Res> get user;@override $UserJourneyCopyWith<$Res>? get journey;
+
+}
+/// @nodoc
+class __$EventParticipationCopyWithImpl<$Res>
+    implements _$EventParticipationCopyWith<$Res> {
+  __$EventParticipationCopyWithImpl(this._self, this._then);
+
+  final _EventParticipation _self;
+  final $Res Function(_EventParticipation) _then;
+
+/// Create a copy of EventParticipation
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? user = null,Object? isImagesPublic = null,Object? role = null,Object? joinedDateTime = null,Object? journey = freezed,}) {
+  return _then(_EventParticipation(
+user: null == user ? _self.user : user // ignore: cast_nullable_to_non_nullable
+as MinimalUser,isImagesPublic: null == isImagesPublic ? _self.isImagesPublic : isImagesPublic // ignore: cast_nullable_to_non_nullable
+as bool,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_nullable
+as EventRole,joinedDateTime: null == joinedDateTime ? _self.joinedDateTime : joinedDateTime // ignore: cast_nullable_to_non_nullable
+as DateTime,journey: freezed == journey ? _self.journey : journey // ignore: cast_nullable_to_non_nullable
+as UserJourney?,
+  ));
+}
+
+/// Create a copy of EventParticipation
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$MinimalUserCopyWith<$Res> get user {
+  
+  return $MinimalUserCopyWith<$Res>(_self.user, (value) {
+    return _then(_self.copyWith(user: value));
+  });
+}/// Create a copy of EventParticipation
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UserJourneyCopyWith<$Res>? get journey {
+    if (_self.journey == null) {
+    return null;
+  }
+
+  return $UserJourneyCopyWith<$Res>(_self.journey!, (value) {
+    return _then(_self.copyWith(journey: value));
+  });
+}
+}
+
+// dart format on

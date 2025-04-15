@@ -8,7 +8,7 @@ import 'package:hollybike/auth/services/auth_persistence.dart';
 import 'package:hollybike/auth/guards/auth_guard.dart';
 
 @AutoRouterConfig()
-class AppRouter extends $AppRouter {
+class AppRouter extends RootStackRouter {
   final AuthPersistence authPersistence;
 
   AppRouter({required this.authPersistence});

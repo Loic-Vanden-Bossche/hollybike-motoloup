@@ -11,7 +11,7 @@ part 'websocket_send_position.freezed.dart';
 part 'websocket_send_position.g.dart';
 
 @freezed
-class WebsocketSendPosition
+sealed class WebsocketSendPosition
     with _$WebsocketSendPosition
     implements WebsocketBody {
   const factory WebsocketSendPosition({

@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'event_expense.dart';
@@ -10,8 +6,8 @@ part of 'event_expense.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$EventExpenseImpl _$$EventExpenseImplFromJson(Map<String, dynamic> json) =>
-    _$EventExpenseImpl(
+_EventExpense _$EventExpenseFromJson(Map<String, dynamic> json) =>
+    _EventExpense(
       id: (json['id'] as num).toInt(),
       name: json['name'] as String,
       description: json['description'] as String?,
@@ -21,7 +17,7 @@ _$EventExpenseImpl _$$EventExpenseImplFromJson(Map<String, dynamic> json) =>
       proofKey: json['proof_key'] as String?,
     );
 
-Map<String, dynamic> _$$EventExpenseImplToJson(_$EventExpenseImpl instance) =>
+Map<String, dynamic> _$EventExpenseToJson(_EventExpense instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.name,

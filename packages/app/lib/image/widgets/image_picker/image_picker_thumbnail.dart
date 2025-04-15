@@ -4,7 +4,7 @@
 */
 import 'package:flutter/material.dart';
 import 'package:hollybike/image/utils/image_picker/img.dart';
-import 'package:photo_gallery/photo_gallery.dart';
+// import 'package:photo_gallery/photo_gallery.dart';
 
 import 'image_picker_thumbnail_container.dart';
 
@@ -28,13 +28,14 @@ class ImagePickerThumbnail extends StatelessWidget {
         height: double.infinity,
         width: double.infinity,
         fit: BoxFit.cover,
-        image: ThumbnailProvider(
-          mediumId: mediumId,
-          mediumType: MediumType.image,
-          width: 512,
-          height: 512,
-          highQuality: true,
-        ),
+        // image: ThumbnailProvider(
+        //   mediumId: mediumId,
+        //   mediumType: MediumType.image,
+        //   width: 512,
+        //   height: 512,
+        //   highQuality: true,
+        // ),
+        image: const AssetImage('assets/images/placeholder.png'),
       ),
       onTap: () async => onImageSelected(await Img.fromMediumId(mediumId)),
     );

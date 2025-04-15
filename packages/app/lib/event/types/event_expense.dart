@@ -9,7 +9,7 @@ part 'event_expense.freezed.dart';
 part 'event_expense.g.dart';
 
 @freezed
-class EventExpense with _$EventExpense {
+sealed class EventExpense with _$EventExpense {
   const factory EventExpense({
     required int id,
     required String name,

@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,1410 +10,869 @@ part of 'weather_forecast_response.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-WeatherForecastResponse _$WeatherForecastResponseFromJson(
-    Map<String, dynamic> json) {
-  return _WeatherForecastResponse.fromJson(json);
-}
 
 /// @nodoc
 mixin _$WeatherForecastResponse {
-  double get latitude => throw _privateConstructorUsedError;
-  double get longitude => throw _privateConstructorUsedError;
-  @JsonKey(name: 'generationtime_ms')
-  double get generationTimeMs => throw _privateConstructorUsedError;
-  @JsonKey(name: 'utc_offset_seconds')
-  int get utcOffsetSeconds => throw _privateConstructorUsedError;
-  String get timezone => throw _privateConstructorUsedError;
-  @JsonKey(name: 'timezone_abbreviation')
-  String get timezoneAbbreviation => throw _privateConstructorUsedError;
-  double get elevation => throw _privateConstructorUsedError;
-  @JsonKey(name: 'hourly_units')
-  HourlyUnits get hourlyUnits => throw _privateConstructorUsedError;
-  Hourly get hourly => throw _privateConstructorUsedError;
-  @JsonKey(name: 'daily_units')
-  DailyUnits get dailyUnits => throw _privateConstructorUsedError;
-  Daily get daily => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $WeatherForecastResponseCopyWith<WeatherForecastResponse> get copyWith =>
-      throw _privateConstructorUsedError;
+ double get latitude; double get longitude;@JsonKey(name: 'generationtime_ms') double get generationTimeMs;@JsonKey(name: 'utc_offset_seconds') int get utcOffsetSeconds; String get timezone;@JsonKey(name: 'timezone_abbreviation') String get timezoneAbbreviation; double get elevation;@JsonKey(name: 'hourly_units') HourlyUnits get hourlyUnits; Hourly get hourly;@JsonKey(name: 'daily_units') DailyUnits get dailyUnits; Daily get daily;
+/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WeatherForecastResponseCopyWith<WeatherForecastResponse> get copyWith => _$WeatherForecastResponseCopyWithImpl<WeatherForecastResponse>(this as WeatherForecastResponse, _$identity);
+
+  /// Serializes this WeatherForecastResponse to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WeatherForecastResponse&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.generationTimeMs, generationTimeMs) || other.generationTimeMs == generationTimeMs)&&(identical(other.utcOffsetSeconds, utcOffsetSeconds) || other.utcOffsetSeconds == utcOffsetSeconds)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.timezoneAbbreviation, timezoneAbbreviation) || other.timezoneAbbreviation == timezoneAbbreviation)&&(identical(other.elevation, elevation) || other.elevation == elevation)&&(identical(other.hourlyUnits, hourlyUnits) || other.hourlyUnits == hourlyUnits)&&(identical(other.hourly, hourly) || other.hourly == hourly)&&(identical(other.dailyUnits, dailyUnits) || other.dailyUnits == dailyUnits)&&(identical(other.daily, daily) || other.daily == daily));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,latitude,longitude,generationTimeMs,utcOffsetSeconds,timezone,timezoneAbbreviation,elevation,hourlyUnits,hourly,dailyUnits,daily);
+
+@override
+String toString() {
+  return 'WeatherForecastResponse(latitude: $latitude, longitude: $longitude, generationTimeMs: $generationTimeMs, utcOffsetSeconds: $utcOffsetSeconds, timezone: $timezone, timezoneAbbreviation: $timezoneAbbreviation, elevation: $elevation, hourlyUnits: $hourlyUnits, hourly: $hourly, dailyUnits: $dailyUnits, daily: $daily)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $WeatherForecastResponseCopyWith<$Res> {
-  factory $WeatherForecastResponseCopyWith(WeatherForecastResponse value,
-          $Res Function(WeatherForecastResponse) then) =
-      _$WeatherForecastResponseCopyWithImpl<$Res, WeatherForecastResponse>;
-  @useResult
-  $Res call(
-      {double latitude,
-      double longitude,
-      @JsonKey(name: 'generationtime_ms') double generationTimeMs,
-      @JsonKey(name: 'utc_offset_seconds') int utcOffsetSeconds,
-      String timezone,
-      @JsonKey(name: 'timezone_abbreviation') String timezoneAbbreviation,
-      double elevation,
-      @JsonKey(name: 'hourly_units') HourlyUnits hourlyUnits,
-      Hourly hourly,
-      @JsonKey(name: 'daily_units') DailyUnits dailyUnits,
-      Daily daily});
+abstract mixin class $WeatherForecastResponseCopyWith<$Res>  {
+  factory $WeatherForecastResponseCopyWith(WeatherForecastResponse value, $Res Function(WeatherForecastResponse) _then) = _$WeatherForecastResponseCopyWithImpl;
+@useResult
+$Res call({
+ double latitude, double longitude,@JsonKey(name: 'generationtime_ms') double generationTimeMs,@JsonKey(name: 'utc_offset_seconds') int utcOffsetSeconds, String timezone,@JsonKey(name: 'timezone_abbreviation') String timezoneAbbreviation, double elevation,@JsonKey(name: 'hourly_units') HourlyUnits hourlyUnits, Hourly hourly,@JsonKey(name: 'daily_units') DailyUnits dailyUnits, Daily daily
+});
 
-  $HourlyUnitsCopyWith<$Res> get hourlyUnits;
-  $HourlyCopyWith<$Res> get hourly;
-  $DailyUnitsCopyWith<$Res> get dailyUnits;
-  $DailyCopyWith<$Res> get daily;
+
+$HourlyUnitsCopyWith<$Res> get hourlyUnits;$HourlyCopyWith<$Res> get hourly;$DailyUnitsCopyWith<$Res> get dailyUnits;$DailyCopyWith<$Res> get daily;
+
 }
-
 /// @nodoc
-class _$WeatherForecastResponseCopyWithImpl<$Res,
-        $Val extends WeatherForecastResponse>
+class _$WeatherForecastResponseCopyWithImpl<$Res>
     implements $WeatherForecastResponseCopyWith<$Res> {
-  _$WeatherForecastResponseCopyWithImpl(this._value, this._then);
+  _$WeatherForecastResponseCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final WeatherForecastResponse _self;
+  final $Res Function(WeatherForecastResponse) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? latitude = null,
-    Object? longitude = null,
-    Object? generationTimeMs = null,
-    Object? utcOffsetSeconds = null,
-    Object? timezone = null,
-    Object? timezoneAbbreviation = null,
-    Object? elevation = null,
-    Object? hourlyUnits = null,
-    Object? hourly = null,
-    Object? dailyUnits = null,
-    Object? daily = null,
-  }) {
-    return _then(_value.copyWith(
-      latitude: null == latitude
-          ? _value.latitude
-          : latitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      longitude: null == longitude
-          ? _value.longitude
-          : longitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      generationTimeMs: null == generationTimeMs
-          ? _value.generationTimeMs
-          : generationTimeMs // ignore: cast_nullable_to_non_nullable
-              as double,
-      utcOffsetSeconds: null == utcOffsetSeconds
-          ? _value.utcOffsetSeconds
-          : utcOffsetSeconds // ignore: cast_nullable_to_non_nullable
-              as int,
-      timezone: null == timezone
-          ? _value.timezone
-          : timezone // ignore: cast_nullable_to_non_nullable
-              as String,
-      timezoneAbbreviation: null == timezoneAbbreviation
-          ? _value.timezoneAbbreviation
-          : timezoneAbbreviation // ignore: cast_nullable_to_non_nullable
-              as String,
-      elevation: null == elevation
-          ? _value.elevation
-          : elevation // ignore: cast_nullable_to_non_nullable
-              as double,
-      hourlyUnits: null == hourlyUnits
-          ? _value.hourlyUnits
-          : hourlyUnits // ignore: cast_nullable_to_non_nullable
-              as HourlyUnits,
-      hourly: null == hourly
-          ? _value.hourly
-          : hourly // ignore: cast_nullable_to_non_nullable
-              as Hourly,
-      dailyUnits: null == dailyUnits
-          ? _value.dailyUnits
-          : dailyUnits // ignore: cast_nullable_to_non_nullable
-              as DailyUnits,
-      daily: null == daily
-          ? _value.daily
-          : daily // ignore: cast_nullable_to_non_nullable
-              as Daily,
-    ) as $Val);
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $HourlyUnitsCopyWith<$Res> get hourlyUnits {
-    return $HourlyUnitsCopyWith<$Res>(_value.hourlyUnits, (value) {
-      return _then(_value.copyWith(hourlyUnits: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $HourlyCopyWith<$Res> get hourly {
-    return $HourlyCopyWith<$Res>(_value.hourly, (value) {
-      return _then(_value.copyWith(hourly: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $DailyUnitsCopyWith<$Res> get dailyUnits {
-    return $DailyUnitsCopyWith<$Res>(_value.dailyUnits, (value) {
-      return _then(_value.copyWith(dailyUnits: value) as $Val);
-    });
-  }
-
-  @override
-  @pragma('vm:prefer-inline')
-  $DailyCopyWith<$Res> get daily {
-    return $DailyCopyWith<$Res>(_value.daily, (value) {
-      return _then(_value.copyWith(daily: value) as $Val);
-    });
-  }
+/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? latitude = null,Object? longitude = null,Object? generationTimeMs = null,Object? utcOffsetSeconds = null,Object? timezone = null,Object? timezoneAbbreviation = null,Object? elevation = null,Object? hourlyUnits = null,Object? hourly = null,Object? dailyUnits = null,Object? daily = null,}) {
+  return _then(_self.copyWith(
+latitude: null == latitude ? _self.latitude : latitude // ignore: cast_nullable_to_non_nullable
+as double,longitude: null == longitude ? _self.longitude : longitude // ignore: cast_nullable_to_non_nullable
+as double,generationTimeMs: null == generationTimeMs ? _self.generationTimeMs : generationTimeMs // ignore: cast_nullable_to_non_nullable
+as double,utcOffsetSeconds: null == utcOffsetSeconds ? _self.utcOffsetSeconds : utcOffsetSeconds // ignore: cast_nullable_to_non_nullable
+as int,timezone: null == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
+as String,timezoneAbbreviation: null == timezoneAbbreviation ? _self.timezoneAbbreviation : timezoneAbbreviation // ignore: cast_nullable_to_non_nullable
+as String,elevation: null == elevation ? _self.elevation : elevation // ignore: cast_nullable_to_non_nullable
+as double,hourlyUnits: null == hourlyUnits ? _self.hourlyUnits : hourlyUnits // ignore: cast_nullable_to_non_nullable
+as HourlyUnits,hourly: null == hourly ? _self.hourly : hourly // ignore: cast_nullable_to_non_nullable
+as Hourly,dailyUnits: null == dailyUnits ? _self.dailyUnits : dailyUnits // ignore: cast_nullable_to_non_nullable
+as DailyUnits,daily: null == daily ? _self.daily : daily // ignore: cast_nullable_to_non_nullable
+as Daily,
+  ));
+}
+/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$HourlyUnitsCopyWith<$Res> get hourlyUnits {
+  
+  return $HourlyUnitsCopyWith<$Res>(_self.hourlyUnits, (value) {
+    return _then(_self.copyWith(hourlyUnits: value));
+  });
+}/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$HourlyCopyWith<$Res> get hourly {
+  
+  return $HourlyCopyWith<$Res>(_self.hourly, (value) {
+    return _then(_self.copyWith(hourly: value));
+  });
+}/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DailyUnitsCopyWith<$Res> get dailyUnits {
+  
+  return $DailyUnitsCopyWith<$Res>(_self.dailyUnits, (value) {
+    return _then(_self.copyWith(dailyUnits: value));
+  });
+}/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DailyCopyWith<$Res> get daily {
+  
+  return $DailyCopyWith<$Res>(_self.daily, (value) {
+    return _then(_self.copyWith(daily: value));
+  });
+}
 }
 
-/// @nodoc
-abstract class _$$WeatherForecastResponseImplCopyWith<$Res>
-    implements $WeatherForecastResponseCopyWith<$Res> {
-  factory _$$WeatherForecastResponseImplCopyWith(
-          _$WeatherForecastResponseImpl value,
-          $Res Function(_$WeatherForecastResponseImpl) then) =
-      __$$WeatherForecastResponseImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {double latitude,
-      double longitude,
-      @JsonKey(name: 'generationtime_ms') double generationTimeMs,
-      @JsonKey(name: 'utc_offset_seconds') int utcOffsetSeconds,
-      String timezone,
-      @JsonKey(name: 'timezone_abbreviation') String timezoneAbbreviation,
-      double elevation,
-      @JsonKey(name: 'hourly_units') HourlyUnits hourlyUnits,
-      Hourly hourly,
-      @JsonKey(name: 'daily_units') DailyUnits dailyUnits,
-      Daily daily});
-
-  @override
-  $HourlyUnitsCopyWith<$Res> get hourlyUnits;
-  @override
-  $HourlyCopyWith<$Res> get hourly;
-  @override
-  $DailyUnitsCopyWith<$Res> get dailyUnits;
-  @override
-  $DailyCopyWith<$Res> get daily;
-}
-
-/// @nodoc
-class __$$WeatherForecastResponseImplCopyWithImpl<$Res>
-    extends _$WeatherForecastResponseCopyWithImpl<$Res,
-        _$WeatherForecastResponseImpl>
-    implements _$$WeatherForecastResponseImplCopyWith<$Res> {
-  __$$WeatherForecastResponseImplCopyWithImpl(
-      _$WeatherForecastResponseImpl _value,
-      $Res Function(_$WeatherForecastResponseImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? latitude = null,
-    Object? longitude = null,
-    Object? generationTimeMs = null,
-    Object? utcOffsetSeconds = null,
-    Object? timezone = null,
-    Object? timezoneAbbreviation = null,
-    Object? elevation = null,
-    Object? hourlyUnits = null,
-    Object? hourly = null,
-    Object? dailyUnits = null,
-    Object? daily = null,
-  }) {
-    return _then(_$WeatherForecastResponseImpl(
-      latitude: null == latitude
-          ? _value.latitude
-          : latitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      longitude: null == longitude
-          ? _value.longitude
-          : longitude // ignore: cast_nullable_to_non_nullable
-              as double,
-      generationTimeMs: null == generationTimeMs
-          ? _value.generationTimeMs
-          : generationTimeMs // ignore: cast_nullable_to_non_nullable
-              as double,
-      utcOffsetSeconds: null == utcOffsetSeconds
-          ? _value.utcOffsetSeconds
-          : utcOffsetSeconds // ignore: cast_nullable_to_non_nullable
-              as int,
-      timezone: null == timezone
-          ? _value.timezone
-          : timezone // ignore: cast_nullable_to_non_nullable
-              as String,
-      timezoneAbbreviation: null == timezoneAbbreviation
-          ? _value.timezoneAbbreviation
-          : timezoneAbbreviation // ignore: cast_nullable_to_non_nullable
-              as String,
-      elevation: null == elevation
-          ? _value.elevation
-          : elevation // ignore: cast_nullable_to_non_nullable
-              as double,
-      hourlyUnits: null == hourlyUnits
-          ? _value.hourlyUnits
-          : hourlyUnits // ignore: cast_nullable_to_non_nullable
-              as HourlyUnits,
-      hourly: null == hourly
-          ? _value.hourly
-          : hourly // ignore: cast_nullable_to_non_nullable
-              as Hourly,
-      dailyUnits: null == dailyUnits
-          ? _value.dailyUnits
-          : dailyUnits // ignore: cast_nullable_to_non_nullable
-              as DailyUnits,
-      daily: null == daily
-          ? _value.daily
-          : daily // ignore: cast_nullable_to_non_nullable
-              as Daily,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$WeatherForecastResponseImpl implements _WeatherForecastResponse {
-  const _$WeatherForecastResponseImpl(
-      {required this.latitude,
-      required this.longitude,
-      @JsonKey(name: 'generationtime_ms') required this.generationTimeMs,
-      @JsonKey(name: 'utc_offset_seconds') required this.utcOffsetSeconds,
-      required this.timezone,
-      @JsonKey(name: 'timezone_abbreviation')
-      required this.timezoneAbbreviation,
-      required this.elevation,
-      @JsonKey(name: 'hourly_units') required this.hourlyUnits,
-      required this.hourly,
-      @JsonKey(name: 'daily_units') required this.dailyUnits,
-      required this.daily});
 
-  factory _$WeatherForecastResponseImpl.fromJson(Map<String, dynamic> json) =>
-      _$$WeatherForecastResponseImplFromJson(json);
+class _WeatherForecastResponse implements WeatherForecastResponse {
+  const _WeatherForecastResponse({required this.latitude, required this.longitude, @JsonKey(name: 'generationtime_ms') required this.generationTimeMs, @JsonKey(name: 'utc_offset_seconds') required this.utcOffsetSeconds, required this.timezone, @JsonKey(name: 'timezone_abbreviation') required this.timezoneAbbreviation, required this.elevation, @JsonKey(name: 'hourly_units') required this.hourlyUnits, required this.hourly, @JsonKey(name: 'daily_units') required this.dailyUnits, required this.daily});
+  factory _WeatherForecastResponse.fromJson(Map<String, dynamic> json) => _$WeatherForecastResponseFromJson(json);
 
-  @override
-  final double latitude;
-  @override
-  final double longitude;
-  @override
-  @JsonKey(name: 'generationtime_ms')
-  final double generationTimeMs;
-  @override
-  @JsonKey(name: 'utc_offset_seconds')
-  final int utcOffsetSeconds;
-  @override
-  final String timezone;
-  @override
-  @JsonKey(name: 'timezone_abbreviation')
-  final String timezoneAbbreviation;
-  @override
-  final double elevation;
-  @override
-  @JsonKey(name: 'hourly_units')
-  final HourlyUnits hourlyUnits;
-  @override
-  final Hourly hourly;
-  @override
-  @JsonKey(name: 'daily_units')
-  final DailyUnits dailyUnits;
-  @override
-  final Daily daily;
+@override final  double latitude;
+@override final  double longitude;
+@override@JsonKey(name: 'generationtime_ms') final  double generationTimeMs;
+@override@JsonKey(name: 'utc_offset_seconds') final  int utcOffsetSeconds;
+@override final  String timezone;
+@override@JsonKey(name: 'timezone_abbreviation') final  String timezoneAbbreviation;
+@override final  double elevation;
+@override@JsonKey(name: 'hourly_units') final  HourlyUnits hourlyUnits;
+@override final  Hourly hourly;
+@override@JsonKey(name: 'daily_units') final  DailyUnits dailyUnits;
+@override final  Daily daily;
 
-  @override
-  String toString() {
-    return 'WeatherForecastResponse(latitude: $latitude, longitude: $longitude, generationTimeMs: $generationTimeMs, utcOffsetSeconds: $utcOffsetSeconds, timezone: $timezone, timezoneAbbreviation: $timezoneAbbreviation, elevation: $elevation, hourlyUnits: $hourlyUnits, hourly: $hourly, dailyUnits: $dailyUnits, daily: $daily)';
-  }
+/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WeatherForecastResponseCopyWith<_WeatherForecastResponse> get copyWith => __$WeatherForecastResponseCopyWithImpl<_WeatherForecastResponse>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WeatherForecastResponseImpl &&
-            (identical(other.latitude, latitude) ||
-                other.latitude == latitude) &&
-            (identical(other.longitude, longitude) ||
-                other.longitude == longitude) &&
-            (identical(other.generationTimeMs, generationTimeMs) ||
-                other.generationTimeMs == generationTimeMs) &&
-            (identical(other.utcOffsetSeconds, utcOffsetSeconds) ||
-                other.utcOffsetSeconds == utcOffsetSeconds) &&
-            (identical(other.timezone, timezone) ||
-                other.timezone == timezone) &&
-            (identical(other.timezoneAbbreviation, timezoneAbbreviation) ||
-                other.timezoneAbbreviation == timezoneAbbreviation) &&
-            (identical(other.elevation, elevation) ||
-                other.elevation == elevation) &&
-            (identical(other.hourlyUnits, hourlyUnits) ||
-                other.hourlyUnits == hourlyUnits) &&
-            (identical(other.hourly, hourly) || other.hourly == hourly) &&
-            (identical(other.dailyUnits, dailyUnits) ||
-                other.dailyUnits == dailyUnits) &&
-            (identical(other.daily, daily) || other.daily == daily));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      latitude,
-      longitude,
-      generationTimeMs,
-      utcOffsetSeconds,
-      timezone,
-      timezoneAbbreviation,
-      elevation,
-      hourlyUnits,
-      hourly,
-      dailyUnits,
-      daily);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WeatherForecastResponseImplCopyWith<_$WeatherForecastResponseImpl>
-      get copyWith => __$$WeatherForecastResponseImplCopyWithImpl<
-          _$WeatherForecastResponseImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$WeatherForecastResponseImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$WeatherForecastResponseToJson(this, );
 }
 
-abstract class _WeatherForecastResponse implements WeatherForecastResponse {
-  const factory _WeatherForecastResponse(
-      {required final double latitude,
-      required final double longitude,
-      @JsonKey(name: 'generationtime_ms')
-      required final double generationTimeMs,
-      @JsonKey(name: 'utc_offset_seconds') required final int utcOffsetSeconds,
-      required final String timezone,
-      @JsonKey(name: 'timezone_abbreviation')
-      required final String timezoneAbbreviation,
-      required final double elevation,
-      @JsonKey(name: 'hourly_units') required final HourlyUnits hourlyUnits,
-      required final Hourly hourly,
-      @JsonKey(name: 'daily_units') required final DailyUnits dailyUnits,
-      required final Daily daily}) = _$WeatherForecastResponseImpl;
-
-  factory _WeatherForecastResponse.fromJson(Map<String, dynamic> json) =
-      _$WeatherForecastResponseImpl.fromJson;
-
-  @override
-  double get latitude;
-  @override
-  double get longitude;
-  @override
-  @JsonKey(name: 'generationtime_ms')
-  double get generationTimeMs;
-  @override
-  @JsonKey(name: 'utc_offset_seconds')
-  int get utcOffsetSeconds;
-  @override
-  String get timezone;
-  @override
-  @JsonKey(name: 'timezone_abbreviation')
-  String get timezoneAbbreviation;
-  @override
-  double get elevation;
-  @override
-  @JsonKey(name: 'hourly_units')
-  HourlyUnits get hourlyUnits;
-  @override
-  Hourly get hourly;
-  @override
-  @JsonKey(name: 'daily_units')
-  DailyUnits get dailyUnits;
-  @override
-  Daily get daily;
-  @override
-  @JsonKey(ignore: true)
-  _$$WeatherForecastResponseImplCopyWith<_$WeatherForecastResponseImpl>
-      get copyWith => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WeatherForecastResponse&&(identical(other.latitude, latitude) || other.latitude == latitude)&&(identical(other.longitude, longitude) || other.longitude == longitude)&&(identical(other.generationTimeMs, generationTimeMs) || other.generationTimeMs == generationTimeMs)&&(identical(other.utcOffsetSeconds, utcOffsetSeconds) || other.utcOffsetSeconds == utcOffsetSeconds)&&(identical(other.timezone, timezone) || other.timezone == timezone)&&(identical(other.timezoneAbbreviation, timezoneAbbreviation) || other.timezoneAbbreviation == timezoneAbbreviation)&&(identical(other.elevation, elevation) || other.elevation == elevation)&&(identical(other.hourlyUnits, hourlyUnits) || other.hourlyUnits == hourlyUnits)&&(identical(other.hourly, hourly) || other.hourly == hourly)&&(identical(other.dailyUnits, dailyUnits) || other.dailyUnits == dailyUnits)&&(identical(other.daily, daily) || other.daily == daily));
 }
 
-HourlyUnits _$HourlyUnitsFromJson(Map<String, dynamic> json) {
-  return _HourlyUnits.fromJson(json);
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,latitude,longitude,generationTimeMs,utcOffsetSeconds,timezone,timezoneAbbreviation,elevation,hourlyUnits,hourly,dailyUnits,daily);
+
+@override
+String toString() {
+  return 'WeatherForecastResponse(latitude: $latitude, longitude: $longitude, generationTimeMs: $generationTimeMs, utcOffsetSeconds: $utcOffsetSeconds, timezone: $timezone, timezoneAbbreviation: $timezoneAbbreviation, elevation: $elevation, hourlyUnits: $hourlyUnits, hourly: $hourly, dailyUnits: $dailyUnits, daily: $daily)';
 }
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WeatherForecastResponseCopyWith<$Res> implements $WeatherForecastResponseCopyWith<$Res> {
+  factory _$WeatherForecastResponseCopyWith(_WeatherForecastResponse value, $Res Function(_WeatherForecastResponse) _then) = __$WeatherForecastResponseCopyWithImpl;
+@override @useResult
+$Res call({
+ double latitude, double longitude,@JsonKey(name: 'generationtime_ms') double generationTimeMs,@JsonKey(name: 'utc_offset_seconds') int utcOffsetSeconds, String timezone,@JsonKey(name: 'timezone_abbreviation') String timezoneAbbreviation, double elevation,@JsonKey(name: 'hourly_units') HourlyUnits hourlyUnits, Hourly hourly,@JsonKey(name: 'daily_units') DailyUnits dailyUnits, Daily daily
+});
+
+
+@override $HourlyUnitsCopyWith<$Res> get hourlyUnits;@override $HourlyCopyWith<$Res> get hourly;@override $DailyUnitsCopyWith<$Res> get dailyUnits;@override $DailyCopyWith<$Res> get daily;
+
+}
+/// @nodoc
+class __$WeatherForecastResponseCopyWithImpl<$Res>
+    implements _$WeatherForecastResponseCopyWith<$Res> {
+  __$WeatherForecastResponseCopyWithImpl(this._self, this._then);
+
+  final _WeatherForecastResponse _self;
+  final $Res Function(_WeatherForecastResponse) _then;
+
+/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? latitude = null,Object? longitude = null,Object? generationTimeMs = null,Object? utcOffsetSeconds = null,Object? timezone = null,Object? timezoneAbbreviation = null,Object? elevation = null,Object? hourlyUnits = null,Object? hourly = null,Object? dailyUnits = null,Object? daily = null,}) {
+  return _then(_WeatherForecastResponse(
+latitude: null == latitude ? _self.latitude : latitude // ignore: cast_nullable_to_non_nullable
+as double,longitude: null == longitude ? _self.longitude : longitude // ignore: cast_nullable_to_non_nullable
+as double,generationTimeMs: null == generationTimeMs ? _self.generationTimeMs : generationTimeMs // ignore: cast_nullable_to_non_nullable
+as double,utcOffsetSeconds: null == utcOffsetSeconds ? _self.utcOffsetSeconds : utcOffsetSeconds // ignore: cast_nullable_to_non_nullable
+as int,timezone: null == timezone ? _self.timezone : timezone // ignore: cast_nullable_to_non_nullable
+as String,timezoneAbbreviation: null == timezoneAbbreviation ? _self.timezoneAbbreviation : timezoneAbbreviation // ignore: cast_nullable_to_non_nullable
+as String,elevation: null == elevation ? _self.elevation : elevation // ignore: cast_nullable_to_non_nullable
+as double,hourlyUnits: null == hourlyUnits ? _self.hourlyUnits : hourlyUnits // ignore: cast_nullable_to_non_nullable
+as HourlyUnits,hourly: null == hourly ? _self.hourly : hourly // ignore: cast_nullable_to_non_nullable
+as Hourly,dailyUnits: null == dailyUnits ? _self.dailyUnits : dailyUnits // ignore: cast_nullable_to_non_nullable
+as DailyUnits,daily: null == daily ? _self.daily : daily // ignore: cast_nullable_to_non_nullable
+as Daily,
+  ));
+}
+
+/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$HourlyUnitsCopyWith<$Res> get hourlyUnits {
+  
+  return $HourlyUnitsCopyWith<$Res>(_self.hourlyUnits, (value) {
+    return _then(_self.copyWith(hourlyUnits: value));
+  });
+}/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$HourlyCopyWith<$Res> get hourly {
+  
+  return $HourlyCopyWith<$Res>(_self.hourly, (value) {
+    return _then(_self.copyWith(hourly: value));
+  });
+}/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DailyUnitsCopyWith<$Res> get dailyUnits {
+  
+  return $DailyUnitsCopyWith<$Res>(_self.dailyUnits, (value) {
+    return _then(_self.copyWith(dailyUnits: value));
+  });
+}/// Create a copy of WeatherForecastResponse
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$DailyCopyWith<$Res> get daily {
+  
+  return $DailyCopyWith<$Res>(_self.daily, (value) {
+    return _then(_self.copyWith(daily: value));
+  });
+}
+}
+
 
 /// @nodoc
 mixin _$HourlyUnits {
-  String get time => throw _privateConstructorUsedError;
-  @JsonKey(name: 'temperature_2m')
-  String get temperature2m => throw _privateConstructorUsedError;
-  @JsonKey(name: 'weather_code')
-  String get weatherCode => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $HourlyUnitsCopyWith<HourlyUnits> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get time;@JsonKey(name: 'temperature_2m') String get temperature2m;@JsonKey(name: 'weather_code') String get weatherCode;
+/// Create a copy of HourlyUnits
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$HourlyUnitsCopyWith<HourlyUnits> get copyWith => _$HourlyUnitsCopyWithImpl<HourlyUnits>(this as HourlyUnits, _$identity);
+
+  /// Serializes this HourlyUnits to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HourlyUnits&&(identical(other.time, time) || other.time == time)&&(identical(other.temperature2m, temperature2m) || other.temperature2m == temperature2m)&&(identical(other.weatherCode, weatherCode) || other.weatherCode == weatherCode));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,time,temperature2m,weatherCode);
+
+@override
+String toString() {
+  return 'HourlyUnits(time: $time, temperature2m: $temperature2m, weatherCode: $weatherCode)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $HourlyUnitsCopyWith<$Res> {
-  factory $HourlyUnitsCopyWith(
-          HourlyUnits value, $Res Function(HourlyUnits) then) =
-      _$HourlyUnitsCopyWithImpl<$Res, HourlyUnits>;
-  @useResult
-  $Res call(
-      {String time,
-      @JsonKey(name: 'temperature_2m') String temperature2m,
-      @JsonKey(name: 'weather_code') String weatherCode});
-}
+abstract mixin class $HourlyUnitsCopyWith<$Res>  {
+  factory $HourlyUnitsCopyWith(HourlyUnits value, $Res Function(HourlyUnits) _then) = _$HourlyUnitsCopyWithImpl;
+@useResult
+$Res call({
+ String time,@JsonKey(name: 'temperature_2m') String temperature2m,@JsonKey(name: 'weather_code') String weatherCode
+});
 
+
+
+
+}
 /// @nodoc
-class _$HourlyUnitsCopyWithImpl<$Res, $Val extends HourlyUnits>
+class _$HourlyUnitsCopyWithImpl<$Res>
     implements $HourlyUnitsCopyWith<$Res> {
-  _$HourlyUnitsCopyWithImpl(this._value, this._then);
+  _$HourlyUnitsCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final HourlyUnits _self;
+  final $Res Function(HourlyUnits) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? temperature2m = null,
-    Object? weatherCode = null,
-  }) {
-    return _then(_value.copyWith(
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as String,
-      temperature2m: null == temperature2m
-          ? _value.temperature2m
-          : temperature2m // ignore: cast_nullable_to_non_nullable
-              as String,
-      weatherCode: null == weatherCode
-          ? _value.weatherCode
-          : weatherCode // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
-  }
+/// Create a copy of HourlyUnits
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? time = null,Object? temperature2m = null,Object? weatherCode = null,}) {
+  return _then(_self.copyWith(
+time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as String,temperature2m: null == temperature2m ? _self.temperature2m : temperature2m // ignore: cast_nullable_to_non_nullable
+as String,weatherCode: null == weatherCode ? _self.weatherCode : weatherCode // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$HourlyUnitsImplCopyWith<$Res>
-    implements $HourlyUnitsCopyWith<$Res> {
-  factory _$$HourlyUnitsImplCopyWith(
-          _$HourlyUnitsImpl value, $Res Function(_$HourlyUnitsImpl) then) =
-      __$$HourlyUnitsImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String time,
-      @JsonKey(name: 'temperature_2m') String temperature2m,
-      @JsonKey(name: 'weather_code') String weatherCode});
 }
 
-/// @nodoc
-class __$$HourlyUnitsImplCopyWithImpl<$Res>
-    extends _$HourlyUnitsCopyWithImpl<$Res, _$HourlyUnitsImpl>
-    implements _$$HourlyUnitsImplCopyWith<$Res> {
-  __$$HourlyUnitsImplCopyWithImpl(
-      _$HourlyUnitsImpl _value, $Res Function(_$HourlyUnitsImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? temperature2m = null,
-    Object? weatherCode = null,
-  }) {
-    return _then(_$HourlyUnitsImpl(
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as String,
-      temperature2m: null == temperature2m
-          ? _value.temperature2m
-          : temperature2m // ignore: cast_nullable_to_non_nullable
-              as String,
-      weatherCode: null == weatherCode
-          ? _value.weatherCode
-          : weatherCode // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$HourlyUnitsImpl implements _HourlyUnits {
-  const _$HourlyUnitsImpl(
-      {required this.time,
-      @JsonKey(name: 'temperature_2m') required this.temperature2m,
-      @JsonKey(name: 'weather_code') required this.weatherCode});
 
-  factory _$HourlyUnitsImpl.fromJson(Map<String, dynamic> json) =>
-      _$$HourlyUnitsImplFromJson(json);
+class _HourlyUnits implements HourlyUnits {
+  const _HourlyUnits({required this.time, @JsonKey(name: 'temperature_2m') required this.temperature2m, @JsonKey(name: 'weather_code') required this.weatherCode});
+  factory _HourlyUnits.fromJson(Map<String, dynamic> json) => _$HourlyUnitsFromJson(json);
 
-  @override
-  final String time;
-  @override
-  @JsonKey(name: 'temperature_2m')
-  final String temperature2m;
-  @override
-  @JsonKey(name: 'weather_code')
-  final String weatherCode;
+@override final  String time;
+@override@JsonKey(name: 'temperature_2m') final  String temperature2m;
+@override@JsonKey(name: 'weather_code') final  String weatherCode;
 
-  @override
-  String toString() {
-    return 'HourlyUnits(time: $time, temperature2m: $temperature2m, weatherCode: $weatherCode)';
-  }
+/// Create a copy of HourlyUnits
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$HourlyUnitsCopyWith<_HourlyUnits> get copyWith => __$HourlyUnitsCopyWithImpl<_HourlyUnits>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$HourlyUnitsImpl &&
-            (identical(other.time, time) || other.time == time) &&
-            (identical(other.temperature2m, temperature2m) ||
-                other.temperature2m == temperature2m) &&
-            (identical(other.weatherCode, weatherCode) ||
-                other.weatherCode == weatherCode));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode =>
-      Object.hash(runtimeType, time, temperature2m, weatherCode);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$HourlyUnitsImplCopyWith<_$HourlyUnitsImpl> get copyWith =>
-      __$$HourlyUnitsImplCopyWithImpl<_$HourlyUnitsImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$HourlyUnitsImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$HourlyUnitsToJson(this, );
 }
 
-abstract class _HourlyUnits implements HourlyUnits {
-  const factory _HourlyUnits(
-          {required final String time,
-          @JsonKey(name: 'temperature_2m') required final String temperature2m,
-          @JsonKey(name: 'weather_code') required final String weatherCode}) =
-      _$HourlyUnitsImpl;
-
-  factory _HourlyUnits.fromJson(Map<String, dynamic> json) =
-      _$HourlyUnitsImpl.fromJson;
-
-  @override
-  String get time;
-  @override
-  @JsonKey(name: 'temperature_2m')
-  String get temperature2m;
-  @override
-  @JsonKey(name: 'weather_code')
-  String get weatherCode;
-  @override
-  @JsonKey(ignore: true)
-  _$$HourlyUnitsImplCopyWith<_$HourlyUnitsImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HourlyUnits&&(identical(other.time, time) || other.time == time)&&(identical(other.temperature2m, temperature2m) || other.temperature2m == temperature2m)&&(identical(other.weatherCode, weatherCode) || other.weatherCode == weatherCode));
 }
 
-Hourly _$HourlyFromJson(Map<String, dynamic> json) {
-  return _Hourly.fromJson(json);
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,time,temperature2m,weatherCode);
+
+@override
+String toString() {
+  return 'HourlyUnits(time: $time, temperature2m: $temperature2m, weatherCode: $weatherCode)';
 }
+
+
+}
+
+/// @nodoc
+abstract mixin class _$HourlyUnitsCopyWith<$Res> implements $HourlyUnitsCopyWith<$Res> {
+  factory _$HourlyUnitsCopyWith(_HourlyUnits value, $Res Function(_HourlyUnits) _then) = __$HourlyUnitsCopyWithImpl;
+@override @useResult
+$Res call({
+ String time,@JsonKey(name: 'temperature_2m') String temperature2m,@JsonKey(name: 'weather_code') String weatherCode
+});
+
+
+
+
+}
+/// @nodoc
+class __$HourlyUnitsCopyWithImpl<$Res>
+    implements _$HourlyUnitsCopyWith<$Res> {
+  __$HourlyUnitsCopyWithImpl(this._self, this._then);
+
+  final _HourlyUnits _self;
+  final $Res Function(_HourlyUnits) _then;
+
+/// Create a copy of HourlyUnits
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? time = null,Object? temperature2m = null,Object? weatherCode = null,}) {
+  return _then(_HourlyUnits(
+time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as String,temperature2m: null == temperature2m ? _self.temperature2m : temperature2m // ignore: cast_nullable_to_non_nullable
+as String,weatherCode: null == weatherCode ? _self.weatherCode : weatherCode // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
 
 /// @nodoc
 mixin _$Hourly {
-  List<String> get time => throw _privateConstructorUsedError;
-  @JsonKey(name: 'temperature_2m')
-  List<double?> get temperature2m => throw _privateConstructorUsedError;
-  @JsonKey(name: 'weather_code')
-  List<int?> get weatherCode => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $HourlyCopyWith<Hourly> get copyWith => throw _privateConstructorUsedError;
+ List<String> get time;@JsonKey(name: 'temperature_2m') List<double?> get temperature2m;@JsonKey(name: 'weather_code') List<int?> get weatherCode;
+/// Create a copy of Hourly
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$HourlyCopyWith<Hourly> get copyWith => _$HourlyCopyWithImpl<Hourly>(this as Hourly, _$identity);
+
+  /// Serializes this Hourly to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Hourly&&const DeepCollectionEquality().equals(other.time, time)&&const DeepCollectionEquality().equals(other.temperature2m, temperature2m)&&const DeepCollectionEquality().equals(other.weatherCode, weatherCode));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(time),const DeepCollectionEquality().hash(temperature2m),const DeepCollectionEquality().hash(weatherCode));
+
+@override
+String toString() {
+  return 'Hourly(time: $time, temperature2m: $temperature2m, weatherCode: $weatherCode)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $HourlyCopyWith<$Res> {
-  factory $HourlyCopyWith(Hourly value, $Res Function(Hourly) then) =
-      _$HourlyCopyWithImpl<$Res, Hourly>;
-  @useResult
-  $Res call(
-      {List<String> time,
-      @JsonKey(name: 'temperature_2m') List<double?> temperature2m,
-      @JsonKey(name: 'weather_code') List<int?> weatherCode});
-}
+abstract mixin class $HourlyCopyWith<$Res>  {
+  factory $HourlyCopyWith(Hourly value, $Res Function(Hourly) _then) = _$HourlyCopyWithImpl;
+@useResult
+$Res call({
+ List<String> time,@JsonKey(name: 'temperature_2m') List<double?> temperature2m,@JsonKey(name: 'weather_code') List<int?> weatherCode
+});
 
+
+
+
+}
 /// @nodoc
-class _$HourlyCopyWithImpl<$Res, $Val extends Hourly>
+class _$HourlyCopyWithImpl<$Res>
     implements $HourlyCopyWith<$Res> {
-  _$HourlyCopyWithImpl(this._value, this._then);
+  _$HourlyCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final Hourly _self;
+  final $Res Function(Hourly) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? temperature2m = null,
-    Object? weatherCode = null,
-  }) {
-    return _then(_value.copyWith(
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      temperature2m: null == temperature2m
-          ? _value.temperature2m
-          : temperature2m // ignore: cast_nullable_to_non_nullable
-              as List<double?>,
-      weatherCode: null == weatherCode
-          ? _value.weatherCode
-          : weatherCode // ignore: cast_nullable_to_non_nullable
-              as List<int?>,
-    ) as $Val);
-  }
+/// Create a copy of Hourly
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? time = null,Object? temperature2m = null,Object? weatherCode = null,}) {
+  return _then(_self.copyWith(
+time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as List<String>,temperature2m: null == temperature2m ? _self.temperature2m : temperature2m // ignore: cast_nullable_to_non_nullable
+as List<double?>,weatherCode: null == weatherCode ? _self.weatherCode : weatherCode // ignore: cast_nullable_to_non_nullable
+as List<int?>,
+  ));
 }
 
-/// @nodoc
-abstract class _$$HourlyImplCopyWith<$Res> implements $HourlyCopyWith<$Res> {
-  factory _$$HourlyImplCopyWith(
-          _$HourlyImpl value, $Res Function(_$HourlyImpl) then) =
-      __$$HourlyImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {List<String> time,
-      @JsonKey(name: 'temperature_2m') List<double?> temperature2m,
-      @JsonKey(name: 'weather_code') List<int?> weatherCode});
 }
 
-/// @nodoc
-class __$$HourlyImplCopyWithImpl<$Res>
-    extends _$HourlyCopyWithImpl<$Res, _$HourlyImpl>
-    implements _$$HourlyImplCopyWith<$Res> {
-  __$$HourlyImplCopyWithImpl(
-      _$HourlyImpl _value, $Res Function(_$HourlyImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? temperature2m = null,
-    Object? weatherCode = null,
-  }) {
-    return _then(_$HourlyImpl(
-      time: null == time
-          ? _value._time
-          : time // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      temperature2m: null == temperature2m
-          ? _value._temperature2m
-          : temperature2m // ignore: cast_nullable_to_non_nullable
-              as List<double?>,
-      weatherCode: null == weatherCode
-          ? _value._weatherCode
-          : weatherCode // ignore: cast_nullable_to_non_nullable
-              as List<int?>,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$HourlyImpl implements _Hourly {
-  const _$HourlyImpl(
-      {required final List<String> time,
-      @JsonKey(name: 'temperature_2m')
-      required final List<double?> temperature2m,
-      @JsonKey(name: 'weather_code') required final List<int?> weatherCode})
-      : _time = time,
-        _temperature2m = temperature2m,
-        _weatherCode = weatherCode;
 
-  factory _$HourlyImpl.fromJson(Map<String, dynamic> json) =>
-      _$$HourlyImplFromJson(json);
+class _Hourly implements Hourly {
+  const _Hourly({required final  List<String> time, @JsonKey(name: 'temperature_2m') required final  List<double?> temperature2m, @JsonKey(name: 'weather_code') required final  List<int?> weatherCode}): _time = time,_temperature2m = temperature2m,_weatherCode = weatherCode;
+  factory _Hourly.fromJson(Map<String, dynamic> json) => _$HourlyFromJson(json);
 
-  final List<String> _time;
-  @override
-  List<String> get time {
-    if (_time is EqualUnmodifiableListView) return _time;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_time);
-  }
-
-  final List<double?> _temperature2m;
-  @override
-  @JsonKey(name: 'temperature_2m')
-  List<double?> get temperature2m {
-    if (_temperature2m is EqualUnmodifiableListView) return _temperature2m;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_temperature2m);
-  }
-
-  final List<int?> _weatherCode;
-  @override
-  @JsonKey(name: 'weather_code')
-  List<int?> get weatherCode {
-    if (_weatherCode is EqualUnmodifiableListView) return _weatherCode;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_weatherCode);
-  }
-
-  @override
-  String toString() {
-    return 'Hourly(time: $time, temperature2m: $temperature2m, weatherCode: $weatherCode)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$HourlyImpl &&
-            const DeepCollectionEquality().equals(other._time, _time) &&
-            const DeepCollectionEquality()
-                .equals(other._temperature2m, _temperature2m) &&
-            const DeepCollectionEquality()
-                .equals(other._weatherCode, _weatherCode));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(_time),
-      const DeepCollectionEquality().hash(_temperature2m),
-      const DeepCollectionEquality().hash(_weatherCode));
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$HourlyImplCopyWith<_$HourlyImpl> get copyWith =>
-      __$$HourlyImplCopyWithImpl<_$HourlyImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$HourlyImplToJson(
-      this,
-    );
-  }
+ final  List<String> _time;
+@override List<String> get time {
+  if (_time is EqualUnmodifiableListView) return _time;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_time);
 }
 
-abstract class _Hourly implements Hourly {
-  const factory _Hourly(
-      {required final List<String> time,
-      @JsonKey(name: 'temperature_2m')
-      required final List<double?> temperature2m,
-      @JsonKey(name: 'weather_code')
-      required final List<int?> weatherCode}) = _$HourlyImpl;
-
-  factory _Hourly.fromJson(Map<String, dynamic> json) = _$HourlyImpl.fromJson;
-
-  @override
-  List<String> get time;
-  @override
-  @JsonKey(name: 'temperature_2m')
-  List<double?> get temperature2m;
-  @override
-  @JsonKey(name: 'weather_code')
-  List<int?> get weatherCode;
-  @override
-  @JsonKey(ignore: true)
-  _$$HourlyImplCopyWith<_$HourlyImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+ final  List<double?> _temperature2m;
+@override@JsonKey(name: 'temperature_2m') List<double?> get temperature2m {
+  if (_temperature2m is EqualUnmodifiableListView) return _temperature2m;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_temperature2m);
 }
 
-DailyUnits _$DailyUnitsFromJson(Map<String, dynamic> json) {
-  return _DailyUnits.fromJson(json);
+ final  List<int?> _weatherCode;
+@override@JsonKey(name: 'weather_code') List<int?> get weatherCode {
+  if (_weatherCode is EqualUnmodifiableListView) return _weatherCode;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_weatherCode);
 }
+
+
+/// Create a copy of Hourly
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$HourlyCopyWith<_Hourly> get copyWith => __$HourlyCopyWithImpl<_Hourly>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$HourlyToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Hourly&&const DeepCollectionEquality().equals(other._time, _time)&&const DeepCollectionEquality().equals(other._temperature2m, _temperature2m)&&const DeepCollectionEquality().equals(other._weatherCode, _weatherCode));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_time),const DeepCollectionEquality().hash(_temperature2m),const DeepCollectionEquality().hash(_weatherCode));
+
+@override
+String toString() {
+  return 'Hourly(time: $time, temperature2m: $temperature2m, weatherCode: $weatherCode)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$HourlyCopyWith<$Res> implements $HourlyCopyWith<$Res> {
+  factory _$HourlyCopyWith(_Hourly value, $Res Function(_Hourly) _then) = __$HourlyCopyWithImpl;
+@override @useResult
+$Res call({
+ List<String> time,@JsonKey(name: 'temperature_2m') List<double?> temperature2m,@JsonKey(name: 'weather_code') List<int?> weatherCode
+});
+
+
+
+
+}
+/// @nodoc
+class __$HourlyCopyWithImpl<$Res>
+    implements _$HourlyCopyWith<$Res> {
+  __$HourlyCopyWithImpl(this._self, this._then);
+
+  final _Hourly _self;
+  final $Res Function(_Hourly) _then;
+
+/// Create a copy of Hourly
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? time = null,Object? temperature2m = null,Object? weatherCode = null,}) {
+  return _then(_Hourly(
+time: null == time ? _self._time : time // ignore: cast_nullable_to_non_nullable
+as List<String>,temperature2m: null == temperature2m ? _self._temperature2m : temperature2m // ignore: cast_nullable_to_non_nullable
+as List<double?>,weatherCode: null == weatherCode ? _self._weatherCode : weatherCode // ignore: cast_nullable_to_non_nullable
+as List<int?>,
+  ));
+}
+
+
+}
+
 
 /// @nodoc
 mixin _$DailyUnits {
-  String get time => throw _privateConstructorUsedError;
-  @JsonKey(name: 'weather_code')
-  String get weatherCode => throw _privateConstructorUsedError;
-  @JsonKey(name: 'temperature_2m_max')
-  String get temperature2mMax => throw _privateConstructorUsedError;
-  @JsonKey(name: 'temperature_2m_min')
-  String get temperature2mMin => throw _privateConstructorUsedError;
-  @JsonKey(name: 'sunrise')
-  String get sunrise => throw _privateConstructorUsedError;
-  @JsonKey(name: 'sunset')
-  String get sunset => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $DailyUnitsCopyWith<DailyUnits> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get time;@JsonKey(name: 'weather_code') String get weatherCode;@JsonKey(name: 'temperature_2m_max') String get temperature2mMax;@JsonKey(name: 'temperature_2m_min') String get temperature2mMin;@JsonKey(name: 'sunrise') String get sunrise;@JsonKey(name: 'sunset') String get sunset;
+/// Create a copy of DailyUnits
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DailyUnitsCopyWith<DailyUnits> get copyWith => _$DailyUnitsCopyWithImpl<DailyUnits>(this as DailyUnits, _$identity);
+
+  /// Serializes this DailyUnits to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DailyUnits&&(identical(other.time, time) || other.time == time)&&(identical(other.weatherCode, weatherCode) || other.weatherCode == weatherCode)&&(identical(other.temperature2mMax, temperature2mMax) || other.temperature2mMax == temperature2mMax)&&(identical(other.temperature2mMin, temperature2mMin) || other.temperature2mMin == temperature2mMin)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,time,weatherCode,temperature2mMax,temperature2mMin,sunrise,sunset);
+
+@override
+String toString() {
+  return 'DailyUnits(time: $time, weatherCode: $weatherCode, temperature2mMax: $temperature2mMax, temperature2mMin: $temperature2mMin, sunrise: $sunrise, sunset: $sunset)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $DailyUnitsCopyWith<$Res> {
-  factory $DailyUnitsCopyWith(
-          DailyUnits value, $Res Function(DailyUnits) then) =
-      _$DailyUnitsCopyWithImpl<$Res, DailyUnits>;
-  @useResult
-  $Res call(
-      {String time,
-      @JsonKey(name: 'weather_code') String weatherCode,
-      @JsonKey(name: 'temperature_2m_max') String temperature2mMax,
-      @JsonKey(name: 'temperature_2m_min') String temperature2mMin,
-      @JsonKey(name: 'sunrise') String sunrise,
-      @JsonKey(name: 'sunset') String sunset});
-}
+abstract mixin class $DailyUnitsCopyWith<$Res>  {
+  factory $DailyUnitsCopyWith(DailyUnits value, $Res Function(DailyUnits) _then) = _$DailyUnitsCopyWithImpl;
+@useResult
+$Res call({
+ String time,@JsonKey(name: 'weather_code') String weatherCode,@JsonKey(name: 'temperature_2m_max') String temperature2mMax,@JsonKey(name: 'temperature_2m_min') String temperature2mMin,@JsonKey(name: 'sunrise') String sunrise,@JsonKey(name: 'sunset') String sunset
+});
 
+
+
+
+}
 /// @nodoc
-class _$DailyUnitsCopyWithImpl<$Res, $Val extends DailyUnits>
+class _$DailyUnitsCopyWithImpl<$Res>
     implements $DailyUnitsCopyWith<$Res> {
-  _$DailyUnitsCopyWithImpl(this._value, this._then);
+  _$DailyUnitsCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final DailyUnits _self;
+  final $Res Function(DailyUnits) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? weatherCode = null,
-    Object? temperature2mMax = null,
-    Object? temperature2mMin = null,
-    Object? sunrise = null,
-    Object? sunset = null,
-  }) {
-    return _then(_value.copyWith(
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as String,
-      weatherCode: null == weatherCode
-          ? _value.weatherCode
-          : weatherCode // ignore: cast_nullable_to_non_nullable
-              as String,
-      temperature2mMax: null == temperature2mMax
-          ? _value.temperature2mMax
-          : temperature2mMax // ignore: cast_nullable_to_non_nullable
-              as String,
-      temperature2mMin: null == temperature2mMin
-          ? _value.temperature2mMin
-          : temperature2mMin // ignore: cast_nullable_to_non_nullable
-              as String,
-      sunrise: null == sunrise
-          ? _value.sunrise
-          : sunrise // ignore: cast_nullable_to_non_nullable
-              as String,
-      sunset: null == sunset
-          ? _value.sunset
-          : sunset // ignore: cast_nullable_to_non_nullable
-              as String,
-    ) as $Val);
-  }
+/// Create a copy of DailyUnits
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? time = null,Object? weatherCode = null,Object? temperature2mMax = null,Object? temperature2mMin = null,Object? sunrise = null,Object? sunset = null,}) {
+  return _then(_self.copyWith(
+time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as String,weatherCode: null == weatherCode ? _self.weatherCode : weatherCode // ignore: cast_nullable_to_non_nullable
+as String,temperature2mMax: null == temperature2mMax ? _self.temperature2mMax : temperature2mMax // ignore: cast_nullable_to_non_nullable
+as String,temperature2mMin: null == temperature2mMin ? _self.temperature2mMin : temperature2mMin // ignore: cast_nullable_to_non_nullable
+as String,sunrise: null == sunrise ? _self.sunrise : sunrise // ignore: cast_nullable_to_non_nullable
+as String,sunset: null == sunset ? _self.sunset : sunset // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
 }
 
-/// @nodoc
-abstract class _$$DailyUnitsImplCopyWith<$Res>
-    implements $DailyUnitsCopyWith<$Res> {
-  factory _$$DailyUnitsImplCopyWith(
-          _$DailyUnitsImpl value, $Res Function(_$DailyUnitsImpl) then) =
-      __$$DailyUnitsImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String time,
-      @JsonKey(name: 'weather_code') String weatherCode,
-      @JsonKey(name: 'temperature_2m_max') String temperature2mMax,
-      @JsonKey(name: 'temperature_2m_min') String temperature2mMin,
-      @JsonKey(name: 'sunrise') String sunrise,
-      @JsonKey(name: 'sunset') String sunset});
 }
 
-/// @nodoc
-class __$$DailyUnitsImplCopyWithImpl<$Res>
-    extends _$DailyUnitsCopyWithImpl<$Res, _$DailyUnitsImpl>
-    implements _$$DailyUnitsImplCopyWith<$Res> {
-  __$$DailyUnitsImplCopyWithImpl(
-      _$DailyUnitsImpl _value, $Res Function(_$DailyUnitsImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? weatherCode = null,
-    Object? temperature2mMax = null,
-    Object? temperature2mMin = null,
-    Object? sunrise = null,
-    Object? sunset = null,
-  }) {
-    return _then(_$DailyUnitsImpl(
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as String,
-      weatherCode: null == weatherCode
-          ? _value.weatherCode
-          : weatherCode // ignore: cast_nullable_to_non_nullable
-              as String,
-      temperature2mMax: null == temperature2mMax
-          ? _value.temperature2mMax
-          : temperature2mMax // ignore: cast_nullable_to_non_nullable
-              as String,
-      temperature2mMin: null == temperature2mMin
-          ? _value.temperature2mMin
-          : temperature2mMin // ignore: cast_nullable_to_non_nullable
-              as String,
-      sunrise: null == sunrise
-          ? _value.sunrise
-          : sunrise // ignore: cast_nullable_to_non_nullable
-              as String,
-      sunset: null == sunset
-          ? _value.sunset
-          : sunset // ignore: cast_nullable_to_non_nullable
-              as String,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$DailyUnitsImpl implements _DailyUnits {
-  const _$DailyUnitsImpl(
-      {required this.time,
-      @JsonKey(name: 'weather_code') required this.weatherCode,
-      @JsonKey(name: 'temperature_2m_max') required this.temperature2mMax,
-      @JsonKey(name: 'temperature_2m_min') required this.temperature2mMin,
-      @JsonKey(name: 'sunrise') required this.sunrise,
-      @JsonKey(name: 'sunset') required this.sunset});
 
-  factory _$DailyUnitsImpl.fromJson(Map<String, dynamic> json) =>
-      _$$DailyUnitsImplFromJson(json);
+class _DailyUnits implements DailyUnits {
+  const _DailyUnits({required this.time, @JsonKey(name: 'weather_code') required this.weatherCode, @JsonKey(name: 'temperature_2m_max') required this.temperature2mMax, @JsonKey(name: 'temperature_2m_min') required this.temperature2mMin, @JsonKey(name: 'sunrise') required this.sunrise, @JsonKey(name: 'sunset') required this.sunset});
+  factory _DailyUnits.fromJson(Map<String, dynamic> json) => _$DailyUnitsFromJson(json);
 
-  @override
-  final String time;
-  @override
-  @JsonKey(name: 'weather_code')
-  final String weatherCode;
-  @override
-  @JsonKey(name: 'temperature_2m_max')
-  final String temperature2mMax;
-  @override
-  @JsonKey(name: 'temperature_2m_min')
-  final String temperature2mMin;
-  @override
-  @JsonKey(name: 'sunrise')
-  final String sunrise;
-  @override
-  @JsonKey(name: 'sunset')
-  final String sunset;
+@override final  String time;
+@override@JsonKey(name: 'weather_code') final  String weatherCode;
+@override@JsonKey(name: 'temperature_2m_max') final  String temperature2mMax;
+@override@JsonKey(name: 'temperature_2m_min') final  String temperature2mMin;
+@override@JsonKey(name: 'sunrise') final  String sunrise;
+@override@JsonKey(name: 'sunset') final  String sunset;
 
-  @override
-  String toString() {
-    return 'DailyUnits(time: $time, weatherCode: $weatherCode, temperature2mMax: $temperature2mMax, temperature2mMin: $temperature2mMin, sunrise: $sunrise, sunset: $sunset)';
-  }
+/// Create a copy of DailyUnits
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DailyUnitsCopyWith<_DailyUnits> get copyWith => __$DailyUnitsCopyWithImpl<_DailyUnits>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DailyUnitsImpl &&
-            (identical(other.time, time) || other.time == time) &&
-            (identical(other.weatherCode, weatherCode) ||
-                other.weatherCode == weatherCode) &&
-            (identical(other.temperature2mMax, temperature2mMax) ||
-                other.temperature2mMax == temperature2mMax) &&
-            (identical(other.temperature2mMin, temperature2mMin) ||
-                other.temperature2mMin == temperature2mMin) &&
-            (identical(other.sunrise, sunrise) || other.sunrise == sunrise) &&
-            (identical(other.sunset, sunset) || other.sunset == sunset));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, time, weatherCode,
-      temperature2mMax, temperature2mMin, sunrise, sunset);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$DailyUnitsImplCopyWith<_$DailyUnitsImpl> get copyWith =>
-      __$$DailyUnitsImplCopyWithImpl<_$DailyUnitsImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$DailyUnitsImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$DailyUnitsToJson(this, );
 }
 
-abstract class _DailyUnits implements DailyUnits {
-  const factory _DailyUnits(
-          {required final String time,
-          @JsonKey(name: 'weather_code') required final String weatherCode,
-          @JsonKey(name: 'temperature_2m_max')
-          required final String temperature2mMax,
-          @JsonKey(name: 'temperature_2m_min')
-          required final String temperature2mMin,
-          @JsonKey(name: 'sunrise') required final String sunrise,
-          @JsonKey(name: 'sunset') required final String sunset}) =
-      _$DailyUnitsImpl;
-
-  factory _DailyUnits.fromJson(Map<String, dynamic> json) =
-      _$DailyUnitsImpl.fromJson;
-
-  @override
-  String get time;
-  @override
-  @JsonKey(name: 'weather_code')
-  String get weatherCode;
-  @override
-  @JsonKey(name: 'temperature_2m_max')
-  String get temperature2mMax;
-  @override
-  @JsonKey(name: 'temperature_2m_min')
-  String get temperature2mMin;
-  @override
-  @JsonKey(name: 'sunrise')
-  String get sunrise;
-  @override
-  @JsonKey(name: 'sunset')
-  String get sunset;
-  @override
-  @JsonKey(ignore: true)
-  _$$DailyUnitsImplCopyWith<_$DailyUnitsImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DailyUnits&&(identical(other.time, time) || other.time == time)&&(identical(other.weatherCode, weatherCode) || other.weatherCode == weatherCode)&&(identical(other.temperature2mMax, temperature2mMax) || other.temperature2mMax == temperature2mMax)&&(identical(other.temperature2mMin, temperature2mMin) || other.temperature2mMin == temperature2mMin)&&(identical(other.sunrise, sunrise) || other.sunrise == sunrise)&&(identical(other.sunset, sunset) || other.sunset == sunset));
 }
 
-Daily _$DailyFromJson(Map<String, dynamic> json) {
-  return _Daily.fromJson(json);
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,time,weatherCode,temperature2mMax,temperature2mMin,sunrise,sunset);
+
+@override
+String toString() {
+  return 'DailyUnits(time: $time, weatherCode: $weatherCode, temperature2mMax: $temperature2mMax, temperature2mMin: $temperature2mMin, sunrise: $sunrise, sunset: $sunset)';
 }
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DailyUnitsCopyWith<$Res> implements $DailyUnitsCopyWith<$Res> {
+  factory _$DailyUnitsCopyWith(_DailyUnits value, $Res Function(_DailyUnits) _then) = __$DailyUnitsCopyWithImpl;
+@override @useResult
+$Res call({
+ String time,@JsonKey(name: 'weather_code') String weatherCode,@JsonKey(name: 'temperature_2m_max') String temperature2mMax,@JsonKey(name: 'temperature_2m_min') String temperature2mMin,@JsonKey(name: 'sunrise') String sunrise,@JsonKey(name: 'sunset') String sunset
+});
+
+
+
+
+}
+/// @nodoc
+class __$DailyUnitsCopyWithImpl<$Res>
+    implements _$DailyUnitsCopyWith<$Res> {
+  __$DailyUnitsCopyWithImpl(this._self, this._then);
+
+  final _DailyUnits _self;
+  final $Res Function(_DailyUnits) _then;
+
+/// Create a copy of DailyUnits
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? time = null,Object? weatherCode = null,Object? temperature2mMax = null,Object? temperature2mMin = null,Object? sunrise = null,Object? sunset = null,}) {
+  return _then(_DailyUnits(
+time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as String,weatherCode: null == weatherCode ? _self.weatherCode : weatherCode // ignore: cast_nullable_to_non_nullable
+as String,temperature2mMax: null == temperature2mMax ? _self.temperature2mMax : temperature2mMax // ignore: cast_nullable_to_non_nullable
+as String,temperature2mMin: null == temperature2mMin ? _self.temperature2mMin : temperature2mMin // ignore: cast_nullable_to_non_nullable
+as String,sunrise: null == sunrise ? _self.sunrise : sunrise // ignore: cast_nullable_to_non_nullable
+as String,sunset: null == sunset ? _self.sunset : sunset // ignore: cast_nullable_to_non_nullable
+as String,
+  ));
+}
+
+
+}
+
 
 /// @nodoc
 mixin _$Daily {
-  List<String> get time => throw _privateConstructorUsedError;
-  @JsonKey(name: 'weather_code')
-  List<int?> get weatherCode => throw _privateConstructorUsedError;
-  @JsonKey(name: 'temperature_2m_max')
-  List<double?> get temperature2mMax => throw _privateConstructorUsedError;
-  @JsonKey(name: 'temperature_2m_min')
-  List<double?> get temperature2mMin => throw _privateConstructorUsedError;
-  @JsonKey(name: 'sunrise')
-  List<String?> get sunrise => throw _privateConstructorUsedError;
-  @JsonKey(name: 'sunset')
-  List<String?> get sunset => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $DailyCopyWith<Daily> get copyWith => throw _privateConstructorUsedError;
+ List<String> get time;@JsonKey(name: 'weather_code') List<int?> get weatherCode;@JsonKey(name: 'temperature_2m_max') List<double?> get temperature2mMax;@JsonKey(name: 'temperature_2m_min') List<double?> get temperature2mMin;@JsonKey(name: 'sunrise') List<String?> get sunrise;@JsonKey(name: 'sunset') List<String?> get sunset;
+/// Create a copy of Daily
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DailyCopyWith<Daily> get copyWith => _$DailyCopyWithImpl<Daily>(this as Daily, _$identity);
+
+  /// Serializes this Daily to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is Daily&&const DeepCollectionEquality().equals(other.time, time)&&const DeepCollectionEquality().equals(other.weatherCode, weatherCode)&&const DeepCollectionEquality().equals(other.temperature2mMax, temperature2mMax)&&const DeepCollectionEquality().equals(other.temperature2mMin, temperature2mMin)&&const DeepCollectionEquality().equals(other.sunrise, sunrise)&&const DeepCollectionEquality().equals(other.sunset, sunset));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(time),const DeepCollectionEquality().hash(weatherCode),const DeepCollectionEquality().hash(temperature2mMax),const DeepCollectionEquality().hash(temperature2mMin),const DeepCollectionEquality().hash(sunrise),const DeepCollectionEquality().hash(sunset));
+
+@override
+String toString() {
+  return 'Daily(time: $time, weatherCode: $weatherCode, temperature2mMax: $temperature2mMax, temperature2mMin: $temperature2mMin, sunrise: $sunrise, sunset: $sunset)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $DailyCopyWith<$Res> {
-  factory $DailyCopyWith(Daily value, $Res Function(Daily) then) =
-      _$DailyCopyWithImpl<$Res, Daily>;
-  @useResult
-  $Res call(
-      {List<String> time,
-      @JsonKey(name: 'weather_code') List<int?> weatherCode,
-      @JsonKey(name: 'temperature_2m_max') List<double?> temperature2mMax,
-      @JsonKey(name: 'temperature_2m_min') List<double?> temperature2mMin,
-      @JsonKey(name: 'sunrise') List<String?> sunrise,
-      @JsonKey(name: 'sunset') List<String?> sunset});
-}
+abstract mixin class $DailyCopyWith<$Res>  {
+  factory $DailyCopyWith(Daily value, $Res Function(Daily) _then) = _$DailyCopyWithImpl;
+@useResult
+$Res call({
+ List<String> time,@JsonKey(name: 'weather_code') List<int?> weatherCode,@JsonKey(name: 'temperature_2m_max') List<double?> temperature2mMax,@JsonKey(name: 'temperature_2m_min') List<double?> temperature2mMin,@JsonKey(name: 'sunrise') List<String?> sunrise,@JsonKey(name: 'sunset') List<String?> sunset
+});
 
+
+
+
+}
 /// @nodoc
-class _$DailyCopyWithImpl<$Res, $Val extends Daily>
+class _$DailyCopyWithImpl<$Res>
     implements $DailyCopyWith<$Res> {
-  _$DailyCopyWithImpl(this._value, this._then);
+  _$DailyCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final Daily _self;
+  final $Res Function(Daily) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? weatherCode = null,
-    Object? temperature2mMax = null,
-    Object? temperature2mMin = null,
-    Object? sunrise = null,
-    Object? sunset = null,
-  }) {
-    return _then(_value.copyWith(
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      weatherCode: null == weatherCode
-          ? _value.weatherCode
-          : weatherCode // ignore: cast_nullable_to_non_nullable
-              as List<int?>,
-      temperature2mMax: null == temperature2mMax
-          ? _value.temperature2mMax
-          : temperature2mMax // ignore: cast_nullable_to_non_nullable
-              as List<double?>,
-      temperature2mMin: null == temperature2mMin
-          ? _value.temperature2mMin
-          : temperature2mMin // ignore: cast_nullable_to_non_nullable
-              as List<double?>,
-      sunrise: null == sunrise
-          ? _value.sunrise
-          : sunrise // ignore: cast_nullable_to_non_nullable
-              as List<String?>,
-      sunset: null == sunset
-          ? _value.sunset
-          : sunset // ignore: cast_nullable_to_non_nullable
-              as List<String?>,
-    ) as $Val);
-  }
+/// Create a copy of Daily
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? time = null,Object? weatherCode = null,Object? temperature2mMax = null,Object? temperature2mMin = null,Object? sunrise = null,Object? sunset = null,}) {
+  return _then(_self.copyWith(
+time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as List<String>,weatherCode: null == weatherCode ? _self.weatherCode : weatherCode // ignore: cast_nullable_to_non_nullable
+as List<int?>,temperature2mMax: null == temperature2mMax ? _self.temperature2mMax : temperature2mMax // ignore: cast_nullable_to_non_nullable
+as List<double?>,temperature2mMin: null == temperature2mMin ? _self.temperature2mMin : temperature2mMin // ignore: cast_nullable_to_non_nullable
+as List<double?>,sunrise: null == sunrise ? _self.sunrise : sunrise // ignore: cast_nullable_to_non_nullable
+as List<String?>,sunset: null == sunset ? _self.sunset : sunset // ignore: cast_nullable_to_non_nullable
+as List<String?>,
+  ));
 }
 
-/// @nodoc
-abstract class _$$DailyImplCopyWith<$Res> implements $DailyCopyWith<$Res> {
-  factory _$$DailyImplCopyWith(
-          _$DailyImpl value, $Res Function(_$DailyImpl) then) =
-      __$$DailyImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {List<String> time,
-      @JsonKey(name: 'weather_code') List<int?> weatherCode,
-      @JsonKey(name: 'temperature_2m_max') List<double?> temperature2mMax,
-      @JsonKey(name: 'temperature_2m_min') List<double?> temperature2mMin,
-      @JsonKey(name: 'sunrise') List<String?> sunrise,
-      @JsonKey(name: 'sunset') List<String?> sunset});
 }
 
-/// @nodoc
-class __$$DailyImplCopyWithImpl<$Res>
-    extends _$DailyCopyWithImpl<$Res, _$DailyImpl>
-    implements _$$DailyImplCopyWith<$Res> {
-  __$$DailyImplCopyWithImpl(
-      _$DailyImpl _value, $Res Function(_$DailyImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? weatherCode = null,
-    Object? temperature2mMax = null,
-    Object? temperature2mMin = null,
-    Object? sunrise = null,
-    Object? sunset = null,
-  }) {
-    return _then(_$DailyImpl(
-      time: null == time
-          ? _value._time
-          : time // ignore: cast_nullable_to_non_nullable
-              as List<String>,
-      weatherCode: null == weatherCode
-          ? _value._weatherCode
-          : weatherCode // ignore: cast_nullable_to_non_nullable
-              as List<int?>,
-      temperature2mMax: null == temperature2mMax
-          ? _value._temperature2mMax
-          : temperature2mMax // ignore: cast_nullable_to_non_nullable
-              as List<double?>,
-      temperature2mMin: null == temperature2mMin
-          ? _value._temperature2mMin
-          : temperature2mMin // ignore: cast_nullable_to_non_nullable
-              as List<double?>,
-      sunrise: null == sunrise
-          ? _value._sunrise
-          : sunrise // ignore: cast_nullable_to_non_nullable
-              as List<String?>,
-      sunset: null == sunset
-          ? _value._sunset
-          : sunset // ignore: cast_nullable_to_non_nullable
-              as List<String?>,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$DailyImpl implements _Daily {
-  const _$DailyImpl(
-      {required final List<String> time,
-      @JsonKey(name: 'weather_code') required final List<int?> weatherCode,
-      @JsonKey(name: 'temperature_2m_max')
-      required final List<double?> temperature2mMax,
-      @JsonKey(name: 'temperature_2m_min')
-      required final List<double?> temperature2mMin,
-      @JsonKey(name: 'sunrise') required final List<String?> sunrise,
-      @JsonKey(name: 'sunset') required final List<String?> sunset})
-      : _time = time,
-        _weatherCode = weatherCode,
-        _temperature2mMax = temperature2mMax,
-        _temperature2mMin = temperature2mMin,
-        _sunrise = sunrise,
-        _sunset = sunset;
 
-  factory _$DailyImpl.fromJson(Map<String, dynamic> json) =>
-      _$$DailyImplFromJson(json);
+class _Daily implements Daily {
+  const _Daily({required final  List<String> time, @JsonKey(name: 'weather_code') required final  List<int?> weatherCode, @JsonKey(name: 'temperature_2m_max') required final  List<double?> temperature2mMax, @JsonKey(name: 'temperature_2m_min') required final  List<double?> temperature2mMin, @JsonKey(name: 'sunrise') required final  List<String?> sunrise, @JsonKey(name: 'sunset') required final  List<String?> sunset}): _time = time,_weatherCode = weatherCode,_temperature2mMax = temperature2mMax,_temperature2mMin = temperature2mMin,_sunrise = sunrise,_sunset = sunset;
+  factory _Daily.fromJson(Map<String, dynamic> json) => _$DailyFromJson(json);
 
-  final List<String> _time;
-  @override
-  List<String> get time {
-    if (_time is EqualUnmodifiableListView) return _time;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_time);
-  }
-
-  final List<int?> _weatherCode;
-  @override
-  @JsonKey(name: 'weather_code')
-  List<int?> get weatherCode {
-    if (_weatherCode is EqualUnmodifiableListView) return _weatherCode;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_weatherCode);
-  }
-
-  final List<double?> _temperature2mMax;
-  @override
-  @JsonKey(name: 'temperature_2m_max')
-  List<double?> get temperature2mMax {
-    if (_temperature2mMax is EqualUnmodifiableListView)
-      return _temperature2mMax;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_temperature2mMax);
-  }
-
-  final List<double?> _temperature2mMin;
-  @override
-  @JsonKey(name: 'temperature_2m_min')
-  List<double?> get temperature2mMin {
-    if (_temperature2mMin is EqualUnmodifiableListView)
-      return _temperature2mMin;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_temperature2mMin);
-  }
-
-  final List<String?> _sunrise;
-  @override
-  @JsonKey(name: 'sunrise')
-  List<String?> get sunrise {
-    if (_sunrise is EqualUnmodifiableListView) return _sunrise;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_sunrise);
-  }
-
-  final List<String?> _sunset;
-  @override
-  @JsonKey(name: 'sunset')
-  List<String?> get sunset {
-    if (_sunset is EqualUnmodifiableListView) return _sunset;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_sunset);
-  }
-
-  @override
-  String toString() {
-    return 'Daily(time: $time, weatherCode: $weatherCode, temperature2mMax: $temperature2mMax, temperature2mMin: $temperature2mMin, sunrise: $sunrise, sunset: $sunset)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DailyImpl &&
-            const DeepCollectionEquality().equals(other._time, _time) &&
-            const DeepCollectionEquality()
-                .equals(other._weatherCode, _weatherCode) &&
-            const DeepCollectionEquality()
-                .equals(other._temperature2mMax, _temperature2mMax) &&
-            const DeepCollectionEquality()
-                .equals(other._temperature2mMin, _temperature2mMin) &&
-            const DeepCollectionEquality().equals(other._sunrise, _sunrise) &&
-            const DeepCollectionEquality().equals(other._sunset, _sunset));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      const DeepCollectionEquality().hash(_time),
-      const DeepCollectionEquality().hash(_weatherCode),
-      const DeepCollectionEquality().hash(_temperature2mMax),
-      const DeepCollectionEquality().hash(_temperature2mMin),
-      const DeepCollectionEquality().hash(_sunrise),
-      const DeepCollectionEquality().hash(_sunset));
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$DailyImplCopyWith<_$DailyImpl> get copyWith =>
-      __$$DailyImplCopyWithImpl<_$DailyImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$DailyImplToJson(
-      this,
-    );
-  }
+ final  List<String> _time;
+@override List<String> get time {
+  if (_time is EqualUnmodifiableListView) return _time;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_time);
 }
 
-abstract class _Daily implements Daily {
-  const factory _Daily(
-          {required final List<String> time,
-          @JsonKey(name: 'weather_code') required final List<int?> weatherCode,
-          @JsonKey(name: 'temperature_2m_max')
-          required final List<double?> temperature2mMax,
-          @JsonKey(name: 'temperature_2m_min')
-          required final List<double?> temperature2mMin,
-          @JsonKey(name: 'sunrise') required final List<String?> sunrise,
-          @JsonKey(name: 'sunset') required final List<String?> sunset}) =
-      _$DailyImpl;
-
-  factory _Daily.fromJson(Map<String, dynamic> json) = _$DailyImpl.fromJson;
-
-  @override
-  List<String> get time;
-  @override
-  @JsonKey(name: 'weather_code')
-  List<int?> get weatherCode;
-  @override
-  @JsonKey(name: 'temperature_2m_max')
-  List<double?> get temperature2mMax;
-  @override
-  @JsonKey(name: 'temperature_2m_min')
-  List<double?> get temperature2mMin;
-  @override
-  @JsonKey(name: 'sunrise')
-  List<String?> get sunrise;
-  @override
-  @JsonKey(name: 'sunset')
-  List<String?> get sunset;
-  @override
-  @JsonKey(ignore: true)
-  _$$DailyImplCopyWith<_$DailyImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+ final  List<int?> _weatherCode;
+@override@JsonKey(name: 'weather_code') List<int?> get weatherCode {
+  if (_weatherCode is EqualUnmodifiableListView) return _weatherCode;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_weatherCode);
 }
+
+ final  List<double?> _temperature2mMax;
+@override@JsonKey(name: 'temperature_2m_max') List<double?> get temperature2mMax {
+  if (_temperature2mMax is EqualUnmodifiableListView) return _temperature2mMax;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_temperature2mMax);
+}
+
+ final  List<double?> _temperature2mMin;
+@override@JsonKey(name: 'temperature_2m_min') List<double?> get temperature2mMin {
+  if (_temperature2mMin is EqualUnmodifiableListView) return _temperature2mMin;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_temperature2mMin);
+}
+
+ final  List<String?> _sunrise;
+@override@JsonKey(name: 'sunrise') List<String?> get sunrise {
+  if (_sunrise is EqualUnmodifiableListView) return _sunrise;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_sunrise);
+}
+
+ final  List<String?> _sunset;
+@override@JsonKey(name: 'sunset') List<String?> get sunset {
+  if (_sunset is EqualUnmodifiableListView) return _sunset;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_sunset);
+}
+
+
+/// Create a copy of Daily
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DailyCopyWith<_Daily> get copyWith => __$DailyCopyWithImpl<_Daily>(this, _$identity);
+
+@override
+Map<String, dynamic> toJson() {
+  return _$DailyToJson(this, );
+}
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _Daily&&const DeepCollectionEquality().equals(other._time, _time)&&const DeepCollectionEquality().equals(other._weatherCode, _weatherCode)&&const DeepCollectionEquality().equals(other._temperature2mMax, _temperature2mMax)&&const DeepCollectionEquality().equals(other._temperature2mMin, _temperature2mMin)&&const DeepCollectionEquality().equals(other._sunrise, _sunrise)&&const DeepCollectionEquality().equals(other._sunset, _sunset));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_time),const DeepCollectionEquality().hash(_weatherCode),const DeepCollectionEquality().hash(_temperature2mMax),const DeepCollectionEquality().hash(_temperature2mMin),const DeepCollectionEquality().hash(_sunrise),const DeepCollectionEquality().hash(_sunset));
+
+@override
+String toString() {
+  return 'Daily(time: $time, weatherCode: $weatherCode, temperature2mMax: $temperature2mMax, temperature2mMin: $temperature2mMin, sunrise: $sunrise, sunset: $sunset)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DailyCopyWith<$Res> implements $DailyCopyWith<$Res> {
+  factory _$DailyCopyWith(_Daily value, $Res Function(_Daily) _then) = __$DailyCopyWithImpl;
+@override @useResult
+$Res call({
+ List<String> time,@JsonKey(name: 'weather_code') List<int?> weatherCode,@JsonKey(name: 'temperature_2m_max') List<double?> temperature2mMax,@JsonKey(name: 'temperature_2m_min') List<double?> temperature2mMin,@JsonKey(name: 'sunrise') List<String?> sunrise,@JsonKey(name: 'sunset') List<String?> sunset
+});
+
+
+
+
+}
+/// @nodoc
+class __$DailyCopyWithImpl<$Res>
+    implements _$DailyCopyWith<$Res> {
+  __$DailyCopyWithImpl(this._self, this._then);
+
+  final _Daily _self;
+  final $Res Function(_Daily) _then;
+
+/// Create a copy of Daily
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? time = null,Object? weatherCode = null,Object? temperature2mMax = null,Object? temperature2mMin = null,Object? sunrise = null,Object? sunset = null,}) {
+  return _then(_Daily(
+time: null == time ? _self._time : time // ignore: cast_nullable_to_non_nullable
+as List<String>,weatherCode: null == weatherCode ? _self._weatherCode : weatherCode // ignore: cast_nullable_to_non_nullable
+as List<int?>,temperature2mMax: null == temperature2mMax ? _self._temperature2mMax : temperature2mMax // ignore: cast_nullable_to_non_nullable
+as List<double?>,temperature2mMin: null == temperature2mMin ? _self._temperature2mMin : temperature2mMin // ignore: cast_nullable_to_non_nullable
+as List<double?>,sunrise: null == sunrise ? _self._sunrise : sunrise // ignore: cast_nullable_to_non_nullable
+as List<String?>,sunset: null == sunset ? _self._sunset : sunset // ignore: cast_nullable_to_non_nullable
+as List<String?>,
+  ));
+}
+
+
+}
+
+// dart format on

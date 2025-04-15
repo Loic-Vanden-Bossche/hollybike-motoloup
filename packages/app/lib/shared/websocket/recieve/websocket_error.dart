@@ -11,7 +11,7 @@ part 'websocket_error.freezed.dart';
 part 'websocket_error.g.dart';
 
 @freezed
-class WebsocketError with _$WebsocketError implements WebsocketBody {
+sealed class WebsocketError with _$WebsocketError implements WebsocketBody {
   const factory WebsocketError({
     required String message,
     @Default("subscribed") String type,

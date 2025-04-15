@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,564 +10,423 @@ part of 'weather_forecast_grouped.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
 /// @nodoc
 mixin _$WeatherForecastGrouped {
-  List<DailyWeatherGrouped> get dailyWeather =>
-      throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
-  $WeatherForecastGroupedCopyWith<WeatherForecastGrouped> get copyWith =>
-      throw _privateConstructorUsedError;
+ List<DailyWeatherGrouped> get dailyWeather;
+/// Create a copy of WeatherForecastGrouped
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WeatherForecastGroupedCopyWith<WeatherForecastGrouped> get copyWith => _$WeatherForecastGroupedCopyWithImpl<WeatherForecastGrouped>(this as WeatherForecastGrouped, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WeatherForecastGrouped&&const DeepCollectionEquality().equals(other.dailyWeather, dailyWeather));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(dailyWeather));
+
+@override
+String toString() {
+  return 'WeatherForecastGrouped(dailyWeather: $dailyWeather)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $WeatherForecastGroupedCopyWith<$Res> {
-  factory $WeatherForecastGroupedCopyWith(WeatherForecastGrouped value,
-          $Res Function(WeatherForecastGrouped) then) =
-      _$WeatherForecastGroupedCopyWithImpl<$Res, WeatherForecastGrouped>;
-  @useResult
-  $Res call({List<DailyWeatherGrouped> dailyWeather});
-}
+abstract mixin class $WeatherForecastGroupedCopyWith<$Res>  {
+  factory $WeatherForecastGroupedCopyWith(WeatherForecastGrouped value, $Res Function(WeatherForecastGrouped) _then) = _$WeatherForecastGroupedCopyWithImpl;
+@useResult
+$Res call({
+ List<DailyWeatherGrouped> dailyWeather
+});
 
+
+
+
+}
 /// @nodoc
-class _$WeatherForecastGroupedCopyWithImpl<$Res,
-        $Val extends WeatherForecastGrouped>
+class _$WeatherForecastGroupedCopyWithImpl<$Res>
     implements $WeatherForecastGroupedCopyWith<$Res> {
-  _$WeatherForecastGroupedCopyWithImpl(this._value, this._then);
+  _$WeatherForecastGroupedCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final WeatherForecastGrouped _self;
+  final $Res Function(WeatherForecastGrouped) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? dailyWeather = null,
-  }) {
-    return _then(_value.copyWith(
-      dailyWeather: null == dailyWeather
-          ? _value.dailyWeather
-          : dailyWeather // ignore: cast_nullable_to_non_nullable
-              as List<DailyWeatherGrouped>,
-    ) as $Val);
-  }
+/// Create a copy of WeatherForecastGrouped
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? dailyWeather = null,}) {
+  return _then(_self.copyWith(
+dailyWeather: null == dailyWeather ? _self.dailyWeather : dailyWeather // ignore: cast_nullable_to_non_nullable
+as List<DailyWeatherGrouped>,
+  ));
 }
 
-/// @nodoc
-abstract class _$$WeatherForecastGroupedImplCopyWith<$Res>
-    implements $WeatherForecastGroupedCopyWith<$Res> {
-  factory _$$WeatherForecastGroupedImplCopyWith(
-          _$WeatherForecastGroupedImpl value,
-          $Res Function(_$WeatherForecastGroupedImpl) then) =
-      __$$WeatherForecastGroupedImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({List<DailyWeatherGrouped> dailyWeather});
 }
 
-/// @nodoc
-class __$$WeatherForecastGroupedImplCopyWithImpl<$Res>
-    extends _$WeatherForecastGroupedCopyWithImpl<$Res,
-        _$WeatherForecastGroupedImpl>
-    implements _$$WeatherForecastGroupedImplCopyWith<$Res> {
-  __$$WeatherForecastGroupedImplCopyWithImpl(
-      _$WeatherForecastGroupedImpl _value,
-      $Res Function(_$WeatherForecastGroupedImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? dailyWeather = null,
-  }) {
-    return _then(_$WeatherForecastGroupedImpl(
-      dailyWeather: null == dailyWeather
-          ? _value._dailyWeather
-          : dailyWeather // ignore: cast_nullable_to_non_nullable
-              as List<DailyWeatherGrouped>,
-    ));
-  }
-}
 
 /// @nodoc
 
-class _$WeatherForecastGroupedImpl implements _WeatherForecastGrouped {
-  const _$WeatherForecastGroupedImpl(
-      {required final List<DailyWeatherGrouped> dailyWeather})
-      : _dailyWeather = dailyWeather;
 
-  final List<DailyWeatherGrouped> _dailyWeather;
-  @override
-  List<DailyWeatherGrouped> get dailyWeather {
-    if (_dailyWeather is EqualUnmodifiableListView) return _dailyWeather;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_dailyWeather);
-  }
+class _WeatherForecastGrouped implements WeatherForecastGrouped {
+  const _WeatherForecastGrouped({required final  List<DailyWeatherGrouped> dailyWeather}): _dailyWeather = dailyWeather;
+  
 
-  @override
-  String toString() {
-    return 'WeatherForecastGrouped(dailyWeather: $dailyWeather)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WeatherForecastGroupedImpl &&
-            const DeepCollectionEquality()
-                .equals(other._dailyWeather, _dailyWeather));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, const DeepCollectionEquality().hash(_dailyWeather));
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WeatherForecastGroupedImplCopyWith<_$WeatherForecastGroupedImpl>
-      get copyWith => __$$WeatherForecastGroupedImplCopyWithImpl<
-          _$WeatherForecastGroupedImpl>(this, _$identity);
+ final  List<DailyWeatherGrouped> _dailyWeather;
+@override List<DailyWeatherGrouped> get dailyWeather {
+  if (_dailyWeather is EqualUnmodifiableListView) return _dailyWeather;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_dailyWeather);
 }
 
-abstract class _WeatherForecastGrouped implements WeatherForecastGrouped {
-  const factory _WeatherForecastGrouped(
-          {required final List<DailyWeatherGrouped> dailyWeather}) =
-      _$WeatherForecastGroupedImpl;
 
-  @override
-  List<DailyWeatherGrouped> get dailyWeather;
-  @override
-  @JsonKey(ignore: true)
-  _$$WeatherForecastGroupedImplCopyWith<_$WeatherForecastGroupedImpl>
-      get copyWith => throw _privateConstructorUsedError;
+/// Create a copy of WeatherForecastGrouped
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WeatherForecastGroupedCopyWith<_WeatherForecastGrouped> get copyWith => __$WeatherForecastGroupedCopyWithImpl<_WeatherForecastGrouped>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WeatherForecastGrouped&&const DeepCollectionEquality().equals(other._dailyWeather, _dailyWeather));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,const DeepCollectionEquality().hash(_dailyWeather));
+
+@override
+String toString() {
+  return 'WeatherForecastGrouped(dailyWeather: $dailyWeather)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WeatherForecastGroupedCopyWith<$Res> implements $WeatherForecastGroupedCopyWith<$Res> {
+  factory _$WeatherForecastGroupedCopyWith(_WeatherForecastGrouped value, $Res Function(_WeatherForecastGrouped) _then) = __$WeatherForecastGroupedCopyWithImpl;
+@override @useResult
+$Res call({
+ List<DailyWeatherGrouped> dailyWeather
+});
+
+
+
+
+}
+/// @nodoc
+class __$WeatherForecastGroupedCopyWithImpl<$Res>
+    implements _$WeatherForecastGroupedCopyWith<$Res> {
+  __$WeatherForecastGroupedCopyWithImpl(this._self, this._then);
+
+  final _WeatherForecastGrouped _self;
+  final $Res Function(_WeatherForecastGrouped) _then;
+
+/// Create a copy of WeatherForecastGrouped
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? dailyWeather = null,}) {
+  return _then(_WeatherForecastGrouped(
+dailyWeather: null == dailyWeather ? _self._dailyWeather : dailyWeather // ignore: cast_nullable_to_non_nullable
+as List<DailyWeatherGrouped>,
+  ));
+}
+
+
 }
 
 /// @nodoc
 mixin _$DailyWeatherGrouped {
-  String get date => throw _privateConstructorUsedError;
-  String get maxTemperature => throw _privateConstructorUsedError;
-  String get minTemperature => throw _privateConstructorUsedError;
-  WeatherCondition get weatherCondition => throw _privateConstructorUsedError;
-  List<HourlyWeather> get hourlyWeather => throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
-  $DailyWeatherGroupedCopyWith<DailyWeatherGrouped> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get date; String get maxTemperature; String get minTemperature; WeatherCondition get weatherCondition; List<HourlyWeather> get hourlyWeather;
+/// Create a copy of DailyWeatherGrouped
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$DailyWeatherGroupedCopyWith<DailyWeatherGrouped> get copyWith => _$DailyWeatherGroupedCopyWithImpl<DailyWeatherGrouped>(this as DailyWeatherGrouped, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is DailyWeatherGrouped&&(identical(other.date, date) || other.date == date)&&(identical(other.maxTemperature, maxTemperature) || other.maxTemperature == maxTemperature)&&(identical(other.minTemperature, minTemperature) || other.minTemperature == minTemperature)&&(identical(other.weatherCondition, weatherCondition) || other.weatherCondition == weatherCondition)&&const DeepCollectionEquality().equals(other.hourlyWeather, hourlyWeather));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,date,maxTemperature,minTemperature,weatherCondition,const DeepCollectionEquality().hash(hourlyWeather));
+
+@override
+String toString() {
+  return 'DailyWeatherGrouped(date: $date, maxTemperature: $maxTemperature, minTemperature: $minTemperature, weatherCondition: $weatherCondition, hourlyWeather: $hourlyWeather)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $DailyWeatherGroupedCopyWith<$Res> {
-  factory $DailyWeatherGroupedCopyWith(
-          DailyWeatherGrouped value, $Res Function(DailyWeatherGrouped) then) =
-      _$DailyWeatherGroupedCopyWithImpl<$Res, DailyWeatherGrouped>;
-  @useResult
-  $Res call(
-      {String date,
-      String maxTemperature,
-      String minTemperature,
-      WeatherCondition weatherCondition,
-      List<HourlyWeather> hourlyWeather});
-}
+abstract mixin class $DailyWeatherGroupedCopyWith<$Res>  {
+  factory $DailyWeatherGroupedCopyWith(DailyWeatherGrouped value, $Res Function(DailyWeatherGrouped) _then) = _$DailyWeatherGroupedCopyWithImpl;
+@useResult
+$Res call({
+ String date, String maxTemperature, String minTemperature, WeatherCondition weatherCondition, List<HourlyWeather> hourlyWeather
+});
 
+
+
+
+}
 /// @nodoc
-class _$DailyWeatherGroupedCopyWithImpl<$Res, $Val extends DailyWeatherGrouped>
+class _$DailyWeatherGroupedCopyWithImpl<$Res>
     implements $DailyWeatherGroupedCopyWith<$Res> {
-  _$DailyWeatherGroupedCopyWithImpl(this._value, this._then);
+  _$DailyWeatherGroupedCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final DailyWeatherGrouped _self;
+  final $Res Function(DailyWeatherGrouped) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? date = null,
-    Object? maxTemperature = null,
-    Object? minTemperature = null,
-    Object? weatherCondition = null,
-    Object? hourlyWeather = null,
-  }) {
-    return _then(_value.copyWith(
-      date: null == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as String,
-      maxTemperature: null == maxTemperature
-          ? _value.maxTemperature
-          : maxTemperature // ignore: cast_nullable_to_non_nullable
-              as String,
-      minTemperature: null == minTemperature
-          ? _value.minTemperature
-          : minTemperature // ignore: cast_nullable_to_non_nullable
-              as String,
-      weatherCondition: null == weatherCondition
-          ? _value.weatherCondition
-          : weatherCondition // ignore: cast_nullable_to_non_nullable
-              as WeatherCondition,
-      hourlyWeather: null == hourlyWeather
-          ? _value.hourlyWeather
-          : hourlyWeather // ignore: cast_nullable_to_non_nullable
-              as List<HourlyWeather>,
-    ) as $Val);
-  }
+/// Create a copy of DailyWeatherGrouped
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? date = null,Object? maxTemperature = null,Object? minTemperature = null,Object? weatherCondition = null,Object? hourlyWeather = null,}) {
+  return _then(_self.copyWith(
+date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
+as String,maxTemperature: null == maxTemperature ? _self.maxTemperature : maxTemperature // ignore: cast_nullable_to_non_nullable
+as String,minTemperature: null == minTemperature ? _self.minTemperature : minTemperature // ignore: cast_nullable_to_non_nullable
+as String,weatherCondition: null == weatherCondition ? _self.weatherCondition : weatherCondition // ignore: cast_nullable_to_non_nullable
+as WeatherCondition,hourlyWeather: null == hourlyWeather ? _self.hourlyWeather : hourlyWeather // ignore: cast_nullable_to_non_nullable
+as List<HourlyWeather>,
+  ));
 }
 
-/// @nodoc
-abstract class _$$DailyWeatherGroupedImplCopyWith<$Res>
-    implements $DailyWeatherGroupedCopyWith<$Res> {
-  factory _$$DailyWeatherGroupedImplCopyWith(_$DailyWeatherGroupedImpl value,
-          $Res Function(_$DailyWeatherGroupedImpl) then) =
-      __$$DailyWeatherGroupedImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String date,
-      String maxTemperature,
-      String minTemperature,
-      WeatherCondition weatherCondition,
-      List<HourlyWeather> hourlyWeather});
 }
 
-/// @nodoc
-class __$$DailyWeatherGroupedImplCopyWithImpl<$Res>
-    extends _$DailyWeatherGroupedCopyWithImpl<$Res, _$DailyWeatherGroupedImpl>
-    implements _$$DailyWeatherGroupedImplCopyWith<$Res> {
-  __$$DailyWeatherGroupedImplCopyWithImpl(_$DailyWeatherGroupedImpl _value,
-      $Res Function(_$DailyWeatherGroupedImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? date = null,
-    Object? maxTemperature = null,
-    Object? minTemperature = null,
-    Object? weatherCondition = null,
-    Object? hourlyWeather = null,
-  }) {
-    return _then(_$DailyWeatherGroupedImpl(
-      date: null == date
-          ? _value.date
-          : date // ignore: cast_nullable_to_non_nullable
-              as String,
-      maxTemperature: null == maxTemperature
-          ? _value.maxTemperature
-          : maxTemperature // ignore: cast_nullable_to_non_nullable
-              as String,
-      minTemperature: null == minTemperature
-          ? _value.minTemperature
-          : minTemperature // ignore: cast_nullable_to_non_nullable
-              as String,
-      weatherCondition: null == weatherCondition
-          ? _value.weatherCondition
-          : weatherCondition // ignore: cast_nullable_to_non_nullable
-              as WeatherCondition,
-      hourlyWeather: null == hourlyWeather
-          ? _value._hourlyWeather
-          : hourlyWeather // ignore: cast_nullable_to_non_nullable
-              as List<HourlyWeather>,
-    ));
-  }
-}
 
 /// @nodoc
 
-class _$DailyWeatherGroupedImpl implements _DailyWeatherGrouped {
-  const _$DailyWeatherGroupedImpl(
-      {required this.date,
-      required this.maxTemperature,
-      required this.minTemperature,
-      required this.weatherCondition,
-      required final List<HourlyWeather> hourlyWeather})
-      : _hourlyWeather = hourlyWeather;
 
-  @override
-  final String date;
-  @override
-  final String maxTemperature;
-  @override
-  final String minTemperature;
-  @override
-  final WeatherCondition weatherCondition;
-  final List<HourlyWeather> _hourlyWeather;
-  @override
-  List<HourlyWeather> get hourlyWeather {
-    if (_hourlyWeather is EqualUnmodifiableListView) return _hourlyWeather;
-    // ignore: implicit_dynamic_type
-    return EqualUnmodifiableListView(_hourlyWeather);
-  }
+class _DailyWeatherGrouped implements DailyWeatherGrouped {
+  const _DailyWeatherGrouped({required this.date, required this.maxTemperature, required this.minTemperature, required this.weatherCondition, required final  List<HourlyWeather> hourlyWeather}): _hourlyWeather = hourlyWeather;
+  
 
-  @override
-  String toString() {
-    return 'DailyWeatherGrouped(date: $date, maxTemperature: $maxTemperature, minTemperature: $minTemperature, weatherCondition: $weatherCondition, hourlyWeather: $hourlyWeather)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$DailyWeatherGroupedImpl &&
-            (identical(other.date, date) || other.date == date) &&
-            (identical(other.maxTemperature, maxTemperature) ||
-                other.maxTemperature == maxTemperature) &&
-            (identical(other.minTemperature, minTemperature) ||
-                other.minTemperature == minTemperature) &&
-            (identical(other.weatherCondition, weatherCondition) ||
-                other.weatherCondition == weatherCondition) &&
-            const DeepCollectionEquality()
-                .equals(other._hourlyWeather, _hourlyWeather));
-  }
-
-  @override
-  int get hashCode => Object.hash(
-      runtimeType,
-      date,
-      maxTemperature,
-      minTemperature,
-      weatherCondition,
-      const DeepCollectionEquality().hash(_hourlyWeather));
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$DailyWeatherGroupedImplCopyWith<_$DailyWeatherGroupedImpl> get copyWith =>
-      __$$DailyWeatherGroupedImplCopyWithImpl<_$DailyWeatherGroupedImpl>(
-          this, _$identity);
+@override final  String date;
+@override final  String maxTemperature;
+@override final  String minTemperature;
+@override final  WeatherCondition weatherCondition;
+ final  List<HourlyWeather> _hourlyWeather;
+@override List<HourlyWeather> get hourlyWeather {
+  if (_hourlyWeather is EqualUnmodifiableListView) return _hourlyWeather;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_hourlyWeather);
 }
 
-abstract class _DailyWeatherGrouped implements DailyWeatherGrouped {
-  const factory _DailyWeatherGrouped(
-          {required final String date,
-          required final String maxTemperature,
-          required final String minTemperature,
-          required final WeatherCondition weatherCondition,
-          required final List<HourlyWeather> hourlyWeather}) =
-      _$DailyWeatherGroupedImpl;
 
-  @override
-  String get date;
-  @override
-  String get maxTemperature;
-  @override
-  String get minTemperature;
-  @override
-  WeatherCondition get weatherCondition;
-  @override
-  List<HourlyWeather> get hourlyWeather;
-  @override
-  @JsonKey(ignore: true)
-  _$$DailyWeatherGroupedImplCopyWith<_$DailyWeatherGroupedImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+/// Create a copy of DailyWeatherGrouped
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$DailyWeatherGroupedCopyWith<_DailyWeatherGrouped> get copyWith => __$DailyWeatherGroupedCopyWithImpl<_DailyWeatherGrouped>(this, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _DailyWeatherGrouped&&(identical(other.date, date) || other.date == date)&&(identical(other.maxTemperature, maxTemperature) || other.maxTemperature == maxTemperature)&&(identical(other.minTemperature, minTemperature) || other.minTemperature == minTemperature)&&(identical(other.weatherCondition, weatherCondition) || other.weatherCondition == weatherCondition)&&const DeepCollectionEquality().equals(other._hourlyWeather, _hourlyWeather));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,date,maxTemperature,minTemperature,weatherCondition,const DeepCollectionEquality().hash(_hourlyWeather));
+
+@override
+String toString() {
+  return 'DailyWeatherGrouped(date: $date, maxTemperature: $maxTemperature, minTemperature: $minTemperature, weatherCondition: $weatherCondition, hourlyWeather: $hourlyWeather)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$DailyWeatherGroupedCopyWith<$Res> implements $DailyWeatherGroupedCopyWith<$Res> {
+  factory _$DailyWeatherGroupedCopyWith(_DailyWeatherGrouped value, $Res Function(_DailyWeatherGrouped) _then) = __$DailyWeatherGroupedCopyWithImpl;
+@override @useResult
+$Res call({
+ String date, String maxTemperature, String minTemperature, WeatherCondition weatherCondition, List<HourlyWeather> hourlyWeather
+});
+
+
+
+
+}
+/// @nodoc
+class __$DailyWeatherGroupedCopyWithImpl<$Res>
+    implements _$DailyWeatherGroupedCopyWith<$Res> {
+  __$DailyWeatherGroupedCopyWithImpl(this._self, this._then);
+
+  final _DailyWeatherGrouped _self;
+  final $Res Function(_DailyWeatherGrouped) _then;
+
+/// Create a copy of DailyWeatherGrouped
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? date = null,Object? maxTemperature = null,Object? minTemperature = null,Object? weatherCondition = null,Object? hourlyWeather = null,}) {
+  return _then(_DailyWeatherGrouped(
+date: null == date ? _self.date : date // ignore: cast_nullable_to_non_nullable
+as String,maxTemperature: null == maxTemperature ? _self.maxTemperature : maxTemperature // ignore: cast_nullable_to_non_nullable
+as String,minTemperature: null == minTemperature ? _self.minTemperature : minTemperature // ignore: cast_nullable_to_non_nullable
+as String,weatherCondition: null == weatherCondition ? _self.weatherCondition : weatherCondition // ignore: cast_nullable_to_non_nullable
+as WeatherCondition,hourlyWeather: null == hourlyWeather ? _self._hourlyWeather : hourlyWeather // ignore: cast_nullable_to_non_nullable
+as List<HourlyWeather>,
+  ));
+}
+
+
 }
 
 /// @nodoc
 mixin _$HourlyWeather {
-  String get time => throw _privateConstructorUsedError;
-  DateTime get rawTime => throw _privateConstructorUsedError;
-  String get temperature => throw _privateConstructorUsedError;
-  WeatherCondition get weatherCondition => throw _privateConstructorUsedError;
-  bool get isDay => throw _privateConstructorUsedError;
 
-  @JsonKey(ignore: true)
-  $HourlyWeatherCopyWith<HourlyWeather> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get time; DateTime get rawTime; String get temperature; WeatherCondition get weatherCondition; bool get isDay;
+/// Create a copy of HourlyWeather
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$HourlyWeatherCopyWith<HourlyWeather> get copyWith => _$HourlyWeatherCopyWithImpl<HourlyWeather>(this as HourlyWeather, _$identity);
+
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is HourlyWeather&&(identical(other.time, time) || other.time == time)&&(identical(other.rawTime, rawTime) || other.rawTime == rawTime)&&(identical(other.temperature, temperature) || other.temperature == temperature)&&(identical(other.weatherCondition, weatherCondition) || other.weatherCondition == weatherCondition)&&(identical(other.isDay, isDay) || other.isDay == isDay));
+}
+
+
+@override
+int get hashCode => Object.hash(runtimeType,time,rawTime,temperature,weatherCondition,isDay);
+
+@override
+String toString() {
+  return 'HourlyWeather(time: $time, rawTime: $rawTime, temperature: $temperature, weatherCondition: $weatherCondition, isDay: $isDay)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $HourlyWeatherCopyWith<$Res> {
-  factory $HourlyWeatherCopyWith(
-          HourlyWeather value, $Res Function(HourlyWeather) then) =
-      _$HourlyWeatherCopyWithImpl<$Res, HourlyWeather>;
-  @useResult
-  $Res call(
-      {String time,
-      DateTime rawTime,
-      String temperature,
-      WeatherCondition weatherCondition,
-      bool isDay});
-}
+abstract mixin class $HourlyWeatherCopyWith<$Res>  {
+  factory $HourlyWeatherCopyWith(HourlyWeather value, $Res Function(HourlyWeather) _then) = _$HourlyWeatherCopyWithImpl;
+@useResult
+$Res call({
+ String time, DateTime rawTime, String temperature, WeatherCondition weatherCondition, bool isDay
+});
 
+
+
+
+}
 /// @nodoc
-class _$HourlyWeatherCopyWithImpl<$Res, $Val extends HourlyWeather>
+class _$HourlyWeatherCopyWithImpl<$Res>
     implements $HourlyWeatherCopyWith<$Res> {
-  _$HourlyWeatherCopyWithImpl(this._value, this._then);
+  _$HourlyWeatherCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final HourlyWeather _self;
+  final $Res Function(HourlyWeather) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? rawTime = null,
-    Object? temperature = null,
-    Object? weatherCondition = null,
-    Object? isDay = null,
-  }) {
-    return _then(_value.copyWith(
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as String,
-      rawTime: null == rawTime
-          ? _value.rawTime
-          : rawTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      temperature: null == temperature
-          ? _value.temperature
-          : temperature // ignore: cast_nullable_to_non_nullable
-              as String,
-      weatherCondition: null == weatherCondition
-          ? _value.weatherCondition
-          : weatherCondition // ignore: cast_nullable_to_non_nullable
-              as WeatherCondition,
-      isDay: null == isDay
-          ? _value.isDay
-          : isDay // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ) as $Val);
-  }
+/// Create a copy of HourlyWeather
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? time = null,Object? rawTime = null,Object? temperature = null,Object? weatherCondition = null,Object? isDay = null,}) {
+  return _then(_self.copyWith(
+time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as String,rawTime: null == rawTime ? _self.rawTime : rawTime // ignore: cast_nullable_to_non_nullable
+as DateTime,temperature: null == temperature ? _self.temperature : temperature // ignore: cast_nullable_to_non_nullable
+as String,weatherCondition: null == weatherCondition ? _self.weatherCondition : weatherCondition // ignore: cast_nullable_to_non_nullable
+as WeatherCondition,isDay: null == isDay ? _self.isDay : isDay // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
 }
 
-/// @nodoc
-abstract class _$$HourlyWeatherImplCopyWith<$Res>
-    implements $HourlyWeatherCopyWith<$Res> {
-  factory _$$HourlyWeatherImplCopyWith(
-          _$HourlyWeatherImpl value, $Res Function(_$HourlyWeatherImpl) then) =
-      __$$HourlyWeatherImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call(
-      {String time,
-      DateTime rawTime,
-      String temperature,
-      WeatherCondition weatherCondition,
-      bool isDay});
 }
 
-/// @nodoc
-class __$$HourlyWeatherImplCopyWithImpl<$Res>
-    extends _$HourlyWeatherCopyWithImpl<$Res, _$HourlyWeatherImpl>
-    implements _$$HourlyWeatherImplCopyWith<$Res> {
-  __$$HourlyWeatherImplCopyWithImpl(
-      _$HourlyWeatherImpl _value, $Res Function(_$HourlyWeatherImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? time = null,
-    Object? rawTime = null,
-    Object? temperature = null,
-    Object? weatherCondition = null,
-    Object? isDay = null,
-  }) {
-    return _then(_$HourlyWeatherImpl(
-      time: null == time
-          ? _value.time
-          : time // ignore: cast_nullable_to_non_nullable
-              as String,
-      rawTime: null == rawTime
-          ? _value.rawTime
-          : rawTime // ignore: cast_nullable_to_non_nullable
-              as DateTime,
-      temperature: null == temperature
-          ? _value.temperature
-          : temperature // ignore: cast_nullable_to_non_nullable
-              as String,
-      weatherCondition: null == weatherCondition
-          ? _value.weatherCondition
-          : weatherCondition // ignore: cast_nullable_to_non_nullable
-              as WeatherCondition,
-      isDay: null == isDay
-          ? _value.isDay
-          : isDay // ignore: cast_nullable_to_non_nullable
-              as bool,
-    ));
-  }
-}
 
 /// @nodoc
 
-class _$HourlyWeatherImpl implements _HourlyWeather {
-  const _$HourlyWeatherImpl(
-      {required this.time,
-      required this.rawTime,
-      required this.temperature,
-      required this.weatherCondition,
-      required this.isDay});
 
-  @override
-  final String time;
-  @override
-  final DateTime rawTime;
-  @override
-  final String temperature;
-  @override
-  final WeatherCondition weatherCondition;
-  @override
-  final bool isDay;
+class _HourlyWeather implements HourlyWeather {
+  const _HourlyWeather({required this.time, required this.rawTime, required this.temperature, required this.weatherCondition, required this.isDay});
+  
 
-  @override
-  String toString() {
-    return 'HourlyWeather(time: $time, rawTime: $rawTime, temperature: $temperature, weatherCondition: $weatherCondition, isDay: $isDay)';
-  }
+@override final  String time;
+@override final  DateTime rawTime;
+@override final  String temperature;
+@override final  WeatherCondition weatherCondition;
+@override final  bool isDay;
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$HourlyWeatherImpl &&
-            (identical(other.time, time) || other.time == time) &&
-            (identical(other.rawTime, rawTime) || other.rawTime == rawTime) &&
-            (identical(other.temperature, temperature) ||
-                other.temperature == temperature) &&
-            (identical(other.weatherCondition, weatherCondition) ||
-                other.weatherCondition == weatherCondition) &&
-            (identical(other.isDay, isDay) || other.isDay == isDay));
-  }
+/// Create a copy of HourlyWeather
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$HourlyWeatherCopyWith<_HourlyWeather> get copyWith => __$HourlyWeatherCopyWithImpl<_HourlyWeather>(this, _$identity);
 
-  @override
-  int get hashCode => Object.hash(
-      runtimeType, time, rawTime, temperature, weatherCondition, isDay);
 
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$HourlyWeatherImplCopyWith<_$HourlyWeatherImpl> get copyWith =>
-      __$$HourlyWeatherImplCopyWithImpl<_$HourlyWeatherImpl>(this, _$identity);
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _HourlyWeather&&(identical(other.time, time) || other.time == time)&&(identical(other.rawTime, rawTime) || other.rawTime == rawTime)&&(identical(other.temperature, temperature) || other.temperature == temperature)&&(identical(other.weatherCondition, weatherCondition) || other.weatherCondition == weatherCondition)&&(identical(other.isDay, isDay) || other.isDay == isDay));
 }
 
-abstract class _HourlyWeather implements HourlyWeather {
-  const factory _HourlyWeather(
-      {required final String time,
-      required final DateTime rawTime,
-      required final String temperature,
-      required final WeatherCondition weatherCondition,
-      required final bool isDay}) = _$HourlyWeatherImpl;
 
-  @override
-  String get time;
-  @override
-  DateTime get rawTime;
-  @override
-  String get temperature;
-  @override
-  WeatherCondition get weatherCondition;
-  @override
-  bool get isDay;
-  @override
-  @JsonKey(ignore: true)
-  _$$HourlyWeatherImplCopyWith<_$HourlyWeatherImpl> get copyWith =>
-      throw _privateConstructorUsedError;
+@override
+int get hashCode => Object.hash(runtimeType,time,rawTime,temperature,weatherCondition,isDay);
+
+@override
+String toString() {
+  return 'HourlyWeather(time: $time, rawTime: $rawTime, temperature: $temperature, weatherCondition: $weatherCondition, isDay: $isDay)';
 }
+
+
+}
+
+/// @nodoc
+abstract mixin class _$HourlyWeatherCopyWith<$Res> implements $HourlyWeatherCopyWith<$Res> {
+  factory _$HourlyWeatherCopyWith(_HourlyWeather value, $Res Function(_HourlyWeather) _then) = __$HourlyWeatherCopyWithImpl;
+@override @useResult
+$Res call({
+ String time, DateTime rawTime, String temperature, WeatherCondition weatherCondition, bool isDay
+});
+
+
+
+
+}
+/// @nodoc
+class __$HourlyWeatherCopyWithImpl<$Res>
+    implements _$HourlyWeatherCopyWith<$Res> {
+  __$HourlyWeatherCopyWithImpl(this._self, this._then);
+
+  final _HourlyWeather _self;
+  final $Res Function(_HourlyWeather) _then;
+
+/// Create a copy of HourlyWeather
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? time = null,Object? rawTime = null,Object? temperature = null,Object? weatherCondition = null,Object? isDay = null,}) {
+  return _then(_HourlyWeather(
+time: null == time ? _self.time : time // ignore: cast_nullable_to_non_nullable
+as String,rawTime: null == rawTime ? _self.rawTime : rawTime // ignore: cast_nullable_to_non_nullable
+as DateTime,temperature: null == temperature ? _self.temperature : temperature // ignore: cast_nullable_to_non_nullable
+as String,weatherCondition: null == weatherCondition ? _self.weatherCondition : weatherCondition // ignore: cast_nullable_to_non_nullable
+as WeatherCondition,isDay: null == isDay ? _self.isDay : isDay // ignore: cast_nullable_to_non_nullable
+as bool,
+  ));
+}
+
+
+}
+
+// dart format on

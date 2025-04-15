@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint
@@ -13,175 +10,142 @@ part of 'websocket_read_notification.dart';
 // FreezedGenerator
 // **************************************************************************
 
+// dart format off
 T _$identity<T>(T value) => value;
-
-final _privateConstructorUsedError = UnsupportedError(
-    'It seems like you constructed your class using `MyClass._()`. This constructor is only meant to be used by freezed and you are not supposed to need it nor use it.\nPlease check the documentation here for more information: https://github.com/rrousselGit/freezed#adding-getters-and-methods-to-our-models');
-
-WebsocketReadNotification _$WebsocketReadNotificationFromJson(
-    Map<String, dynamic> json) {
-  return _WebsocketReadNotification.fromJson(json);
-}
 
 /// @nodoc
 mixin _$WebsocketReadNotification {
-  String get type => throw _privateConstructorUsedError;
-  @JsonKey(name: 'notification')
-  int get notificationId => throw _privateConstructorUsedError;
 
-  Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
-  @JsonKey(ignore: true)
-  $WebsocketReadNotificationCopyWith<WebsocketReadNotification> get copyWith =>
-      throw _privateConstructorUsedError;
+ String get type;@JsonKey(name: 'notification') int get notificationId;
+/// Create a copy of WebsocketReadNotification
+/// with the given fields replaced by the non-null parameter values.
+@JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+$WebsocketReadNotificationCopyWith<WebsocketReadNotification> get copyWith => _$WebsocketReadNotificationCopyWithImpl<WebsocketReadNotification>(this as WebsocketReadNotification, _$identity);
+
+  /// Serializes this WebsocketReadNotification to a JSON map.
+  Map<String, dynamic> toJson();
+
+
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is WebsocketReadNotification&&(identical(other.type, type) || other.type == type)&&(identical(other.notificationId, notificationId) || other.notificationId == notificationId));
+}
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,notificationId);
+
+@override
+String toString() {
+  return 'WebsocketReadNotification(type: $type, notificationId: $notificationId)';
+}
+
+
 }
 
 /// @nodoc
-abstract class $WebsocketReadNotificationCopyWith<$Res> {
-  factory $WebsocketReadNotificationCopyWith(WebsocketReadNotification value,
-          $Res Function(WebsocketReadNotification) then) =
-      _$WebsocketReadNotificationCopyWithImpl<$Res, WebsocketReadNotification>;
-  @useResult
-  $Res call({String type, @JsonKey(name: 'notification') int notificationId});
-}
+abstract mixin class $WebsocketReadNotificationCopyWith<$Res>  {
+  factory $WebsocketReadNotificationCopyWith(WebsocketReadNotification value, $Res Function(WebsocketReadNotification) _then) = _$WebsocketReadNotificationCopyWithImpl;
+@useResult
+$Res call({
+ String type,@JsonKey(name: 'notification') int notificationId
+});
 
+
+
+
+}
 /// @nodoc
-class _$WebsocketReadNotificationCopyWithImpl<$Res,
-        $Val extends WebsocketReadNotification>
+class _$WebsocketReadNotificationCopyWithImpl<$Res>
     implements $WebsocketReadNotificationCopyWith<$Res> {
-  _$WebsocketReadNotificationCopyWithImpl(this._value, this._then);
+  _$WebsocketReadNotificationCopyWithImpl(this._self, this._then);
 
-  // ignore: unused_field
-  final $Val _value;
-  // ignore: unused_field
-  final $Res Function($Val) _then;
+  final WebsocketReadNotification _self;
+  final $Res Function(WebsocketReadNotification) _then;
 
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? notificationId = null,
-  }) {
-    return _then(_value.copyWith(
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      notificationId: null == notificationId
-          ? _value.notificationId
-          : notificationId // ignore: cast_nullable_to_non_nullable
-              as int,
-    ) as $Val);
-  }
+/// Create a copy of WebsocketReadNotification
+/// with the given fields replaced by the non-null parameter values.
+@pragma('vm:prefer-inline') @override $Res call({Object? type = null,Object? notificationId = null,}) {
+  return _then(_self.copyWith(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,notificationId: null == notificationId ? _self.notificationId : notificationId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
 }
 
-/// @nodoc
-abstract class _$$WebsocketReadNotificationImplCopyWith<$Res>
-    implements $WebsocketReadNotificationCopyWith<$Res> {
-  factory _$$WebsocketReadNotificationImplCopyWith(
-          _$WebsocketReadNotificationImpl value,
-          $Res Function(_$WebsocketReadNotificationImpl) then) =
-      __$$WebsocketReadNotificationImplCopyWithImpl<$Res>;
-  @override
-  @useResult
-  $Res call({String type, @JsonKey(name: 'notification') int notificationId});
 }
 
-/// @nodoc
-class __$$WebsocketReadNotificationImplCopyWithImpl<$Res>
-    extends _$WebsocketReadNotificationCopyWithImpl<$Res,
-        _$WebsocketReadNotificationImpl>
-    implements _$$WebsocketReadNotificationImplCopyWith<$Res> {
-  __$$WebsocketReadNotificationImplCopyWithImpl(
-      _$WebsocketReadNotificationImpl _value,
-      $Res Function(_$WebsocketReadNotificationImpl) _then)
-      : super(_value, _then);
-
-  @pragma('vm:prefer-inline')
-  @override
-  $Res call({
-    Object? type = null,
-    Object? notificationId = null,
-  }) {
-    return _then(_$WebsocketReadNotificationImpl(
-      type: null == type
-          ? _value.type
-          : type // ignore: cast_nullable_to_non_nullable
-              as String,
-      notificationId: null == notificationId
-          ? _value.notificationId
-          : notificationId // ignore: cast_nullable_to_non_nullable
-              as int,
-    ));
-  }
-}
 
 /// @nodoc
 @JsonSerializable()
-class _$WebsocketReadNotificationImpl implements _WebsocketReadNotification {
-  const _$WebsocketReadNotificationImpl(
-      {this.type = "read-notification",
-      @JsonKey(name: 'notification') required this.notificationId});
 
-  factory _$WebsocketReadNotificationImpl.fromJson(Map<String, dynamic> json) =>
-      _$$WebsocketReadNotificationImplFromJson(json);
+class _WebsocketReadNotification implements WebsocketReadNotification {
+  const _WebsocketReadNotification({this.type = "read-notification", @JsonKey(name: 'notification') required this.notificationId});
+  factory _WebsocketReadNotification.fromJson(Map<String, dynamic> json) => _$WebsocketReadNotificationFromJson(json);
 
-  @override
-  @JsonKey()
-  final String type;
-  @override
-  @JsonKey(name: 'notification')
-  final int notificationId;
+@override@JsonKey() final  String type;
+@override@JsonKey(name: 'notification') final  int notificationId;
 
-  @override
-  String toString() {
-    return 'WebsocketReadNotification(type: $type, notificationId: $notificationId)';
-  }
+/// Create a copy of WebsocketReadNotification
+/// with the given fields replaced by the non-null parameter values.
+@override @JsonKey(includeFromJson: false, includeToJson: false)
+@pragma('vm:prefer-inline')
+_$WebsocketReadNotificationCopyWith<_WebsocketReadNotification> get copyWith => __$WebsocketReadNotificationCopyWithImpl<_WebsocketReadNotification>(this, _$identity);
 
-  @override
-  bool operator ==(Object other) {
-    return identical(this, other) ||
-        (other.runtimeType == runtimeType &&
-            other is _$WebsocketReadNotificationImpl &&
-            (identical(other.type, type) || other.type == type) &&
-            (identical(other.notificationId, notificationId) ||
-                other.notificationId == notificationId));
-  }
-
-  @JsonKey(ignore: true)
-  @override
-  int get hashCode => Object.hash(runtimeType, type, notificationId);
-
-  @JsonKey(ignore: true)
-  @override
-  @pragma('vm:prefer-inline')
-  _$$WebsocketReadNotificationImplCopyWith<_$WebsocketReadNotificationImpl>
-      get copyWith => __$$WebsocketReadNotificationImplCopyWithImpl<
-          _$WebsocketReadNotificationImpl>(this, _$identity);
-
-  @override
-  Map<String, dynamic> toJson() {
-    return _$$WebsocketReadNotificationImplToJson(
-      this,
-    );
-  }
+@override
+Map<String, dynamic> toJson() {
+  return _$WebsocketReadNotificationToJson(this, );
 }
 
-abstract class _WebsocketReadNotification implements WebsocketReadNotification {
-  const factory _WebsocketReadNotification(
-          {final String type,
-          @JsonKey(name: 'notification') required final int notificationId}) =
-      _$WebsocketReadNotificationImpl;
-
-  factory _WebsocketReadNotification.fromJson(Map<String, dynamic> json) =
-      _$WebsocketReadNotificationImpl.fromJson;
-
-  @override
-  String get type;
-  @override
-  @JsonKey(name: 'notification')
-  int get notificationId;
-  @override
-  @JsonKey(ignore: true)
-  _$$WebsocketReadNotificationImplCopyWith<_$WebsocketReadNotificationImpl>
-      get copyWith => throw _privateConstructorUsedError;
+@override
+bool operator ==(Object other) {
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _WebsocketReadNotification&&(identical(other.type, type) || other.type == type)&&(identical(other.notificationId, notificationId) || other.notificationId == notificationId));
 }
+
+@JsonKey(includeFromJson: false, includeToJson: false)
+@override
+int get hashCode => Object.hash(runtimeType,type,notificationId);
+
+@override
+String toString() {
+  return 'WebsocketReadNotification(type: $type, notificationId: $notificationId)';
+}
+
+
+}
+
+/// @nodoc
+abstract mixin class _$WebsocketReadNotificationCopyWith<$Res> implements $WebsocketReadNotificationCopyWith<$Res> {
+  factory _$WebsocketReadNotificationCopyWith(_WebsocketReadNotification value, $Res Function(_WebsocketReadNotification) _then) = __$WebsocketReadNotificationCopyWithImpl;
+@override @useResult
+$Res call({
+ String type,@JsonKey(name: 'notification') int notificationId
+});
+
+
+
+
+}
+/// @nodoc
+class __$WebsocketReadNotificationCopyWithImpl<$Res>
+    implements _$WebsocketReadNotificationCopyWith<$Res> {
+  __$WebsocketReadNotificationCopyWithImpl(this._self, this._then);
+
+  final _WebsocketReadNotification _self;
+  final $Res Function(_WebsocketReadNotification) _then;
+
+/// Create a copy of WebsocketReadNotification
+/// with the given fields replaced by the non-null parameter values.
+@override @pragma('vm:prefer-inline') $Res call({Object? type = null,Object? notificationId = null,}) {
+  return _then(_WebsocketReadNotification(
+type: null == type ? _self.type : type // ignore: cast_nullable_to_non_nullable
+as String,notificationId: null == notificationId ? _self.notificationId : notificationId // ignore: cast_nullable_to_non_nullable
+as int,
+  ));
+}
+
+
+}
+
+// dart format on

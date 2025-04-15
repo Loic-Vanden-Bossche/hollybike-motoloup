@@ -11,7 +11,7 @@ part 'minimal_journey.freezed.dart';
 part 'minimal_journey.g.dart';
 
 @freezed
-class MinimalJourney with _$MinimalJourney {
+sealed class MinimalJourney with _$MinimalJourney {
   const MinimalJourney._();
 
   const factory MinimalJourney({

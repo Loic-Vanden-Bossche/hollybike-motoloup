@@ -60,7 +60,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
           child: Builder(builder: (context) {
             return InAppWebView(
               initialUrlRequest: URLRequest(
-                url: Uri.parse(widget.url),
+                url: WebUri(widget.url),
               ),
               initialOptions: InAppWebViewGroupOptions(
                 crossPlatform: InAppWebViewOptions(

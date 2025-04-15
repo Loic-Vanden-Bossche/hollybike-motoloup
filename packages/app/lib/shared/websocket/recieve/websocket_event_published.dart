@@ -11,7 +11,7 @@ part 'websocket_event_published.freezed.dart';
 part 'websocket_event_published.g.dart';
 
 @freezed
-class WebsocketEventPublished
+sealed class WebsocketEventPublished
     with _$WebsocketEventPublished
     implements WebsocketBody {
   const factory WebsocketEventPublished({

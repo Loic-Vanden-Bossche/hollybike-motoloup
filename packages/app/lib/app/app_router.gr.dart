@@ -1,7 +1,4 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
+// dart format width=80
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 // **************************************************************************
@@ -42,159 +39,20 @@ import 'package:hollybike/search/screens/search_screen.dart' as _i12;
 import 'package:hollybike/shared/routes/loading_route.dart' as _i8;
 import 'package:hollybike/user_journey/screens/user_journey_map.dart' as _i14;
 
-abstract class $AppRouter extends _i15.RootStackRouter {
-  $AppRouter({super.navigatorKey});
-
-  @override
-  final Map<String, _i15.PageFactory> pagesMap = {
-    EditProfileRoute.name: (routeData) {
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i15.WrappedRoute(child: const _i1.EditProfileScreen()),
-      );
-    },
-    EventCandidatesRoute.name: (routeData) {
-      final args = routeData.argsAs<EventCandidatesRouteArgs>();
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i15.WrappedRoute(
-            child: _i2.EventCandidatesScreen(
-          key: args.key,
-          eventId: args.eventId,
-        )),
-      );
-    },
-    EventDetailsRoute.name: (routeData) {
-      final args = routeData.argsAs<EventDetailsRouteArgs>();
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i15.WrappedRoute(
-            child: _i3.EventDetailsScreen(
-          key: args.key,
-          event: args.event,
-          animate: args.animate,
-          uniqueKey: args.uniqueKey,
-        )),
-      );
-    },
-    EventParticipationsRoute.name: (routeData) {
-      final args = routeData.argsAs<EventParticipationsRouteArgs>();
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i15.WrappedRoute(
-            child: _i4.EventParticipationsScreen(
-          key: args.key,
-          eventDetails: args.eventDetails,
-          participationPreview: args.participationPreview,
-          eventDetailsBloc: args.eventDetailsBloc,
-        )),
-      );
-    },
-    EventsRoute.name: (routeData) {
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i15.WrappedRoute(child: const _i5.EventsScreen()),
-      );
-    },
-    ImageGalleryViewRoute.name: (routeData) {
-      final args = routeData.argsAs<ImageGalleryViewRouteArgs>();
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i15.WrappedRoute(
-            child: _i6.ImageGalleryViewScreen(
-          key: args.key,
-          imageIndex: args.imageIndex,
-          onLoadNextPage: args.onLoadNextPage,
-          onRefresh: args.onRefresh,
-          bloc: args.bloc,
-        )),
-      );
-    },
-    ImportGpxToolRoute.name: (routeData) {
-      final args = routeData.argsAs<ImportGpxToolRouteArgs>();
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i7.ImportGpxToolScreen(
-          key: args.key,
-          url: args.url,
-          onGpxDownloaded: args.onGpxDownloaded,
-          onClose: args.onClose,
-        ),
-      );
-    },
-    LoadingRoute.name: (routeData) {
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const _i8.LoadingRoute(),
-      );
-    },
-    LoginRoute.name: (routeData) {
-      final args = routeData.argsAs<LoginRouteArgs>();
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i9.LoginScreen(
-          key: args.key,
-          onAuthSuccess: args.onAuthSuccess,
-          canPop: args.canPop,
-        ),
-      );
-    },
-    MeRoute.name: (routeData) {
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const _i10.MeScreen(),
-      );
-    },
-    ProfileRoute.name: (routeData) {
-      final pathParams = routeData.inheritedPathParams;
-      final args = routeData.argsAs<ProfileRouteArgs>(
-          orElse: () => ProfileRouteArgs(urlId: pathParams.optString('id')));
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i11.ProfileScreen(
-          key: args.key,
-          urlId: args.urlId,
-        ),
-      );
-    },
-    SearchRoute.name: (routeData) {
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const _i12.SearchScreen(),
-      );
-    },
-    SignupRoute.name: (routeData) {
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: const _i13.SignupScreen(),
-      );
-    },
-    UserJourneyMapRoute.name: (routeData) {
-      final args = routeData.argsAs<UserJourneyMapRouteArgs>();
-      return _i15.AutoRoutePage<dynamic>(
-        routeData: routeData,
-        child: _i14.UserJourneyMapScreen(
-          key: args.key,
-          fileUrl: args.fileUrl,
-          title: args.title,
-        ),
-      );
-    },
-  };
-}
-
 /// generated route for
 /// [_i1.EditProfileScreen]
 class EditProfileRoute extends _i15.PageRouteInfo<void> {
   const EditProfileRoute({List<_i15.PageRouteInfo>? children})
-      : super(
-          EditProfileRoute.name,
-          initialChildren: children,
-        );
+    : super(EditProfileRoute.name, initialChildren: children);
 
   static const String name = 'EditProfileRoute';
 
-  static const _i15.PageInfo<void> page = _i15.PageInfo<void>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      return _i15.WrappedRoute(child: const _i1.EditProfileScreen());
+    },
+  );
 }
 
 /// generated route for
@@ -206,25 +64,26 @@ class EventCandidatesRoute
     required int eventId,
     List<_i15.PageRouteInfo>? children,
   }) : super(
-          EventCandidatesRoute.name,
-          args: EventCandidatesRouteArgs(
-            key: key,
-            eventId: eventId,
-          ),
-          initialChildren: children,
-        );
+         EventCandidatesRoute.name,
+         args: EventCandidatesRouteArgs(key: key, eventId: eventId),
+         initialChildren: children,
+       );
 
   static const String name = 'EventCandidatesRoute';
 
-  static const _i15.PageInfo<EventCandidatesRouteArgs> page =
-      _i15.PageInfo<EventCandidatesRouteArgs>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<EventCandidatesRouteArgs>();
+      return _i15.WrappedRoute(
+        child: _i2.EventCandidatesScreen(key: args.key, eventId: args.eventId),
+      );
+    },
+  );
 }
 
 class EventCandidatesRouteArgs {
-  const EventCandidatesRouteArgs({
-    this.key,
-    required this.eventId,
-  });
+  const EventCandidatesRouteArgs({this.key, required this.eventId});
 
   final _i16.Key? key;
 
@@ -246,20 +105,32 @@ class EventDetailsRoute extends _i15.PageRouteInfo<EventDetailsRouteArgs> {
     String uniqueKey = "default",
     List<_i15.PageRouteInfo>? children,
   }) : super(
-          EventDetailsRoute.name,
-          args: EventDetailsRouteArgs(
-            key: key,
-            event: event,
-            animate: animate,
-            uniqueKey: uniqueKey,
-          ),
-          initialChildren: children,
-        );
+         EventDetailsRoute.name,
+         args: EventDetailsRouteArgs(
+           key: key,
+           event: event,
+           animate: animate,
+           uniqueKey: uniqueKey,
+         ),
+         initialChildren: children,
+       );
 
   static const String name = 'EventDetailsRoute';
 
-  static const _i15.PageInfo<EventDetailsRouteArgs> page =
-      _i15.PageInfo<EventDetailsRouteArgs>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<EventDetailsRouteArgs>();
+      return _i15.WrappedRoute(
+        child: _i3.EventDetailsScreen(
+          key: args.key,
+          event: args.event,
+          animate: args.animate,
+          uniqueKey: args.uniqueKey,
+        ),
+      );
+    },
+  );
 }
 
 class EventDetailsRouteArgs {
@@ -295,20 +166,32 @@ class EventParticipationsRoute
     _i20.EventDetailsBloc? eventDetailsBloc,
     List<_i15.PageRouteInfo>? children,
   }) : super(
-          EventParticipationsRoute.name,
-          args: EventParticipationsRouteArgs(
-            key: key,
-            eventDetails: eventDetails,
-            participationPreview: participationPreview,
-            eventDetailsBloc: eventDetailsBloc,
-          ),
-          initialChildren: children,
-        );
+         EventParticipationsRoute.name,
+         args: EventParticipationsRouteArgs(
+           key: key,
+           eventDetails: eventDetails,
+           participationPreview: participationPreview,
+           eventDetailsBloc: eventDetailsBloc,
+         ),
+         initialChildren: children,
+       );
 
   static const String name = 'EventParticipationsRoute';
 
-  static const _i15.PageInfo<EventParticipationsRouteArgs> page =
-      _i15.PageInfo<EventParticipationsRouteArgs>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<EventParticipationsRouteArgs>();
+      return _i15.WrappedRoute(
+        child: _i4.EventParticipationsScreen(
+          key: args.key,
+          eventDetails: args.eventDetails,
+          participationPreview: args.participationPreview,
+          eventDetailsBloc: args.eventDetailsBloc,
+        ),
+      );
+    },
+  );
 }
 
 class EventParticipationsRouteArgs {
@@ -337,14 +220,16 @@ class EventParticipationsRouteArgs {
 /// [_i5.EventsScreen]
 class EventsRoute extends _i15.PageRouteInfo<void> {
   const EventsRoute({List<_i15.PageRouteInfo>? children})
-      : super(
-          EventsRoute.name,
-          initialChildren: children,
-        );
+    : super(EventsRoute.name, initialChildren: children);
 
   static const String name = 'EventsRoute';
 
-  static const _i15.PageInfo<void> page = _i15.PageInfo<void>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      return _i15.WrappedRoute(child: const _i5.EventsScreen());
+    },
+  );
 }
 
 /// generated route for
@@ -359,21 +244,34 @@ class ImageGalleryViewRoute
     required _i21.ImageListBloc<dynamic> bloc,
     List<_i15.PageRouteInfo>? children,
   }) : super(
-          ImageGalleryViewRoute.name,
-          args: ImageGalleryViewRouteArgs(
-            key: key,
-            imageIndex: imageIndex,
-            onLoadNextPage: onLoadNextPage,
-            onRefresh: onRefresh,
-            bloc: bloc,
-          ),
-          initialChildren: children,
-        );
+         ImageGalleryViewRoute.name,
+         args: ImageGalleryViewRouteArgs(
+           key: key,
+           imageIndex: imageIndex,
+           onLoadNextPage: onLoadNextPage,
+           onRefresh: onRefresh,
+           bloc: bloc,
+         ),
+         initialChildren: children,
+       );
 
   static const String name = 'ImageGalleryViewRoute';
 
-  static const _i15.PageInfo<ImageGalleryViewRouteArgs> page =
-      _i15.PageInfo<ImageGalleryViewRouteArgs>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<ImageGalleryViewRouteArgs>();
+      return _i15.WrappedRoute(
+        child: _i6.ImageGalleryViewScreen(
+          key: args.key,
+          imageIndex: args.imageIndex,
+          onLoadNextPage: args.onLoadNextPage,
+          onRefresh: args.onRefresh,
+          bloc: args.bloc,
+        ),
+      );
+    },
+  );
 }
 
 class ImageGalleryViewRouteArgs {
@@ -411,20 +309,30 @@ class ImportGpxToolRoute extends _i15.PageRouteInfo<ImportGpxToolRouteArgs> {
     required void Function() onClose,
     List<_i15.PageRouteInfo>? children,
   }) : super(
-          ImportGpxToolRoute.name,
-          args: ImportGpxToolRouteArgs(
-            key: key,
-            url: url,
-            onGpxDownloaded: onGpxDownloaded,
-            onClose: onClose,
-          ),
-          initialChildren: children,
-        );
+         ImportGpxToolRoute.name,
+         args: ImportGpxToolRouteArgs(
+           key: key,
+           url: url,
+           onGpxDownloaded: onGpxDownloaded,
+           onClose: onClose,
+         ),
+         initialChildren: children,
+       );
 
   static const String name = 'ImportGpxToolRoute';
 
-  static const _i15.PageInfo<ImportGpxToolRouteArgs> page =
-      _i15.PageInfo<ImportGpxToolRouteArgs>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<ImportGpxToolRouteArgs>();
+      return _i7.ImportGpxToolScreen(
+        key: args.key,
+        url: args.url,
+        onGpxDownloaded: args.onGpxDownloaded,
+        onClose: args.onClose,
+      );
+    },
+  );
 }
 
 class ImportGpxToolRouteArgs {
@@ -453,14 +361,16 @@ class ImportGpxToolRouteArgs {
 /// [_i8.LoadingRoute]
 class LoadingRoute extends _i15.PageRouteInfo<void> {
   const LoadingRoute({List<_i15.PageRouteInfo>? children})
-      : super(
-          LoadingRoute.name,
-          initialChildren: children,
-        );
+    : super(LoadingRoute.name, initialChildren: children);
 
   static const String name = 'LoadingRoute';
 
-  static const _i15.PageInfo<void> page = _i15.PageInfo<void>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      return const _i8.LoadingRoute();
+    },
+  );
 }
 
 /// generated route for
@@ -472,19 +382,28 @@ class LoginRoute extends _i15.PageRouteInfo<LoginRouteArgs> {
     bool canPop = false,
     List<_i15.PageRouteInfo>? children,
   }) : super(
-          LoginRoute.name,
-          args: LoginRouteArgs(
-            key: key,
-            onAuthSuccess: onAuthSuccess,
-            canPop: canPop,
-          ),
-          initialChildren: children,
-        );
+         LoginRoute.name,
+         args: LoginRouteArgs(
+           key: key,
+           onAuthSuccess: onAuthSuccess,
+           canPop: canPop,
+         ),
+         initialChildren: children,
+       );
 
   static const String name = 'LoginRoute';
 
-  static const _i15.PageInfo<LoginRouteArgs> page =
-      _i15.PageInfo<LoginRouteArgs>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<LoginRouteArgs>();
+      return _i9.LoginScreen(
+        key: args.key,
+        onAuthSuccess: args.onAuthSuccess,
+        canPop: args.canPop,
+      );
+    },
+  );
 }
 
 class LoginRouteArgs {
@@ -510,14 +429,16 @@ class LoginRouteArgs {
 /// [_i10.MeScreen]
 class MeRoute extends _i15.PageRouteInfo<void> {
   const MeRoute({List<_i15.PageRouteInfo>? children})
-      : super(
-          MeRoute.name,
-          initialChildren: children,
-        );
+    : super(MeRoute.name, initialChildren: children);
 
   static const String name = 'MeRoute';
 
-  static const _i15.PageInfo<void> page = _i15.PageInfo<void>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      return const _i10.MeScreen();
+    },
+  );
 }
 
 /// generated route for
@@ -528,26 +449,28 @@ class ProfileRoute extends _i15.PageRouteInfo<ProfileRouteArgs> {
     String? urlId,
     List<_i15.PageRouteInfo>? children,
   }) : super(
-          ProfileRoute.name,
-          args: ProfileRouteArgs(
-            key: key,
-            urlId: urlId,
-          ),
-          rawPathParams: {'id': urlId},
-          initialChildren: children,
-        );
+         ProfileRoute.name,
+         args: ProfileRouteArgs(key: key, urlId: urlId),
+         rawPathParams: {'id': urlId},
+         initialChildren: children,
+       );
 
   static const String name = 'ProfileRoute';
 
-  static const _i15.PageInfo<ProfileRouteArgs> page =
-      _i15.PageInfo<ProfileRouteArgs>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      final pathParams = data.inheritedPathParams;
+      final args = data.argsAs<ProfileRouteArgs>(
+        orElse: () => ProfileRouteArgs(urlId: pathParams.optString('id')),
+      );
+      return _i11.ProfileScreen(key: args.key, urlId: args.urlId);
+    },
+  );
 }
 
 class ProfileRouteArgs {
-  const ProfileRouteArgs({
-    this.key,
-    this.urlId,
-  });
+  const ProfileRouteArgs({this.key, this.urlId});
 
   final _i16.Key? key;
 
@@ -563,28 +486,32 @@ class ProfileRouteArgs {
 /// [_i12.SearchScreen]
 class SearchRoute extends _i15.PageRouteInfo<void> {
   const SearchRoute({List<_i15.PageRouteInfo>? children})
-      : super(
-          SearchRoute.name,
-          initialChildren: children,
-        );
+    : super(SearchRoute.name, initialChildren: children);
 
   static const String name = 'SearchRoute';
 
-  static const _i15.PageInfo<void> page = _i15.PageInfo<void>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      return const _i12.SearchScreen();
+    },
+  );
 }
 
 /// generated route for
 /// [_i13.SignupScreen]
 class SignupRoute extends _i15.PageRouteInfo<void> {
   const SignupRoute({List<_i15.PageRouteInfo>? children})
-      : super(
-          SignupRoute.name,
-          initialChildren: children,
-        );
+    : super(SignupRoute.name, initialChildren: children);
 
   static const String name = 'SignupRoute';
 
-  static const _i15.PageInfo<void> page = _i15.PageInfo<void>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      return const _i13.SignupScreen();
+    },
+  );
 }
 
 /// generated route for
@@ -596,19 +523,28 @@ class UserJourneyMapRoute extends _i15.PageRouteInfo<UserJourneyMapRouteArgs> {
     required String title,
     List<_i15.PageRouteInfo>? children,
   }) : super(
-          UserJourneyMapRoute.name,
-          args: UserJourneyMapRouteArgs(
-            key: key,
-            fileUrl: fileUrl,
-            title: title,
-          ),
-          initialChildren: children,
-        );
+         UserJourneyMapRoute.name,
+         args: UserJourneyMapRouteArgs(
+           key: key,
+           fileUrl: fileUrl,
+           title: title,
+         ),
+         initialChildren: children,
+       );
 
   static const String name = 'UserJourneyMapRoute';
 
-  static const _i15.PageInfo<UserJourneyMapRouteArgs> page =
-      _i15.PageInfo<UserJourneyMapRouteArgs>(name);
+  static _i15.PageInfo page = _i15.PageInfo(
+    name,
+    builder: (data) {
+      final args = data.argsAs<UserJourneyMapRouteArgs>();
+      return _i14.UserJourneyMapScreen(
+        key: args.key,
+        fileUrl: args.fileUrl,
+        title: args.title,
+      );
+    },
+  );
 }
 
 class UserJourneyMapRouteArgs {

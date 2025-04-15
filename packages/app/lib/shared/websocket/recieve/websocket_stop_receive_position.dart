@@ -11,7 +11,7 @@ part 'websocket_stop_receive_position.freezed.dart';
 part 'websocket_stop_receive_position.g.dart';
 
 @freezed
-class WebsocketStopReceivePosition
+sealed class WebsocketStopReceivePosition
     with _$WebsocketStopReceivePosition
     implements WebsocketBody {
   const factory WebsocketStopReceivePosition({

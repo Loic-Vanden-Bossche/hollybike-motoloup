@@ -1,7 +1,3 @@
-/*
-  Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
-*/
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
 part of 'websocket_error.dart';
@@ -10,15 +6,11 @@ part of 'websocket_error.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-_$WebsocketErrorImpl _$$WebsocketErrorImplFromJson(Map<String, dynamic> json) =>
-    _$WebsocketErrorImpl(
+_WebsocketError _$WebsocketErrorFromJson(Map<String, dynamic> json) =>
+    _WebsocketError(
       message: json['message'] as String,
       type: json['type'] as String? ?? "subscribed",
     );
 
-Map<String, dynamic> _$$WebsocketErrorImplToJson(
-        _$WebsocketErrorImpl instance) =>
-    <String, dynamic>{
-      'message': instance.message,
-      'type': instance.type,
-    };
+Map<String, dynamic> _$WebsocketErrorToJson(_WebsocketError instance) =>
+    <String, dynamic>{'message': instance.message, 'type': instance.type};
