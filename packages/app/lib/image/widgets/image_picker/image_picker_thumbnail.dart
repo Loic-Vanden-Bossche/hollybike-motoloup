@@ -4,18 +4,19 @@
 */
 import 'package:flutter/material.dart';
 import 'package:hollybike/image/utils/image_picker/img.dart';
-// import 'package:photo_gallery/photo_gallery.dart';
+import 'package:photo_manager/photo_manager.dart';
+import 'package:photo_manager_image_provider/photo_manager_image_provider.dart';
 
 import 'image_picker_thumbnail_container.dart';
 
 class ImagePickerThumbnail extends StatelessWidget {
-  final String mediumId;
+  final AssetEntity assetEntity;
   final bool isSelected;
   final void Function(Img) onImageSelected;
 
   const ImagePickerThumbnail({
     super.key,
-    required this.mediumId,
+    required this.assetEntity,
     required this.isSelected,
     required this.onImageSelected,
   });
@@ -28,16 +29,13 @@ class ImagePickerThumbnail extends StatelessWidget {
         height: double.infinity,
         width: double.infinity,
         fit: BoxFit.cover,
-        // image: ThumbnailProvider(
-        //   mediumId: mediumId,
-        //   mediumType: MediumType.image,
-        //   width: 512,
-        //   height: 512,
-        //   highQuality: true,
-        // ),
-        image: const AssetImage('assets/images/placeholder.png'),
+        image: AssetEntityImageProvider(
+          assetEntity,
+          isOriginal: false,
+          thumbnailSize: ThumbnailSize(200, 200),
+        ),
       ),
-      onTap: () async => onImageSelected(await Img.fromMediumId(mediumId)),
+      onTap: () async => onImageSelected(await Img.fromAssetEntity(assetEntity)),
     );
   }
 }

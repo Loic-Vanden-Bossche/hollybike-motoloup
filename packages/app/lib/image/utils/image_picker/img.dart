@@ -5,17 +5,17 @@
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
-// import 'package:photo_gallery/photo_gallery.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 class Img {
   final Image image;
   final File file;
-  final String? mediumId;
+  final String? entityId;
 
   Img({
     required this.image,
     required this.file,
-    this.mediumId,
+    this.entityId,
   });
 
   static Img fromFile(File file) {
@@ -43,39 +43,14 @@ class Img {
     );
   }
 
-  static Future<Img> fromMediumId(String mediumId) async {
-    // final file = await PhotoGallery.getMedium(mediumId: mediumId)
-    //     .then((value) => value.getFile());
-    final image = Image(
-      height: double.infinity,
-      width: double.infinity,
-      fit: BoxFit.cover,
-      // image: ThumbnailProvider(
-      //   mediumId: mediumId,
-      //   mediumType: MediumType.image,
-      //   width: 512,
-      //   height: 512,
-      //   highQuality: true,
-      // ),
-      // dummy image for now
-      image: const AssetImage('assets/images/placeholder.png'),
-      frameBuilder: (context, child, frame, wasSynchronouslyLoaded) {
-        if (wasSynchronouslyLoaded) {
-          return child;
-        }
+  static fromAssetEntity(AssetEntity assetEntity) async {
+    final file = await assetEntity.file;
+    if (file == null) {
+      throw Exception('File not found');
+    }
 
-        return AnimatedOpacity(
-          opacity: frame == null ? 0 : 1,
-          duration: const Duration(milliseconds: 300),
-          child: child,
-        );
-      },
-    );
+    final fileImage = Img.fromFile(file);
 
-    return Img(
-      image: image,
-      file: File(''),
-      mediumId: mediumId,
-    );
+    return Img(image: fileImage.image, file: file, entityId: assetEntity.id);
   }
 }

@@ -73,7 +73,7 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
               ),
               _buildSelectedImageList(),
               ImagePickerChoiceList(
-                mediumIdSelectedList: _getSelectedMediumIds(),
+                entityIdSelectedList: _getSelectedEntityIds(),
                 mode: widget.mode,
                 onImagesSelected: _onImagesSelected,
                 isLoading: widget.isLoading,
@@ -96,9 +96,9 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
     );
   }
 
-  List<String> _getSelectedMediumIds() {
+  List<String> _getSelectedEntityIds() {
     return _selectedImages
-        .map((img) => img.mediumId)
+        .map((img) => img.entityId)
         .where((element) => element != null)
         .toList()
         .cast<String>();
@@ -121,25 +121,25 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
         _selectedImages.clear();
       }
 
-      final mediumIdsToDelete = _filterMediumIdsToDelete(images);
+      final entityIdsToDelete = _filterEntityIdsToDelete(images);
 
       _selectedImages
-          .removeWhere((img) => mediumIdsToDelete.contains(img.mediumId));
+          .removeWhere((img) => entityIdsToDelete.contains(img.entityId));
 
       final filesToAdd = images
           .where((img) =>
-              mediumIdsToDelete.every((mediumId) => img.mediumId != mediumId))
+          entityIdsToDelete.every((entityId) => img.entityId != entityId))
           .toList();
 
       _selectedImages.addAll(filesToAdd);
     });
   }
 
-  List<String> _filterMediumIdsToDelete(List<Img> images) {
+  List<String> _filterEntityIdsToDelete(List<Img> images) {
     return images
-        .map((img) => img.mediumId)
-        .where((mediumId) => _selectedImages
-            .any((img) => img.mediumId != null && img.mediumId == mediumId))
+        .map((img) => img.entityId)
+        .where((entityId) => _selectedImages
+            .any((img) => img.entityId != null && img.entityId == entityId))
         .toList()
         .cast<String>();
   }

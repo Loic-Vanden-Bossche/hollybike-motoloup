@@ -13,19 +13,19 @@ import 'package:hollybike/image/widgets/image_picker/image_picker_thumbnail.dart
 import 'package:hollybike/shared/utils/permissions.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:permission_handler/permission_handler.dart';
-// import 'package:photo_gallery/photo_gallery.dart';
+import 'package:photo_manager/photo_manager.dart';
 
 import 'image_picker_camera_button.dart';
 
 class ImagePickerChoiceList extends StatefulWidget {
-  final List<String> mediumIdSelectedList;
+  final List<String> entityIdSelectedList;
   final ImagePickerMode mode;
   final void Function(List<Img>) onImagesSelected;
   final bool isLoading;
 
   const ImagePickerChoiceList({
     super.key,
-    required this.mediumIdSelectedList,
+    required this.entityIdSelectedList,
     required this.mode,
     required this.onImagesSelected,
     required this.isLoading,
@@ -36,7 +36,7 @@ class ImagePickerChoiceList extends StatefulWidget {
 }
 
 class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
-  final mediumIdList = <String>[];
+  final assetEntitiesList = <AssetEntity>[];
   bool _loadingImages = true;
   final imagePicker = ImagePicker();
 
@@ -65,10 +65,10 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
       ImagePickerCameraButton(
         onImageSelected: (image) => widget.onImagesSelected([image]),
       ),
-      ...mediumIdList.map((mediumId) {
+      ...assetEntitiesList.map((entity) {
         return ImagePickerThumbnail(
-          mediumId: mediumId,
-          isSelected: widget.mediumIdSelectedList.contains(mediumId),
+          assetEntity: entity,
+          isSelected: widget.entityIdSelectedList.contains(entity.id),
           onImageSelected: (image) => widget.onImagesSelected([image]),
         );
       }),
@@ -112,7 +112,25 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
     );
   }
 
-  void _loadImages() {
+  void _loadImages() async {
+    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
+      onlyAll: true,
+    );
+
+    if (paths.isEmpty) {
+      return;
+    }
+
+    var path = paths.first;
+
+    final List<AssetEntity> entities = await path.getAssetListPaged(
+      page: 0,
+      size: 10,
+    );
+
+    setState(() {
+      assetEntitiesList.addAll(entities);
+    });
     // PhotoGallery.listAlbums(
     //   mediumType: MediumType.image,
     //   newest: true,
