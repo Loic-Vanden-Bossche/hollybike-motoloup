@@ -17,7 +17,7 @@ class ShadowGradientStripe extends StatelessWidget {
           end: Alignment.topCenter,
           colors: [
             Theme.of(context).colorScheme.surface,
-            Theme.of(context).colorScheme.surface.withOpacity(0.5),
+            Theme.of(context).colorScheme.surface.withValues(alpha: 0.5),
             Colors.transparent,
           ],
         ),

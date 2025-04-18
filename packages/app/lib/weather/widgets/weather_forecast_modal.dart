@@ -184,7 +184,7 @@ class WeatherForecastModal extends StatelessWidget {
                                 color: Theme.of(context)
                                     .colorScheme
                                     .onPrimary
-                                    .withOpacity(0.5),
+                                    .withValues(alpha: 0.5),
                                 height: 0.5,
                                 thickness: 0.5,
                               ),

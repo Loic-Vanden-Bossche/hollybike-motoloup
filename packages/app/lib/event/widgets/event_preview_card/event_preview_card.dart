@@ -165,7 +165,7 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
                     begin: Alignment.centerLeft,
                     end: Alignment.centerRight,
                     colors: [
-                      Theme.of(context).cardColor.withOpacity(0.5),
+                      Theme.of(context).cardColor.withValues(alpha: 0.5),
                       Theme.of(context).cardColor,
                     ],
                   ),

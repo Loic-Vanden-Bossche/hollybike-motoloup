@@ -78,7 +78,9 @@ class JourneyPositionManager {
     final profilePicture =
         BlocProvider.of<UserPositionsBloc>(context).getUserPicture(user);
     if (user.user.profilePicture != null &&
-        profilePicture is! UserPictureLoadSuccessEvent) return;
+        profilePicture is! UserPictureLoadSuccessEvent) {
+      return;
+    }
 
     final options = PointAnnotationOptions(
       geometry: Point(
@@ -93,8 +95,8 @@ class JourneyPositionManager {
       textAnchor: TextAnchor.TOP,
       textSize: 12,
       textHaloWidth: 2,
-      textHaloColor: colorScheme.primary.value,
-      textColor: colorScheme.onPrimary.value,
+      textHaloColor: colorScheme.primary.toARGB32(),
+      textColor: colorScheme.onPrimary.toARGB32(),
     );
 
     _points[missingPosition.userId] = await pointManager.create(options);
@@ -125,7 +127,9 @@ class JourneyPositionManager {
     final profilePicture =
         BlocProvider.of<UserPositionsBloc>(context).getUserPicture(user);
     if (user.user.profilePicture != null &&
-        profilePicture is! UserPictureLoadSuccessEvent) return;
+        profilePicture is! UserPictureLoadSuccessEvent) {
+      return;
+    }
 
     point.textField =
         '${user.user.username}\n${(position.speed * 3.6).round()} km/h';

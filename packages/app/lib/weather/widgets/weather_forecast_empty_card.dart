@@ -18,7 +18,7 @@ class WeatherForecastEmptyCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return DottedBorder(
       strokeWidth: 2,
-      color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.3),
+      color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
       borderType: BorderType.RRect,
       radius: const Radius.circular(14),
       dashPattern: const [5, 5],

@@ -118,8 +118,8 @@ class _SignupLinkDialogState extends State<SignupLinkDialog> {
   void _handleSubmit() {
     if (isValid) {
       widget.canPop
-          ? context.router.replaceNamed("${_linkController.text}&popContext=connected")
-          : context.router.pushNamed("${_linkController.text}&popContext=guard");
+          ? context.router.replacePath("${_linkController.text}&popContext=connected")
+          : context.router.pushPath("${_linkController.text}&popContext=guard");
     }
   }
 }

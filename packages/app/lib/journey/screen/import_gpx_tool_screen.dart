@@ -62,11 +62,9 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
               initialUrlRequest: URLRequest(
                 url: WebUri(widget.url),
               ),
-              initialOptions: InAppWebViewGroupOptions(
-                crossPlatform: InAppWebViewOptions(
-                  useOnDownloadStart: true,
-                  useShouldInterceptFetchRequest: true,
-                ),
+              initialSettings: InAppWebViewSettings(
+                useOnDownloadStart: true,
+                useShouldInterceptFetchRequest: true,
               ),
               onWebViewCreated: (controller) {
                 _controller = controller;

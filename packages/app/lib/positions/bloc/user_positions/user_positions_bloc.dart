@@ -234,7 +234,9 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
     final picturePath = event.user.profilePicture;
     if (picturePath == null ||
         state.usersPicturesLoadEvent
-            .any((picture) => picture.picturePath == picturePath)) return;
+            .any((picture) => picture.picturePath == picturePath)) {
+      return;
+    }
 
     get(Uri.parse(picturePath)).then(
       (response) {

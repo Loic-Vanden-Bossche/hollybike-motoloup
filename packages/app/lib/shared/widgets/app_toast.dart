@@ -75,7 +75,7 @@ class Toast {
                         horizontal: 20,
                       ),
                       decoration: BoxDecoration(
-                        color: Colors.black.withOpacity(0.9),
+                        color: Colors.black.withValues(alpha: 0.9),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Row(

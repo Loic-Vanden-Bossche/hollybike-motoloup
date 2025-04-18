@@ -102,6 +102,6 @@ class EventParticipationModal extends StatelessWidget {
   }
 
   void _onOpenUserProfile(BuildContext context) {
-    context.router.pushNamed("/profile/${participation.user.id}");
+    context.router.pushPath("/profile/${participation.user.id}");
   }
 }

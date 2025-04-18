@@ -143,7 +143,7 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
               builder: (context) {
                 return Positioned.fill(
                   child: Container(
-                    color: Colors.black.withOpacity(0.6),
+                    color: Colors.black.withValues(alpha: 0.6),
                     child: const Center(
                       child: CircularProgressIndicator(),
                     ),

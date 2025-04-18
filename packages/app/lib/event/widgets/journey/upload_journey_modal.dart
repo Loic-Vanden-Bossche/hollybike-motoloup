@@ -150,7 +150,7 @@ class _UploadJourneyModalState extends State<UploadJourneyModal> {
             width: MediaQuery.of(context).size.width * 0.8,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(16),
-              color: Theme.of(context).dialogBackgroundColor,
+              color: Theme.of(context).dialogTheme.backgroundColor,
             ),
             child: Padding(
               padding: const EdgeInsets.all(32),
@@ -196,7 +196,7 @@ class _UploadJourneyModalState extends State<UploadJourneyModal> {
                           color: Theme.of(context)
                               .colorScheme
                               .onPrimary
-                              .withOpacity(0.5),
+                              .withValues(alpha: 0.5),
                         ),
                     textAlign: TextAlign.center,
                   ),

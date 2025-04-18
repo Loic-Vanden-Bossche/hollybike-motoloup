@@ -80,7 +80,7 @@ class _GradientProgressBarState extends State<GradientProgressBar>
       height: widget.height,
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: Theme.of(context).colorScheme.onPrimary.withOpacity(0.1),
+        color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.1),
       ),
       child: AnimatedBuilder(
         animation: _progressController,

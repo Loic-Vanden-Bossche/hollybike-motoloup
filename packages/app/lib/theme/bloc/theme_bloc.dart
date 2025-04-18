@@ -81,13 +81,13 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
               return _darkColorScheme.onPrimary;
             }
 
-            return _darkColorScheme.onPrimary.withOpacity(0.7);
+            return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
           },
         ),
         trackColor: WidgetStateProperty.resolveWith(
           (states) {
             if (states.contains(WidgetState.selected)) {
-              return _darkColorScheme.onPrimary.withOpacity(0.7);
+              return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
             }
 
             return _darkColorScheme.primaryContainer;
@@ -99,7 +99,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
               return Colors.transparent;
             }
 
-            return _darkColorScheme.onPrimary.withOpacity(0.7);
+            return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
           },
         ),
       );
@@ -112,13 +112,13 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
             return _brightColorScheme.onPrimary;
           }
 
-          return _brightColorScheme.onPrimary.withOpacity(0.7);
+          return _brightColorScheme.onPrimary.withValues(alpha: 0.7);
         },
       ),
       trackColor: WidgetStateProperty.resolveWith(
         (states) {
           if (states.contains(WidgetState.selected)) {
-            return _brightColorScheme.onPrimary.withOpacity(0.7);
+            return _brightColorScheme.onPrimary.withValues(alpha: 0.7);
           }
 
           return _brightColorScheme.primaryContainer;
@@ -130,7 +130,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
             return Colors.transparent;
           }
 
-          return _brightColorScheme.onPrimary.withOpacity(0.7);
+          return _brightColorScheme.onPrimary.withValues(alpha: 0.7);
         },
       ),
     );
@@ -179,7 +179,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
         extendedTextStyle: _textTheme.titleSmall?.copyWith(
           color: _darkColorScheme.primary,
         ),
-        splashColor: _darkColorScheme.primary.withOpacity(0.2),
+        splashColor: _darkColorScheme.primary.withValues(alpha: 0.2),
       );
     }
     return FloatingActionButtonThemeData(
@@ -188,7 +188,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
       extendedTextStyle: _textTheme.titleSmall?.copyWith(
         color: _brightColorScheme.primary,
       ),
-      splashColor: _brightColorScheme.primary.withOpacity(0.2),
+      splashColor: _brightColorScheme.primary.withValues(alpha: 0.2),
     );
   }
 
@@ -235,11 +235,11 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   IconThemeData get _iconTheme {
     if (state.isDark) {
       return IconThemeData(
-        color: Color(_darkColorScheme.onPrimary.value),
+        color: Color(_darkColorScheme.onPrimary.toARGB32()),
       );
     }
     return IconThemeData(
-      color: Color(_brightColorScheme.onPrimary.value),
+      color: Color(_brightColorScheme.onPrimary.toARGB32()),
     );
   }
 
@@ -260,7 +260,7 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
 
   ProgressIndicatorThemeData get _indicatorTheme {
     return ProgressIndicatorThemeData(
-      color: _darkColorScheme.onPrimary.withOpacity(0.7),
+      color: _darkColorScheme.onPrimary.withValues(alpha: 0.7),
     );
   }
 

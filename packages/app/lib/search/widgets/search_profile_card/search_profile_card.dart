@@ -59,6 +59,9 @@ class SearchProfileCard extends StatelessWidget {
     Future.delayed(
       const Duration(milliseconds: 200),
       () {
+        if (!context.mounted) {
+          return;
+        }
         context.router.push(ProfileRoute(urlId: "${profile.id}"));
       },
     );

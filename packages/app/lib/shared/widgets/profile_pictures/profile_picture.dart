@@ -41,7 +41,7 @@ class ProfilePicture extends StatelessWidget {
           ProfilePictureContainer(
             size: size,
             child: Container(
-              color: Colors.black.withOpacity(0.6),
+              color: Colors.black.withValues(alpha: 0.6),
             ),
           ),
           ProfilePictureContainer(
