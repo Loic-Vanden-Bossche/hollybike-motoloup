@@ -58,6 +58,11 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     final prefs = await SharedPreferences.getInstance();
     final eventId = prefs.getInt('tracking_event_id');
 
+    emit(MyPositionInitialized(state.copyWith(
+      isRunning: false,
+      eventId: null,
+    )));
+
     // final isRunning = await BackgroundLocator.isServiceRunning();
     //
     // emit(MyPositionInitialized(state.copyWith(

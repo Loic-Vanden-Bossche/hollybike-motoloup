@@ -3,7 +3,7 @@
     <option name="ALTERNATIVE_JRE_PATH" value="graalvm-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <envs>
-      <env name="CLOUD" value="true" />
+      <env name="CLOUD" value="false" />
       <env name="DEV" value="true" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="hollybike.api.ApplicationKt" />

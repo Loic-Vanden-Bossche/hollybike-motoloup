@@ -127,28 +127,28 @@ class _JourneyMapState extends State<JourneyMap> {
             LayerPosition(
               above: 'traffic-bridge-road-link-navigation',
             )),
-        map.style.addLayerAt(
-          FillExtrusionLayer(
-            id: '3d-buildings',
-            sourceId: 'composite',
-            sourceLayer: 'building',
-            fillExtrusionOpacity: 0.8,
-            fillExtrusionColor: 0XFF515E72,
-          ),
-          LayerPosition(
-            above: 'tracks-layer',
-          ),
-        ),
-        map.style.setStyleLayerProperty(
-          "3d-buildings",
-          "fill-extrusion-height",
-          '[ "interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "height"] ]',
-        ),
-        map.style.setStyleLayerProperty(
-          "3d-buildings",
-          "fill-extrusion-base",
-          '[ "interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"] ]',
-        ),
+        // map.style.addLayerAt(
+        //   FillExtrusionLayer(
+        //     id: '3d-buildings',
+        //     sourceId: 'composite',
+        //     sourceLayer: 'building',
+        //     fillExtrusionOpacity: 0.8,
+        //     fillExtrusionColor: 0XFF515E72,
+        //   ),
+        //   LayerPosition(
+        //     above: 'tracks-layer',
+        //   ),
+        // ),
+        // map.style.setStyleLayerProperty(
+        //   "3d-buildings",
+        //   "fill-extrusion-height",
+        //   '[ "interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "height"] ]',
+        // ),
+        // map.style.setStyleLayerProperty(
+        //   "3d-buildings",
+        //   "fill-extrusion-base",
+        //   '[ "interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"] ]',
+        // ),
         map.annotations.createPointAnnotationManager().then(
           (pointManager) async {
             final journeyPositionManager = JourneyPositionManager(
@@ -201,6 +201,13 @@ class _JourneyMapState extends State<JourneyMap> {
           duration: 600,
         ),
       );
+    }).catchError((error) {
+      if (kDebugMode) {
+        print("Error loading map: $error");
+      }
+      setState(() {
+        _mapLoading = false;
+      });
     });
   }
 

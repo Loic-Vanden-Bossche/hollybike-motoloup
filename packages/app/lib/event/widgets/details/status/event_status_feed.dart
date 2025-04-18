@@ -46,6 +46,8 @@ class EventStatusFeed extends StatelessWidget {
   Widget _buildFeed(bool isLoading, bool isCurrentEvent) {
     final canEdit = eventDetails.isOrganizer;
 
+    print(isLoading);
+
     switch (eventDetails.event.status) {
       case EventStatusState.pending:
         return EventPendingStatus(
