@@ -81,7 +81,11 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
-#
+
+      - name: Remove package name from AndroidManifest.xml
+        run: |
+          sed -i 's/\s*package="team.ion.native_qr"//' /home/runner/.pub-cache/hosted/pub.dev/native_qr-0.0.3/android/src/main/AndroidManifest.xml      
+
 #      - name: Analyze code
 #        run: flutter analyze
 
@@ -178,6 +182,10 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Remove package name from AndroidManifest.xml
+        run: |
+          sed -i 's/\s*package="team.ion.native_qr"//' /home/runner/.pub-cache/hosted/pub.dev/native_qr-0.0.3/android/src/main/AndroidManifest.xml      
 
       - name: Decode Android keystore
         run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > ${{ env.KEYSTORE_PATH }}
