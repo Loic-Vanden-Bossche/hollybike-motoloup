@@ -191,7 +191,7 @@ jobs:
         run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > ${{ env.KEYSTORE_PATH }}
 
       - name: Copy keystore
-        run: cp ${{ env.KEYSTORE_PATH }} android/app/upload-keystore.jks
+        run: cp ${{ env.KEYSTORE_PATH }} android/app/release-key.jks
 
       - name: Decode Android key properties
         run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > ${{ env.KEY_PROPS_PATH }}
