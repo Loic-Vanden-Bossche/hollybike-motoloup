@@ -2,19 +2,13 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
-import 'dart:async';
-import 'dart:developer';
-import 'dart:isolate';
-import 'dart:ui';
 
-// import 'package:background_locator_2/background_locator.dart';
 import 'package:bloc/bloc.dart';
 import 'package:hollybike/event/services/event/event_repository.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_state.dart';
 import 'package:hollybike/positions/service/my_position_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../../service/my_position_repository.dart';
 import 'my_position_event.dart';
 
 class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
@@ -23,8 +17,6 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
 
   int posCount = 0;
 
-  ReceivePort port = ReceivePort();
-
   MyPositionBloc({
     required this.eventRepository,
     required this.myPositionLocator,
@@ -32,21 +24,6 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     on<SubscribeToMyPositionUpdates>(_onSubscribeToPositionUpdates);
     on<EnableSendPosition>(_onListenAndSendUserPosition);
     on<DisableSendPositions>(_onDisableSendPositions);
-
-    if (IsolateNameServer.lookupPortByName(
-            MyPositionServiceRepository.isolateName) !=
-        null) {
-      IsolateNameServer.removePortNameMapping(
-        MyPositionServiceRepository.isolateName,
-      );
-    }
-
-    IsolateNameServer.registerPortWithName(
-      port.sendPort,
-      MyPositionServiceRepository.isolateName,
-    );
-
-    initPlatformState();
   }
 
   void _onSubscribeToPositionUpdates(
@@ -63,33 +40,24 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
       eventId: null,
     )));
 
-    // final isRunning = await BackgroundLocator.isServiceRunning();
-    //
-    // emit(MyPositionInitialized(state.copyWith(
-    //   isRunning: isRunning,
-    //   eventId: isRunning ? eventId : null,
-    // )));
-    //
-    // posCount = 0;
-    //
-    // port.listen(
-    //   (_) {
-    //     final eventId = state.eventId;
-    //     if (eventId == null) return;
-    //
-    //     posCount++;
-    //
-    //     if (posCount >= 2) {
-    //       eventRepository.onUserPositionSent(eventId);
-    //     }
-    //   },
-    // );
-  }
+    final isRunning = await myPositionLocator.backgroundService.isTrackingRunning();
 
-  Future<void> initPlatformState() async {
-    log('Initializing Background Locator...');
-    // await BackgroundLocator.initialize();
-    log('Background Locator initialization done');
+    emit(MyPositionInitialized(state.copyWith(
+      isRunning: isRunning,
+      eventId: isRunning ? eventId : null,
+    )));
+
+    posCount = 0;
+
+    myPositionLocator.backgroundService.getPositionStream()?.listen(
+      (_) {
+        posCount++;
+
+        if (posCount >= 2 && eventId != null) {
+          eventRepository.onUserPositionSent(eventId);
+        }
+      },
+    );
   }
 
   void _onListenAndSendUserPosition(
@@ -103,7 +71,7 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     await prefs.setInt('tracking_event_id', event.eventId);
 
     if (state.isRunning) {
-      // await BackgroundLocator.unRegisterLocationUpdate();
+      await myPositionLocator.stop();
     }
 
     try {
@@ -120,15 +88,15 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
       return;
     }
 
-    // final running = await BackgroundLocator.isServiceRunning();
-    //
-    // posCount = 0;
-    //
-    // emit(MyPositionStarted(state.copyWith(
-    //   isRunning: running,
-    //   status: running ? MyPositionStatus.success : MyPositionStatus.error,
-    //   eventId: event.eventId,
-    // )));
+    final running = await myPositionLocator.backgroundService.isTrackingRunning();
+
+    posCount = 0;
+
+    emit(MyPositionStarted(state.copyWith(
+      isRunning: running,
+      status: running ? MyPositionStatus.success : MyPositionStatus.error,
+      eventId: event.eventId,
+    )));
   }
 
   void _onDisableSendPositions(
@@ -137,15 +105,15 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
   ) async {
     emit(MyPositionLoading(state));
 
-    // await BackgroundLocator.unRegisterLocationUpdate();
-    //
-    // final running = await BackgroundLocator.isServiceRunning();
-    //
-    // posCount = 0;
-    //
-    // emit(MyPositionStopped(state.copyWith(
-    //   isRunning: running,
-    //   status: running ? MyPositionStatus.error : MyPositionStatus.success,
-    // )));
+    await myPositionLocator.stop();
+
+    final running = await myPositionLocator.backgroundService.isTrackingRunning();
+
+    posCount = 0;
+
+    emit(MyPositionStopped(state.copyWith(
+      isRunning: running,
+      status: running ? MyPositionStatus.error : MyPositionStatus.success,
+    )));
   }
 }

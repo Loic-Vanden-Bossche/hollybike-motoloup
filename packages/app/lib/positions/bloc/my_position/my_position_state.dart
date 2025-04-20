@@ -4,18 +4,19 @@
 */
 // import 'package:background_locator_2/location_dto.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 
 enum MyPositionStatus { loading, success, error, initial }
 
 @immutable
 class MyPositionState {
-  // final LocationDto? lastLocation;
+  final Position? lastLocation;
   final bool isRunning;
   final MyPositionStatus status;
   final int? eventId;
 
   const MyPositionState({
-    // this.lastLocation,
+    this.lastLocation,
     this.isRunning = false,
     this.status = MyPositionStatus.initial,
     this.eventId,
@@ -23,7 +24,7 @@ class MyPositionState {
 
   MyPositionState.state(MyPositionState state)
       : this(
-          // lastLocation: state.lastLocation,
+          lastLocation: state.lastLocation,
           isRunning: state.isRunning,
           status: state.status,
           eventId: state.eventId,
@@ -31,13 +32,13 @@ class MyPositionState {
 
   MyPositionState copyWith({
     MyPositionStatus? status,
-    // LocationDto? lastLocation,
+    Position? lastLocation,
     bool? isRunning,
     int? eventId,
   }) {
     return MyPositionState(
       status: status ?? this.status,
-      // lastLocation: lastLocation ?? this.lastLocation,
+      lastLocation: lastLocation ?? this.lastLocation,
       isRunning: isRunning ?? this.isRunning,
       eventId: eventId ?? this.eventId,
     );
@@ -65,7 +66,7 @@ class MyPositionStopped extends MyPositionState {
   MyPositionStopped(state)
       : super.state(
           MyPositionState(
-            // lastLocation: state.lastLocation,
+            lastLocation: state.lastLocation,
             isRunning: state.isRunning,
             status: state.status,
             eventId: null,
@@ -82,11 +83,11 @@ class MyPositionFailure extends MyPositionState {
 class MyPositionUpdated extends MyPositionState {
   MyPositionUpdated(
       state,
-      // LocationDto? lastLocation
+      Position? lastLocation
       )
       : super.state(
           MyPositionState(
-            // lastLocation: lastLocation,
+            lastLocation: lastLocation,
             isRunning: state.isRunning,
             status: state.status,
             eventId: state.eventId,

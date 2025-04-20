@@ -33,6 +33,7 @@ import 'package:hollybike/user_journey/services/user_journey_api.dart';
 import 'package:hollybike/user_journey/services/user_journey_repository.dart';
 import 'package:provider/provider.dart';
 
+import 'background/background_service.dart';
 import 'event/services/event/event_api.dart';
 import 'event/services/event/event_repository.dart';
 import 'event/services/participation/event_participation_api.dart';
@@ -195,6 +196,7 @@ class _MyAppState extends State<MyApp> {
                   create: (context) => NotificationBloc(
                     authRepository:
                         RepositoryProvider.of<AuthRepository>(context),
+                    backgroundService: BackgroundService()
                   ),
                 ),
                 BlocProvider<ThemeBloc>(
@@ -231,6 +233,7 @@ class _MyAppState extends State<MyApp> {
                         context,
                         listen: false,
                       ),
+                      backgroundService: BackgroundService(),
                     ),
                   )..add(
                       SubscribeToMyPositionUpdates(),
