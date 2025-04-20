@@ -1,7 +1,9 @@
 name: Release & Deploy
 
-run-name: Release & Deploy HollyBike v${{ inputs.version }}${{ fromJSON('[" (production only)", ""]')[inputs.create-executables] }} by @${{ github.actor }}
-
+run-name: >
+  Release & Deploy HollyBike v${{ inputs.version }}
+  ${{ inputs.create-executables == 'true' && '(production only)' || '' }}
+  by @${{ github.actor }}
 on:
   workflow_dispatch:
     inputs:
