@@ -18,10 +18,10 @@ on:
         required: true
     secrets:
       AWS_ACCESS_KEY_ID:
-        required: true
+        required: false
         description: 'AWS Access Key ID'
       AWS_SECRET_ACCESS_KEY:
-        required: true
+        required: false
         description: 'AWS Secret Access Key'
       MAPBOX_PUBLIC_ACCESS_TOKEN:
         required: true
