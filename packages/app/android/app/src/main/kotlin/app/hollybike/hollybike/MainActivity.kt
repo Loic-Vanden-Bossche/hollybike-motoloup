@@ -1,4 +1,4 @@
-package app.hollybike.hollybike_ng
+package app.hollybike.hollybike
 
 import io.flutter.embedding.android.FlutterActivity
 

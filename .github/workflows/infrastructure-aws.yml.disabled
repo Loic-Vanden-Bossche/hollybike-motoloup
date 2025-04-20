@@ -6,13 +6,13 @@ on:
       - main
     paths:
       - 'packages/infrastructure/**'
-      - '.github/workflows/infrastructure.yml'
+      - '.github/workflows/infrastructure-aws.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'packages/infrastructure/**'
-      - '.github/workflows/infrastructure.yml'
+      - '.github/workflows/infrastructure-aws.yml'
 
 env:
   CI: true
@@ -28,7 +28,7 @@ env:
 
 defaults:
   run:
-    working-directory: packages/infrastructure/project
+    working-directory: packages/infrastructure/aws
 
 jobs:
   terraform:
@@ -136,7 +136,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: eagle-eye-diagram
-          path: packages/infrastructure/project/terraform.png
+          path: packages/infrastructure/aws/terraform.png
         continue-on-error: true
 
       - name: Terraform Plan Status
