@@ -6,13 +6,13 @@ on:
       - main
     paths:
       - 'packages/infrastructure/**'
-      - 'infrastructure-k8s.yml'
+      - '.github/workflows/infrastructure-k8s.yml'
   pull_request:
     branches:
       - main
     paths:
       - 'packages/infrastructure/**'
-      - 'infrastructure-k8s.yml'
+      - '.github/workflows/infrastructure-k8s.yml'
 
 env:
   CI: true
