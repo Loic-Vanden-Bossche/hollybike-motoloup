@@ -56,7 +56,7 @@ jobs:
 
     env:
       AAB_PATH: packages/app/build/app/outputs/bundle/release/app-release.aab
-      KEYSTORE_PATH: android/upload-keystore.jks
+      KEYSTORE_PATH: android/release-key.jks
       KEY_PROPS_PATH: android/key.properties
 
     steps:
@@ -98,7 +98,7 @@ jobs:
 
       - name: Copy keystore
         if: inputs.create-executables
-        run: cp ${{ env.KEYSTORE_PATH }} android/app/upload-keystore.jks
+        run: cp ${{ env.KEYSTORE_PATH }} android/app/release-key.jks
 
       - name: Decode Android key properties
         if: inputs.create-executables
