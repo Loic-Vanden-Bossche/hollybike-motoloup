@@ -16,6 +16,10 @@ on:
       MAPBOX_PUBLIC_ACCESS_TOKEN:
         description: 'Mapbox public token'
         required: true
+    outputs:
+      image:
+        description: "Tagged image to deploy"
+        value: ${{ jobs.build.outputs.image }}
 
   pull_request:
     branches:
