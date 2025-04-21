@@ -29,19 +29,10 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
 
-    permissions:
-      contents: read
-
     steps:
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          name: HollyBike-Frontend-${{ inputs.version }}
-          path: dist
-
       - name: Checkout code
         run: |
-          echo "Checking out code..."
+          echo ${{ needs.build-frontend.outputs.image }}
 
 #      - name: Configure AWS credentials
 #        uses: aws-actions/configure-aws-credentials@v4

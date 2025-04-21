@@ -92,7 +92,7 @@ function Expense(props: ExpenseProps) {
 				<p>{ props.expense.description }</p>
 				<div className={"flex"}>
 					<EditOutlined
-						onClick={(e) => {
+						onClick={(e: MouseEvent) => {
 							props.setEditModalVisibility(true);
 							props.setData(props.expense);
 							props.setType("edit");
@@ -100,7 +100,7 @@ function Expense(props: ExpenseProps) {
 						}}
 					/>
 					{ props.expense.proof && <VisibilityOutlined
-						onClick={(e) => {
+						onClick={(e: MouseEvent) => {
 							setModal(true);
 							e.stopPropagation();
 						}}

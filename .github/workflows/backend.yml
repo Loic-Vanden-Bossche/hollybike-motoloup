@@ -37,7 +37,7 @@ on:
 env:
   CI: true
   REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  IMAGE_NAME: ${{ github.repository }}-backend
   JAVA_VERSION: 21
 
 jobs:
