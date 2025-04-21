@@ -179,7 +179,7 @@ graalvmNative {
 			fallback.set(false)
 			verbose.set(true)
 
-			buildArgs.add("--march=x86-64-v2")
+			buildArgs.add("-march=x86-64-v2")
 			buildArgs.add("--initialize-at-build-time")
 			buildArgs.add("--initialize-at-run-time=liquibase.util.StringUtil")
 			buildArgs.add("--initialize-at-run-time=liquibase.command.core")

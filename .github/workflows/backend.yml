@@ -208,6 +208,9 @@ jobs:
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: '${{ matrix.java-version }}'
+          version: '23.1.2'
+          distribution: 'graalvm-community'
+          components: 'native-image'
           cache: 'gradle'
 
       - name: Read rights to gradlew
