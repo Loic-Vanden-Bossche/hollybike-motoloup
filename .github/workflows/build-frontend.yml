@@ -70,6 +70,7 @@ jobs:
       - name: Try building application
         env:
           VITE_MAPBOX_KEY: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+          VITE_BACKEND_BASE_URL: 'https://api.hollybike.chbrx.com'
         run: bun run build
 
       - name: Log in to the Container registry

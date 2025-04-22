@@ -3,8 +3,21 @@
     <option name="ALTERNATIVE_JRE_PATH" value="graalvm-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
     <envs>
-      <env name="CLOUD" value="false" />
+      <env name="CLOUD" value="true" />
+      <env name="DB_PASSWORD" value="password" />
+      <env name="DB_URL" value="jdbc:postgresql://localhost:5432/hollybike" />
+      <env name="DB_USERNAME" value="user" />
       <env name="DEV" value="true" />
+      <env name="MAPBOX_PUBLIC_ACCESS_TOKEN_SECRET" value="hello" />
+      <env name="SECURITY_AUDIENCE" value="hollybike.chbrx.com" />
+      <env name="SECURITY_DOMAIN" value="https://hollybike.chbrx.com" />
+      <env name="SECURITY_REALM" value="hollybike-auth" />
+      <env name="SECURITY_SECRET" value="HAHA" />
+      <env name="STORAGE_S3_BUCKET_NAME" value="hollybike" />
+      <env name="STORAGE_S3_PASSWORD" value="minio-root-password" />
+      <env name="STORAGE_S3_REGION" value="eu-west-3" />
+      <env name="STORAGE_S3_URL" value="http://localhost:9000" />
+      <env name="STORAGE_S3_USERNAME" value="minio-root-user" />
     </envs>
     <option name="MAIN_CLASS_NAME" value="hollybike.api.ApplicationKt" />
     <module name="hollybike.api.main" />
