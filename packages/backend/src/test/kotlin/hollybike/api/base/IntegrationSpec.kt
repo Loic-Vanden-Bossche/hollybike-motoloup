@@ -193,10 +193,17 @@ abstract class IntegrationSpec(body: FunSpec.() -> Unit = {}) : FunSpec({
 				)
 			}
 
+			val securityConfig = ConfSecurity(
+				audience = "audience",
+				domain = "domain",
+				realm = "realm",
+				secret = "secret",
+				cfPrivateKeySecret = if (baseConfig.fakeCloudFrontKeys) "fake" else null,
+				cfKeyPairId = if (baseConfig.fakeCloudFrontKeys) "fake" else null,
+			)
+
 			val config = Conf(
-				db = dbConf, security = ConfSecurity(
-					audience = "audience", domain = "domain", realm = "realm", secret = "secret"
-				), smtp = null, storage = storageConfig
+				db = dbConf, security = securityConfig, smtp = null, storage = storageConfig
 			)
 
 			environment {
@@ -224,8 +231,9 @@ abstract class IntegrationSpec(body: FunSpec.() -> Unit = {}) : FunSpec({
 		}
 
 		fun cloudTestApp(
+			useFakeCloudFrontKeys: Boolean = false,
 			block: suspend ApplicationTestBuilder.(c: HttpClient) -> Unit
-		) = testApp(BaseConfig(StorageMode.S3, isOnPremise = false), block)
+		) = testApp(BaseConfig(StorageMode.S3, isOnPremise = false, useFakeCloudFrontKeys), block)
 
 		fun onPremiseTestApp(
 			storageMode: StorageMode = StorageMode.LOCAL,

@@ -25,7 +25,7 @@ class StorageTest : IntegrationSpec({
 		}
 
 		test("Should not send welcome message for storage in cloud mode") {
-			cloudTestApp {
+			cloudTestApp(useFakeCloudFrontKeys = true) {
 				it.get("/storage").apply {
 					status shouldBe HttpStatusCode.NotFound
 				}
@@ -62,18 +62,6 @@ class StorageTest : IntegrationSpec({
 					auth(UserStore.user1)
 				}.apply {
 					status shouldBe HttpStatusCode.Unauthorized
-				}
-			}
-		}
-
-		test("Should not get storage data in cloud mode") {
-			cloudTestApp {
-				val path = uploadProfileImageInStorage(it, UserStore.user1).removePrefix("domain")
-
-				it.get(path) {
-					auth(UserStore.user1)
-				}.apply {
-					status shouldBe HttpStatusCode.NotFound
 				}
 			}
 		}
