@@ -76,8 +76,12 @@ fun Application.api(storageService: StorageService, db: Database) {
 	NotificationController(this, notificationService)
 	ExpenseController(this, expenseService)
 
-	if (isOnPremise) {
+	if (isOnPremise || conf.security.cfKeyPairId == null || conf.security.cfPrivateKeySecret == null) {
+		log.info("Running in on-premise mode or not using cloudfront, using storage controller")
 		StorageController(this, storageService)
+	}
+
+	if (isOnPremise) {
 		ConfController(this, false)
 	}
 }
