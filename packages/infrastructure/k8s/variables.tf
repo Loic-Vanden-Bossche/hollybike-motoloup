@@ -22,6 +22,7 @@ variable "ghcr_token" {
 variable "database_name" {
   description = "Database name"
   type        = string
+  default     = "hollybike"
 }
 
 variable "database_username" {

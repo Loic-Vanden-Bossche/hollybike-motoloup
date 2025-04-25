@@ -1,6 +1,6 @@
 module "frontend" {
   depends_on = [kubernetes_secret.image_pull]
-  source = "./frontend"
+  source     = "./frontend"
 
   namespace = kubernetes_namespace.hollybike.metadata[0].name
   image     = var.frontend_image
@@ -9,7 +9,7 @@ module "frontend" {
 
 module "backend" {
   depends_on = [kubernetes_secret.image_pull]
-  source = "./backend"
+  source     = "./backend"
 
   namespace                         = kubernetes_namespace.hollybike.metadata[0].name
   image                             = var.backend_image
