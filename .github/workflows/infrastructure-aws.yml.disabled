@@ -116,29 +116,6 @@ jobs:
               body: output
             })
 
-      - name: Export Eagle Eye Config
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: echo "${{ secrets.EAGLE_EYE_CONFIG_FILE }}" | base64 --decode > eagle-eye-config.yml
-        continue-on-error: true
-
-      - name: Grant execute permission to Eagle Eye script
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: chmod +x ${{ github.workspace }}/.github/scripts/run-eagle-eye.sh
-        continue-on-error: true
-
-      - name: Eagle Eye
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: ${{ github.workspace }}/.github/scripts/run-eagle-eye.sh
-        continue-on-error: true
-
-      - name: Upload artifact
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        uses: actions/upload-artifact@v4
-        with:
-          name: eagle-eye-diagram
-          path: packages/infrastructure/aws/terraform.png
-        continue-on-error: true
-
       - name: Terraform Plan Status
         if: steps.plan.outcome == 'failure'
         run: exit 1

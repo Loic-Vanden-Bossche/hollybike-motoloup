@@ -252,14 +252,15 @@ jobs:
     secrets:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
-  deploy-frontend-k8s:
-    name: Frontend
-    needs: [ build-frontend ]
+  deploy-frontend-backend:
+    name: Deploy Frontend and Backend
+    needs: [ build-frontend, build-backend ]
     if: ${{ inputs.externall_call }}
-    uses: ./.github/workflows/deploy-frontend-k8s.yml
+    uses: ./.github/workflows/deploy-frontend-backend.yml
     with:
       version: ${{ github.event.inputs.version }}
-      image: ${{ needs.build-frontend.outputs.image }}
+      backend_image: ${{ needs.build-backend.outputs.image }}
+      frontend_image: ${{ needs.build-frontend.outputs.image }}
 
 #  deploy-frontend-aws:
 #    name: Frontend

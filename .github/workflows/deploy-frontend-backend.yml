@@ -12,7 +12,10 @@ on:
         description: 'Version of the release'
         type: string
         required: true
-      image:
+      backend_image:
+        required: true
+        type: string
+      frontend_image:
         required: true
         type: string
 
