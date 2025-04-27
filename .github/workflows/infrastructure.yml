@@ -1,9 +1,5 @@
 name: Infrastructure CI/CD
 
-run-name: >
-  Infrastructure
-  ${{ (inputs.externall_call || (github.ref == 'refs/heads/main' && github.event_name == 'push')) && 'CI/CD' || 'CI' }}
-
 on:
   workflow_call:
     inputs:
