@@ -53,7 +53,7 @@ on:
       - main
     paths:
       - 'packages/backend/**'
-      - '.github/workflows/backend.yml'
+      - 'backend-frontend.yml'
 
 env:
   CI: true

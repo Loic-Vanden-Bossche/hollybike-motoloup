@@ -64,6 +64,10 @@ env:
   TF_VAR_database_password: ${{ secrets.DATABASE_PASSWORD }}
   TF_VAR_security_secret: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
 
+defaults:
+  run:
+    working-directory: packages/infrastructure/k8s
+
 jobs:
   deploy:
     name: Terraform Infrastructure
