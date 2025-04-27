@@ -1,0 +1,168 @@
+name: Frontend CD
+
+on:
+  workflow_call:
+    inputs:
+      externall_call:
+        description: 'To distinguish workflow_call from regular events'
+        type: boolean
+        required: false
+        default: true
+
+    secrets:
+      SCW_ACCESS_KEY_ID:
+        required: false
+        description: 'Scaleway Access Key ID'
+      SCW_SECRET_KEY:
+        required: false
+        description: 'Scaleway Secret Key'
+      GH_IMAGE_PULL_TOKEN:
+        required: true
+        description: 'GitHub Image Pull Token'
+      MINIO_USERNAME:
+        required: true
+        description: 'MinIO Username'
+      MINIO_PASSWORD:
+        required: true
+        description: 'MinIO Password'
+      MAPBOX_PUBLIC_ACCESS_TOKEN:
+        required: true
+        description: 'Mapbox public token'
+      DATABASE_USERNAME:
+        required: true
+        description: 'Database Username'
+      DATABASE_PASSWORD:
+        required: true
+        description: 'Database Password'
+      BACKEND_SECUTIRY_SECRET:
+        required: true
+        description: 'Backend Security Secret'
+      KUBE_CONFIG:
+        required: true
+        description: 'Kubernetes Config'
+
+    pull_request:
+      branches:
+        - main
+      paths:
+        - 'packages/infrastructure/k8s/**'
+        - '.github/workflows/deploy-frontend-backend-k8s.yml'
+
+env:
+  CI: true
+  AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
+  AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
+  REGISTRY: ghcr.io
+  FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
+  BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
+  TF_VAR_ghcr_username: ${{ github.repository_owner  }}
+  TF_VAR_ghcr_token: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
+  TF_VAR_storage_s3_username: ${{ secrets.MINIO_USERNAME }}
+  TF_VAR_storage_s3_password: ${{ secrets.MINIO_PASSWORD }}
+  TF_VAR_mapbox_public_access_token_secret: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+  TF_VAR_database_username: ${{ secrets.DATABASE_USERNAME }}
+  TF_VAR_database_password: ${{ secrets.DATABASE_PASSWORD }}
+  TF_VAR_security_secret: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
+
+jobs:
+  deploy:
+    name: Terraform Infrastructure
+    runs-on: self-hosted
+    permissions:
+      pull-requests: write
+      packages: read
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Decode Kube Config
+        run: mkdir ~/.kube && echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Terraform Format
+        id: fmt
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate -no-color
+
+      - name: Get latest frontend image tag from repository
+        working-directory: .github/scripts
+        id: frontend-image-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          echo chmod +x get-latest-tag.sh
+          echo "tag=$(./get-latest-tag.sh ${{ env.FRONTEND_IMAGE_NAME }})" >> $GITHUB_OUTPUT
+
+      - name: Get latest backend image tag from repository
+        working-directory: .github/scripts
+        id: backend-image-version
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+            echo chmod +x get-latest-tag.sh
+            echo "tag=$(./get-latest-tag.sh ${{ env.BACKEND_IMAGE_NAME }})" >> $GITHUB_OUTPUT
+
+      - name: Terraform Plan
+        env:
+          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_BASE_TAG }}:${{ steps.frontend-image-version.outputs.tag }}
+          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_BASE_TAG }}:${{ steps.backend-image-version.outputs.tag }}
+        id: plan
+        if: github.event_name == 'pull_request'
+        run: terraform plan -no-color -input=false
+        continue-on-error: true
+
+      - name: Update Pull Request
+        uses: actions/github-script@v6
+        if: github.event_name == 'pull_request'
+        env:
+          PLAN: ${{ steps.plan.outputs.stdout }}
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
+            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
+            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
+            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+
+            <details><summary>Show Plan</summary>
+
+            \`\`\`terraform\n
+            ${process.env.PLAN}
+            \`\`\`
+
+            </details>
+
+            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: output
+            })
+
+      - name: Terraform Plan Status
+        if: steps.plan.outcome == 'failure'
+        run: exit 1
+
+      - name: Terraform Apply
+        env:
+          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_BASE_TAG }}:${{ steps.frontend-image-version.outputs.tag }}
+          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_BASE_TAG }}:${{ steps.backend-image-version.outputs.tag }}
+        if: ${{ inputs.externall_call || (github.ref == 'refs/heads/main' && github.event_name == 'push') }}
+        run: terraform apply -auto-approve -input=false

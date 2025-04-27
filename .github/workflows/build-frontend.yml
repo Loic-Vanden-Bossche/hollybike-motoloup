@@ -16,10 +16,6 @@ on:
       MAPBOX_PUBLIC_ACCESS_TOKEN:
         description: 'Mapbox public token'
         required: true
-    outputs:
-      image:
-        description: "Tagged image to deploy"
-        value: ${{ jobs.build.outputs.image }}
 
   pull_request:
     branches:
@@ -50,9 +46,6 @@ jobs:
       docker:
         image: docker:dind
         options: --privileged
-
-    outputs:
-      image: ${{ steps.extract-tag.outputs.second-tag }}
 
     steps:
       - name: Checkout code
@@ -107,10 +100,3 @@ jobs:
           name: HollyBike-Frontend-${{ inputs.version }}
           path: packages/frontend/dist
           retention-days: 1
-
-      - name: Extract second tag (sha)
-        if: ${{ inputs.externall_call }}
-        id: extract-tag
-        run: |
-          TAGS=(${{ steps.meta.outputs.tags }})
-          echo "second-tag=${TAGS[1]}" >> $GITHUB_OUTPUT
