@@ -25,7 +25,7 @@ permissions:
 jobs:
   build-frontend-backend:
     name: Frontend & Backend
-    uses: backend-frontend.yml
+    uses: ./.github/workflows/backend-frontend.yml
     with:
       version: ${{ github.event.inputs.version }}
       create-executables: ${{ github.event.inputs.create-executables == 'true' }}

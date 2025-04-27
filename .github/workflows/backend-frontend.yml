@@ -1,4 +1,8 @@
-name: Backend CI/CD
+name: Backend Frontend CI/CD
+
+run-name: >
+    Backend & Frontend
+    ${{ inputs.externall_call && 'CI/CD' || 'CI' }}
 
 on:
   workflow_call:
@@ -63,7 +67,7 @@ env:
 
 jobs:
   build-backend:
-    name: Build Backend
+    name: ${{ inputs.externall_call && 'Build & Push' || 'Build & Test' }} Backend
     runs-on: ubuntu-latest
 
     defaults:
@@ -252,7 +256,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-frontend:
-    name: Frontend
+    name: ${{ inputs.externall_call && 'Build & Push' || 'Build & Test' }} Frontend
     if: ${{ inputs.externall_call }}
     uses: ./.github/workflows/build-frontend.yml
     with:
@@ -264,7 +268,7 @@ jobs:
     name: Infrastructure & Deployment
     needs: [ build-frontend, build-backend ]
     if: ${{ inputs.externall_call }}
-    uses: ./.github/workflows/deploy-frontend-backend-k8s.yml
+    uses: ./.github/workflows/infrastructure.yml
     secrets:
       SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
       SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}

@@ -1,4 +1,8 @@
-name: Frontend CD
+name: Infrastructure CI/CD
+
+run-name: >
+  Infrastructure
+  ${{ (inputs.externall_call || (github.ref == 'refs/heads/main' && github.event_name == 'push')) && 'CI/CD' || 'CI' }}
 
 on:
   workflow_call:
@@ -46,7 +50,7 @@ on:
       - main
     paths:
       - 'packages/infrastructure/k8s/**'
-      - '.github/workflows/deploy-frontend-backend-k8s.yml'
+      - 'infrastructure.yml'
 
 env:
   CI: true
