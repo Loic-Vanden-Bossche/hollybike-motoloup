@@ -41,12 +41,12 @@ on:
         required: true
         description: 'Kubernetes Config'
 
-    pull_request:
-      branches:
-        - main
-      paths:
-        - 'packages/infrastructure/k8s/**'
-        - '.github/workflows/deploy-frontend-backend-k8s.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'packages/infrastructure/k8s/**'
+      - '.github/workflows/deploy-frontend-backend-k8s.yml'
 
 env:
   CI: true
