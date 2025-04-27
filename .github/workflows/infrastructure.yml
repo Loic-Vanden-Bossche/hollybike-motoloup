@@ -50,7 +50,7 @@ on:
       - main
     paths:
       - 'packages/infrastructure/k8s/**'
-      - 'infrastructure.yml'
+      - '.github/workflows/infrastructure.yml'
 
 env:
   CI: true

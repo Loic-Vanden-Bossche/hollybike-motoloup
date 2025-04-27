@@ -256,7 +256,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   build-frontend:
-    name: ${{ inputs.externall_call && 'Build & Push' || 'Build & Test' }} Frontend
+    name: Build Frontend
     if: ${{ inputs.externall_call }}
     uses: ./.github/workflows/build-frontend.yml
     with:
