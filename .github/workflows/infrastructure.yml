@@ -109,8 +109,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          package_name=$(echo "${{ env.FRONTEND_IMAGE_NAME }}" | cut -d'/' -f2)
           echo chmod +x get-latest-tag.sh
-          echo "tag=$(./get-latest-tag.sh ${{ env.FRONTEND_IMAGE_NAME }})" >> $GITHUB_OUTPUT
+          echo "tag=$(./get-latest-tag.sh $package_name)" >> $GITHUB_OUTPUT
 
       - name: Get latest backend image tag from repository
         working-directory: .github/scripts
@@ -118,13 +119,14 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+            package_name=$(echo "${{ env.BACKEND_IMAGE_NAME }}" | cut -d'/' -f2)
             echo chmod +x get-latest-tag.sh
-            echo "tag=$(./get-latest-tag.sh ${{ env.BACKEND_IMAGE_NAME }})" >> $GITHUB_OUTPUT
+            echo "tag=$(./get-latest-tag.sh $package_name)" >> $GITHUB_OUTPUT
 
       - name: Terraform Plan
         env:
-          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_BASE_TAG }}:${{ steps.frontend-image-version.outputs.tag }}
-          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_BASE_TAG }}:${{ steps.backend-image-version.outputs.tag }}
+          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.frontend-image-version.outputs.tag }}
+          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.backend-image-version.outputs.tag }}
         id: plan
         if: github.event_name == 'pull_request'
         run: terraform plan -no-color -input=false
@@ -166,7 +168,7 @@ jobs:
 
       - name: Terraform Apply
         env:
-          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_BASE_TAG }}:${{ steps.frontend-image-version.outputs.tag }}
-          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_BASE_TAG }}:${{ steps.backend-image-version.outputs.tag }}
+          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.frontend-image-version.outputs.tag }}
+          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.backend-image-version.outputs.tag }}
         if: ${{ inputs.externall_call || (github.ref == 'refs/heads/main' && github.event_name == 'push') }}
         run: terraform apply -auto-approve -input=false
