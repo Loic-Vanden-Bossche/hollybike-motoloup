@@ -7,18 +7,6 @@ variable "backend_image" {
   description = "Docker image for the backend"
   type        = string
 }
-
-variable "ghcr_username" {
-  description = "GitHub username for the backend"
-  type        = string
-}
-
-variable "ghcr_token" {
-  description = "GitHub secret for the backend"
-  type        = string
-  sensitive   = true
-}
-
 variable "database_name" {
   description = "Database name"
   type        = string
@@ -95,4 +83,9 @@ variable "frontend_subdomain" {
   description = "Frontend subdomain"
   type        = string
   default     = "hollybike"
+}
+
+variable "repository_name" {
+  description = "GitHub repository name"
+  type        = string
 }

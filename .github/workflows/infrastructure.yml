@@ -55,14 +55,13 @@ env:
   REGISTRY: ghcr.io
   FRONTEND_IMAGE_NAME: ${{ github.repository }}-frontend
   BACKEND_IMAGE_NAME: ${{ github.repository }}-backend
-  TF_VAR_ghcr_username: ${{ github.repository_owner  }}
-  TF_VAR_ghcr_token: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
   TF_VAR_storage_s3_username: ${{ secrets.MINIO_USERNAME }}
   TF_VAR_storage_s3_password: ${{ secrets.MINIO_PASSWORD }}
   TF_VAR_mapbox_public_access_token_secret: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
   TF_VAR_database_username: ${{ secrets.DATABASE_USERNAME }}
   TF_VAR_database_password: ${{ secrets.DATABASE_PASSWORD }}
   TF_VAR_security_secret: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
+  TF_VAR_repository_name: ${{ github.repository }}
 
 defaults:
   run:

@@ -1,5 +1,5 @@
 module "frontend" {
-  depends_on = [kubernetes_secret.image_pull]
+  depends_on = [data.kubernetes_secret.image_pull]
   source     = "./frontend"
 
   namespace = kubernetes_namespace.hollybike.metadata[0].name
@@ -8,7 +8,7 @@ module "frontend" {
 }
 
 module "backend" {
-  depends_on = [kubernetes_secret.image_pull]
+  depends_on = [data.kubernetes_secret.image_pull]
   source     = "./backend"
 
   namespace                         = kubernetes_namespace.hollybike.metadata[0].name
@@ -47,4 +47,7 @@ module "s3" {
 
 module "action_runners" {
   source = "./action-runners"
+
+  repository_name    = var.repository_name
+  docker_secret_name = data.kubernetes_secret.image_pull.metadata[0].name
 }
