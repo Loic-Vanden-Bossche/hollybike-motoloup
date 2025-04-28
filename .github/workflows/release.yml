@@ -25,15 +25,20 @@ permissions:
 jobs:
   build-frontend-backend:
     name: Frontend & Backend
-    uses: ./.github/workflows/backend.yml
+    uses: ./.github/workflows/backend-frontend.yml
     with:
       version: ${{ github.event.inputs.version }}
       create-executables: ${{ github.event.inputs.create-executables == 'true' }}
     secrets:
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
+      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-
+      MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
+      MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
+      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
 #  build-app:
 #    name: App

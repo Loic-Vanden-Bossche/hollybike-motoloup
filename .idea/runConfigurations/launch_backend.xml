@@ -2,36 +2,20 @@
   <configuration default="false" name="launch backend" type="JetRunConfigurationType">
     <option name="ALTERNATIVE_JRE_PATH" value="graalvm-21" />
     <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="true" />
-    <envs>
-      <env name="CLOUD" value="true" />
-      <env name="DB_PASSWORD" value="password" />
-      <env name="DB_URL" value="jdbc:postgresql://localhost:5432/hollybike" />
-      <env name="DB_USERNAME" value="user" />
-      <env name="DEV" value="true" />
-      <env name="MAPBOX_PUBLIC_ACCESS_TOKEN_SECRET" value="hello" />
-      <env name="SECURITY_AUDIENCE" value="hollybike.chbrx.com" />
-      <env name="SECURITY_DOMAIN" value="https://hollybike.chbrx.com" />
-      <env name="SECURITY_REALM" value="hollybike-auth" />
-      <env name="SECURITY_SECRET" value="HAHA" />
-      <env name="STORAGE_S3_BUCKET_NAME" value="hollybike" />
-      <env name="STORAGE_S3_PASSWORD" value="minio-root-password" />
-      <env name="STORAGE_S3_REGION" value="eu-west-3" />
-      <env name="STORAGE_S3_URL" value="http://localhost:9000" />
-      <env name="STORAGE_S3_USERNAME" value="minio-root-user" />
-    </envs>
     <option name="MAIN_CLASS_NAME" value="hollybike.api.ApplicationKt" />
     <module name="hollybike.api.main" />
     <shortenClasspath name="NONE" />
     <option name="VM_PARAMETERS" value="-Dio.ktor.development=true -agentlib:native-image-agent=config-output-dir=native-image" />
     <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/packages/backend" />
     <extension name="net.ashald.envfile">
-      <option name="IS_ENABLED" value="false" />
+      <option name="IS_ENABLED" value="true" />
       <option name="IS_SUBST" value="false" />
       <option name="IS_PATH_MACRO_SUPPORTED" value="false" />
       <option name="IS_IGNORE_MISSING_FILES" value="false" />
       <option name="IS_ENABLE_EXPERIMENTAL_INTEGRATIONS" value="false" />
       <ENTRIES>
         <ENTRY IS_ENABLED="true" PARSER="runconfig" IS_EXECUTABLE="false" />
+        <ENTRY IS_ENABLED="true" PARSER="env" IS_EXECUTABLE="false" PATH="packages/backend/.env" />
       </ENTRIES>
     </extension>
     <method v="2" />

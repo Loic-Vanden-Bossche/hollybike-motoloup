@@ -1,0 +1,91 @@
+name: Backend - Frontend CI/CD
+
+on:
+  workflow_call:
+    inputs:
+      externall_call:
+        description: 'To distinguish workflow_call from regular events'
+        type: boolean
+        required: false
+        default: true
+      version:
+        description: 'Version of the release'
+        type: string
+        required: true
+      create-executables:
+        description: 'Create executables'
+        type: boolean
+        required: true
+    secrets:
+      SCW_ACCESS_KEY_ID:
+        required: false
+        description: 'AWS Access Key ID'
+      SCW_SECRET_KEY:
+        required: false
+        description: 'AWS Secret Access Key'
+      MAPBOX_PUBLIC_ACCESS_TOKEN:
+        required: true
+        description: 'Mapbox public token'
+      GH_IMAGE_PULL_TOKEN:
+        required: true
+        description: 'GitHub Image Pull Token'
+      MINIO_USERNAME:
+        required: true
+        description: 'MinIO Username'
+      MINIO_PASSWORD:
+        required: true
+        description: 'MinIO Password'
+      DATABASE_USERNAME:
+        required: true
+        description: 'Database Username'
+      DATABASE_PASSWORD:
+        required: true
+        description: 'Database Password'
+      BACKEND_SECUTIRY_SECRET:
+        required: true
+        description: 'Backend Security Secret'
+      KUBE_CONFIG:
+        required: true
+        description: 'Kubernetes Config'
+
+env:
+  CI: true
+
+jobs:
+  build-backend:
+    name: Build Backend
+    uses: ./.github/workflows/build-backend.yml
+    with:
+      version: ${{ github.event.inputs.version }}
+
+  build-frontend:
+    name: Build Frontend
+    uses: ./.github/workflows/build-frontend.yml
+    with:
+      version: ${{ github.event.inputs.version }}
+    secrets:
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+
+  deploy-k8s-infrastructure:
+    name: Infrastructure & Deployment
+    needs: [ build-frontend, build-backend ]
+    uses: ./.github/workflows/infrastructure.yml
+    secrets:
+      SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
+      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+      GH_IMAGE_PULL_TOKEN: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+      MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
+      MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
+      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
+  build-backend-on-premises:
+    name: Build On Premises
+    if: inputs.create-executables
+    needs: [ build-frontend ]
+    uses: ./.github/workflows/build-backend-on-premises.yml
+    with:
+      version: ${{ github.event.inputs.version }}

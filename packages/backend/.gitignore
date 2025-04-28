@@ -39,3 +39,5 @@ out/
 native-image/
 
 .kotlin/
+
+.env
