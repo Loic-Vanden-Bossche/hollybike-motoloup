@@ -16,9 +16,6 @@ on:
       SCW_SECRET_KEY:
         required: false
         description: 'Scaleway Secret Key'
-      GH_IMAGE_PULL_TOKEN:
-        required: true
-        description: 'GitHub Image Pull Token'
       MINIO_USERNAME:
         required: true
         description: 'MinIO Username'
@@ -81,11 +78,6 @@ jobs:
 
       - name: Decode Kube Config
         run: mkdir ~/.kube && echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
