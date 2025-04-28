@@ -45,6 +45,13 @@ on:
       - 'packages/infrastructure/k8s/**'
       - '.github/workflows/infrastructure.yml'
 
+  push:
+    branches:
+      - main
+    paths:
+      - 'packages/infrastructure/k8s/**'
+      - '.github/workflows/infrastructure.yml'
+
 env:
   CI: true
   AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
