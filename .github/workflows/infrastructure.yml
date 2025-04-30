@@ -83,6 +83,12 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - uses: SonarSource/sonarqube-scan-action@v4
+        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+
       - name: Decode Kube Config
         run: mkdir ~/.kube && echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
 
