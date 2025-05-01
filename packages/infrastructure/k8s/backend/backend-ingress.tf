@@ -3,7 +3,13 @@ resource "kubernetes_ingress_v1" "hollybike_backend_ingress" {
     name      = "hollybike-backend-ingress"
     namespace = var.namespace
     annotations = {
-      "cert-manager.io/cluster-issuer" = "letsencrypt-production",
+      "cert-manager.io/cluster-issuer"                 = "letsencrypt-production",
+      "nginx.ingress.kubernetes.io/ssl-redirect"       = "true",
+      "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true",
+      "nginx.ingress.kubernetes.io/backend-protocol"   = "HTTP",
+      "nginx.ingress.kubernetes.io/proxy-body-size"    = "10m",
+      "nginx.ingress.kubernetes.io/proxy-read-timeout" = "60",
+      "nginx.ingress.kubernetes.io/proxy-send-timeout" = "60"
     }
   }
 
@@ -21,10 +27,11 @@ resource "kubernetes_ingress_v1" "hollybike_backend_ingress" {
       http {
         path {
           path      = "/"
-          path_type = "ImplementationSpecific"
+          path_type = "Prefix"
+
           backend {
             service {
-              name = "hollybike-backend"
+              name = kubernetes_service.backend.metadata[0].name
               port {
                 number = 8080
               }
