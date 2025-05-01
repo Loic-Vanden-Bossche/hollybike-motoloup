@@ -18,6 +18,11 @@ resource "kubernetes_deployment" "backend" {
       }
       spec {
         container {
+          security_context {
+            run_as_non_root = true
+            run_as_user     = 1000
+          }
+
           name  = "backend"
           image = var.image
 
@@ -25,6 +30,24 @@ resource "kubernetes_deployment" "backend" {
             secret_ref {
               name = kubernetes_secret.backend_env.metadata[0].name
             }
+          }
+
+          liveness_probe {
+            http_get {
+              path = "/api"
+              port = 8080
+            }
+            initial_delay_seconds = 10
+            period_seconds        = 10
+          }
+
+          readiness_probe {
+            http_get {
+              path = "/api"
+              port = 8080
+            }
+            initial_delay_seconds = 5
+            period_seconds        = 10
           }
 
           port {
