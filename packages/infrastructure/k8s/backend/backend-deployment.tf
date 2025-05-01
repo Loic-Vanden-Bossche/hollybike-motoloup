@@ -37,8 +37,10 @@ resource "kubernetes_deployment" "backend" {
               path = "/api"
               port = 8080
             }
-            initial_delay_seconds = 10
+            initial_delay_seconds = 5
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
 
           readiness_probe {
@@ -48,6 +50,8 @@ resource "kubernetes_deployment" "backend" {
             }
             initial_delay_seconds = 5
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
 
           port {

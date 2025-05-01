@@ -74,8 +74,10 @@ resource "kubernetes_stateful_set" "minio" {
               path = "/minio/health/ready"
               port = 9000
             }
-            initial_delay_seconds = 5
+            initial_delay_seconds = 15
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
 
           liveness_probe {
@@ -83,8 +85,10 @@ resource "kubernetes_stateful_set" "minio" {
               path = "/minio/health/live"
               port = 9000
             }
-            initial_delay_seconds = 10
+            initial_delay_seconds = 15
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
         }
       }
