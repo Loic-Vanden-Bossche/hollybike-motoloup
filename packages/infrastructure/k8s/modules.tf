@@ -2,7 +2,7 @@ module "frontend" {
   source = "./frontend"
 
   namespace          = kubernetes_namespace.hollybike.metadata[0].name
-  image = lower(var.frontend_image)
+  image              = lower(var.frontend_image)
   domain             = "${var.frontend_subdomain}.${var.base_domain}"
   docker_secret_name = data.kubernetes_secret.image_pull.metadata[0].name
 }
@@ -11,7 +11,7 @@ module "backend" {
   source = "./backend"
 
   namespace                         = kubernetes_namespace.hollybike.metadata[0].name
-  image = lower(var.backend_image)
+  image                             = lower(var.backend_image)
   domain                            = "${var.backend_subdomain}.${var.base_domain}"
   database_url                      = module.database.url
   database_username                 = var.database_username
