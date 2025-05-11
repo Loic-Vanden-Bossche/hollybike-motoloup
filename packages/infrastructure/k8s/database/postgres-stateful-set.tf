@@ -26,15 +26,25 @@ resource "kubernetes_stateful_set" "postgres" {
 
       spec {
         security_context {
-          run_as_user     = 0
-          fs_group        = 999
+          run_as_user = 0
+          fs_group    = 999
         }
 
         container {
 
-          name  = "postgres"
-          image = "postgres:17-alpine"
+          name              = "postgres"
+          image             = "postgres:17-alpine"
           image_pull_policy = "IfNotPresent"
+
+          resources {
+            requests = {
+              memory = "512Mi"
+              cpu    = "250m"
+            }
+            limits = {
+              memory = "1Gi"
+            }
+          }
 
           env {
             name  = "POSTGRES_USER"
@@ -67,18 +77,23 @@ resource "kubernetes_stateful_set" "postgres" {
 
           liveness_probe {
             exec {
-              command = ["pg_isready", "-U", var.database_username]
+              command = ["pg_isready", "-U", var.database_username, "-d", var.database_name]
             }
             initial_delay_seconds = 30
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
 
           readiness_probe {
             exec {
-              command = ["pg_isready", "-U", var.database_username]
+              command = ["pg_isready", "-U", var.database_username, "-d", var.database_name]
             }
             initial_delay_seconds = 5
             period_seconds        = 10
+            timeout_seconds       = 3
+            success_threshold     = 1
+            failure_threshold     = 3
           }
         }
       }

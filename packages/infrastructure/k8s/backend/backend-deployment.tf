@@ -17,10 +17,24 @@ resource "kubernetes_deployment" "backend" {
         }
       }
       spec {
+        image_pull_secrets {
+          name = var.docker_secret_name
+        }
+
         container {
           security_context {
             run_as_non_root = true
             run_as_user     = 1000
+          }
+
+          resources {
+            requests = {
+              memory = "256Mi"
+              cpu    = "250m"
+            }
+            limits = {
+              memory = "512Mi"
+            }
           }
 
           name  = "backend"
@@ -37,8 +51,10 @@ resource "kubernetes_deployment" "backend" {
               path = "/api"
               port = 8080
             }
-            initial_delay_seconds = 10
+            initial_delay_seconds = 5
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
 
           readiness_probe {
@@ -48,6 +64,8 @@ resource "kubernetes_deployment" "backend" {
             }
             initial_delay_seconds = 5
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
 
           port {

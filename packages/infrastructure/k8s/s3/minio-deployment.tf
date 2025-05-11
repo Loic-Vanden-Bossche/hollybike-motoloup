@@ -36,6 +36,16 @@ resource "kubernetes_stateful_set" "minio" {
           image = "minio/minio:RELEASE.2025-04-22T22-12-26Z"
           args  = ["server", "/data"]
 
+          resources {
+            requests = {
+              memory = "512Mi"
+              cpu    = "500m"
+            }
+            limits = {
+              memory = "2Gi"
+            }
+          }
+
           env {
             name  = "MINIO_ROOT_USER"
             value = var.username
@@ -74,8 +84,10 @@ resource "kubernetes_stateful_set" "minio" {
               path = "/minio/health/ready"
               port = 9000
             }
-            initial_delay_seconds = 5
+            initial_delay_seconds = 15
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
 
           liveness_probe {
@@ -83,8 +95,10 @@ resource "kubernetes_stateful_set" "minio" {
               path = "/minio/health/live"
               port = 9000
             }
-            initial_delay_seconds = 10
+            initial_delay_seconds = 15
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
         }
       }
@@ -105,52 +119,6 @@ resource "kubernetes_stateful_set" "minio" {
         }
 
         storage_class_name = "longhorn"
-      }
-    }
-  }
-}
-
-resource "kubernetes_job" "create_minio_bucket" {
-  depends_on = [kubernetes_stateful_set.minio]
-
-  metadata {
-    name      = "create-minio-bucket"
-    namespace = var.namespace
-  }
-
-  spec {
-    template {
-      metadata {
-        name = "create-minio-bucket"
-      }
-
-      spec {
-        restart_policy = "OnFailure"
-
-        container {
-          name  = "mc"
-          image = "minio/mc:latest"
-
-          command = ["/bin/sh", "-c"]
-          args = [
-            "until mc --config-dir /tmp/mc alias set local http://minio:9000 \"$MINIO_ROOT_USER\" \"$MINIO_ROOT_PASSWORD\"; do echo 'Waiting for MinIO...'; sleep 5; done && mc --config-dir /tmp/mc mb -p local/\"$BUCKET_NAME\" || true"
-          ]
-
-          env {
-            name  = "MINIO_ROOT_USER"
-            value = var.username
-          }
-
-          env {
-            name  = "MINIO_ROOT_PASSWORD"
-            value = var.password
-          }
-
-          env {
-            name  = "BUCKET_NAME"
-            value = var.bucket_name
-          }
-        }
       }
     }
   }

@@ -24,6 +24,10 @@ resource "kubernetes_deployment" "frontend" {
       }
 
       spec {
+        image_pull_secrets {
+          name = var.docker_secret_name
+        }
+
         container {
           name  = "frontend"
           image = var.image
@@ -33,6 +37,16 @@ resource "kubernetes_deployment" "frontend" {
             container_port = 80
           }
 
+          resources {
+            limits = {
+              memory = "512Mi"
+            }
+            requests = {
+              memory = "256Mi"
+              cpu    = "250m"
+            }
+          }
+
           readiness_probe {
             http_get {
               path = "/"
@@ -40,6 +54,8 @@ resource "kubernetes_deployment" "frontend" {
             }
             initial_delay_seconds = 5
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
 
           liveness_probe {
@@ -49,6 +65,8 @@ resource "kubernetes_deployment" "frontend" {
             }
             initial_delay_seconds = 10
             period_seconds        = 10
+            timeout_seconds       = 5
+            failure_threshold     = 3
           }
         }
       }
