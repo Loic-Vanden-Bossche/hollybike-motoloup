@@ -1,18 +1,17 @@
 module "frontend" {
-  depends_on = [data.kubernetes_secret.image_pull]
-  source     = "./frontend"
+  source = "./frontend"
 
-  namespace = kubernetes_namespace.hollybike.metadata[0].name
-  image     = lower(var.frontend_image)
-  domain    = "${var.frontend_subdomain}.${var.base_domain}"
+  namespace          = kubernetes_namespace.hollybike.metadata[0].name
+  image = lower(var.frontend_image)
+  domain             = "${var.frontend_subdomain}.${var.base_domain}"
+  docker_secret_name = data.kubernetes_secret.image_pull.metadata[0].name
 }
 
 module "backend" {
-  depends_on = [data.kubernetes_secret.image_pull]
-  source     = "./backend"
+  source = "./backend"
 
   namespace                         = kubernetes_namespace.hollybike.metadata[0].name
-  image                             = lower(var.backend_image)
+  image = lower(var.backend_image)
   domain                            = "${var.backend_subdomain}.${var.base_domain}"
   database_url                      = module.database.url
   database_username                 = var.database_username
@@ -25,6 +24,7 @@ module "backend" {
   storage_s3_password               = var.storage_s3_password
   storage_s3_url                    = module.s3.url
   storage_s3_username               = var.storage_s3_username
+  docker_secret_name                = data.kubernetes_secret.image_pull.metadata[0].name
 }
 
 module "database" {

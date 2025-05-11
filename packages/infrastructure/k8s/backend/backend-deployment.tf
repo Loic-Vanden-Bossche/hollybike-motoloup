@@ -17,10 +17,24 @@ resource "kubernetes_deployment" "backend" {
         }
       }
       spec {
+        image_pull_secrets {
+          name = var.docker_secret_name
+        }
+
         container {
           security_context {
             run_as_non_root = true
             run_as_user     = 1000
+          }
+
+          resources {
+            requests = {
+              memory = "256Mi"
+              cpu    = "250m"
+            }
+            limits = {
+              memory = "512Mi"
+            }
           }
 
           name  = "backend"

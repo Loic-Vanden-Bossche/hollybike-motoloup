@@ -24,6 +24,10 @@ resource "kubernetes_deployment" "frontend" {
       }
 
       spec {
+        image_pull_secrets {
+          name = var.docker_secret_name
+        }
+
         container {
           name  = "frontend"
           image = var.image
@@ -31,6 +35,16 @@ resource "kubernetes_deployment" "frontend" {
 
           port {
             container_port = 80
+          }
+
+          resources {
+            limits = {
+              memory = "512Mi"
+            }
+            requests = {
+              memory = "256Mi"
+              cpu    = "250m"
+            }
           }
 
           readiness_probe {
