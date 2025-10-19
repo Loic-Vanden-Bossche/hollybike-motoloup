@@ -1,8 +1,8 @@
 <component name="ProjectRunConfigurationManager">
   <configuration default="false" name="Integration tests" type="ioKotest" factoryName="Kotest" defaultName="singleModule">
     <module name="hollybike.api.test" />
-    <shortenClasspath name="ARGS_FILE" />
-    <option name="jrePath" value="graalvm-jdk-21" />
+    <shortenClasspath name="NONE" />
+    <option name="jrePath" value="graalvm-21" />
     <option name="jrePathEnabled" value="true" />
     <option name="passParentEnvs" value="true" />
     <option name="workingDirectory" value="$MODULE_WORKING_DIR$" />

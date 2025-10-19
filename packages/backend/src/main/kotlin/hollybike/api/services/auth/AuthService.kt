@@ -4,6 +4,7 @@
 */
 package hollybike.api.services.auth
 
+import aws.smithy.kotlin.runtime.text.encoding.encodeBase64String
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import de.nycode.bcrypt.hash
@@ -93,7 +94,7 @@ class AuthService(
 
 	fun generateLink(host: String, invitation: Invitation): String {
 		val sign = getLinkSignature(host, invitation.role, invitation.association.id.value, invitation.id.value)
-		return "https://hollybike.fr/invite?host=$host&role=${invitation.role}&association=${invitation.association.id}&invitation=${invitation.id.value}&verify=$sign"
+		return "https://hollybike.chbrx.com/invite?host=$host&role=${invitation.role}&association=${invitation.association.id}&invitation=${invitation.id.value}&verify=$sign"
 	}
 
 	fun login(login: TLogin): Result<TAuthInfo> {

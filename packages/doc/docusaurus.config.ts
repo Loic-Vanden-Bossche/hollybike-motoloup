@@ -11,7 +11,7 @@ const config: Config = {
   favicon: 'logo.png',
 
   // Set the production url of your site here
-  url: 'https://docs.hollybike.fr',
+  url: 'https://docs.hollybike.chbrx.com',
   // Set the /<baseUrl>/ pathname under which your site is served
   // For GitHub pages deployment, it is often '/<projectName>/'
   baseUrl: '/',

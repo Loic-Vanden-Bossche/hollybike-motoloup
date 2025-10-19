@@ -102,48 +102,48 @@ INSERT INTO associations (name, status)
 VALUES ('Disabled Association', -1);
 
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('root@hollybike.fr', 'root', 'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX',
+VALUES ('root@hollybike.chbrx.com', 'root', 'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX',
         1, now(), 3);
 
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('user1@hollybike.fr', 'user1',
+VALUES ('user1@hollybike.chbrx.com', 'user1',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 2, now(), 1);
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('user2@hollybike.fr', 'user2',
+VALUES ('user2@hollybike.chbrx.com', 'user2',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 2, now(), 1);
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('user3@hollybike.fr', 'user3',
+VALUES ('user3@hollybike.chbrx.com', 'user3',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 3, now(), 1);
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('user4@hollybike.fr', 'user4',
+VALUES ('user4@hollybike.chbrx.com', 'user4',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 3, now(), 1);
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('user5@hollybike.fr', 'user5',
+VALUES ('user5@hollybike.chbrx.com', 'user5',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 3, now(), 1);
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('user6@hollybike.fr', 'user6',
+VALUES ('user6@hollybike.chbrx.com', 'user6',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 4, now(), 1);
 
 
 INSERT INTO users (email, username, password, association, last_login, scope, status)
-VALUES ('disabled1@hollybike.fr', 'disabled1',
+VALUES ('disabled1@hollybike.chbrx.com', 'disabled1',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 2, now(), 1, -1);
 INSERT INTO users (email, username, password, association, last_login, scope, status)
-VALUES ('disabled2@hollybike.fr', 'disabled2',
+VALUES ('disabled2@hollybike.chbrx.com', 'disabled2',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 3, now(), 1, -1);
 INSERT INTO users (email, username, password, association, last_login, scope, status)
-VALUES ('disabled3@hollybike.fr', 'disabled3',
+VALUES ('disabled3@hollybike.chbrx.com', 'disabled3',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 4, now(), 1, -1);
 
 
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('admin1@hollybike.fr', 'admin1',
+VALUES ('admin1@hollybike.chbrx.com', 'admin1',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 2, now(), 2);
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('admin2@hollybike.fr', 'admin2',
+VALUES ('admin2@hollybike.chbrx.com', 'admin2',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 3, now(), 2);
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('admin3@hollybike.fr', 'admin3',
+VALUES ('admin3@hollybike.chbrx.com', 'admin3',
         'JDJhJDA2JHJwVWE4dWdyUi9URERJdWt4cll0VU9yLmRQSExWdTUzdlB4bWFQbktZanppZVd2V01vdFpX', 4, now(), 2);
 
 INSERT INTO events (name, description, association, image, status, owner, start_date_time, end_date_time)
@@ -228,7 +228,7 @@ ALTER TABLE associations
 INSERT INTO associations (name)
 VALUES ('Hollybike');
 INSERT INTO users (email, username, password, association, last_login, scope)
-VALUES ('admin@hollybike.fr', 'Admin', 'JDJhJDA2JEtHaDN5c0pIc1guU2s5V3g2Ulpjek95YXAvZVpkQllPNjlPMUFHTFhuV1pua2RyZnpzVDdh
+VALUES ('admin@hollybike.chbrx.com', 'Admin', 'JDJhJDA2JEtHaDN5c0pIc1guU2s5V3g2Ulpjek95YXAvZVpkQllPNjlPMUFHTFhuV1pua2RyZnpzVDdh
 ', LASTVAL(), NOW(), 2);
 
 -- changeset loic:4

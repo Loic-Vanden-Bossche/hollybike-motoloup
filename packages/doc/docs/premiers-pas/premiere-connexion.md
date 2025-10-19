@@ -17,7 +17,7 @@ Ne communiquez pas vos identifiants et changez le mot de passe par défaut au pl
 ## On-Premise
 
 Une fois le serveur installé et fonctionnel, les identifiants par défaut sont les suivants.  
-Nom d'utilisateur : `admin@hollybike.fr`  
+Nom d'utilisateur : `admin@hollybike.chbrx.com`  
 Mot de passe : `admin`
 
 :::danger

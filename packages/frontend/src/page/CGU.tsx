@@ -25,19 +25,19 @@ export function CGU() {
 				reconnais avoir lu et compris les CGU et je les accepte ».
 				En cas de non-acceptation des CGU stipulées dans le présent contrat, l'Utilisateur se doit de renoncer à
 				l'accès des services proposés par le site.
-				https://hollybike.fr se réserve le droit de modifier unilatéralement et à tout moment le contenu des
+				https://hollybike.chbrx.com se réserve le droit de modifier unilatéralement et à tout moment le contenu des
 				présentes CGU.
 			</p>
 
 			<h2 className={"text-2xl pt-8 pb-4"}>Article 1 : Les mentions légales</h2>
 
-			<p>L’édition et la direction de la publication du site https://hollybike.fr est assurée par Loïc Vanden
+			<p>L’édition et la direction de la publication du site https://hollybike.chbrx.com est assurée par Loïc Vanden
 				Bossche, domicilié 242 rue du faubourg saint antoine 75012 Paris.
 				Numéro de téléphone est _______________
 				Adresse e-mail vandenbosscheloic4@gmail.com.
 			</p>
 
-			<p>L'hébergeur du site https://hollybike.fr est la société AMAZON WEB SERVICES EMEA SARL, dont le siège
+			<p>L'hébergeur du site https://hollybike.chbrx.com est la société AMAZON WEB SERVICES EMEA SARL, dont le siège
 				social
 				est situé au 38 AV JOHN F KENNEDY L 1855, LUXEMBOURG LUXEMBOURG, avec le numéro de téléphone :
 				_______________.
@@ -45,7 +45,7 @@ export function CGU() {
 
 			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 2 : Accès au site</h2>
 
-			<p>Le site https://hollybike.fr permet à l'Utilisateur un accès gratuit aux services suivants :
+			<p>Le site https://hollybike.chbrx.com permet à l'Utilisateur un accès gratuit aux services suivants :
 				Le site internet propose les services suivants :
 				Création d'un compte utilisateur
 				Suivi de position de l'utilisateur sur demande
@@ -73,7 +73,7 @@ export function CGU() {
 				serveur
 				et sous réserve de toute interruption ou modification en cas de maintenance, n'engage pas la
 				responsabilité
-				de https://hollybike.fr. Dans ces cas, l’Utilisateur accepte ainsi ne pas tenir rigueur à l’éditeur de
+				de https://hollybike.chbrx.com. Dans ces cas, l’Utilisateur accepte ainsi ne pas tenir rigueur à l’éditeur de
 				toute
 				interruption ou suspension de service, même sans préavis.
 				L'Utilisateur a la possibilité de contacter le site par messagerie électronique à l’adresse email de
@@ -122,14 +122,14 @@ export function CGU() {
 
 			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 5 : Responsabilité</h2>
 
-			<p>Les sources des informations diffusées sur le site https://hollybike.fr sont réputées fiables mais le
+			<p>Les sources des informations diffusées sur le site https://hollybike.chbrx.com sont réputées fiables mais le
 				site
 				ne garantit pas qu’il soit exempt de défauts, d’erreurs ou d’omissions.
 			</p>
 
 			<p>Les informations communiquées sont présentées à titre indicatif et général sans valeur contractuelle.
 				Malgré
-				des mises à jour régulières, le site https://hollybike.fr ne peut être tenu responsable de la
+				des mises à jour régulières, le site https://hollybike.chbrx.com ne peut être tenu responsable de la
 				modification
 				des dispositions administratives et juridiques survenant après la publication. De même, le site ne peut
 				être
@@ -139,7 +139,7 @@ export function CGU() {
 				sa forme, est interdite. Il assume les risques liés à l'utilisation de son identifiant et mot de passe.
 				Le
 				site décline toute responsabilité.
-				Le site https://hollybike.fr ne peut être tenu pour responsable d’éventuels virus qui pourraient
+				Le site https://hollybike.chbrx.com ne peut être tenu pour responsable d’éventuels virus qui pourraient
 				infecter
 				l’ordinateur ou tout matériel informatique de l’Internaute, suite à une utilisation, à l’accès, ou au
 				téléchargement provenant de ce site.
@@ -152,7 +152,7 @@ export function CGU() {
 			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 6 : Liens hypertextes</h2>
 
 			<p>Des liens hypertextes peuvent être présents sur le site. L’Utilisateur est informé qu’en cliquant sur ces
-				liens, il sortira du site https://hollybike.fr. Ce dernier n’a pas de contrôle sur les pages web sur
+				liens, il sortira du site https://hollybike.chbrx.com. Ce dernier n’a pas de contrôle sur les pages web sur
 				lesquelles aboutissent ces liens et ne saurait, en aucun cas, être responsable de leur contenu.
 			</p>
 
@@ -163,7 +163,7 @@ export function CGU() {
 			</p>
 
 			<p>Les cookies sont de petits fichiers stockés temporairement sur le disque dur de l’ordinateur de
-				l’Utilisateur par votre navigateur et qui sont nécessaires à l’utilisation du site https://hollybike.fr.
+				l’Utilisateur par votre navigateur et qui sont nécessaires à l’utilisation du site https://hollybike.chbrx.com.
 				Les
 				cookies ne contiennent pas d’information personnelle et ne peuvent pas être utilisés pour identifier
 				quelqu’un. Un cookie contient un identifiant unique, généré aléatoirement et donc anonyme. Certains
@@ -171,7 +171,7 @@ export function CGU() {
 				expirent à la fin de la visite de l’Utilisateur, d’autres restent.
 			</p>
 
-			<p>L’information contenue dans les cookies est utilisée pour améliorer le site https://hollybike.fr.</p>
+			<p>L’information contenue dans les cookies est utilisée pour améliorer le site https://hollybike.chbrx.com.</p>
 
 			<p>En naviguant sur le site, L’Utilisateur les accepte.
 				L’Utilisateur pourra désactiver ces cookies par l’intermédiaire des paramètres figurant au sein de son
