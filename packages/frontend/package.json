@@ -12,6 +12,7 @@
   "dependencies": {
     "@material-ui/icons": "^4.11.3",
     "@types/uuid": "^9.0.8",
+    "caniuse-lite": "^1.0.30001751",
     "clsx": "^2.1.1",
     "mapbox-gl": "^1.13.3",
     "preact": "^10.19.6",

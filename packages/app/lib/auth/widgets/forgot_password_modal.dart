@@ -79,7 +79,7 @@ class ForgotPasswordModal extends StatelessWidget {
                       "host": FormFieldConfig(
                         label: "Adresse du serveur",
                         validator: _inputValidator,
-                        defaultValue: "hollybike.fr",
+                        defaultValue: "hollybike.chbrx.com",
                         autofillHints: [AutofillHints.url],
                         textInputType: TextInputType.url,
                       ),

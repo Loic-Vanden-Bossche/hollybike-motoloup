@@ -5,7 +5,7 @@
 		"password": "password"
 	},
 	"security": {
-		"audience": "hollybike.fr",
+		"audience": "hollybike.chbrx.com",
 		"domain": "http://localhost:8080",
 		"realm": "realm",
 		"secret": "test-secret"
@@ -20,7 +20,7 @@
 	"smtp": {
 		"url": "smtp-relay.brevo.com",
 		"port": "587",
-		"sender": "hollybike@hollybike.fr",
+		"sender": "hollybike@hollybike.chbrx.com",
 		"username": "NIK",
 		"password": "TOI"
 	}

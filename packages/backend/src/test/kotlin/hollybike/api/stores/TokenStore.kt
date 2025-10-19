@@ -12,13 +12,13 @@ import java.util.*
 class TokenStore {
 	private val tokens = mutableMapOf<String, String>()
 	private val users = mutableMapOf(
-		"root@hollybike.fr" to EUserScope.Root,
-		"user1@hollybike.fr" to EUserScope.User,
-		"user2@hollybike.fr" to EUserScope.User,
-		"user3@hollybike.fr" to EUserScope.User,
-		"user4@hollybike.fr" to EUserScope.User,
-		"admin1@hollybike.fr" to EUserScope.Admin,
-		"admin2@hollybike.fr" to EUserScope.Admin,
+		"root@hollybike.chbrx.com" to EUserScope.Root,
+		"user1@hollybike.chbrx.com" to EUserScope.User,
+		"user2@hollybike.chbrx.com" to EUserScope.User,
+		"user3@hollybike.chbrx.com" to EUserScope.User,
+		"user4@hollybike.chbrx.com" to EUserScope.User,
+		"admin1@hollybike.chbrx.com" to EUserScope.Admin,
+		"admin2@hollybike.chbrx.com" to EUserScope.Admin,
 	)
 
 	private fun generateJWT(email: String, scope: EUserScope) =
