@@ -21,6 +21,7 @@ env:
 permissions:
   contents: write
   packages: write
+  pull-requests: write
 
 jobs:
   build-frontend-backend:
@@ -35,7 +36,7 @@ jobs:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
       MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
       MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
-      GH_IMAGE_PULL_TOKEN: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
+#      GH_IMAGE_PULL_TOKEN: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
       DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
       DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
       BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}

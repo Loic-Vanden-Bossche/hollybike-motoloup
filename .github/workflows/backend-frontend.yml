@@ -26,9 +26,9 @@ on:
       MAPBOX_PUBLIC_ACCESS_TOKEN:
         required: true
         description: 'Mapbox public token'
-      GH_IMAGE_PULL_TOKEN:
-        required: true
-        description: 'GitHub Image Pull Token'
+#      GH_IMAGE_PULL_TOKEN:
+#        required: true
+#        description: 'GitHub Image Pull Token'
       MINIO_USERNAME:
         required: true
         description: 'MinIO Username'
@@ -73,7 +73,7 @@ jobs:
     secrets:
       SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
       SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
-      GH_IMAGE_PULL_TOKEN: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
+#      GH_IMAGE_PULL_TOKEN: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
       MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
       MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
