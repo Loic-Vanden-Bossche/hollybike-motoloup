@@ -35,58 +35,59 @@ jobs:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
       MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
       MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
+      GH_IMAGE_PULL_TOKEN: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
       DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
       DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
       BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
-#  build-app:
-#    name: App
-#    uses: ./.github/workflows/app.yml
-#    with:
-#      version: ${{ github.event.inputs.version }}
-#      create-executables: ${{ github.event.inputs.create-executables == 'true' }}
-#    secrets:
-#      ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
-#      ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
-#      PRODUCTION_CREDENTIAL_FILE: ${{ secrets.PRODUCTION_CREDENTIAL_FILE }}
-#      MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
-#      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+  build-app:
+    name: App
+    uses: ./.github/workflows/app.yml
+    with:
+      version: ${{ github.event.inputs.version }}
+      create-executables: ${{ github.event.inputs.create-executables == 'true' }}
+    secrets:
+      ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+      ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+      PRODUCTION_CREDENTIAL_FILE: ${{ secrets.PRODUCTION_CREDENTIAL_FILE }}
+      MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
-#  create-release:
-#    name: Create Release
-#    if: |
-#      always() &&
-#      needs.build-app.result == 'success' &&
-#      needs.build-frontend-backend.result == 'success'
-#    needs:
-##      - build-app
-#      - build-frontend-backend
-#    runs-on: ubuntu-latest
-#
-#    env:
-#      version: ${{ github.event.inputs.version }}
-#
-#    steps:
-#      - name: Checkout code
-#        uses: actions/checkout@v4
-#
-#      - name: Get app artifact
-#        if: inputs.create-executables
-#        uses: actions/download-artifact@v4
-#        with:
-#          merge-multiple: true
-#          pattern: HollyBike-${{ env.version }}-*
-#          path: .
-#
-#      - name: Create release
-#        env:
-#          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-#          EXECUTABLES: 'hollybike-Android-${{ env.version }}.apk hollybike-Windows-${{ env.version }}-x86_64.exe hollybike-Linux-${{ env.version }}-x86_64'
-#        run: |
-#          gh release create "$version" \
-#              --repo="$GITHUB_REPOSITORY" \
-#              --title="${GITHUB_REPOSITORY#*/}-${version#v}${{ fromJSON('[" (production only)", ""]')[inputs.create-executables] }}" \
-#              --generate-notes \
-#              ${{ fromJSON('["", "$EXECUTABLES"]')[inputs.create-executables] }}
+  create-release:
+    name: Create Release
+    if: |
+      always() &&
+      needs.build-app.result == 'success' &&
+      needs.build-frontend-backend.result == 'success'
+    needs:
+      - build-app
+      - build-frontend-backend
+    runs-on: ubuntu-latest
+
+    env:
+      version: ${{ github.event.inputs.version }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Get app artifact
+        if: inputs.create-executables
+        uses: actions/download-artifact@v4
+        with:
+          merge-multiple: true
+          pattern: HollyBike-${{ env.version }}-*
+          path: .
+
+      - name: Create release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          EXECUTABLES: 'hollybike-Android-${{ env.version }}.apk hollybike-Windows-${{ env.version }}-x86_64.exe hollybike-Linux-${{ env.version }}-x86_64'
+        run: |
+          gh release create "$version" \
+              --repo="$GITHUB_REPOSITORY" \
+              --title="${GITHUB_REPOSITORY#*/}-${version#v}${{ fromJSON('[" (production only)", ""]')[inputs.create-executables] }}" \
+              --generate-notes \
+              ${{ fromJSON('["", "$EXECUTABLES"]')[inputs.create-executables] }}
 
