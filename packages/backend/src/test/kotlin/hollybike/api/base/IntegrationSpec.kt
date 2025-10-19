@@ -52,13 +52,21 @@ abstract class IntegrationSpec(body: FunSpec.() -> Unit = {}) : FunSpec({
 
 		@Container
 		val minio: GenericContainer<*> =
-			GenericContainer("bitnami/minio:2024.5.10").withEnv("MINIO_ROOT_USER", "minio-test-user")
-				.withEnv("MINIO_ROOT_PASSWORD", "minio-test-password").withEnv("MINIO_DEFAULT_BUCKETS", "hollybike")
+			GenericContainer("minio/minio:RELEASE.2025-04-22T22-12-26Z")
+				.withEnv("MINIO_ROOT_USER", "minio-test-user")
+				.withEnv("MINIO_ROOT_PASSWORD", "minio-test-password")
+				.withEnv("MINIO_DEFAULT_BUCKETS", "hollybike")
 				.withExposedPorts(9000)
+				.withCreateContainerCmdModifier { cmd ->
+					cmd.withEntrypoint("sh")
+					cmd.withCmd("-c", "mkdir -p /data/hollybike && /usr/bin/minio server /data")
+
+				}
 
 		@Container
 		val ftp: FixedHostPortGenericContainer<*> =
-			FixedHostPortGenericContainer("fauria/vsftpd:latest").withEnv("FTP_USER", "ftp-test-user")
+			FixedHostPortGenericContainer("fauria/vsftpd:latest")
+				.withEnv("FTP_USER", "ftp-test-user")
 				.withEnv("FTP_PASS", "ftp-test-password")
 
 		val tokenStore = TokenStore()
