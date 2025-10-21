@@ -26,9 +26,7 @@ class GradientProgressBar extends StatefulWidget {
 
 class _GradientProgressBarState extends State<GradientProgressBar>
     with SingleTickerProviderStateMixin {
-  late final _progressController = AnimationController(
-    vsync: this,
-  );
+  late final _progressController = AnimationController(vsync: this);
 
   @override
   void didUpdateWidget(GradientProgressBar oldWidget) {
@@ -115,7 +113,10 @@ class _GradientProgressBarState extends State<GradientProgressBar>
       if (fraction >= stopStart && fraction <= stopEnd) {
         double localFraction = (fraction - stopStart) / (stopEnd - stopStart);
         return Color.lerp(
-            widget.colors[i], widget.colors[i + 1], localFraction)!;
+          widget.colors[i],
+          widget.colors[i + 1],
+          localFraction,
+        )!;
       }
     }
 

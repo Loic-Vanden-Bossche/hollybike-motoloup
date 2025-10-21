@@ -50,14 +50,16 @@ class _EventsListFragmentState<T extends EventsBloc>
             }
           },
         ),
-        BlocListener<FutureEventsBloc, EventsState>(listener: (context, state) {
-          if (state is EventCreationSuccess) {
-            Future.delayed(
-              const Duration(milliseconds: 200),
-              widget.onRefreshRequested,
-            );
-          }
-        }),
+        BlocListener<FutureEventsBloc, EventsState>(
+          listener: (context, state) {
+            if (state is EventCreationSuccess) {
+              Future.delayed(
+                const Duration(milliseconds: 200),
+                widget.onRefreshRequested,
+              );
+            }
+          },
+        ),
       ],
       child: ThemedRefreshIndicator(
         onRefresh: widget.onRefreshRequested,
@@ -82,9 +84,7 @@ class _EventsListFragmentState<T extends EventsBloc>
   Widget _buildPlaceholder(BuildContext context, EventsState state) {
     switch (state.status) {
       case EventStatus.loading:
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       case EventStatus.error:
         return ScrollablePlaceholder(
           padding: MediaQuery.of(context).size.width * 0.1,

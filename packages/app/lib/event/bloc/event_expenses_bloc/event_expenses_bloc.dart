@@ -15,10 +15,8 @@ class EventExpensesBloc extends Bloc<EventExpensesEvent, EventExpensesState> {
   final int eventId;
   final EventRepository eventRepository;
 
-  EventExpensesBloc({
-    required this.eventId,
-    required this.eventRepository,
-  }) : super(EventJourneyInitial()) {
+  EventExpensesBloc({required this.eventId, required this.eventRepository})
+    : super(EventJourneyInitial()) {
     on<DeleteExpense>(_onDeleteExpense);
     on<AddExpense>(_onAddExpense);
     on<EditBudget>(_onEditBudget);
@@ -26,22 +24,21 @@ class EventExpensesBloc extends Bloc<EventExpensesEvent, EventExpensesState> {
     on<UploadExpenseProof>(_onUploadExpenseProof);
   }
 
-  _onDeleteExpense(
+  Future<void> _onDeleteExpense(
     DeleteExpense event,
     Emitter<EventExpensesState> emit,
   ) async {
     emit(EventExpensesOperationInProgress(state));
 
     try {
-      await eventRepository.deleteExpense(
-        event.expenseId,
-        eventId,
-      );
+      await eventRepository.deleteExpense(event.expenseId, eventId);
     } catch (e) {
-      emit(EventExpensesOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventExpensesOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
 
@@ -53,10 +50,7 @@ class EventExpensesBloc extends Bloc<EventExpensesEvent, EventExpensesState> {
     );
   }
 
-  _onAddExpense(
-    AddExpense event,
-    Emitter<EventExpensesState> emit,
-  ) async {
+  Future<void> _onAddExpense(AddExpense event, Emitter<EventExpensesState> emit) async {
     emit(EventExpensesOperationInProgress(state));
 
     try {
@@ -67,70 +61,74 @@ class EventExpensesBloc extends Bloc<EventExpensesEvent, EventExpensesState> {
         event.description,
       );
 
-      emit(EventExpensesOperationSuccess(
-        state,
-        successMessage: 'Dépense ajoutée.',
-      ));
+      emit(
+        EventExpensesOperationSuccess(
+          state,
+          successMessage: 'Dépense ajoutée.',
+        ),
+      );
     } catch (e) {
       log("An error occurred while adding expense", error: e);
 
-      emit(EventExpensesOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventExpensesOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
     }
   }
 
-  _onEditBudget(
-    EditBudget event,
-    Emitter<EventExpensesState> emit,
-  ) async {
+  Future<void> _onEditBudget(EditBudget event, Emitter<EventExpensesState> emit) async {
     emit(EventExpensesOperationInProgress(state));
 
     try {
-      await eventRepository.editBudget(
-        eventId,
-        event.budget,
-      );
+      await eventRepository.editBudget(eventId, event.budget);
 
-      emit(EventExpensesOperationSuccess(
-        state,
-        successMessage: event.successMessage,
-      ));
+      emit(
+        EventExpensesOperationSuccess(
+          state,
+          successMessage: event.successMessage,
+        ),
+      );
     } catch (e) {
       log("An error occurred while editing budget", error: e);
-      emit(EventExpensesOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventExpensesOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
     }
   }
 
-  _onDownloadReport(
+  Future<void> _onDownloadReport(
     DownloadReport event,
     Emitter<EventExpensesState> emit,
   ) async {
     emit(EventExpensesOperationInProgress(state));
 
     try {
-      await eventRepository.downloadReport(
-        eventId,
-      );
+      await eventRepository.downloadReport(eventId);
 
-      emit(EventExpensesOperationSuccess(
-        state,
-        successMessage: 'Rapport téléchargé.',
-      ));
+      emit(
+        EventExpensesOperationSuccess(
+          state,
+          successMessage: 'Rapport téléchargé.',
+        ),
+      );
     } catch (e) {
       log("An error occurred while downloading report", error: e);
-      emit(EventExpensesOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventExpensesOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
     }
   }
 
-  _onUploadExpenseProof(
+  Future<void> _onUploadExpenseProof(
     UploadExpenseProof event,
     Emitter<EventExpensesState> emit,
   ) async {
@@ -143,16 +141,20 @@ class EventExpensesBloc extends Bloc<EventExpensesEvent, EventExpensesState> {
         event.image,
       );
 
-      emit(EventExpensesOperationSuccess(
-        state,
-        successMessage: event.successMessage,
-      ));
+      emit(
+        EventExpensesOperationSuccess(
+          state,
+          successMessage: event.successMessage,
+        ),
+      );
     } catch (e) {
       log("An error occurred while uploading expense proof", error: e);
-      emit(EventExpensesOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventExpensesOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
     }
   }
 }

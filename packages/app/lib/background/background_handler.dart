@@ -1,4 +1,3 @@
-
 import 'dart:ui';
 
 import 'package:flutter_background_service/flutter_background_service.dart';
@@ -18,9 +17,7 @@ class BackgroundHandler {
     final flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
     flutterLocalNotificationsPlugin.initialize(
       const InitializationSettings(
-        android: AndroidInitializationSettings(
-          'ic_stat_hollybike',
-        ),
+        android: AndroidInitializationSettings('ic_stat_hollybike'),
       ),
     );
 
@@ -44,10 +41,19 @@ class BackgroundHandler {
 
   @pragma('vm:entry-point')
   static void onStart(ServiceInstance service) async {
-
     final flutterLocalNotificationsPlugin = initializeNotification();
 
-    BackgroundNotificationHandler.initialize(service, flutterLocalNotificationsPlugin);
-    BackgroundPositionHandler.initialize(service, flutterLocalNotificationsPlugin);
+    if (service is AndroidServiceInstance) {
+      await service.setAsForegroundService();
+    }
+
+    BackgroundNotificationHandler.initialize(
+      service,
+      flutterLocalNotificationsPlugin,
+    );
+    BackgroundPositionHandler.initialize(
+      service,
+      flutterLocalNotificationsPlugin,
+    );
   }
 }

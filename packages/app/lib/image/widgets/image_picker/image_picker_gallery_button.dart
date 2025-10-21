@@ -30,7 +30,7 @@ class ImagePickerGalleryButton extends StatelessWidget {
     );
   }
 
-  _onGalleryTap() async {
+  Future<void> _onGalleryTap() async {
     final images = await _pickImages();
     final imgs = images.map((image) => Img.fromFile(File(image.path))).toList();
 

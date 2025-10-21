@@ -11,10 +11,7 @@ class EnableSendPosition extends MyPositionEvent {
   final int eventId;
   final String eventName;
 
-  EnableSendPosition({
-    required this.eventId,
-    required this.eventName,
-  });
+  EnableSendPosition({required this.eventId, required this.eventName});
 }
 
 class DisableSendPositions extends MyPositionEvent {

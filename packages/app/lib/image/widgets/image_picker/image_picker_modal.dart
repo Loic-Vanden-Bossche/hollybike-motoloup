@@ -42,11 +42,7 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
-        border: Border(
-          top: border,
-          left: border,
-          right: border,
-        ),
+        border: Border(top: border, left: border, right: border),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(31),
           topRight: Radius.circular(31),
@@ -68,16 +64,14 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
                 onSubmit: _onSubmit,
                 canSubmit: _selectedImages.isNotEmpty && !widget.isLoading,
               ),
-              const SizedBox(
-                height: 16,
-              ),
+              const SizedBox(height: 16),
               _buildSelectedImageList(),
               ImagePickerChoiceList(
                 entityIdSelectedList: _getSelectedEntityIds(),
                 mode: widget.mode,
                 onImagesSelected: _onImagesSelected,
                 isLoading: widget.isLoading,
-              )
+              ),
             ],
           ),
         ),
@@ -123,13 +117,18 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
 
       final entityIdsToDelete = _filterEntityIdsToDelete(images);
 
-      _selectedImages
-          .removeWhere((img) => entityIdsToDelete.contains(img.entityId));
+      _selectedImages.removeWhere(
+        (img) => entityIdsToDelete.contains(img.entityId),
+      );
 
-      final filesToAdd = images
-          .where((img) =>
-          entityIdsToDelete.every((entityId) => img.entityId != entityId))
-          .toList();
+      final filesToAdd =
+          images
+              .where(
+                (img) => entityIdsToDelete.every(
+                  (entityId) => img.entityId != entityId,
+                ),
+              )
+              .toList();
 
       _selectedImages.addAll(filesToAdd);
     });
@@ -138,8 +137,11 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
   List<String> _filterEntityIdsToDelete(List<Img> images) {
     return images
         .map((img) => img.entityId)
-        .where((entityId) => _selectedImages
-            .any((img) => img.entityId != null && img.entityId == entityId))
+        .where(
+          (entityId) => _selectedImages.any(
+            (img) => img.entityId != null && img.entityId == entityId,
+          ),
+        )
         .toList()
         .cast<String>();
   }

@@ -17,5 +17,6 @@ sealed class UpdatePassword with _$UpdatePassword {
     @JsonKey(name: 'new_password_again') required String newPasswordAgain,
   }) = _UpdatePassword;
 
-  factory UpdatePassword.fromJson(JsonMap json) => _$UpdatePasswordFromJson(json);
+  factory UpdatePassword.fromJson(JsonMap json) =>
+      _$UpdatePasswordFromJson(json);
 }

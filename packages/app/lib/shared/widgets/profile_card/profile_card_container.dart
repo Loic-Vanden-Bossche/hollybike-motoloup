@@ -25,15 +25,17 @@ class ProfileCardContainer extends StatelessWidget {
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        color: onTap != null || clickable == true
-            ? Theme.of(context).colorScheme.surface
-            : Colors.transparent,
+        color:
+            onTap != null || clickable == true
+                ? Theme.of(context).colorScheme.surface
+                : Colors.transparent,
         padding: const EdgeInsets.all(16),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisSize: MainAxisSize.min,
-          children: <Widget>[
+          children:
+              <Widget>[
                 Flexible(
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.start,

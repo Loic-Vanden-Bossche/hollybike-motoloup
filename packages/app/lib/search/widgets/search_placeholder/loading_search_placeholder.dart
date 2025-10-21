@@ -15,7 +15,8 @@ class LoadingSearchPlaceholder extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return OverflowBar(
-      children: <Widget>[
+      children:
+          <Widget>[
             Padding(
               padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 16),
               child: TextLoadingPlaceholder(
@@ -28,17 +29,14 @@ class LoadingSearchPlaceholder extends StatelessWidget {
               height: 100,
               child: ListView(
                 scrollDirection: Axis.horizontal,
-                children: addSeparators(
-                  [
-                    const SizedBox.square(dimension: 4),
-                    const PlaceholderSearchProfileCard(),
-                    const PlaceholderSearchProfileCard(),
-                    const PlaceholderSearchProfileCard(),
-                    const PlaceholderSearchProfileCard(),
-                    const SizedBox.square(dimension: 4),
-                  ],
-                  const SizedBox.square(dimension: 8),
-                ),
+                children: addSeparators([
+                  const SizedBox.square(dimension: 4),
+                  const PlaceholderSearchProfileCard(),
+                  const PlaceholderSearchProfileCard(),
+                  const PlaceholderSearchProfileCard(),
+                  const PlaceholderSearchProfileCard(),
+                  const SizedBox.square(dimension: 4),
+                ], const SizedBox.square(dimension: 8)),
               ),
             ),
             Padding(
@@ -50,31 +48,28 @@ class LoadingSearchPlaceholder extends StatelessWidget {
               ),
             ),
           ] +
-          addSeparators(
-            [
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: PlaceholderEventPreviewCard(),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: PlaceholderEventPreviewCard(),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: PlaceholderEventPreviewCard(),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: PlaceholderEventPreviewCard(),
-              ),
-              const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 16),
-                child: PlaceholderEventPreviewCard(),
-              ),
-            ],
-            const SizedBox.square(dimension: 4),
-          ),
+          addSeparators([
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: PlaceholderEventPreviewCard(),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: PlaceholderEventPreviewCard(),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: PlaceholderEventPreviewCard(),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: PlaceholderEventPreviewCard(),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: PlaceholderEventPreviewCard(),
+            ),
+          ], const SizedBox.square(dimension: 4)),
     );
   }
 }

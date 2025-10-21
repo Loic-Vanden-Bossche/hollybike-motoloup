@@ -53,17 +53,14 @@ class _FormBuilderState extends State<FormBuilder> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: addSeparators(
         _renderHeader() + _renderError() + _renderTextInputs(),
-        const SizedBox(height: 16)
+        const SizedBox(height: 16),
       ),
     );
   }
 
   List<Widget> _renderHeader() {
     return <Widget>[
-      FormTitle(
-        title: widget.title,
-        description: widget.description,
-      ),
+      FormTitle(title: widget.title, description: widget.description),
     ];
   }
 

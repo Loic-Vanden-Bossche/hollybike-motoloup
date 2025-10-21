@@ -5,7 +5,9 @@
 import 'package:flutter/material.dart';
 
 Future<void> showEventDiscardChangesDialog(
-    BuildContext context, void Function() onConfirm) {
+  BuildContext context,
+  void Function() onConfirm,
+) {
   return showDialog<void>(
     context: context,
     builder: (BuildContext context) {

@@ -20,21 +20,19 @@ class ScrollablePlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(builder: (context, constraints) {
-      return SingleChildScrollView(
-        physics: physics,
-        child: SizedBox(
-          height: constraints.biggest.height,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: padding,
-            ),
-            child: Center(
-              child: child,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return SingleChildScrollView(
+          physics: physics,
+          child: SizedBox(
+            height: constraints.biggest.height,
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: padding),
+              child: Center(child: child),
             ),
           ),
-        ),
-      );
-    });
+        );
+      },
+    );
   }
 }

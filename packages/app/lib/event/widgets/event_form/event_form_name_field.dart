@@ -7,10 +7,7 @@ import 'package:flutter/material.dart';
 class EventFormNameField extends StatelessWidget {
   final TextEditingController nameController;
 
-  const EventFormNameField({
-    super.key,
-    required this.nameController,
-  });
+  const EventFormNameField({super.key, required this.nameController});
 
   @override
   Widget build(BuildContext context) {

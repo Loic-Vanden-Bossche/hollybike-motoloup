@@ -62,7 +62,7 @@ sealed class Position with _$Position {
     }
   }
 
-  static getIcon(PositionType positionType) {
+  static IconData getIcon(PositionType positionType) {
     switch (positionType) {
       case PositionType.restaurant:
         return Icons.restaurant_rounded;

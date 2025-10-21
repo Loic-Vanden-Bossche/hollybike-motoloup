@@ -50,40 +50,43 @@ class EventParticipationsPreview extends StatelessWidget {
                     (previewParticipants.length * avatarRadius) + avatarRadius,
                 child: Stack(
                   alignment: Alignment.topLeft,
-                  children: previewParticipants.asMap().entries.map((entry) {
-                    final participation = entry.value;
-                    final index = entry.key;
+                  children:
+                      previewParticipants.asMap().entries.map((entry) {
+                        final participation = entry.value;
+                        final index = entry.key;
 
-                    final avatar = Hero(
-                      tag:
-                          "profile_picture_participation_${participation.user.id}",
-                      child: Container(
-                        width: avatarSize,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            width: borderSize,
+                        final avatar = Hero(
+                          tag:
+                              "profile_picture_participation_${participation.user.id}",
+                          child: Container(
+                            width: avatarSize,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              border: Border.all(
+                                color:
+                                    Theme.of(context).scaffoldBackgroundColor,
+                                width: borderSize,
+                              ),
+                            ),
+                            child: UserProfilePicture(
+                              url: participation.user.profilePicture,
+                              profilePictureKey:
+                                  participation.user.profilePictureKey,
+                              radius: avatarRadius,
+                            ),
                           ),
-                        ),
-                        child: UserProfilePicture(
-                          url: participation.user.profilePicture,
-                          profilePictureKey: participation.user.profilePictureKey,
-                          radius: avatarRadius,
-                        ),
-                      ),
-                    );
+                        );
 
-                    if (index == 0) {
-                      return avatar;
-                    }
+                        if (index == 0) {
+                          return avatar;
+                        }
 
-                    return Positioned(
-                      top: -borderSize,
-                      left: avatarRadius * index.toDouble(),
-                      child: avatar,
-                    );
-                  }).toList(),
+                        return Positioned(
+                          top: -borderSize,
+                          left: avatarRadius * index.toDouble(),
+                          child: avatar,
+                        );
+                      }).toList(),
                 ),
               ),
               const SizedBox(width: 8),

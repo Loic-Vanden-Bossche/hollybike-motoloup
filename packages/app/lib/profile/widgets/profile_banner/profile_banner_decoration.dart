@@ -7,10 +7,7 @@ import 'package:flutter/material.dart';
 class ProfileBannerDecoration extends StatelessWidget {
   final Widget profilePicture;
 
-  const ProfileBannerDecoration({
-    super.key,
-    required this.profilePicture,
-  });
+  const ProfileBannerDecoration({super.key, required this.profilePicture});
 
   @override
   Widget build(BuildContext context) {

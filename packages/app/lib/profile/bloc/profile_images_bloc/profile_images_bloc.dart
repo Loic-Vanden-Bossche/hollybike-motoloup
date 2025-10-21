@@ -18,10 +18,8 @@ class ProfileImagesBloc extends ImageListBloc<ProfileImagesEvent> {
 
   final ImageRepository imageRepository;
 
-  ProfileImagesBloc({
-    required this.userId,
-    required this.imageRepository,
-  }) : super(ImageListInitial()) {
+  ProfileImagesBloc({required this.userId, required this.imageRepository})
+    : super(ImageListInitial()) {
     on<LoadProfileImagesNextPage>(_onLoadProfileImagesNextPage);
     on<RefreshProfileImages>(_onRefreshProfileImages);
   }
@@ -43,49 +41,54 @@ class ProfileImagesBloc extends ImageListBloc<ProfileImagesEvent> {
         numberOfImagesPerRequest,
       );
 
-      emit(ImageListPageLoadSuccess(state.copyWith(
-        images: [...state.images, ...page.items],
-        hasMore: page.items.length == numberOfImagesPerRequest,
-        nextPage: state.nextPage + 1,
-      )));
+      emit(
+        ImageListPageLoadSuccess(
+          state.copyWith(
+            images: [...state.images, ...page.items],
+            hasMore: page.items.length == numberOfImagesPerRequest,
+            nextPage: state.nextPage + 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while loading next page of images', error: e);
-      emit(ImageListPageLoadFailure(
-        state.copyWith(
-          hasMore: false,
+      emit(
+        ImageListPageLoadFailure(
+          state.copyWith(hasMore: false),
+          errorMessage: 'Une erreur est survenue.',
         ),
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      );
       return;
     }
   }
 
-  _onRefreshProfileImages(
+  Future<void> _onRefreshProfileImages(
     RefreshProfileImages event,
     Emitter<ImageListState> emit,
   ) async {
     emit(ImageListPageLoadInProgress(state));
 
     try {
-      PaginatedList<EventImage> page =
-          await imageRepository.refreshProfileImages(
-        userId,
-        numberOfImagesPerRequest,
-      );
+      PaginatedList<EventImage> page = await imageRepository
+          .refreshProfileImages(userId, numberOfImagesPerRequest);
 
-      emit(ImageListPageLoadSuccess(state.copyWith(
-        images: page.items,
-        hasMore: page.items.length == numberOfImagesPerRequest,
-        nextPage: 1,
-      )));
+      emit(
+        ImageListPageLoadSuccess(
+          state.copyWith(
+            images: page.items,
+            hasMore: page.items.length == numberOfImagesPerRequest,
+            nextPage: 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while refreshing images', error: e);
-      emit(ImageListPageLoadFailure(
-        state.copyWith(
-          hasMore: false,
+      emit(
+        ImageListPageLoadFailure(
+          state.copyWith(hasMore: false),
+          errorMessage: 'Une erreur est survenue.',
         ),
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      );
       return;
     }
   }

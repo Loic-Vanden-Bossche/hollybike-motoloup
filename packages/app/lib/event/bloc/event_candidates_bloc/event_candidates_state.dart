@@ -29,13 +29,13 @@ class EventCandidatesState {
   });
 
   EventCandidatesState.state(EventCandidatesState state)
-      : this(
-          candidates: state.candidates,
-          search: state.search,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: state.status,
-        );
+    : this(
+        candidates: state.candidates,
+        search: state.search,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: state.status,
+      );
 
   EventCandidatesState copyWith({
     EventCandidatesStatus? status,
@@ -59,36 +59,38 @@ class EventCandidatesInitial extends EventCandidatesState {}
 
 class EventCandidatesPageLoadInProgress extends EventCandidatesState {
   EventCandidatesPageLoadInProgress(EventCandidatesState state)
-      : super.state(state.copyWith(status: EventCandidatesStatus.loading));
+    : super.state(state.copyWith(status: EventCandidatesStatus.loading));
 }
 
 class EventCandidatesPageLoadSuccess extends EventCandidatesState {
   EventCandidatesPageLoadSuccess(EventCandidatesState state)
-      : super.state(state.copyWith(status: EventCandidatesStatus.success));
+    : super.state(state.copyWith(status: EventCandidatesStatus.success));
 }
 
 class EventCandidatesPageLoadFailure extends EventCandidatesState {
   final String errorMessage;
 
-  EventCandidatesPageLoadFailure(EventCandidatesState state,
-      {required this.errorMessage})
-      : super.state(state.copyWith(status: EventCandidatesStatus.error));
+  EventCandidatesPageLoadFailure(
+    EventCandidatesState state, {
+    required this.errorMessage,
+  }) : super.state(state.copyWith(status: EventCandidatesStatus.error));
 }
 
 class EventAddCandidatesInProgress extends EventCandidatesState {
   EventAddCandidatesInProgress(EventCandidatesState state)
-      : super.state(state.copyWith(status: EventCandidatesStatus.loading));
+    : super.state(state.copyWith(status: EventCandidatesStatus.loading));
 }
 
 class EventAddCandidatesSuccess extends EventCandidatesState {
   EventAddCandidatesSuccess(EventCandidatesState state)
-      : super.state(state.copyWith(status: EventCandidatesStatus.success));
+    : super.state(state.copyWith(status: EventCandidatesStatus.success));
 }
 
 class EventAddCandidatesFailure extends EventCandidatesState {
   final String errorMessage;
 
-  EventAddCandidatesFailure(EventCandidatesState state,
-      {required this.errorMessage})
-      : super.state(state.copyWith(status: EventCandidatesStatus.error));
+  EventAddCandidatesFailure(
+    EventCandidatesState state, {
+    required this.errorMessage,
+  }) : super.state(state.copyWith(status: EventCandidatesStatus.error));
 }

@@ -41,11 +41,9 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
   void initState() {
     super.initState();
 
-    BlocProvider.of<EventImageDetailsBloc>(context).add(
-      GetEventImageDetails(
-        imageId: widget.image.id,
-      ),
-    );
+    BlocProvider.of<EventImageDetailsBloc>(
+      context,
+    ).add(GetEventImageDetails(imageId: widget.image.id));
   }
 
   @override
@@ -92,21 +90,15 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 10),
-                    child: Row(
-                      children: _buildActions(),
-                    ),
+                    child: Row(children: _buildActions()),
                   ),
-                  Divider(
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
+                  Divider(color: Theme.of(context).colorScheme.onPrimary),
                   BlocBuilder<EventImageDetailsBloc, EventImageDetailsState>(
                     builder: (context, state) {
                       if (state is EventImageDetailsLoadInProgress) {
                         return const SizedBox(
                           height: 200,
-                          child: Center(
-                            child: CircularProgressIndicator(),
-                          ),
+                          child: Center(child: CircularProgressIndicator()),
                         );
                       }
 
@@ -118,7 +110,7 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
                         imageDetails: state.imageDetails as EventImageDetails,
                       );
                     },
-                  )
+                  ),
                 ],
               ),
             ),
@@ -171,19 +163,15 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
     final directory = Directory.systemTemp;
     final imagePath = await _downloadImageToPath(directory.path);
 
-    Share.shareXFiles(
-      [XFile(imagePath)],
-      text: "Partage de l'image depuis Hollybike",
-    );
+    Share.shareXFiles([
+      XFile(imagePath),
+    ], text: "Partage de l'image depuis Hollybike");
   }
 
   void _onDownloadImage() {
     context.read<EventImageDetailsBloc>().add(
-          DownloadImage(
-            imageUrl: widget.image.url,
-            imgId: widget.image.id,
-          ),
-        );
+      DownloadImage(imageUrl: widget.image.url, imgId: widget.image.id),
+    );
   }
 
   void _onDeleteImage() {
@@ -192,8 +180,9 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
       builder: (modalContext) {
         return AlertDialog(
           title: const Text("Suppression de l'image"),
-          content:
-              const Text("Êtes-vous sûr de vouloir supprimer cette image ?"),
+          content: const Text(
+            "Êtes-vous sûr de vouloir supprimer cette image ?",
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -204,10 +193,8 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
             TextButton(
               onPressed: () {
                 context.read<EventImageDetailsBloc>().add(
-                      DeleteImage(
-                        imageId: widget.image.id,
-                      ),
-                    );
+                  DeleteImage(imageId: widget.image.id),
+                );
 
                 Navigator.of(modalContext).pop();
               },

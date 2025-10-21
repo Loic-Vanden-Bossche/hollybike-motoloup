@@ -9,21 +9,12 @@ class JourneyImage extends StatelessWidget {
   final String? imageKey;
   final String? imageUrl;
 
-  const JourneyImage({
-    super.key,
-    this.imageKey,
-    this.imageUrl,
-  });
+  const JourneyImage({super.key, this.imageKey, this.imageUrl});
 
   @override
   Widget build(BuildContext context) {
     if (imageUrl == null) {
-      return const Center(
-        child: Icon(
-          CupertinoIcons.map,
-          size: 48,
-        ),
-      );
+      return const Center(child: Icon(CupertinoIcons.map, size: 48));
     }
 
     return CachedNetworkImage(

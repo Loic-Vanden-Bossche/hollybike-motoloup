@@ -27,7 +27,7 @@ class WeatherForecastCard extends StatelessWidget {
         SizedBox(
           height: 120,
           child: _buildWeatherForecastCardContent(context, destination),
-        )
+        ),
       ],
     );
   }
@@ -38,7 +38,8 @@ class WeatherForecastCard extends StatelessWidget {
   ) {
     final startDate = eventDetails.event.startDate;
 
-    final endDate = eventDetails.event.endDate ?? startDate.add(const Duration(hours: 4));
+    final endDate =
+        eventDetails.event.endDate ?? startDate.add(const Duration(hours: 4));
 
     if (endDate.isBefore(DateTime.now())) {
       return const WeatherForecastEmptyCard(

@@ -12,16 +12,14 @@ abstract class WebsocketBody {
   final String type = '';
 }
 
-
 @Freezed(genericArgumentFactories: true)
-sealed class WebsocketMessage<T extends WebsocketBody> with _$WebsocketMessage<T> {
-  const factory WebsocketMessage({
-    required String channel,
-    required T data,
-  }) = _WebsocketMessage<T>;
+sealed class WebsocketMessage<T extends WebsocketBody>
+    with _$WebsocketMessage<T> {
+  const factory WebsocketMessage({required String channel, required T data}) =
+      _WebsocketMessage<T>;
 
   factory WebsocketMessage.fromJson(
-      JsonMap json,
-      T Function(Object? json) fromJsonT,
-      ) => _$WebsocketMessageFromJson(json, fromJsonT);
+    JsonMap json,
+    T Function(Object? json) fromJsonT,
+  ) => _$WebsocketMessageFromJson(json, fromJsonT);
 }

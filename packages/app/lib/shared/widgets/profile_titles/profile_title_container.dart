@@ -8,22 +8,14 @@ import 'package:hollybike/shared/utils/add_separators.dart';
 class ProfileTitleContainer extends StatelessWidget {
   final List<Widget> children;
 
-  const ProfileTitleContainer({
-    super.key,
-    required this.children,
-  });
+  const ProfileTitleContainer({super.key, required this.children});
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
-      children: addSeparators(
-        children,
-        const SizedBox(
-          height: 4,
-        ),
-      ),
+      children: addSeparators(children, const SizedBox(height: 4)),
     );
   }
 }

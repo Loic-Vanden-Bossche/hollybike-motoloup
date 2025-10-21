@@ -21,14 +21,11 @@ class ImagePickerModalHeader extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: onClose,
-        ),
+        IconButton(icon: const Icon(Icons.close), onPressed: onClose),
         ElevatedButton(
           onPressed: canSubmit ? onSubmit : null,
           child: const Text("Ajouter"),
-        )
+        ),
       ],
     );
   }

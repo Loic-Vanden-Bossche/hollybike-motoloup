@@ -14,35 +14,25 @@ class SubscribeToEventCandidates extends EventCandidatesEvent {
 class LoadEventCandidatesNextPage extends EventCandidatesEvent {
   final int eventId;
 
-  LoadEventCandidatesNextPage({
-    required this.eventId,
-  });
+  LoadEventCandidatesNextPage({required this.eventId});
 }
 
 class RefreshEventCandidates extends EventCandidatesEvent {
   final int eventId;
 
-  RefreshEventCandidates({
-    required this.eventId,
-  });
+  RefreshEventCandidates({required this.eventId});
 }
 
 class SearchCandidates extends EventCandidatesEvent {
   final int eventId;
   final String search;
 
-  SearchCandidates({
-    required this.eventId,
-    required this.search,
-  });
+  SearchCandidates({required this.eventId, required this.search});
 }
 
 class AddCandidates extends EventCandidatesEvent {
   final int eventId;
   final List<int> userIds;
 
-  AddCandidates({
-    required this.eventId,
-    required this.userIds,
-  });
+  AddCandidates({required this.eventId, required this.userIds});
 }

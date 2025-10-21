@@ -89,23 +89,16 @@ class EventDetailsImages extends StatelessWidget {
       ]);
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: widgets,
-    );
+    return Column(mainAxisSize: MainAxisSize.min, children: widgets);
   }
 
   Future<void> _refreshImages(BuildContext context) {
-    context.read<EventImagesBloc>().add(
-          RefreshEventImages(),
-        );
+    context.read<EventImagesBloc>().add(RefreshEventImages());
 
     return context.read<EventImagesBloc>().firstWhenNotLoading;
   }
 
   void _loadNextPage(BuildContext context) {
-    context.read<EventImagesBloc>().add(
-          LoadEventImagesNextPage(),
-        );
+    context.read<EventImagesBloc>().add(LoadEventImagesNextPage());
   }
 }

@@ -59,9 +59,7 @@ class _JourneyMapState extends State<JourneyMap> {
             child: IgnorePointer(
               child: Container(
                 color: Theme.of(context).scaffoldBackgroundColor,
-                child: const Center(
-                  child: CircularProgressIndicator(),
-                ),
+                child: const Center(child: CircularProgressIndicator()),
               ),
             ),
           ),
@@ -81,89 +79,93 @@ class _JourneyMapState extends State<JourneyMap> {
   }
 
   void _onMapCreated(MapboxMap map) {
+    print("hello");
     final isDark = BlocProvider.of<ThemeBloc>(context).state.isDark;
     final file = widget.journey?.file;
 
     waitConcurrently(
-      map.loadStyleURI(isDark
-          ? "mapbox://styles/mapbox/navigation-night-v1"
-          : "mapbox://styles/mapbox/navigation-day-v1"),
-      file == null ? Future.value(null) : _getGeoJsonData(file),
-    ).then((values) async {
-      final (_, geoJsonRaw) = values;
-      setState(() {
-        currentPositions = {};
-      });
-
-      await Future.wait([
-        if (geoJsonRaw != null)
-          map.style.addSource(
-            GeoJsonSource(
-              id: 'tracks',
-              data: geoJsonRaw,
-            ),
+          map.loadStyleURI(
+            isDark
+                ? "mapbox://styles/mapbox/navigation-night-v1"
+                : "mapbox://styles/mapbox/navigation-day-v1",
           ),
-        map.style.setLights(
-          AmbientLight(id: 'ambient-light', intensity: isDark ? 0.5 : 1),
-          DirectionalLight(
-            castShadows: true,
-            shadowIntensity: 1,
-            id: 'directional-light',
-            intensity: isDark ? 0.5 : 1,
-            color: 0XFFEC9F53,
-            direction: [0, 90],
-          ),
-        ),
-        map.style.addLayerAt(
-            LineLayer(
-              id: 'tracks-layer',
-              sourceId: 'tracks',
-              lineJoin: LineJoin.ROUND,
-              lineCap: LineCap.ROUND,
-              lineColor: 0xFF3457D5,
-              lineWidth: 5,
-              lineEmissiveStrength: 1,
+          file == null ? Future.value(null) : _getGeoJsonData(file),
+        )
+        .then((values) async {
+          print("loaded");
+          print(values);
+          final (_, geoJsonRaw) = values;
+          setState(() {
+            currentPositions = {};
+          });
+
+          await Future.wait([
+            if (geoJsonRaw != null)
+              map.style.addSource(
+                GeoJsonSource(id: 'tracks', data: geoJsonRaw),
+              ),
+            map.style.setLights(
+              AmbientLight(id: 'ambient-light', intensity: isDark ? 0.5 : 1),
+              DirectionalLight(
+                castShadows: true,
+                shadowIntensity: 1,
+                id: 'directional-light',
+                intensity: isDark ? 0.5 : 1,
+                color: 0XFFEC9F53,
+                direction: [0, 90],
+              ),
             ),
-            LayerPosition(
-              above: 'traffic-bridge-road-link-navigation',
-            )),
-        // map.style.addLayerAt(
-        //   FillExtrusionLayer(
-        //     id: '3d-buildings',
-        //     sourceId: 'composite',
-        //     sourceLayer: 'building',
-        //     fillExtrusionOpacity: 0.8,
-        //     fillExtrusionColor: 0XFF515E72,
-        //   ),
-        //   LayerPosition(
-        //     above: 'tracks-layer',
-        //   ),
-        // ),
-        // map.style.setStyleLayerProperty(
-        //   "3d-buildings",
-        //   "fill-extrusion-height",
-        //   '[ "interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "height"] ]',
-        // ),
-        // map.style.setStyleLayerProperty(
-        //   "3d-buildings",
-        //   "fill-extrusion-base",
-        //   '[ "interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"] ]',
-        // ),
-        map.annotations.createPointAnnotationManager().then(
-          (pointManager) async {
-            final journeyPositionManager = JourneyPositionManager(
-              pointManager: pointManager,
-              context: context,
-            );
-            final userPositionsBloc = BlocProvider.of<UserPositionsBloc>(
-              context,
-            );
+            map.style.addLayerAt(
+              LineLayer(
+                id: 'tracks-layer',
+                sourceId: 'tracks',
+                lineJoin: LineJoin.ROUND,
+                lineCap: LineCap.ROUND,
+                lineColor: 0xFF3457D5,
+                lineWidth: 5,
+                lineEmissiveStrength: 1,
+              ),
+              LayerPosition(above: 'traffic-bridge-road-link-navigation'),
+            ),
+            // map.style.addLayerAt(
+            //   FillExtrusionLayer(
+            //     id: '3d-buildings',
+            //     sourceId: 'composite',
+            //     sourceLayer: 'building',
+            //     fillExtrusionOpacity: 0.8,
+            //     fillExtrusionColor: 0XFF515E72,
+            //   ),
+            //   LayerPosition(
+            //     above: 'tracks-layer',
+            //   ),
+            // ),
+            // map.style.setStyleLayerProperty(
+            //   "3d-buildings",
+            //   "fill-extrusion-height",
+            //   '[ "interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "height"] ]',
+            // ),
+            // map.style.setStyleLayerProperty(
+            //   "3d-buildings",
+            //   "fill-extrusion-base",
+            //   '[ "interpolate", ["linear"], ["zoom"], 15, 0, 15.05, ["get", "min_height"] ]',
+            // ),
+            map.annotations.createPointAnnotationManager().then((
+              pointManager,
+            ) async {
+              final journeyPositionManager = JourneyPositionManager(
+                pointManager: pointManager,
+                context: context,
+              );
+              final userPositionsBloc = BlocProvider.of<UserPositionsBloc>(
+                context,
+              );
 
-            Timer(const Duration(seconds: 1), () {
-              journeyPositionManager.updatePositions(userPositionsBloc.state.userPositions);
+              Timer(const Duration(seconds: 1), () {
+                journeyPositionManager.updatePositions(
+                  userPositionsBloc.state.userPositions,
+                );
 
-              userPositionsBloc.stream.listen(
-                    (state) {
+                userPositionsBloc.stream.listen((state) {
                   journeyPositionManager.updatePositions(state.userPositions);
                   _setCameraOptions(
                     geoJsonRaw,
@@ -171,44 +173,42 @@ class _JourneyMapState extends State<JourneyMap> {
                     map,
                     updateMode: true,
                   );
-                },
-              );
-            });
-          },
-        ),
-      ]);
+                });
+              });
+            }),
+          ]);
 
-      final cameraOptions = await _setCameraOptions(
-        geoJsonRaw,
-        widget.userPositions,
-        map,
-      );
+          final cameraOptions = await _setCameraOptions(
+            geoJsonRaw,
+            widget.userPositions,
+            map,
+          );
 
-      setState(() {
-        _mapLoading = false;
-      });
+          setState(() {
+            _mapLoading = false;
+          });
 
-      widget.onMapLoaded();
+          widget.onMapLoaded();
 
-      await map.easeTo(
-        CameraOptions(
-          center: cameraOptions.center,
-          zoom: (cameraOptions.zoom ?? 0) + 0.9,
-          bearing: cameraOptions.bearing,
-          pitch: cameraOptions.pitch,
-        ),
-        MapAnimationOptions(
-          duration: 600,
-        ),
-      );
-    }).catchError((error) {
-      if (kDebugMode) {
-        print("Error loading map: $error");
-      }
-      setState(() {
-        _mapLoading = false;
-      });
-    });
+          await map.easeTo(
+            CameraOptions(
+              center: cameraOptions.center,
+              zoom: (cameraOptions.zoom ?? 0) + 0.9,
+              bearing: cameraOptions.bearing,
+              pitch: cameraOptions.pitch,
+            ),
+            MapAnimationOptions(duration: 600),
+          );
+        })
+        .catchError((error) {
+          print("EEERR");
+          if (kDebugMode) {
+            print("Error loading map: $error");
+          }
+          setState(() {
+            _mapLoading = false;
+          });
+        });
   }
 
   Future<CameraOptions> _setCameraOptions(
@@ -217,56 +217,39 @@ class _JourneyMapState extends State<JourneyMap> {
     MapboxMap map, {
     bool updateMode = false,
   }) async {
-    final userCoordinates = userPositions
-        .map(
-          (position) => Coordinate(
-            longitude: position.longitude,
-            latitude: position.latitude,
-          ),
-        )
-        .toList();
+    final userCoordinates =
+        userPositions
+            .map(
+              (position) => Coordinate(
+                longitude: position.longitude,
+                latitude: position.latitude,
+              ),
+            )
+            .toList();
 
-    final bbox = geoJsonRaw == null
-        ? GeoJSON.calculateBbox(userCoordinates)
-        : GeoJSON.fromJsonString(geoJsonRaw).dynamicBBox(
-            extraValues: userCoordinates,
-          );
+    final bbox =
+        geoJsonRaw == null
+            ? GeoJSON.calculateBbox(userCoordinates)
+            : GeoJSON.fromJsonString(
+              geoJsonRaw,
+            ).dynamicBBox(extraValues: userCoordinates);
 
     final bounds = CoordinateBounds(
-      southwest: Point(
-        coordinates: Position(
-          bbox[0],
-          bbox[1],
-        ),
-      ),
-      northeast: Point(
-        coordinates: Position(
-          bbox[2],
-          bbox[3],
-        ),
-      ),
+      southwest: Point(coordinates: Position(bbox[0], bbox[1])),
+      northeast: Point(coordinates: Position(bbox[2], bbox[3])),
       infiniteBounds: false,
     );
 
     final cameraOptions = await map.cameraForCoordinateBounds(
       bounds,
-      MbxEdgeInsets(
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-      ),
+      MbxEdgeInsets(top: 0, left: 0, right: 0, bottom: 0),
       null,
       30,
       null,
       null,
     );
 
-    await map.setBounds(
-      CameraBoundsOptions(
-        bounds: bounds,
-      ),
-    );
+    await map.setBounds(CameraBoundsOptions(bounds: bounds));
 
     if (!updateMode) {
       await map.setCamera(cameraOptions);

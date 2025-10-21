@@ -10,25 +10,18 @@ abstract class EventImageDetailsEvent {}
 class GetEventImageDetails extends EventImageDetailsEvent {
   final int imageId;
 
-  GetEventImageDetails({
-    required this.imageId,
-  });
+  GetEventImageDetails({required this.imageId});
 }
 
 class DeleteImage extends EventImageDetailsEvent {
   final int imageId;
 
-  DeleteImage({
-    required this.imageId,
-  });
+  DeleteImage({required this.imageId});
 }
 
 class DownloadImage extends EventImageDetailsEvent {
   final String imageUrl;
   final int imgId;
 
-  DownloadImage({
-    required this.imageUrl,
-    required this.imgId,
-  });
+  DownloadImage({required this.imageUrl, required this.imgId});
 }

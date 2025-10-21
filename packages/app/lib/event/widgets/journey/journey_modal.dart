@@ -35,11 +35,7 @@ class JourneyModal extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
-          top: 16,
-          left: 16,
-          right: 16,
-        ),
+        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -50,10 +46,7 @@ class JourneyModal extends StatelessWidget {
                 canEditJourney: eventDetails.canEditJourney,
               ),
               const SizedBox(height: 14),
-              JourneyLocation(
-                journey: journey,
-                sizeFactor: 1.5,
-              ),
+              JourneyLocation(journey: journey, sizeFactor: 1.5),
               const SizedBox(height: 14),
               ClipRRect(
                 borderRadius: BorderRadius.circular(16),
@@ -65,10 +58,7 @@ class JourneyModal extends StatelessWidget {
               const SizedBox(height: 14),
               Row(
                 children: [
-                  const Icon(
-                    Icons.route_outlined,
-                    size: 28,
-                  ),
+                  const Icon(Icons.route_outlined, size: 28),
                   const SizedBox(width: 8),
                   Text(
                     journey.distanceLabel,
@@ -77,10 +67,7 @@ class JourneyModal extends StatelessWidget {
                   const Spacer(),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.north_east_rounded,
-                        size: 20,
-                      ),
+                      const Icon(Icons.north_east_rounded, size: 20),
                       const SizedBox(width: 5),
                       Text(
                         '${journey.totalElevationGain} m',
@@ -90,10 +77,7 @@ class JourneyModal extends StatelessWidget {
                   ),
                   Row(
                     children: [
-                      const Icon(
-                        Icons.south_east_rounded,
-                        size: 20,
-                      ),
+                      const Icon(Icons.south_east_rounded, size: 20),
                       const SizedBox(width: 5),
                       Text(
                         '${journey.totalElevationLoss} m',
@@ -105,38 +89,29 @@ class JourneyModal extends StatelessWidget {
               ),
               const SizedBox(height: 10),
               Row(
-                children: addSeparators(
-                  [
-                    const Spacer(),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.vertical_align_bottom_rounded,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          '${journey.minElevation} m',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        const Icon(
-                          Icons.terrain_rounded,
-                          size: 20,
-                        ),
-                        const SizedBox(width: 5),
-                        Text(
-                          '${journey.maxElevation} m',
-                          style: Theme.of(context).textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  ],
-                  const SizedBox(width: 8),
-                ),
+                children: addSeparators([
+                  const Spacer(),
+                  Row(
+                    children: [
+                      const Icon(Icons.vertical_align_bottom_rounded, size: 20),
+                      const SizedBox(width: 5),
+                      Text(
+                        '${journey.minElevation} m',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      const Icon(Icons.terrain_rounded, size: 20),
+                      const SizedBox(width: 5),
+                      Text(
+                        '${journey.maxElevation} m',
+                        style: Theme.of(context).textTheme.bodySmall,
+                      ),
+                    ],
+                  ),
+                ], const SizedBox(width: 8)),
               ),
               const SizedBox(height: 10),
             ],

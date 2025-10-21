@@ -27,11 +27,7 @@ class _ProfileModalState extends State<ProfileModal> {
     return Container(
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.primary,
-        border: Border(
-          top: border,
-          left: border,
-          right: border,
-        ),
+        border: Border(top: border, left: border, right: border),
         borderRadius: const BorderRadius.only(
           topLeft: Radius.circular(31),
           topRight: Radius.circular(31),
@@ -46,9 +42,10 @@ class _ProfileModalState extends State<ProfileModal> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 ElevatedButton(
-                  onPressed: () => setState(() {
-                    inEditMode = !inEditMode;
-                  }),
+                  onPressed:
+                      () => setState(() {
+                        inEditMode = !inEditMode;
+                      }),
                   style: ElevatedButton.styleFrom(
                     backgroundColor:
                         Theme.of(context).colorScheme.primaryContainer,

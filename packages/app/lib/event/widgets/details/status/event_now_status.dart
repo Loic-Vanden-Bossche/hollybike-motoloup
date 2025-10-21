@@ -25,7 +25,7 @@ class EventNowStatus extends StatelessWidget {
     this.isCurrentEvent = false,
   });
 
-  get canTerminateJourney =>
+  bool get canTerminateJourney =>
       eventDetails.callerParticipation?.journey == null &&
       eventDetails.callerParticipation?.hasRecordedPositions == true;
 
@@ -50,41 +50,37 @@ class EventNowStatus extends StatelessWidget {
     }
 
     return () => {
-          showDialog(
-            context: context,
-            builder: (_) {
-              return AlertDialog(
-                title: const Text("Terminer le parcours"),
-                content: const Text(
-                  "Êtes-vous sûr de vouloir terminer le parcours ? Vous ne pourrez plus partager votre position en temps réel.",
-                ),
-                actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text("Annuler"),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      Navigator.of(context).pop();
+      showDialog(
+        context: context,
+        builder: (_) {
+          return AlertDialog(
+            title: const Text("Terminer le parcours"),
+            content: const Text(
+              "Êtes-vous sûr de vouloir terminer le parcours ? Vous ne pourrez plus partager votre position en temps réel.",
+            ),
+            actions: [
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+                child: const Text("Annuler"),
+              ),
+              TextButton(
+                onPressed: () {
+                  Navigator.of(context).pop();
 
-                      context.read<EventDetailsBloc>().add(
-                            TerminateUserJourney(),
-                          );
+                  context.read<EventDetailsBloc>().add(TerminateUserJourney());
 
-                      if (isCurrentEvent) {
-                        context.read<MyPositionBloc>().add(
-                          DisableSendPositions(),
-                        );
-                      }
-                    },
-                    child: const Text("Terminer"),
-                  ),
-                ],
-              );
-            },
-          ),
-        };
+                  if (isCurrentEvent) {
+                    context.read<MyPositionBloc>().add(DisableSendPositions());
+                  }
+                },
+                child: const Text("Terminer"),
+              ),
+            ],
+          );
+        },
+      ),
+    };
   }
 }

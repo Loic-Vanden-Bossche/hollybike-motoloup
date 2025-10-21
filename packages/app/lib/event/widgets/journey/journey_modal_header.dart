@@ -13,10 +13,7 @@ import 'package:hollybike/event/types/event.dart';
 import 'package:hollybike/event/widgets/journey/journey_import_modal_from_type.dart';
 import 'package:hollybike/event/widgets/journey/upload_journey_menu.dart';
 
-enum JourneyModalAction {
-  update,
-  delete,
-}
+enum JourneyModalAction { update, delete }
 
 class JourneyModalHeader extends StatelessWidget {
   final void Function() onViewOnMap;
@@ -48,39 +45,34 @@ class JourneyModalHeader extends StatelessWidget {
     if (canEditJourney) {
       actions.add(
         PopupMenuButton<JourneyModalAction>(
-          onSelected: (action) => _onActionsSelected(
-            context,
-            action,
-          ),
-          itemBuilder: (context) => [
-            PopupMenuItem(
-              value: JourneyModalAction.update,
-              child: UploadJourneyMenu(
-                event: event,
-                onSelection: (type) => _onUpdateJourney(
-                  context,
-                  type,
+          onSelected: (action) => _onActionsSelected(context, action),
+          itemBuilder:
+              (context) => [
+                PopupMenuItem(
+                  value: JourneyModalAction.update,
+                  child: UploadJourneyMenu(
+                    event: event,
+                    onSelection: (type) => _onUpdateJourney(context, type),
+                    child: const Row(
+                      children: [
+                        Icon(Icons.swap_calls_rounded),
+                        SizedBox(width: 8),
+                        Text('Changer de parcours'),
+                      ],
+                    ),
+                  ),
                 ),
-                child: const Row(
-                  children: [
-                    Icon(Icons.swap_calls_rounded),
-                    SizedBox(width: 8),
-                    Text('Changer de parcours'),
-                  ],
+                const PopupMenuItem(
+                  value: JourneyModalAction.delete,
+                  child: Row(
+                    children: [
+                      Icon(Icons.remove_circle),
+                      SizedBox(width: 8),
+                      Text('Retirer le parcours'),
+                    ],
+                  ),
                 ),
-              ),
-            ),
-            const PopupMenuItem(
-              value: JourneyModalAction.delete,
-              child: Row(
-                children: [
-                  Icon(Icons.remove_circle),
-                  SizedBox(width: 8),
-                  Text('Retirer le parcours'),
-                ],
-              ),
-            ),
-          ],
+              ],
         ),
       );
     }
@@ -93,9 +85,10 @@ class JourneyModalHeader extends StatelessWidget {
     );
 
     return Row(
-      mainAxisAlignment: actions.length > 1
-          ? MainAxisAlignment.spaceBetween
-          : MainAxisAlignment.end,
+      mainAxisAlignment:
+          actions.length > 1
+              ? MainAxisAlignment.spaceBetween
+              : MainAxisAlignment.end,
       children: actions,
     );
   }
@@ -119,10 +112,8 @@ class JourneyModalHeader extends StatelessWidget {
     _returnToDetails(context);
 
     context.read<EventJourneyBloc>().add(
-          RemoveJourneyFromEvent(
-            eventId: event.id,
-          ),
-        );
+      RemoveJourneyFromEvent(eventId: event.id),
+    );
   }
 
   void _onActionsSelected(BuildContext context, JourneyModalAction action) {

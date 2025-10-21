@@ -28,7 +28,5 @@ class RefreshUserEvents extends EventsEvent {
 class CreateEvent extends EventsEvent {
   final EventFormData formData;
 
-  CreateEvent({
-    required this.formData,
-  });
+  CreateEvent({required this.formData});
 }

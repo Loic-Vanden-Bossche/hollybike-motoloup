@@ -23,27 +23,26 @@ class UserJourneyApi {
       queryParameters: {
         'page': page,
         'per_page': userJourneysPerPage,
-        'sort': 'created_at.desc'
+        'sort': 'created_at.desc',
       },
     );
 
     return PaginatedList.fromJson(response.data, UserJourney.fromJson);
   }
 
-  Future<void> downloadUserJourneyFile(int userJourneyId, String fileName) async {
+  Future<void> downloadUserJourneyFile(
+    int userJourneyId,
+    String fileName,
+  ) async {
     await downloader.downloadFile(
       '/user-journeys/$userJourneyId/file',
       fileName,
       authenticate: true,
-      extraHeaders: {
-        'Accept': 'gpx',
-      },
+      extraHeaders: {'Accept': 'gpx'},
     );
   }
 
   Future<void> deleteUserJourney(int userJourneyId) async {
-    await client.dio.delete(
-      '/user-journeys/$userJourneyId',
-    );
+    await client.dio.delete('/user-journeys/$userJourneyId');
   }
 }

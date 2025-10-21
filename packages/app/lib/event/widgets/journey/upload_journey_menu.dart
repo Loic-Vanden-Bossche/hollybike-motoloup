@@ -5,15 +5,13 @@
 import 'package:flutter/material.dart';
 import '../../types/event.dart';
 
-enum NewJourneyType {
-  library,
-  file,
-  userJourney,
-  external,
-}
+enum NewJourneyType { library, file, userJourney, external }
 
-Future<NewJourneyType?> showUploadJourneyMenu(BuildContext context,
-    {bool includeLibrary = true, required RelativeRect position}) async {
+Future<NewJourneyType?> showUploadJourneyMenu(
+  BuildContext context, {
+  bool includeLibrary = true,
+  required RelativeRect position,
+}) async {
   final value = await showMenu(
     context: context,
     position: position,

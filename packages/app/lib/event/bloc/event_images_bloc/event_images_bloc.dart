@@ -19,10 +19,8 @@ class EventImagesBloc extends ImageListBloc<EventImagesEvent> {
   final int eventId;
   final ImageRepository imageRepository;
 
-  EventImagesBloc({
-    required this.eventId,
-    required this.imageRepository,
-  }) : super(ImageListInitial()) {
+  EventImagesBloc({required this.eventId, required this.imageRepository})
+    : super(ImageListInitial()) {
     on<LoadEventImagesNextPage>(_onLoadEventImagesNextPage);
     on<RefreshEventImages>(_onRefreshEventImages);
   }
@@ -44,19 +42,23 @@ class EventImagesBloc extends ImageListBloc<EventImagesEvent> {
         numberOfImagesPerRequest,
       );
 
-      emit(ImageListPageLoadSuccess(state.copyWith(
-        images: [...state.images, ...page.items],
-        hasMore: page.items.length == numberOfImagesPerRequest,
-        nextPage: state.nextPage + 1,
-      )));
+      emit(
+        ImageListPageLoadSuccess(
+          state.copyWith(
+            images: [...state.images, ...page.items],
+            hasMore: page.items.length == numberOfImagesPerRequest,
+            nextPage: state.nextPage + 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while loading next page of images', error: e);
-      emit(ImageListPageLoadFailure(
-        state.copyWith(
-          hasMore: false,
+      emit(
+        ImageListPageLoadFailure(
+          state.copyWith(hasMore: false),
+          errorMessage: 'Une erreur est survenue.',
         ),
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      );
       return;
     }
   }
@@ -73,19 +75,23 @@ class EventImagesBloc extends ImageListBloc<EventImagesEvent> {
         numberOfImagesPerRequest,
       );
 
-      emit(ImageListPageLoadSuccess(state.copyWith(
-        images: page.items,
-        hasMore: page.items.length == numberOfImagesPerRequest,
-        nextPage: 1,
-      )));
+      emit(
+        ImageListPageLoadSuccess(
+          state.copyWith(
+            images: page.items,
+            hasMore: page.items.length == numberOfImagesPerRequest,
+            nextPage: 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while refreshing images', error: e);
-      emit(ImageListPageLoadFailure(
-        state.copyWith(
-          hasMore: false,
+      emit(
+        ImageListPageLoadFailure(
+          state.copyWith(hasMore: false),
+          errorMessage: 'Une erreur est survenue.',
         ),
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      );
       return;
     }
   }

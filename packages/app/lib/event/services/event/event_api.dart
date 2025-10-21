@@ -24,10 +24,7 @@ class EventApi {
   final DioClient client;
   final Downloader downloader;
 
-  EventApi({
-    required this.client,
-    required this.downloader,
-  });
+  EventApi({required this.client, required this.downloader});
 
   Future<PaginatedList<MinimalEvent>> getEvents(
     String? requestType,
@@ -44,13 +41,14 @@ class EventApi {
 
     final response = await client.dio.get(
       '/events${requestType == null ? "" : "/$requestType"}',
-      queryParameters: {
-        'page': page,
-        'per_page': eventsPerPage,
-        'sort': 'start_date_time.$sortDirection',
-      }
-        ..addAll(userId == null ? {} : {"participant_id": "eq:$userId"})
-        ..addAll(query == null ? {} : {"query": query}),
+      queryParameters:
+          {
+              'page': page,
+              'per_page': eventsPerPage,
+              'sort': 'start_date_time.$sortDirection',
+            }
+            ..addAll(userId == null ? {} : {"participant_id": "eq:$userId"})
+            ..addAll(query == null ? {} : {"query": query}),
     );
 
     return PaginatedList.fromJson(response.data, MinimalEvent.fromJson);
@@ -63,10 +61,7 @@ class EventApi {
   }
 
   Future<Event> createEvent(EventFormData event) async {
-    final response = await client.dio.post(
-      '/events',
-      data: event.toJson(),
-    );
+    final response = await client.dio.post('/events', data: event.toJson());
 
     return Event.fromJson(response.data);
   }
@@ -81,60 +76,39 @@ class EventApi {
   }
 
   Future<void> publishEvent(int eventId) async {
-    await client.dio.patch(
-      '/events/$eventId/schedule',
-    );
+    await client.dio.patch('/events/$eventId/schedule');
   }
 
   Future<EventParticipation> joinEvent(int eventId) async {
-    final response = await client.dio.post(
-      '/events/$eventId/participations',
-    );
+    final response = await client.dio.post('/events/$eventId/participations');
 
     return EventParticipation.fromJson(response.data);
   }
 
   Future<void> deleteEvent(int eventId) async {
-    await client.dio.delete(
-      '/events/$eventId',
-    );
+    await client.dio.delete('/events/$eventId');
   }
 
   Future<void> leaveEvent(int eventId) async {
-    await client.dio.delete(
-      '/events/$eventId/participations',
-    );
+    await client.dio.delete('/events/$eventId/participations');
   }
 
   Future<void> cancelEvent(int eventId) async {
-    await client.dio.patch(
-      '/events/$eventId/cancel',
-    );
+    await client.dio.patch('/events/$eventId/cancel');
   }
 
-  Future<void> addJourneyToEvent(
-    int eventId,
-    int journeyId,
-  ) async {
+  Future<void> addJourneyToEvent(int eventId, int journeyId) async {
     await client.dio.post(
       '/events/$eventId/journey',
-      data: {
-        'journey_id': journeyId,
-      },
+      data: {'journey_id': journeyId},
     );
   }
 
-  Future<void> removeJourneyFromEvent(
-    int eventId,
-  ) async {
-    await client.dio.delete(
-      '/events/$eventId/journey',
-    );
+  Future<void> removeJourneyFromEvent(int eventId) async {
+    await client.dio.delete('/events/$eventId/journey');
   }
 
-  Future<UserJourney> terminateUserJourney(
-    int eventId,
-  ) async {
+  Future<UserJourney> terminateUserJourney(int eventId) async {
     final response = await client.dio.post(
       '/events/$eventId/participations/me/journey/terminate',
     );
@@ -142,18 +116,12 @@ class EventApi {
     return UserJourney.fromJson(response.data);
   }
 
-  Future<void> resetUserJourney(
-    int eventId,
-  ) async {
-    await client.dio.patch(
-      '/events/$eventId/participations/me/journey/reset',
-    );
+  Future<void> resetUserJourney(int eventId) async {
+    await client.dio.patch('/events/$eventId/participations/me/journey/reset');
   }
 
   Future<void> deleteExpense(int expenseId) async {
-    await client.dio.delete(
-      '/expenses/$expenseId',
-    );
+    await client.dio.delete('/expenses/$expenseId');
   }
 
   Future<EventExpense> addExpense(
@@ -176,10 +144,7 @@ class EventApi {
     return EventExpense.fromJson(response.data);
   }
 
-  Future<EventExpense> uploadExpenseProof(
-    int expenseId,
-    File image,
-  ) async {
+  Future<EventExpense> uploadExpenseProof(int expenseId, File image) async {
     final compressedImage = await FlutterImageCompress.compressWithFile(
       image.path,
       quality: 50,

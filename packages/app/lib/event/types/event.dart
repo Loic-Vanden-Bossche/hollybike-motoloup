@@ -33,25 +33,25 @@ sealed class Event with _$Event {
     int? budget,
   }) = _Event;
 
-  get color => getStatusColor(status);
+  Color get color => getStatusColor(status);
 
   factory Event.fromJson(JsonMap json) => _$EventFromJson(json);
 
   factory Event.empty() => Event(
-        id: 0,
-        name: "",
-        owner: MinimalUser.empty(),
-        status: EventStatusState.scheduled,
-        startDate: DateTime.now(),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+    id: 0,
+    name: "",
+    owner: MinimalUser.empty(),
+    status: EventStatusState.scheduled,
+    startDate: DateTime.now(),
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+  );
 
   ImageProvider get imageProvider => imageProviderFromDateTimeAndImage(
-        startDate,
-        image: image,
-        cacheKey: imageKey,
-      );
+    startDate,
+    image: image,
+    cacheKey: imageKey,
+  );
 
   MinimalEvent toMinimalEvent() {
     return MinimalEvent(

@@ -69,10 +69,7 @@ class ProfileBottomBarButton extends StatelessWidget {
     );
   }
 
-  Widget _profilePictureContainer(
-    BuildContext context,
-    Widget child,
-  ) {
+  Widget _profilePictureContainer(BuildContext context, Widget child) {
     return Center(
       child: Container(
         height: size,

@@ -54,7 +54,7 @@ class JourneyLibrary extends StatelessWidget {
                   ),
                 ),
               ),
-            )
+            ),
           ],
         ),
       );
@@ -70,10 +70,7 @@ class JourneyLibrary extends StatelessWidget {
         itemBuilder: (context, index) {
           final journey = journeys[index];
 
-          return JourneyLibraryCard(
-            journey: journey,
-            onSelected: onSelected,
-          );
+          return JourneyLibraryCard(journey: journey, onSelected: onSelected);
         },
       ),
     );

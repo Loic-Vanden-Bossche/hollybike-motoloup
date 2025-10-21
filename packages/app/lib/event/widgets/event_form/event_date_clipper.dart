@@ -8,10 +8,7 @@ class EventDateClipper extends CustomClipper<Path> {
   final double cornerRadius;
   final double cornerRadius2;
 
-  EventDateClipper({
-    required this.cornerRadius,
-    required this.cornerRadius2,
-  });
+  EventDateClipper({required this.cornerRadius, required this.cornerRadius2});
 
   @override
   Path getClip(Size size) {

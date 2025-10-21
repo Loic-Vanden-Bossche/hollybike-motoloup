@@ -32,14 +32,13 @@ class EventCandidatesScreen extends StatefulWidget implements AutoRouteWrapper {
   @override
   Widget wrappedRoute(context) {
     return BlocProvider<EventCandidatesBloc>(
-      create: (context) => EventCandidatesBloc(
-        eventId: eventId,
-        eventParticipationsRepository:
-            RepositoryProvider.of<EventParticipationRepository>(
-          context,
-        ),
-        eventRepository: RepositoryProvider.of<EventRepository>(context),
-      )..add(SubscribeToEventCandidates()),
+      create:
+          (context) => EventCandidatesBloc(
+            eventId: eventId,
+            eventParticipationsRepository:
+                RepositoryProvider.of<EventParticipationRepository>(context),
+            eventRepository: RepositoryProvider.of<EventRepository>(context),
+          )..add(SubscribeToEventCandidates()),
       child: this,
     );
   }
@@ -99,144 +98,145 @@ class _EventCandidatesScreenState extends State<EventCandidatesScreen> {
           context.router.maybePop();
         }
       },
-      child: Builder(builder: (context) {
-        Widget? floatingActionButton;
+      child: Builder(
+        builder: (context) {
+          Widget? floatingActionButton;
 
-        if (_selectedCandidates.isNotEmpty) {
-          floatingActionButton = FloatingActionButton.extended(
-            onPressed: _addCandidates,
-            label: Text(
-              "Ajouter ${_selectedCandidates.length} participants",
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-            icon: const Icon(Icons.add),
-          );
-        }
-
-        return Hud(
-          appBar: TopBar(
-            prefix: TopBarActionIcon(
-              onPressed: () => context.router.maybePop(),
-              icon: Icons.arrow_back,
-            ),
-            title: const TopBarTitle("Ajouter des participants"),
-          ),
-          floatingActionButton: floatingActionButton,
-          body: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                const SizedBox(height: 16),
-                TextField(
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      borderSide: BorderSide.none,
-                    ),
-                    prefixIcon: const Icon(Icons.search),
-                    labelText: "Rechercher un utilisateur",
-                    fillColor: Theme.of(context).colorScheme.primaryContainer,
-                    filled: true,
-                  ),
-                  onChanged: _onSearchCandidates,
+          if (_selectedCandidates.isNotEmpty) {
+            floatingActionButton = FloatingActionButton.extended(
+              onPressed: _addCandidates,
+              label: Text(
+                "Ajouter ${_selectedCandidates.length} participants",
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-                const SizedBox(height: 16),
-                BlocBuilder<EventCandidatesBloc, EventCandidatesState>(
-                  builder: (context, state) {
-                    final isLoading =
-                        state is EventCandidatesPageLoadInProgress;
+              ),
+              icon: const Icon(Icons.add),
+            );
+          }
 
-                    if (isLoading && state.candidates.isEmpty) {
-                      return const Column(
-                        children: [
-                          SizedBox(height: 32),
-                          Center(
-                            child: CircularProgressIndicator(),
-                          ),
-                        ],
-                      );
-                    }
-
-                    if (state is EventCandidatesPageLoadFailure) {
-                      return Column(
-                        children: [
-                          const SizedBox(height: 32),
-                          Center(
-                            child: Text(state.errorMessage),
-                          ),
-                        ],
-                      );
-                    }
-
-                    if (state.candidates.isEmpty) {
-                      return Column(
-                        children: [
-                          const SizedBox(height: 32),
-                          Center(
-                            child: _searchQuery.isEmpty
-                                ? const Text(
-                                    "Tous les utilisateurs sont déjà inscrits")
-                                : const Text("Aucun utilisateur trouvé"),
-                          ),
-                        ],
-                      );
-                    }
-
-                    final totalCandidates =
-                        state.candidates.length + (state.hasMore ? 1 : 0);
-
-                    return Expanded(
-                      child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
-                        child: ListView.separated(
-                          controller: _scrollController,
-                          padding: const EdgeInsets.only(bottom: 80),
-                          itemCount: totalCandidates,
-                          separatorBuilder: (context, index) =>
-                              const SizedBox(height: 6),
-                          itemBuilder: (context, index) {
-                            if (state.hasMore && index == totalCandidates - 1) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-
-                            final candidate = state.candidates[index];
-
-                            return EventCandidateCard(
-                              candidate: candidate,
-                              alreadyParticipating: candidate.eventRole != null,
-                              isSelected:
-                                  _selectedCandidates.contains(candidate.id) ||
-                                      candidate.eventRole != null,
-                              onTap: () => _onCandidateSelected(candidate.id),
-                            );
-                          },
-                        ),
-                      ),
-                    );
-                  },
-                )
-              ],
+          return Hud(
+            appBar: TopBar(
+              prefix: TopBarActionIcon(
+                onPressed: () => context.router.maybePop(),
+                icon: Icons.arrow_back,
+              ),
+              title: const TopBarTitle("Ajouter des participants"),
             ),
-          ),
-        );
-      }),
+            floatingActionButton: floatingActionButton,
+            body: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 16),
+                  TextField(
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        borderSide: BorderSide.none,
+                      ),
+                      prefixIcon: const Icon(Icons.search),
+                      labelText: "Rechercher un utilisateur",
+                      fillColor: Theme.of(context).colorScheme.primaryContainer,
+                      filled: true,
+                    ),
+                    onChanged: _onSearchCandidates,
+                  ),
+                  const SizedBox(height: 16),
+                  BlocBuilder<EventCandidatesBloc, EventCandidatesState>(
+                    builder: (context, state) {
+                      final isLoading =
+                          state is EventCandidatesPageLoadInProgress;
+
+                      if (isLoading && state.candidates.isEmpty) {
+                        return const Column(
+                          children: [
+                            SizedBox(height: 32),
+                            Center(child: CircularProgressIndicator()),
+                          ],
+                        );
+                      }
+
+                      if (state is EventCandidatesPageLoadFailure) {
+                        return Column(
+                          children: [
+                            const SizedBox(height: 32),
+                            Center(child: Text(state.errorMessage)),
+                          ],
+                        );
+                      }
+
+                      if (state.candidates.isEmpty) {
+                        return Column(
+                          children: [
+                            const SizedBox(height: 32),
+                            Center(
+                              child:
+                                  _searchQuery.isEmpty
+                                      ? const Text(
+                                        "Tous les utilisateurs sont déjà inscrits",
+                                      )
+                                      : const Text("Aucun utilisateur trouvé"),
+                            ),
+                          ],
+                        );
+                      }
+
+                      final totalCandidates =
+                          state.candidates.length + (state.hasMore ? 1 : 0);
+
+                      return Expanded(
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(10),
+                          child: ListView.separated(
+                            controller: _scrollController,
+                            padding: const EdgeInsets.only(bottom: 80),
+                            itemCount: totalCandidates,
+                            separatorBuilder:
+                                (context, index) => const SizedBox(height: 6),
+                            itemBuilder: (context, index) {
+                              if (state.hasMore &&
+                                  index == totalCandidates - 1) {
+                                return const Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              }
+
+                              final candidate = state.candidates[index];
+
+                              return EventCandidateCard(
+                                candidate: candidate,
+                                alreadyParticipating:
+                                    candidate.eventRole != null,
+                                isSelected:
+                                    _selectedCandidates.contains(
+                                      candidate.id,
+                                    ) ||
+                                    candidate.eventRole != null,
+                                onTap: () => _onCandidateSelected(candidate.id),
+                              );
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
   void _addCandidates() {
     context.read<EventCandidatesBloc>().add(
-          AddCandidates(
-            eventId: widget.eventId,
-            userIds: _selectedCandidates,
-          ),
-        );
+      AddCandidates(eventId: widget.eventId, userIds: _selectedCandidates),
+    );
   }
 
   void _onSearchCandidates(String query) {
@@ -251,26 +251,19 @@ class _EventCandidatesScreenState extends State<EventCandidatesScreen> {
 
   void _refreshCandidates() {
     context.read<EventCandidatesBloc>().add(
-          RefreshEventCandidates(
-            eventId: widget.eventId,
-          ),
-        );
+      RefreshEventCandidates(eventId: widget.eventId),
+    );
   }
 
   void _loadNextPage() {
     context.read<EventCandidatesBloc>().add(
-          LoadEventCandidatesNextPage(
-            eventId: widget.eventId,
-          ),
-        );
+      LoadEventCandidatesNextPage(eventId: widget.eventId),
+    );
   }
 
   void _searchCandidates(String query) {
     context.read<EventCandidatesBloc>().add(
-          SearchCandidates(
-            eventId: widget.eventId,
-            search: query,
-          ),
-        );
+      SearchCandidates(eventId: widget.eventId, search: query),
+    );
   }
 }

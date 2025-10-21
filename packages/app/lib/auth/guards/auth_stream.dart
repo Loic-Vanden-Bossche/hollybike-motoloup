@@ -9,9 +9,9 @@ import 'package:hollybike/auth/services/auth_session_repository.dart';
 
 class AuthStream extends ChangeNotifier {
   AuthStream(BuildContext context, {required AuthPersistence authPersistence}) {
-    RepositoryProvider.of<AuthSessionRepository>(context)
-        .authSessionStream
-        .listen((state) {
+    RepositoryProvider.of<AuthSessionRepository>(
+      context,
+    ).authSessionStream.listen((state) {
       if (state == null) {
         notifyListeners();
       }

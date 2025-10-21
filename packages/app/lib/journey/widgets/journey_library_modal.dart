@@ -34,9 +34,7 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
   void initState() {
     super.initState();
 
-    BlocProvider.of<JourneysLibraryBloc>(context).add(
-      RefreshJourneysLibrary(),
-    );
+    BlocProvider.of<JourneysLibraryBloc>(context).add(RefreshJourneysLibrary());
   }
 
   @override
@@ -78,7 +76,7 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
                     final isEmpty = state.journeys.isEmpty;
                     final isLoading =
                         state is JourneysLibraryPageLoadInProgress ||
-                            state is JourneysLibraryInitial;
+                        state is JourneysLibraryInitial;
 
                     final isShrunk =
                         (isLoading && isEmpty) || (isEmpty && !isLoading);
@@ -106,9 +104,7 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
 
   Widget _buildLibrary(List<Journey> journeys, bool isLoading) {
     if (isLoading) {
-      return const Center(
-        child: CircularProgressIndicator(),
-      );
+      return const Center(child: CircularProgressIndicator());
     }
 
     return ThemedRefreshIndicator(
@@ -125,9 +121,7 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
   Future<void> _onRefresh() {
     final bloc = BlocProvider.of<JourneysLibraryBloc>(context);
 
-    bloc.add(
-      RefreshJourneysLibrary(),
-    );
+    bloc.add(RefreshJourneysLibrary());
 
     return bloc.firstWhenNotLoading;
   }
@@ -145,12 +139,9 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
       widget.onJourneyAdded!();
     }
 
-    BlocProvider.of<EventJourneyBloc>(context).add(
-      AttachJourneyToEvent(
-        journey: journey,
-        eventId: widget.event.id,
-      ),
-    );
+    BlocProvider.of<EventJourneyBloc>(
+      context,
+    ).add(AttachJourneyToEvent(journey: journey, eventId: widget.event.id));
 
     Navigator.of(context).pop();
   }

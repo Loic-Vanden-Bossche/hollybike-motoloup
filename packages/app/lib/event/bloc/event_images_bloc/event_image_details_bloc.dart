@@ -14,9 +14,8 @@ class EventImageDetailsBloc
     extends Bloc<EventImageDetailsEvent, EventImageDetailsState> {
   final ImageRepository imageRepository;
 
-  EventImageDetailsBloc({
-    required this.imageRepository,
-  }) : super(EventImageDetailsInitial()) {
+  EventImageDetailsBloc({required this.imageRepository})
+    : super(EventImageDetailsInitial()) {
     on<GetEventImageDetails>(_onGetEventImageDetails);
     on<DeleteImage>(_onDeleteImage);
     on<DownloadImage>(_onDownloadImage);
@@ -29,19 +28,21 @@ class EventImageDetailsBloc
     emit(EventImageDetailsLoadInProgress(state));
 
     try {
-      final imageDetails = await imageRepository.getImageDetails(
-        event.imageId,
-      );
+      final imageDetails = await imageRepository.getImageDetails(event.imageId);
 
-      emit(EventImageDetailsLoadSuccess(
-        state.copyWith(imageDetails: imageDetails),
-      ));
+      emit(
+        EventImageDetailsLoadSuccess(
+          state.copyWith(imageDetails: imageDetails),
+        ),
+      );
     } catch (e) {
       log('Error while loading image details: $e');
-      emit(EventImageDetailsLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue',
-      ));
+      emit(
+        EventImageDetailsLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue',
+        ),
+      );
       return;
     }
   }
@@ -53,17 +54,17 @@ class EventImageDetailsBloc
     emit(DeleteImageInProgress(state));
 
     try {
-      await imageRepository.deleteImage(
-        event.imageId,
-      );
+      await imageRepository.deleteImage(event.imageId);
 
       emit(DeleteImageSuccess(state));
     } catch (e) {
       log('Error while deleting image: $e');
-      emit(EventImageDetailsLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue',
-      ));
+      emit(
+        EventImageDetailsLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue',
+        ),
+      );
       return;
     }
   }
@@ -73,18 +74,17 @@ class EventImageDetailsBloc
     Emitter<EventImageDetailsState> emit,
   ) async {
     try {
-      await imageRepository.downloadImage(
-        event.imageUrl,
-        event.imgId,
-      );
+      await imageRepository.downloadImage(event.imageUrl, event.imgId);
 
       emit(DownloadImageSuccess(state));
     } catch (e) {
       log('Error while downloading image: $e');
-      emit(EventImageDetailsLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue',
-      ));
+      emit(
+        EventImageDetailsLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue',
+        ),
+      );
       return;
     }
   }

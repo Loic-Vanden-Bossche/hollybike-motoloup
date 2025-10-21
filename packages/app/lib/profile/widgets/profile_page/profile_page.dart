@@ -56,9 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     if (widget.profileLoading) {
-      return PlaceholderProfilePage(
-        loadingProfileId: widget.id,
-      );
+      return PlaceholderProfilePage(loadingProfileId: widget.id);
     }
 
     if (widget.profile == null) {
@@ -73,44 +71,47 @@ class _ProfilePageState extends State<ProfilePage> {
       length: 3,
       child: NestedScrollView(
         controller: _scrollController,
-        headerSliverBuilder: (context, scrolled) => [
-          SliverToBoxAdapter(
-            child: Column(
-              children: [
-                ProfileBanner(
-                  profile: widget.profile as MinimalUser,
-                  canEdit: widget.isMe,
+        headerSliverBuilder:
+            (context, scrolled) => [
+              SliverToBoxAdapter(
+                child: Column(
+                  children: [
+                    ProfileBanner(
+                      profile: widget.profile as MinimalUser,
+                      canEdit: widget.isMe,
+                    ),
+                    ProfileDescription(
+                      profile: widget.profile as MinimalUser,
+                      association: widget.association as Association,
+                      email: widget.email,
+                    ),
+                  ],
                 ),
-                ProfileDescription(
-                  profile: widget.profile as MinimalUser,
-                  association: widget.association as Association,
-                  email: widget.email,
+              ),
+              SliverOverlapAbsorber(
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                  context,
                 ),
-              ],
-            ),
-          ),
-          SliverOverlapAbsorber(
-            handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
-            sliver: SliverPersistentHeader(
-              pinned: true,
-              delegate: PinnedHeaderDelegate(
-                height: 50,
-                child: Container(
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  child: TabBar(
-                    labelColor: Theme.of(context).colorScheme.secondary,
-                    indicatorColor: Theme.of(context).colorScheme.secondary,
-                    tabs: const [
-                      Tab(icon: Icon(Icons.event_rounded)),
-                      Tab(icon: Icon(Icons.image_rounded)),
-                      Tab(icon: Icon(Icons.route_rounded)),
-                    ],
+                sliver: SliverPersistentHeader(
+                  pinned: true,
+                  delegate: PinnedHeaderDelegate(
+                    height: 50,
+                    child: Container(
+                      color: Theme.of(context).scaffoldBackgroundColor,
+                      child: TabBar(
+                        labelColor: Theme.of(context).colorScheme.secondary,
+                        indicatorColor: Theme.of(context).colorScheme.secondary,
+                        tabs: const [
+                          Tab(icon: Icon(Icons.event_rounded)),
+                          Tab(icon: Icon(Icons.image_rounded)),
+                          Tab(icon: Icon(Icons.route_rounded)),
+                        ],
+                      ),
+                    ),
                   ),
                 ),
               ),
-            ),
-          ),
-        ],
+            ],
         body: _tabBarContent(),
       ),
     );
@@ -119,36 +120,41 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget _tabBarContent() {
     final currentSession = context.read<ProfileBloc>().state.currentSession;
 
-    final key = currentSession == null
-        ? UniqueKey()
-        : ValueKey('${widget.profile!.id}_${currentSession.host}');
+    final key =
+        currentSession == null
+            ? UniqueKey()
+            : ValueKey('${widget.profile!.id}_${currentSession.host}');
 
     return MultiBlocProvider(
       providers: [
         BlocProvider<UserEventsBloc>(
           key: key,
-          create: (context) => UserEventsBloc(
-            userId: widget.profile!.id,
-            eventRepository: RepositoryProvider.of<EventRepository>(context),
-          )..add(SubscribeToEvents()),
+          create:
+              (context) => UserEventsBloc(
+                userId: widget.profile!.id,
+                eventRepository: RepositoryProvider.of<EventRepository>(
+                  context,
+                ),
+              )..add(SubscribeToEvents()),
         ),
         BlocProvider<ProfileImagesBloc>(
           key: key,
-          create: (context) => ProfileImagesBloc(
-            userId: widget.profile!.id,
-            imageRepository: RepositoryProvider.of<ImageRepository>(
-              context,
-            ),
-          ),
+          create:
+              (context) => ProfileImagesBloc(
+                userId: widget.profile!.id,
+                imageRepository: RepositoryProvider.of<ImageRepository>(
+                  context,
+                ),
+              ),
         ),
         BlocProvider(
           key: key,
-          create: (context) => ProfileJourneysBloc(
-            userId: widget.profile!.id,
-            userJourneyRepository: RepositoryProvider.of<UserJourneyRepository>(
-              context,
-            ),
-          ),
+          create:
+              (context) => ProfileJourneysBloc(
+                userId: widget.profile!.id,
+                userJourneyRepository:
+                    RepositoryProvider.of<UserJourneyRepository>(context),
+              ),
         ),
       ],
       child: BlocBuilder<ProfileBloc, ProfileState>(
@@ -156,9 +162,10 @@ class _ProfilePageState extends State<ProfilePage> {
           final currentProfileEvent =
               context.read<ProfileBloc>().currentProfile;
 
-          final currentProfile = currentProfileEvent is ProfileLoadSuccessEvent
-              ? currentProfileEvent.profile.toMinimalUser()
-              : null;
+          final currentProfile =
+              currentProfileEvent is ProfileLoadSuccessEvent
+                  ? currentProfileEvent.profile.toMinimalUser()
+                  : null;
 
           final isMe = currentProfile?.id == widget.profile?.id;
 
@@ -181,7 +188,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 isMe: isMe,
                 user: widget.profile as MinimalUser,
                 scrollController: _scrollController,
-              )
+              ),
             ],
           );
         },

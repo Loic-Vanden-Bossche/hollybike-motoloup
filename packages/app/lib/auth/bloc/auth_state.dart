@@ -17,7 +17,7 @@ class AuthInitial extends AuthState {
 
 class AuthConnected extends AuthState {
   const AuthConnected({required AuthSession authSession})
-      : super(authSession: authSession);
+    : super(authSession: authSession);
 }
 
 class AuthDisconnected extends AuthState {

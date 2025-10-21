@@ -57,15 +57,12 @@ class AuthSession {
   factory AuthSession.fromJson(String json) {
     final object = jsonDecode(json);
 
-    verifyObjectAttributesNotNull(
-      object,
-      [
-        "token",
-        "refresh_token",
-        "device_id",
-        "host",
-      ],
-    );
+    verifyObjectAttributesNotNull(object, [
+      "token",
+      "refresh_token",
+      "device_id",
+      "host",
+    ]);
 
     return AuthSession(
       token: object["token"] as String,
@@ -76,15 +73,10 @@ class AuthSession {
   }
 
   factory AuthSession.fromResponseJson(
-      String hostSource, Map<String, dynamic> json) {
-    verifyObjectAttributesNotNull(
-      json,
-      [
-        "token",
-        "refresh_token",
-        "deviceId",
-      ],
-    );
+    String hostSource,
+    Map<String, dynamic> json,
+  ) {
+    verifyObjectAttributesNotNull(json, ["token", "refresh_token", "deviceId"]);
 
     return AuthSession(
       token: json["token"] as String,

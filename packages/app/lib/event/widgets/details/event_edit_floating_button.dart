@@ -32,8 +32,8 @@ class EventEditFloatingButton extends StatelessWidget {
       label: Text(
         'Modifier',
         style: Theme.of(context).textTheme.titleSmall?.copyWith(
-              color: Theme.of(context).colorScheme.primary,
-            ),
+          color: Theme.of(context).colorScheme.primary,
+        ),
       ),
       icon: const Icon(Icons.edit),
     );
@@ -47,7 +47,8 @@ class EventEditFloatingButton extends StatelessWidget {
         isScrollControlled: true,
         builder: (BuildContext context) {
           return EventFormModal(
-            canEditDates: event.status == EventStatusState.pending ||
+            canEditDates:
+                event.status == EventStatusState.pending ||
                 event.status == EventStatusState.scheduled,
             initialData: EventFormData(
               name: event.name,

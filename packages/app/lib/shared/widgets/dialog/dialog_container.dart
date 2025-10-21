@@ -8,11 +8,7 @@ class DialogContainer extends StatelessWidget {
   final Widget? head;
   final Widget? body;
 
-  const DialogContainer({
-    super.key,
-    this.head,
-    this.body,
-  });
+  const DialogContainer({super.key, this.head, this.body});
 
   @override
   Widget build(BuildContext context) {
@@ -28,9 +24,7 @@ class DialogContainer extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           Container(
-            constraints: const BoxConstraints.tightFor(
-              width: double.infinity,
-            ),
+            constraints: const BoxConstraints.tightFor(width: double.infinity),
             decoration: BoxDecoration(
               color: Theme.of(context).colorScheme.primary,
               borderRadius: const BorderRadius.only(
@@ -43,11 +37,7 @@ class DialogContainer extends StatelessWidget {
                 topRight: radius,
                 topLeft: radius,
               ),
-              border: Border(
-                top: border,
-                left: border,
-                right: border,
-              ),
+              border: Border(top: border, left: border, right: border),
             ),
             clipBehavior: Clip.hardEdge,
             child: head,
@@ -65,11 +55,7 @@ class DialogContainer extends StatelessWidget {
                 ),
               ),
               foregroundDecoration: BoxDecoration(
-                border: Border(
-                  left: border,
-                  right: border,
-                  bottom: border,
-                ),
+                border: Border(left: border, right: border, bottom: border),
                 borderRadius: const BorderRadius.only(
                   bottomLeft: radius,
                   bottomRight: radius,

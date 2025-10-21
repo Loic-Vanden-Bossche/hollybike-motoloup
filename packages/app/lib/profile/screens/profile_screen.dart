@@ -37,11 +37,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: TopBarTitle(_title),
       ),
       body: BlocProvidedBuilder<ProfileBloc, ProfileState>(
-        builder: (context, bloc, state) => buildProfilePage(
-          context,
-          bloc,
-          state,
-        ),
+        builder:
+            (context, bloc, state) => buildProfilePage(context, bloc, state),
       ),
     );
   }
@@ -64,7 +61,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
     if (user is UserLoadingEvent) return _buildLoading();
     if (user is UserLoadErrorEvent) return _buildError();
 
-    if (currentProfile is ProfileLoadSuccessEvent && user is UserLoadSuccessEvent) {
+    if (currentProfile is ProfileLoadSuccessEvent &&
+        user is UserLoadSuccessEvent) {
       bool isMe = currentProfile.profile.id == user.user.id;
 
       if (_title.isEmpty) {

@@ -29,9 +29,7 @@ class AppBanner extends StatelessWidget {
               ),
             ),
             padding: const EdgeInsets.all(8.0),
-            child: const AppTitle(
-              fontSize: 40,
-            ),
+            child: const AppTitle(fontSize: 40),
           ),
         ),
       ],

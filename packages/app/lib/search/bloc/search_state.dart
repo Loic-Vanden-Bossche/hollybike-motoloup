@@ -6,7 +6,14 @@ import 'package:flutter/cupertino.dart';
 import 'package:hollybike/event/types/minimal_event.dart';
 import 'package:hollybike/user/types/minimal_user.dart';
 
-enum SearchStatus { fullLoading, loadingEvents, loadingProfiles, success, error, initial }
+enum SearchStatus {
+  fullLoading,
+  loadingEvents,
+  loadingProfiles,
+  success,
+  error,
+  initial,
+}
 
 @immutable
 class SearchState {
@@ -60,44 +67,44 @@ class SearchInitial extends SearchState {}
 
 class SearchLoadInProgress extends SearchState {
   SearchLoadInProgress(SearchState state, SearchStatus status)
-      : super(
-          lastSearchQuery: state.lastSearchQuery,
-          events: state.events,
-          hasMoreEvents: state.hasMoreEvents,
-          eventsNextPage: state.eventsNextPage,
-          profiles: state.profiles,
-          hasMoreProfiles: state.hasMoreProfiles,
-          profilesNextPage: state.profilesNextPage,
-          status: status,
-        );
+    : super(
+        lastSearchQuery: state.lastSearchQuery,
+        events: state.events,
+        hasMoreEvents: state.hasMoreEvents,
+        eventsNextPage: state.eventsNextPage,
+        profiles: state.profiles,
+        hasMoreProfiles: state.hasMoreProfiles,
+        profilesNextPage: state.profilesNextPage,
+        status: status,
+      );
 }
 
 class SearchLoadSuccess extends SearchState {
   SearchLoadSuccess(SearchState state)
-      : super(
-          lastSearchQuery: state.lastSearchQuery,
-          events: state.events,
-          hasMoreEvents: state.hasMoreEvents,
-          eventsNextPage: state.eventsNextPage,
-          profiles: state.profiles,
-          hasMoreProfiles: state.hasMoreProfiles,
-          profilesNextPage: state.profilesNextPage,
-          status: SearchStatus.success,
-        );
+    : super(
+        lastSearchQuery: state.lastSearchQuery,
+        events: state.events,
+        hasMoreEvents: state.hasMoreEvents,
+        eventsNextPage: state.eventsNextPage,
+        profiles: state.profiles,
+        hasMoreProfiles: state.hasMoreProfiles,
+        profilesNextPage: state.profilesNextPage,
+        status: SearchStatus.success,
+      );
 }
 
 class SearchLoadFailure extends SearchState {
   final String errorMessage;
 
   SearchLoadFailure(SearchState state, {required this.errorMessage})
-      : super(
-          lastSearchQuery: state.lastSearchQuery,
-          events: state.events,
-          hasMoreEvents: state.hasMoreEvents,
-          eventsNextPage: state.eventsNextPage,
-          profiles: state.profiles,
-          hasMoreProfiles: state.hasMoreProfiles,
-          profilesNextPage: state.profilesNextPage,
-          status: SearchStatus.error,
-        );
+    : super(
+        lastSearchQuery: state.lastSearchQuery,
+        events: state.events,
+        hasMoreEvents: state.hasMoreEvents,
+        eventsNextPage: state.eventsNextPage,
+        profiles: state.profiles,
+        hasMoreProfiles: state.hasMoreProfiles,
+        profilesNextPage: state.profilesNextPage,
+        status: SearchStatus.error,
+      );
 }

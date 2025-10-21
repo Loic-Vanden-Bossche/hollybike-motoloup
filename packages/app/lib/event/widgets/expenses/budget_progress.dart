@@ -35,9 +35,7 @@ class BudgetProgress extends StatelessWidget {
                 text: expensesInEuro.toStringAsFixed(2),
                 style: Theme.of(context).textTheme.titleSmall,
               ),
-              const TextSpan(
-                text: ' €',
-              ),
+              const TextSpan(text: ' €'),
             ],
           ),
         ),
@@ -56,7 +54,7 @@ class BudgetProgress extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.end,
           children: [_getBudgetTitle(context)],
-        )
+        ),
       ],
     );
   }
@@ -74,9 +72,7 @@ class BudgetProgress extends StatelessWidget {
             text: budget?.toStringAsFixed(2),
             style: Theme.of(context).textTheme.titleSmall,
           ),
-          const TextSpan(
-            text: ' €',
-          ),
+          const TextSpan(text: ' €'),
         ],
       ),
     );

@@ -10,19 +10,17 @@ import 'package:lottie/lottie.dart';
 class EmptyJourneyPreviewCard extends StatelessWidget {
   final Event event;
 
-  const EmptyJourneyPreviewCard({
-    super.key,
-    required this.event,
-  });
+  const EmptyJourneyPreviewCard({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
     return DottedBorder(
-      strokeWidth: 4,
-      color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
-      borderType: BorderType.RRect,
-      radius: const Radius.circular(14),
-      dashPattern: const [5, 5],
+      options: RoundedRectDottedBorderOptions(
+        strokeWidth: 4,
+        color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
+        radius: const Radius.circular(14),
+        dashPattern: const [5, 5],
+      ),
       child: Container(
         padding: const EdgeInsets.all(16),
         decoration: BoxDecoration(
@@ -31,10 +29,7 @@ class EmptyJourneyPreviewCard extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Lottie.asset(
-              'assets/lottie/lottie_journey.json',
-              repeat: false,
-            ),
+            Lottie.asset('assets/lottie/lottie_journey.json', repeat: false),
             const SizedBox(width: 16),
             const Expanded(
               child: Text(

@@ -35,7 +35,8 @@ class ImagePickerThumbnail extends StatelessWidget {
           thumbnailSize: ThumbnailSize(200, 200),
         ),
       ),
-      onTap: () async => onImageSelected(await Img.fromAssetEntity(assetEntity)),
+      onTap:
+          () async => onImageSelected(await Img.fromAssetEntity(assetEntity)),
     );
   }
 }

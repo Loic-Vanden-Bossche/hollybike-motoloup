@@ -13,10 +13,7 @@ import 'image_gallery_details_time.dart';
 class ImageGalleryDetails extends StatelessWidget {
   final EventImageDetails imageDetails;
 
-  const ImageGalleryDetails({
-    super.key,
-    required this.imageDetails,
-  });
+  const ImageGalleryDetails({super.key, required this.imageDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -42,9 +39,7 @@ class ImageGalleryDetails extends StatelessWidget {
 
     return Padding(
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: children,
-      ),
+      child: Column(children: children),
     );
   }
 
@@ -65,10 +60,7 @@ class ImageGalleryDetails extends StatelessWidget {
           builder: (BuildContext context, double value, _) {
             return Transform.translate(
               offset: Offset(16 * (1 - value), 0),
-              child: Opacity(
-                opacity: value,
-                child: child,
-              ),
+              child: Opacity(opacity: value, child: child),
             );
           },
         );

@@ -45,14 +45,14 @@ class EventDetailsStatusBadge extends StatelessWidget {
             Container(
               color: Theme.of(context).colorScheme.primaryContainer,
               child: Padding(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 8,
+                ),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Expanded(
-                      child: _buildStatus(context),
-                    ),
+                    Expanded(child: _buildStatus(context)),
                     _buildAction(context, isLoading(state)),
                   ],
                 ),
@@ -62,7 +62,7 @@ class EventDetailsStatusBadge extends StatelessWidget {
               duration: const Duration(milliseconds: 150),
               opacity: isLoading(state) ? 1 : 0,
               child: const LinearProgressIndicator(),
-            )
+            ),
           ],
         );
       },
@@ -76,10 +76,7 @@ class EventDetailsStatusBadge extends StatelessWidget {
       return Row(
         mainAxisSize: MainAxisSize.max,
         children: [
-          EventDot(
-            size: 15,
-            status: status,
-          ),
+          EventDot(size: 15, status: status),
           const SizedBox(width: 16),
           Flexible(
             child: Text(
@@ -108,34 +105,30 @@ class EventDetailsStatusBadge extends StatelessWidget {
 
   Widget _buildAction(BuildContext context, bool isLoading) {
     if (actionText == null || onAction == null) {
-      return const SizedBox(
-        height: 43,
-      );
+      return const SizedBox(height: 43);
     }
 
     return Container(
-      constraints: const BoxConstraints(
-        minWidth: 100,
-        maxWidth: 150,
-      ),
+      constraints: const BoxConstraints(minWidth: 100, maxWidth: 150),
       child: TextButton(
         onPressed: !isLoading ? onAction : null,
         child: Text(
           actionText!,
           textAlign: TextAlign.right,
           style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                color: !isLoading
+            color:
+                !isLoading
                     ? Event.getStatusColor(status)
-                    : Theme.of(context).colorScheme.onSurface.withValues(alpha: 0.5),
-              ),
+                    : Theme.of(
+                      context,
+                    ).colorScheme.onSurface.withValues(alpha: 0.5),
+          ),
         ),
       ),
     );
   }
 
   void _eventStarted(BuildContext context) {
-    context.read<EventDetailsBloc>().add(
-      EventStarted(),
-    );
+    context.read<EventDetailsBloc>().add(EventStarted());
   }
 }

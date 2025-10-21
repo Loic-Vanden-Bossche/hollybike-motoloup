@@ -40,10 +40,7 @@ class EventDetailsHeader extends StatelessWidget {
                     ],
                   ),
                 ),
-                child: Image(
-                  image: event.imageProvider,
-                  fit: BoxFit.cover,
-                ),
+                child: Image(image: event.imageProvider, fit: BoxFit.cover),
               ),
             ),
           ),
@@ -51,28 +48,30 @@ class EventDetailsHeader extends StatelessWidget {
             alignment: Alignment.bottomLeft,
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: LayoutBuilder(builder: (context, constraints) {
-                return Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    HeroMode(
-                      enabled: animate,
-                      child: Hero(
-                        tag: "event-name-$uniqueKey",
-                        child: SizedBox(
-                          width: constraints.maxWidth - 20,
-                          child: Text(
-                            event.name,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(context).textTheme.titleLarge,
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      HeroMode(
+                        enabled: animate,
+                        child: Hero(
+                          tag: "event-name-$uniqueKey",
+                          child: SizedBox(
+                            width: constraints.maxWidth - 20,
+                            child: Text(
+                              event.name,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: Theme.of(context).textTheme.titleLarge,
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
-                );
-              }),
+                    ],
+                  );
+                },
+              ),
             ),
           ),
         ],

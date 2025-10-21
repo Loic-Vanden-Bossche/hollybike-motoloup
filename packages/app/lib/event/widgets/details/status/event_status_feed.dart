@@ -19,10 +19,7 @@ import 'event_scheduled_status.dart';
 class EventStatusFeed extends StatelessWidget {
   final EventDetails eventDetails;
 
-  const EventStatusFeed({
-    super.key,
-    required this.eventDetails,
-  });
+  const EventStatusFeed({super.key, required this.eventDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -34,9 +31,7 @@ class EventStatusFeed extends StatelessWidget {
               state is MyPositionLoading,
               state.eventId == eventDetails.event.id,
             ),
-            EventPositionSwitch(
-              eventDetails: eventDetails,
-            ),
+            EventPositionSwitch(eventDetails: eventDetails),
           ],
         );
       },

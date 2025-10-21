@@ -18,11 +18,7 @@ class EventPreviewCard extends StatefulWidget {
   final MinimalEvent event;
   final void Function(String uniqueKey) onTap;
 
-  const EventPreviewCard({
-    super.key,
-    required this.event,
-    required this.onTap,
-  });
+  const EventPreviewCard({super.key, required this.event, required this.onTap});
 
   @override
   State<EventPreviewCard> createState() => _EventPreviewCardState();
@@ -58,9 +54,7 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
     return Card(
       color: Theme.of(context).cardColor,
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: SizedBox(
         height: 110,
         child: Stack(
@@ -73,53 +67,57 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
                   children: [
                     SizedBox(
                       width: 110,
-                      child: _animate
-                          ? Hero(
-                              tag: "event-image-$_uniqueKey",
-                              child: _buildImage(),
-                            )
-                          : _buildImage(),
+                      child:
+                          _animate
+                              ? Hero(
+                                tag: "event-image-$_uniqueKey",
+                                child: _buildImage(),
+                              )
+                              : _buildImage(),
                     ),
                     Expanded(
                       child: Padding(
                         padding: const EdgeInsets.all(8.0),
-                        child: LayoutBuilder(builder: (context, constraints) {
-                          return Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              if (_animate)
-                                Hero(
-                                  tag: "event-name-$_uniqueKey",
-                                  child: _buildTitle(constraints.maxWidth),
+                        child: LayoutBuilder(
+                          builder: (context, constraints) {
+                            return Column(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                if (_animate)
+                                  Hero(
+                                    tag: "event-name-$_uniqueKey",
+                                    child: _buildTitle(constraints.maxWidth),
+                                  ),
+                                if (!_animate)
+                                  _buildTitle(constraints.maxWidth),
+                                EventStatusIndicator(
+                                  event: widget.event,
+                                  separatorWidth: 5,
+                                  statusTextBuilder: (status) {
+                                    switch (status) {
+                                      case EventStatusState.canceled:
+                                        return const Text("Annulé");
+                                      case EventStatusState.pending:
+                                        return const Text("En attente");
+                                      case EventStatusState.now:
+                                        return const Text("En cours");
+                                      case EventStatusState.finished:
+                                        return const Text("Terminé");
+                                      case EventStatusState.scheduled:
+                                        return Text(
+                                          fromDateToDuration(
+                                            widget.event.startDate,
+                                          ),
+                                        );
+                                    }
+                                  },
                                 ),
-                              if (!_animate) _buildTitle(constraints.maxWidth),
-                              EventStatusIndicator(
-                                event: widget.event,
-                                separatorWidth: 5,
-                                statusTextBuilder: (status) {
-                                  switch (status) {
-                                    case EventStatusState.canceled:
-                                      return const Text("Annulé");
-                                    case EventStatusState.pending:
-                                      return const Text("En attente");
-                                    case EventStatusState.now:
-                                      return const Text("En cours");
-                                    case EventStatusState.finished:
-                                      return const Text("Terminé");
-                                    case EventStatusState.scheduled:
-                                      return Text(
-                                        fromDateToDuration(
-                                          widget.event.startDate,
-                                        ),
-                                      );
-                                  }
-                                },
-                              ),
-                            ],
-                          );
-                        }),
+                              ],
+                            );
+                          },
+                        ),
                       ),
-                    )
+                    ),
                   ],
                 ),
               ),

@@ -16,10 +16,7 @@ class ImagePickerCameraButton extends StatelessWidget {
   final ImagePicker imagePicker = ImagePicker();
   final void Function(Img) onImageSelected;
 
-  ImagePickerCameraButton({
-    super.key,
-    required this.onImageSelected,
-  });
+  ImagePickerCameraButton({super.key, required this.onImageSelected});
 
   @override
   Widget build(BuildContext context) {
@@ -29,7 +26,7 @@ class ImagePickerCameraButton extends StatelessWidget {
     );
   }
 
-  _onCameraTap() async {
+  Future<void> _onCameraTap() async {
     final cameraPermission = await Permission.camera.requestAndCheck();
 
     if (!cameraPermission) {

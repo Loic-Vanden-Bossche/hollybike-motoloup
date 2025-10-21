@@ -35,9 +35,9 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
   bool _animate = false;
   bool _modalOpened = false;
 
-  get modalOpened => _bottomContainerHeight == _bottomContainerMaxHeight;
+  bool get modalOpened => _bottomContainerHeight == _bottomContainerMaxHeight;
 
-  get modalOpening => _bottomContainerHeight > 0;
+  bool get modalOpening => _bottomContainerHeight > 0;
 
   @override
   void didUpdateWidget(covariant ContentShrinkBottomModal oldWidget) {
@@ -78,9 +78,10 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
                 ),
               ),
               AnimatedContainer(
-                duration: _animate
-                    ? const Duration(milliseconds: 250)
-                    : Duration.zero,
+                duration:
+                    _animate
+                        ? const Duration(milliseconds: 250)
+                        : Duration.zero,
                 curve: Curves.fastOutSlowIn,
                 height: _bottomContainerHeight,
                 onEnd: _onAnimateEnd,
@@ -88,9 +89,10 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
                 child: PopScope(
                   canPop: !modalOpened,
                   onPopInvoked: _onPopInvoked,
-                  child: modalOpening
-                      ? widget.modalContent
-                      : const SizedBox.shrink(),
+                  child:
+                      modalOpening
+                          ? widget.modalContent
+                          : const SizedBox.shrink(),
                 ),
               ),
             ],

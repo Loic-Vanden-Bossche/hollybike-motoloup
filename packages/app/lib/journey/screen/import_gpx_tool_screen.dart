@@ -57,40 +57,92 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
       },
       child: Scaffold(
         body: SafeArea(
-          child: Builder(builder: (context) {
-            return InAppWebView(
-              initialUrlRequest: URLRequest(
-                url: WebUri(widget.url),
-              ),
-              initialSettings: InAppWebViewSettings(
-                useOnDownloadStart: true,
-                useShouldInterceptFetchRequest: true,
-              ),
-              onWebViewCreated: (controller) {
-                _controller = controller;
-              },
-              onLoadStart: (controller, url) {},
-              onLoadStop: (controller, url) {},
-              shouldInterceptFetchRequest: (controller, request) async {
-                final url = request.url.toString();
+          child: Builder(
+            builder: (context) {
+              return InAppWebView(
+                initialUrlRequest: URLRequest(url: WebUri(widget.url)),
+                initialSettings: InAppWebViewSettings(
+                  useOnDownloadStart: true,
+                  useShouldInterceptFetchRequest: true,
+                ),
+                onWebViewCreated: (controller) {
+                  _controller = controller;
+                },
+                onLoadStart: (controller, url) {},
+                onLoadStop: (controller, url) {},
+                shouldInterceptFetchRequest: (controller, request) async {
+                  final url = request.url.toString();
 
-                final isKurvigerFile =
-                    url.startsWith("https://api.kurviger.de/route");
-                final isOpenrunnerFile = url.startsWith(
-                        "https://api.openrunner.com/api/v2/routes/") &&
-                    url.endsWith("/export/gpx-track");
+                  final isKurvigerFile = url.startsWith(
+                    "https://api.kurviger.de/route",
+                  );
+                  final isOpenrunnerFile =
+                      url.startsWith(
+                        "https://api.openrunner.com/api/v2/routes/",
+                      ) &&
+                      url.endsWith("/export/gpx-track");
 
-                if (isKurvigerFile || isOpenrunnerFile) {
+                  if (isKurvigerFile || isOpenrunnerFile) {
+                    final response = await http.get(
+                      Uri.parse(url),
+                      headers: {
+                        'User-Agent': request.headers?['User-Agent'] ?? '',
+                        'Accept': request.headers?['Accept'] ?? '',
+                      },
+                    );
+
+                    if (response.body.contains('<gpx') == false) {
+                      return Future.value(request);
+                    }
+
+                    if (context.mounted) {
+                      _onGpxDownloaded(
+                        context,
+                        writeTempFile(response.bodyBytes),
+                      );
+                    }
+
+                    return Future.value(null);
+                  }
+
+                  return Future.value(request);
+                },
+                onDownloadStartRequest: (controller, data) async {
+                  if (widget.url.contains('kurviger')) {
+                    return;
+                  }
+
+                  final requestUrl = data.url.toString();
+
+                  if (requestUrl.startsWith('data:text')) {
+                    final cleanUrl = requestUrl.replaceAll(
+                      RegExp(r'data:text.*?,'),
+                      '',
+                    );
+
+                    final decoded = Uri.decodeFull(cleanUrl);
+
+                    if (decoded.contains('<gpx') == false) {
+                      return;
+                    }
+
+                    _onGpxDownloaded(context, writeTempFile(decoded.codeUnits));
+
+                    return;
+                  }
+
+                  final uri = Uri.parse(requestUrl.replaceAll('blob:', ''));
+
                   final response = await http.get(
-                    Uri.parse(url),
+                    uri,
                     headers: {
-                      'User-Agent': request.headers?['User-Agent'] ?? '',
-                      'Accept': request.headers?['Accept'] ?? '',
+                      'User-Agent': data.userAgent ?? '',
+                      'Accept': data.mimeType ?? '',
                     },
                   );
 
                   if (response.body.contains('<gpx') == false) {
-                    return Future.value(request);
+                    return;
                   }
 
                   if (context.mounted) {
@@ -99,59 +151,10 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
                       writeTempFile(response.bodyBytes),
                     );
                   }
-
-                  return Future.value(null);
-                }
-
-                return Future.value(request);
-              },
-              onDownloadStartRequest: (controller, data) async {
-                if (widget.url.contains('kurviger')) {
-                  return;
-                }
-
-                final requestUrl = data.url.toString();
-
-                if (requestUrl.startsWith('data:text')) {
-                  final cleanUrl = requestUrl.replaceAll(
-                    RegExp(r'data:text.*?,'),
-                    '',
-                  );
-
-                  final decoded = Uri.decodeFull(cleanUrl);
-
-                  if (decoded.contains('<gpx') == false) {
-                    return;
-                  }
-
-                  _onGpxDownloaded(
-                    context,
-                    writeTempFile(decoded.codeUnits),
-                  );
-
-                  return;
-                }
-
-                final uri = Uri.parse(requestUrl.replaceAll('blob:', ''));
-
-                final response = await http.get(uri, headers: {
-                  'User-Agent': data.userAgent ?? '',
-                  'Accept': data.mimeType ?? '',
-                });
-
-                if (response.body.contains('<gpx') == false) {
-                  return;
-                }
-
-                if (context.mounted) {
-                  _onGpxDownloaded(
-                    context,
-                    writeTempFile(response.bodyBytes),
-                  );
-                }
-              },
-            );
-          }),
+                },
+              );
+            },
+          ),
         ),
       ),
     );

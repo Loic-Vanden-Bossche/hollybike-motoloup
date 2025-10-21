@@ -12,7 +12,7 @@ import 'events_state.dart';
 
 class FutureEventsBloc extends EventsBloc {
   FutureEventsBloc({required super.eventRepository})
-      : super(requestType: "future") {
+    : super(requestType: "future") {
     on<CreateEvent>(_onCreateEvent);
   }
 
@@ -33,10 +33,9 @@ class FutureEventsBloc extends EventsBloc {
       emit(EventCreationSuccess(state, createdEvent: createdEvent));
     } catch (e) {
       log('Error while creating event', error: e);
-      emit(EventCreationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventCreationFailure(state, errorMessage: 'Une erreur est survenue.'),
+      );
       return;
     }
   }

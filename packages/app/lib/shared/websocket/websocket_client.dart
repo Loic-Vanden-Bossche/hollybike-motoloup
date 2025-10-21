@@ -49,10 +49,7 @@ class WebsocketClient {
     HttpClientResponse response = await request.close();
     Socket socket = await response.detachSocket();
 
-    final ws = WebSocket.fromUpgradedSocket(
-      socket,
-      serverSide: false,
-    );
+    final ws = WebSocket.fromUpgradedSocket(socket, serverSide: false);
 
     _client = ws;
 
@@ -142,19 +139,14 @@ class WebsocketClient {
   }
 
   void subscribe(String channel) {
-    log(
-      'Subscribing to channel: $channel',
-      name: 'WebsocketClient.subscribe',
-    );
+    log('Subscribing to channel: $channel', name: 'WebsocketClient.subscribe');
 
     final message = WebsocketMessage(
       channel: channel,
       data: WebsocketSubscribe(token: session.token),
     );
 
-    final jsonObject = message.toJson(
-      (obj) => (obj as WebsocketSubscribe).toJson(),
-    );
+    final jsonObject = message.toJson((obj) => obj.toJson());
 
     final jsonString = jsonEncode(jsonObject);
 
@@ -167,14 +159,9 @@ class WebsocketClient {
       name: 'WebsocketClient.sendUserPosition',
     );
 
-    final message = WebsocketMessage(
-      channel: channel,
-      data: position,
-    );
+    final message = WebsocketMessage(channel: channel, data: position);
 
-    final jsonObject = message.toJson(
-      (obj) => (obj as WebsocketSendPosition).toJson(),
-    );
+    final jsonObject = message.toJson((obj) => obj.toJson());
 
     final jsonString = jsonEncode(jsonObject);
 
@@ -192,9 +179,7 @@ class WebsocketClient {
       data: WebsocketReadNotification(notificationId: notificationId),
     );
 
-    final jsonObject = message.toJson(
-      (obj) => (obj as WebsocketReadNotification).toJson(),
-    );
+    final jsonObject = message.toJson((obj) => obj.toJson());
 
     final jsonString = jsonEncode(jsonObject);
 
@@ -212,9 +197,7 @@ class WebsocketClient {
       data: const WebsocketStopSendPosition(),
     );
 
-    final jsonObject = message.toJson(
-      (obj) => (obj as WebsocketStopSendPosition).toJson(),
-    );
+    final jsonObject = message.toJson((obj) => obj.toJson());
 
     final jsonString = jsonEncode(jsonObject);
 

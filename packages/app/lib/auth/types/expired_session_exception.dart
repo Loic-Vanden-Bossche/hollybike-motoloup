@@ -8,5 +8,5 @@ class ExpiredSessionException implements Exception {
   final String message;
 
   ExpiredSessionException(AuthSession expiredSession)
-      : message = "Current session to ${expiredSession.host} cannot be renewed";
+    : message = "Current session to ${expiredSession.host} cannot be renewed";
 }

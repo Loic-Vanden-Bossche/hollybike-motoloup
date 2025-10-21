@@ -11,7 +11,9 @@ part 'websocket_subscribe.freezed.dart';
 part 'websocket_subscribe.g.dart';
 
 @freezed
-sealed class WebsocketSubscribe with _$WebsocketSubscribe implements WebsocketBody {
+sealed class WebsocketSubscribe
+    with _$WebsocketSubscribe
+    implements WebsocketBody {
   const factory WebsocketSubscribe({
     required String token,
     @Default("subscribe") String type,

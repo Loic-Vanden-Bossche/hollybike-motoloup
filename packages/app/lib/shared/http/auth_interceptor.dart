@@ -65,20 +65,19 @@ class AuthInterceptor extends Interceptor {
           newSession = authPersistence.getNewSession(requestSession);
         } else {
           authPersistence.refreshing = true;
-          newSession = await _renewSession(requestSession).then(
-            (value) {
-              return authPersistence.replaceSession(requestSession, value).then(
-                    (_) => value,
-                  );
-            },
-          ).onError(
-            (error, stackTrace) {
-              authPersistence.removeCorrespondence(requestSession);
-              return Future.error(error!);
-            },
-          ).whenComplete(() {
-            authPersistence.refreshing = false;
-          });
+          newSession = await _renewSession(requestSession)
+              .then((value) {
+                return authPersistence
+                    .replaceSession(requestSession, value)
+                    .then((_) => value);
+              })
+              .onError((error, stackTrace) {
+                authPersistence.removeCorrespondence(requestSession);
+                return Future.error(error!);
+              })
+              .whenComplete(() {
+                authPersistence.refreshing = false;
+              });
         }
 
         if (newSession == null) {
@@ -99,20 +98,14 @@ class AuthInterceptor extends Interceptor {
           }
 
           return handler.reject(
-            DioException(
-              requestOptions: e.requestOptions,
-              error: e.response,
-            ),
+            DioException(requestOptions: e.requestOptions, error: e.response),
           );
         }
       } on DioException catch (e) {
         await onSessionExpired(requestSession);
 
         return handler.reject(
-          DioException(
-            requestOptions: e.requestOptions,
-            error: e.response,
-          ),
+          DioException(requestOptions: e.requestOptions, error: e.response),
         );
       }
     }
@@ -133,10 +126,7 @@ class AuthInterceptor extends Interceptor {
   Future<AuthSession> _renewSession(AuthSession oldSession) async {
     final newSessionResponse = await dio.patch(
       '${oldSession.host}/api/auth/refresh',
-      data: {
-        "device": oldSession.deviceId,
-        "token": oldSession.refreshToken,
-      },
+      data: {"device": oldSession.deviceId, "token": oldSession.refreshToken},
     );
 
     return AuthSession.fromResponseJson(

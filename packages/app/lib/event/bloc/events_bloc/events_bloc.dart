@@ -17,10 +17,8 @@ abstract class EventsBloc extends Bloc<EventsEvent, EventsState> {
   final EventRepository eventRepository;
   final String requestType;
 
-  EventsBloc({
-    required this.eventRepository,
-    required this.requestType,
-  }) : super(EventInitial()) {
+  EventsBloc({required this.eventRepository, required this.requestType})
+    : super(EventInitial()) {
     on<SubscribeToEvents>(onSubscribeToEvents);
     on<LoadEventsNextPage>(onLoadEventsNextPage);
     on<RefreshEvents>(_onRefreshEvents);
@@ -45,9 +43,7 @@ abstract class EventsBloc extends Bloc<EventsEvent, EventsState> {
         final isRefreshed = data.state;
 
         if (isRefreshed == RefreshedType.none) {
-          return state.copyWith(
-            events: events,
-          );
+          return state.copyWith(events: events);
         }
 
         return EventPageLoadSuccess(
@@ -98,9 +94,7 @@ abstract class EventsBloc extends Bloc<EventsEvent, EventsState> {
     emit(EventPageLoadInProgress(state));
 
     try {
-      await eventRepository.refreshEvents(
-        requestType,
-      );
+      await eventRepository.refreshEvents(requestType);
     } catch (e) {
       emit(handleError(e, 'Error while refreshing events'));
     }
@@ -109,9 +103,7 @@ abstract class EventsBloc extends Bloc<EventsEvent, EventsState> {
   EventsState handleError(Object e, String logMessage) {
     log(logMessage, error: e);
     return EventPageLoadFailure(
-      state.copyWith(
-        events: [],
-      ),
+      state.copyWith(events: []),
       errorMessage: 'Une erreur est survenue.',
     );
   }

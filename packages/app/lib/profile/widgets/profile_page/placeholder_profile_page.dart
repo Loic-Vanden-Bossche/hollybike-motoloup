@@ -10,10 +10,7 @@ import 'package:hollybike/shared/widgets/loading_placeholders/tabs_loading_place
 class PlaceholderProfilePage extends StatefulWidget {
   final int? loadingProfileId;
 
-  const PlaceholderProfilePage({
-    super.key,
-    this.loadingProfileId,
-  });
+  const PlaceholderProfilePage({super.key, this.loadingProfileId});
 
   @override
   State<PlaceholderProfilePage> createState() => _PlaceholderProfilePageState();
@@ -27,7 +24,8 @@ class _PlaceholderProfilePageState extends State<PlaceholderProfilePage>
       children: [
         PlaceholderProfileBanner(loadingProfileId: widget.loadingProfileId),
         PlaceholderProfileDescription(
-            loadingProfileId: widget.loadingProfileId),
+          loadingProfileId: widget.loadingProfileId,
+        ),
         const SizedBox.square(dimension: 16),
         const TabsLoadingPlaceholder(length: 2),
       ],

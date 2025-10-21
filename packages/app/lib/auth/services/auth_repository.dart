@@ -17,13 +17,13 @@ class AuthRepository {
 
   final BehaviorSubject<AuthSession?> _connectedSession = BehaviorSubject();
 
-  get connectedStream => _connectedSession.stream;
+  ValueStream<AuthSession?> get connectedStream => _connectedSession.stream;
 
   AuthRepository({
     required AuthApi authApi,
     required AuthPersistence authPersistence,
-  })  : _authPersistence = authPersistence,
-        _authApi = authApi;
+  }) : _authPersistence = authPersistence,
+       _authApi = authApi;
 
   set connected(AuthSession? session) => _connectedSession.add(session);
 

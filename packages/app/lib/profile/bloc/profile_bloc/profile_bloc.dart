@@ -32,8 +32,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
 
   ProfileLoadEvent? getProfile(AuthSession session) {
     try {
-      final profile = state.profilesLoad
-          .firstWhere((loadEvent) => loadEvent.session == session);
+      final profile = state.profilesLoad.firstWhere(
+        (loadEvent) => loadEvent.session == session,
+      );
 
       if (profile is ProfileLoadSuccessEvent) {
         if (profile.expiredAt.isBefore(DateTime.now())) {
@@ -41,8 +42,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
         }
       }
 
-      return state.profilesLoad
-          .firstWhere((loadEvent) => loadEvent.session == session);
+      return state.profilesLoad.firstWhere(
+        (loadEvent) => loadEvent.session == session,
+      );
     } catch (e) {
       final futureOrProfile = profileRepository.getProfile(
         session,
@@ -50,18 +52,18 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
 
       if (futureOrProfile is Future<Profile>) {
-        futureOrProfile.then((profile) {
-          add(ProfileLoadSuccessEvent(session: session, profile: profile));
-        }, onError: (error) {
-          add(ProfileLoadErrorEvent(session: session, error: error));
-        });
+        futureOrProfile.then(
+          (profile) {
+            add(ProfileLoadSuccessEvent(session: session, profile: profile));
+          },
+          onError: (error) {
+            add(ProfileLoadErrorEvent(session: session, error: error));
+          },
+        );
         add(ProfileLoadingEvent(session: session));
       } else {
         add(
-          ProfileLoadSuccessEvent(
-            session: session,
-            profile: futureOrProfile,
-          ),
+          ProfileLoadSuccessEvent(session: session, profile: futureOrProfile),
         );
       }
       return null;
@@ -93,23 +95,26 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       );
 
       if (futureOrUser is Future<MinimalUser>) {
-        futureOrUser.then((user) {
-          add(
-            UserLoadSuccessEvent(
-              observerSession: currentSession,
-              id: id,
-              user: user,
-            ),
-          );
-        }, onError: (error) {
-          add(
-            UserLoadErrorEvent(
-              observerSession: currentSession,
-              id: id,
-              error: error,
-            ),
-          );
-        });
+        futureOrUser.then(
+          (user) {
+            add(
+              UserLoadSuccessEvent(
+                observerSession: currentSession,
+                id: id,
+                user: user,
+              ),
+            );
+          },
+          onError: (error) {
+            add(
+              UserLoadErrorEvent(
+                observerSession: currentSession,
+                id: id,
+                error: error,
+              ),
+            );
+          },
+        );
         add(UserLoadingEvent(observerSession: currentSession, id: id));
       } else {
         add(
@@ -164,27 +169,11 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     );
   }
 
-  void _onProfileLoadEvent(
-    ProfileLoadEvent event,
-    Emitter<ProfileState> emit,
-  ) {
-    emit(
-      UpdateLoadEventProfileState(
-        oldState: state,
-        profileLoadEvent: event,
-      ),
-    );
+  void _onProfileLoadEvent(ProfileLoadEvent event, Emitter<ProfileState> emit) {
+    emit(UpdateLoadEventProfileState(oldState: state, profileLoadEvent: event));
   }
 
-  void _onUserLoadEvent(
-    UserLoadEvent event,
-    Emitter<ProfileState> emit,
-  ) {
-    emit(
-      UpdateLoadEventProfileState(
-        oldState: state,
-        userLoadEvent: event,
-      ),
-    );
+  void _onUserLoadEvent(UserLoadEvent event, Emitter<ProfileState> emit) {
+    emit(UpdateLoadEventProfileState(oldState: state, userLoadEvent: event));
   }
 }

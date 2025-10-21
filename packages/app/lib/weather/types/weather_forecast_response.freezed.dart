@@ -1,6 +1,5 @@
-// dart format width=80
-// coverage:ignore-file
 // GENERATED CODE - DO NOT MODIFY BY HAND
+// coverage:ignore-file
 // ignore_for_file: type=lint
 // ignore_for_file: unused_element, deprecated_member_use, deprecated_member_use_from_same_package, use_function_type_syntax_for_parameters, unnecessary_const, avoid_init_to_null, invalid_override_different_default_values_named, prefer_expression_function_bodies, annotate_overrides, invalid_annotation_target, unnecessary_question_mark
 
@@ -121,6 +120,130 @@ $DailyCopyWith<$Res> get daily {
 }
 }
 
+
+/// Adds pattern-matching-related methods to [WeatherForecastResponse].
+extension WeatherForecastResponsePatterns on WeatherForecastResponse {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _WeatherForecastResponse value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _WeatherForecastResponse() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _WeatherForecastResponse value)  $default,){
+final _that = this;
+switch (_that) {
+case _WeatherForecastResponse():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _WeatherForecastResponse value)?  $default,){
+final _that = this;
+switch (_that) {
+case _WeatherForecastResponse() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( double latitude,  double longitude, @JsonKey(name: 'generationtime_ms')  double generationTimeMs, @JsonKey(name: 'utc_offset_seconds')  int utcOffsetSeconds,  String timezone, @JsonKey(name: 'timezone_abbreviation')  String timezoneAbbreviation,  double elevation, @JsonKey(name: 'hourly_units')  HourlyUnits hourlyUnits,  Hourly hourly, @JsonKey(name: 'daily_units')  DailyUnits dailyUnits,  Daily daily)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _WeatherForecastResponse() when $default != null:
+return $default(_that.latitude,_that.longitude,_that.generationTimeMs,_that.utcOffsetSeconds,_that.timezone,_that.timezoneAbbreviation,_that.elevation,_that.hourlyUnits,_that.hourly,_that.dailyUnits,_that.daily);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( double latitude,  double longitude, @JsonKey(name: 'generationtime_ms')  double generationTimeMs, @JsonKey(name: 'utc_offset_seconds')  int utcOffsetSeconds,  String timezone, @JsonKey(name: 'timezone_abbreviation')  String timezoneAbbreviation,  double elevation, @JsonKey(name: 'hourly_units')  HourlyUnits hourlyUnits,  Hourly hourly, @JsonKey(name: 'daily_units')  DailyUnits dailyUnits,  Daily daily)  $default,) {final _that = this;
+switch (_that) {
+case _WeatherForecastResponse():
+return $default(_that.latitude,_that.longitude,_that.generationTimeMs,_that.utcOffsetSeconds,_that.timezone,_that.timezoneAbbreviation,_that.elevation,_that.hourlyUnits,_that.hourly,_that.dailyUnits,_that.daily);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( double latitude,  double longitude, @JsonKey(name: 'generationtime_ms')  double generationTimeMs, @JsonKey(name: 'utc_offset_seconds')  int utcOffsetSeconds,  String timezone, @JsonKey(name: 'timezone_abbreviation')  String timezoneAbbreviation,  double elevation, @JsonKey(name: 'hourly_units')  HourlyUnits hourlyUnits,  Hourly hourly, @JsonKey(name: 'daily_units')  DailyUnits dailyUnits,  Daily daily)?  $default,) {final _that = this;
+switch (_that) {
+case _WeatherForecastResponse() when $default != null:
+return $default(_that.latitude,_that.longitude,_that.generationTimeMs,_that.utcOffsetSeconds,_that.timezone,_that.timezoneAbbreviation,_that.elevation,_that.hourlyUnits,_that.hourly,_that.dailyUnits,_that.daily);case _:
+  return null;
+
+}
+}
+
+}
 
 /// @nodoc
 @JsonSerializable()
@@ -313,6 +436,130 @@ as String,
 }
 
 
+/// Adds pattern-matching-related methods to [HourlyUnits].
+extension HourlyUnitsPatterns on HourlyUnits {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _HourlyUnits value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _HourlyUnits() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _HourlyUnits value)  $default,){
+final _that = this;
+switch (_that) {
+case _HourlyUnits():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _HourlyUnits value)?  $default,){
+final _that = this;
+switch (_that) {
+case _HourlyUnits() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String time, @JsonKey(name: 'temperature_2m')  String temperature2m, @JsonKey(name: 'weather_code')  String weatherCode)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _HourlyUnits() when $default != null:
+return $default(_that.time,_that.temperature2m,_that.weatherCode);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String time, @JsonKey(name: 'temperature_2m')  String temperature2m, @JsonKey(name: 'weather_code')  String weatherCode)  $default,) {final _that = this;
+switch (_that) {
+case _HourlyUnits():
+return $default(_that.time,_that.temperature2m,_that.weatherCode);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String time, @JsonKey(name: 'temperature_2m')  String temperature2m, @JsonKey(name: 'weather_code')  String weatherCode)?  $default,) {final _that = this;
+switch (_that) {
+case _HourlyUnits() when $default != null:
+return $default(_that.time,_that.temperature2m,_that.weatherCode);case _:
+  return null;
+
+}
+}
+
+}
+
 /// @nodoc
 @JsonSerializable()
 
@@ -451,6 +698,130 @@ as List<int?>,
 
 }
 
+
+/// Adds pattern-matching-related methods to [Hourly].
+extension HourlyPatterns on Hourly {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Hourly value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Hourly() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Hourly value)  $default,){
+final _that = this;
+switch (_that) {
+case _Hourly():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Hourly value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Hourly() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> time, @JsonKey(name: 'temperature_2m')  List<double?> temperature2m, @JsonKey(name: 'weather_code')  List<int?> weatherCode)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Hourly() when $default != null:
+return $default(_that.time,_that.temperature2m,_that.weatherCode);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> time, @JsonKey(name: 'temperature_2m')  List<double?> temperature2m, @JsonKey(name: 'weather_code')  List<int?> weatherCode)  $default,) {final _that = this;
+switch (_that) {
+case _Hourly():
+return $default(_that.time,_that.temperature2m,_that.weatherCode);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> time, @JsonKey(name: 'temperature_2m')  List<double?> temperature2m, @JsonKey(name: 'weather_code')  List<int?> weatherCode)?  $default,) {final _that = this;
+switch (_that) {
+case _Hourly() when $default != null:
+return $default(_that.time,_that.temperature2m,_that.weatherCode);case _:
+  return null;
+
+}
+}
+
+}
 
 /// @nodoc
 @JsonSerializable()
@@ -612,6 +983,130 @@ as String,
 }
 
 
+/// Adds pattern-matching-related methods to [DailyUnits].
+extension DailyUnitsPatterns on DailyUnits {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _DailyUnits value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _DailyUnits() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _DailyUnits value)  $default,){
+final _that = this;
+switch (_that) {
+case _DailyUnits():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _DailyUnits value)?  $default,){
+final _that = this;
+switch (_that) {
+case _DailyUnits() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String time, @JsonKey(name: 'weather_code')  String weatherCode, @JsonKey(name: 'temperature_2m_max')  String temperature2mMax, @JsonKey(name: 'temperature_2m_min')  String temperature2mMin, @JsonKey(name: 'sunrise')  String sunrise, @JsonKey(name: 'sunset')  String sunset)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _DailyUnits() when $default != null:
+return $default(_that.time,_that.weatherCode,_that.temperature2mMax,_that.temperature2mMin,_that.sunrise,_that.sunset);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String time, @JsonKey(name: 'weather_code')  String weatherCode, @JsonKey(name: 'temperature_2m_max')  String temperature2mMax, @JsonKey(name: 'temperature_2m_min')  String temperature2mMin, @JsonKey(name: 'sunrise')  String sunrise, @JsonKey(name: 'sunset')  String sunset)  $default,) {final _that = this;
+switch (_that) {
+case _DailyUnits():
+return $default(_that.time,_that.weatherCode,_that.temperature2mMax,_that.temperature2mMin,_that.sunrise,_that.sunset);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String time, @JsonKey(name: 'weather_code')  String weatherCode, @JsonKey(name: 'temperature_2m_max')  String temperature2mMax, @JsonKey(name: 'temperature_2m_min')  String temperature2mMin, @JsonKey(name: 'sunrise')  String sunrise, @JsonKey(name: 'sunset')  String sunset)?  $default,) {final _that = this;
+switch (_that) {
+case _DailyUnits() when $default != null:
+return $default(_that.time,_that.weatherCode,_that.temperature2mMax,_that.temperature2mMin,_that.sunrise,_that.sunset);case _:
+  return null;
+
+}
+}
+
+}
+
 /// @nodoc
 @JsonSerializable()
 
@@ -759,6 +1254,130 @@ as List<String?>,
 
 }
 
+
+/// Adds pattern-matching-related methods to [Daily].
+extension DailyPatterns on Daily {
+/// A variant of `map` that fallback to returning `orElse`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeMap<TResult extends Object?>(TResult Function( _Daily value)?  $default,{required TResult orElse(),}){
+final _that = this;
+switch (_that) {
+case _Daily() when $default != null:
+return $default(_that);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// Callbacks receives the raw object, upcasted.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case final Subclass2 value:
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult map<TResult extends Object?>(TResult Function( _Daily value)  $default,){
+final _that = this;
+switch (_that) {
+case _Daily():
+return $default(_that);}
+}
+/// A variant of `map` that fallback to returning `null`.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case final Subclass value:
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? mapOrNull<TResult extends Object?>(TResult? Function( _Daily value)?  $default,){
+final _that = this;
+switch (_that) {
+case _Daily() when $default != null:
+return $default(_that);case _:
+  return null;
+
+}
+}
+/// A variant of `when` that fallback to an `orElse` callback.
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return orElse();
+/// }
+/// ```
+
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( List<String> time, @JsonKey(name: 'weather_code')  List<int?> weatherCode, @JsonKey(name: 'temperature_2m_max')  List<double?> temperature2mMax, @JsonKey(name: 'temperature_2m_min')  List<double?> temperature2mMin, @JsonKey(name: 'sunrise')  List<String?> sunrise, @JsonKey(name: 'sunset')  List<String?> sunset)?  $default,{required TResult orElse(),}) {final _that = this;
+switch (_that) {
+case _Daily() when $default != null:
+return $default(_that.time,_that.weatherCode,_that.temperature2mMax,_that.temperature2mMin,_that.sunrise,_that.sunset);case _:
+  return orElse();
+
+}
+}
+/// A `switch`-like method, using callbacks.
+///
+/// As opposed to `map`, this offers destructuring.
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case Subclass2(:final field2):
+///     return ...;
+/// }
+/// ```
+
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( List<String> time, @JsonKey(name: 'weather_code')  List<int?> weatherCode, @JsonKey(name: 'temperature_2m_max')  List<double?> temperature2mMax, @JsonKey(name: 'temperature_2m_min')  List<double?> temperature2mMin, @JsonKey(name: 'sunrise')  List<String?> sunrise, @JsonKey(name: 'sunset')  List<String?> sunset)  $default,) {final _that = this;
+switch (_that) {
+case _Daily():
+return $default(_that.time,_that.weatherCode,_that.temperature2mMax,_that.temperature2mMin,_that.sunrise,_that.sunset);}
+}
+/// A variant of `when` that fallback to returning `null`
+///
+/// It is equivalent to doing:
+/// ```dart
+/// switch (sealedClass) {
+///   case Subclass(:final field):
+///     return ...;
+///   case _:
+///     return null;
+/// }
+/// ```
+
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( List<String> time, @JsonKey(name: 'weather_code')  List<int?> weatherCode, @JsonKey(name: 'temperature_2m_max')  List<double?> temperature2mMax, @JsonKey(name: 'temperature_2m_min')  List<double?> temperature2mMin, @JsonKey(name: 'sunrise')  List<String?> sunrise, @JsonKey(name: 'sunset')  List<String?> sunset)?  $default,) {final _that = this;
+switch (_that) {
+case _Daily() when $default != null:
+return $default(_that.time,_that.weatherCode,_that.temperature2mMax,_that.temperature2mMin,_that.sunrise,_that.sunset);case _:
+  return null;
+
+}
+}
+
+}
 
 /// @nodoc
 @JsonSerializable()

@@ -33,11 +33,7 @@ class ImageRepository {
     int eventId,
     int eventsPerPage,
   ) async {
-    final pageResult = await imageApi.getEventImages(
-      eventId,
-      0,
-      eventsPerPage,
-    );
+    final pageResult = await imageApi.getEventImages(eventId, 0, eventsPerPage);
 
     return pageResult;
   }
@@ -96,45 +92,25 @@ class ImageRepository {
     return pageResult;
   }
 
-  Future<void> uploadEventImages(
-    int eventId,
-    List<File> images,
-  ) async {
+  Future<void> uploadEventImages(int eventId, List<File> images) async {
     await imageApi.uploadEventImages(eventId, images);
   }
 
-  Future<void> updateImagesVisibility(
-    int eventId,
-    bool isPublic,
-  ) async {
+  Future<void> updateImagesVisibility(int eventId, bool isPublic) async {
     await imageApi.updateImagesVisibility(eventId, isPublic);
   }
 
-  Future<EventImageDetails> getImageDetails(
-    int imageId,
-  ) async {
-    final imageDetails = await imageApi.getImageDetails(
-      imageId,
-    );
+  Future<EventImageDetails> getImageDetails(int imageId) async {
+    final imageDetails = await imageApi.getImageDetails(imageId);
 
     return imageDetails;
   }
 
-  Future<void> deleteImage(
-    int imageId,
-  ) async {
-    await imageApi.deleteImage(
-      imageId,
-    );
+  Future<void> deleteImage(int imageId) async {
+    await imageApi.deleteImage(imageId);
   }
 
-  Future<void> downloadImage(
-    String imageUrl,
-    int imgId,
-  ) async {
-    await imageApi.downloadImage(
-      imageUrl,
-      imgId,
-    );
+  Future<void> downloadImage(String imageUrl, int imgId) async {
+    await imageApi.downloadImage(imageUrl, imgId);
   }
 }

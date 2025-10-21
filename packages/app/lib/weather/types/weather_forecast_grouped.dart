@@ -16,11 +16,13 @@ sealed class WeatherForecastGrouped with _$WeatherForecastGrouped {
   }) = _WeatherForecastGrouped;
 
   factory WeatherForecastGrouped.fromResponse(
-      WeatherForecastResponse response) {
+    WeatherForecastResponse response,
+  ) {
     final Map<String, List<HourlyWeather>> groupedHourly = {};
     for (int i = 0; i < response.hourly.time.length; i++) {
-      final weatherCondition =
-          getWeatherCondition(response.hourly.weatherCode[i] ?? -1);
+      final weatherCondition = getWeatherCondition(
+        response.hourly.weatherCode[i] ?? -1,
+      );
 
       if (response.hourly.temperature2m[i] == null ||
           weatherCondition == null) {
@@ -50,8 +52,9 @@ sealed class WeatherForecastGrouped with _$WeatherForecastGrouped {
 
     final List<DailyWeatherGrouped> groupedDaily = [];
     for (int i = 0; i < response.daily.time.length; i++) {
-      final weatherCondition =
-          getWeatherCondition(response.daily.weatherCode[i] ?? -1);
+      final weatherCondition = getWeatherCondition(
+        response.daily.weatherCode[i] ?? -1,
+      );
 
       if (response.daily.temperature2mMax[i] == null ||
           response.daily.temperature2mMin[i] == null ||
@@ -70,15 +73,16 @@ sealed class WeatherForecastGrouped with _$WeatherForecastGrouped {
         minTemperature:
             '${response.daily.temperature2mMin[i]?.round()}${response.dailyUnits.temperature2mMin}',
         weatherCondition: weatherCondition,
-        hourlyWeather: hourly.map((e) {
-          final sunrise = DateTime.parse(response.daily.sunrise[i]!);
-          final sunset = DateTime.parse(response.daily.sunset[i]!);
+        hourlyWeather:
+            hourly.map((e) {
+              final sunrise = DateTime.parse(response.daily.sunrise[i]!);
+              final sunset = DateTime.parse(response.daily.sunset[i]!);
 
-          final isDayTime =
-              e.rawTime.isAfter(sunrise) && e.rawTime.isBefore(sunset);
+              final isDayTime =
+                  e.rawTime.isAfter(sunrise) && e.rawTime.isBefore(sunset);
 
-          return e.copyWith(isDay: isDayTime);
-        }).toList(),
+              return e.copyWith(isDay: isDayTime);
+            }).toList(),
       );
       groupedDaily.add(dailyWeatherGrouped);
     }

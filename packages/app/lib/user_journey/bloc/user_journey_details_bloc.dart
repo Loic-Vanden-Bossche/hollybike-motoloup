@@ -47,10 +47,12 @@ class UserJourneyDetailsBloc
       emit(UserJourneyDeleted(state));
     } catch (e) {
       log('Failed to delete user journey', error: e);
-      emit(UserJourneyOperationFailure(
-        state,
-        errorMessage: 'Echec de la suppression du parcours.',
-      ));
+      emit(
+        UserJourneyOperationFailure(
+          state,
+          errorMessage: 'Echec de la suppression du parcours.',
+        ),
+      );
       return;
     }
   }
@@ -75,10 +77,12 @@ class UserJourneyDetailsBloc
       );
     } catch (e) {
       log('Failed to download user journey file', error: e);
-      emit(UserJourneyOperationFailure(
-        state,
-        errorMessage: 'Echec du téléchargement du parcours.',
-      ));
+      emit(
+        UserJourneyOperationFailure(
+          state,
+          errorMessage: 'Echec du téléchargement du parcours.',
+        ),
+      );
       return;
     }
   }

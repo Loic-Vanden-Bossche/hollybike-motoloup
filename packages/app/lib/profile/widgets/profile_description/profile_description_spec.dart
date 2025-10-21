@@ -29,7 +29,7 @@ class ProfileDescriptionSpec extends StatelessWidget {
           style: TextStyle(
             color: Theme.of(context).colorScheme.onPrimary.withAlpha(180),
           ),
-        )
+        ),
       ],
     );
   }

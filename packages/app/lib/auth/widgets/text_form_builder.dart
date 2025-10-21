@@ -64,7 +64,8 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
       child: Wrap(
         crossAxisAlignment: WrapCrossAlignment.start,
         runSpacing: 24,
-        children: _convertFormFieldsToWidgets(widget.formFields) +
+        children:
+            _convertFormFieldsToWidgets(widget.formFields) +
             _getFormFooter(widget.texts),
       ),
     );
@@ -108,10 +109,10 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
         child: Text(
           texts.link!.buttonText,
           style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(context).colorScheme.secondary,
-              ),
+            color: Theme.of(context).colorScheme.secondary,
+          ),
         ),
-      )
+      ),
     ];
 
     return [
@@ -161,7 +162,7 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
           autofocus: config.autofocus,
           autofillHints: config.autofillHints,
           textInputType: config.textInputType,
-        )
+        ),
       ];
     }
 
@@ -171,9 +172,10 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
         title: config.label,
         validator: config.validator,
         focusNode: focusNode?.focusNode,
-        onEditingDone: config.hasControlField
-            ? () => focusNode?.controlFocusNode?.requestFocus()
-            : next,
+        onEditingDone:
+            config.hasControlField
+                ? () => focusNode?.controlFocusNode?.requestFocus()
+                : next,
         autofocus: config.autofocus,
         autofillHints: config.autofillHints,
         textInputType: config.textInputType,
@@ -181,14 +183,16 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
     ];
 
     if (config.hasControlField) {
-      fields.add(ControlTextField(
-        controller: controller?.controlEditingController,
-        controlledFieldController: controller?.editingController,
-        controlledFieldTitle: config.label,
-        focusNode: focusNode?.controlFocusNode,
-        onEditingDone: next,
-        textInputType: config.textInputType,
-      ));
+      fields.add(
+        ControlTextField(
+          controller: controller?.controlEditingController,
+          controlledFieldController: controller?.editingController,
+          controlledFieldTitle: config.label,
+          focusNode: focusNode?.controlFocusNode,
+          onEditingDone: next,
+          textInputType: config.textInputType,
+        ),
+      );
     }
 
     return fields;
@@ -207,8 +211,9 @@ class _TextFormBuilderState extends State<TextFormBuilder> {
     if (_formKey.currentState!.validate()) {
       final data = Map.fromIterables(
         _formControllers.keys,
-        _formControllers.values
-            .map((controller) => controller.editingController.text),
+        _formControllers.values.map(
+          (controller) => controller.editingController.text,
+        ),
       );
       widget.onFormSubmit(data);
     }

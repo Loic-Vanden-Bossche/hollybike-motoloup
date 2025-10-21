@@ -12,9 +12,7 @@ abstract class EventExpensesEvent {}
 class DeleteExpense extends EventExpensesEvent {
   final int expenseId;
 
-  DeleteExpense({
-    required this.expenseId,
-  });
+  DeleteExpense({required this.expenseId});
 }
 
 class AddExpense extends EventExpensesEvent {
@@ -33,10 +31,7 @@ class EditBudget extends EventExpensesEvent {
   final String successMessage;
   final int? budget;
 
-  EditBudget({
-    required this.successMessage,
-    required this.budget,
-  });
+  EditBudget({required this.successMessage, required this.budget});
 }
 
 class DownloadReport extends EventExpensesEvent {}

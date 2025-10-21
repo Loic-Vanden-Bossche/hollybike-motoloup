@@ -16,22 +16,23 @@ import '../types/form_field_config.dart';
 
 @RoutePage()
 class SignupScreen extends StatelessWidget {
-  const SignupScreen({
-    super.key,
-  });
+  const SignupScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     final popContext = context.routeData.queryParams.getString(
-        "popContext", "");
+      "popContext",
+      "",
+    );
 
     return Scaffold(
-      floatingActionButton: popContext == "connected"
-          ? FloatingActionButton.small(
-        onPressed: () => context.router.maybePop(),
-        child: const Icon(Icons.arrow_back),
-      )
-          : null,
+      floatingActionButton:
+          popContext == "connected"
+              ? FloatingActionButton.small(
+                onPressed: () => context.router.maybePop(),
+                child: const Icon(Icons.arrow_back),
+              )
+              : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
       body: BlocListener<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -50,19 +51,20 @@ class SignupScreen extends StatelessWidget {
             return BannerDialog(
               body: FormBuilder(
                 title: "Inscrivez-vous!",
-                description: "Saisissez les informations de votre nouveau compte.",
+                description:
+                    "Saisissez les informations de votre nouveau compte.",
                 errorText: error,
-                formTexts: const FormTexts(
-                  submit: "S'inscrire",
-                ),
+                formTexts: const FormTexts(submit: "S'inscrire"),
                 onFormSubmit: (formValue) {
                   final values = Map.from(context.routeData.queryParams.rawMap);
                   values.addAll(formValue);
 
-                  BlocProvider.of<AuthBloc>(context).add(AuthSignup(
-                    host: context.routeData.queryParams.getString("host"),
-                    signupDto: SignupDto.fromMap(values),
-                  ));
+                  BlocProvider.of<AuthBloc>(context).add(
+                    AuthSignup(
+                      host: context.routeData.queryParams.getString("host"),
+                      signupDto: SignupDto.fromMap(values),
+                    ),
+                  );
                 },
                 formFields: {
                   "username": FormFieldConfig(
@@ -128,8 +130,9 @@ class SignupScreen extends StatelessWidget {
     if (inputText == null || inputText.isEmpty) {
       return "Ce champ ne peut pas être vide.";
     }
-    if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-        .hasMatch(inputText)) {
+    if (!RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+    ).hasMatch(inputText)) {
       return "Adresse email invalide.";
     }
     return null;

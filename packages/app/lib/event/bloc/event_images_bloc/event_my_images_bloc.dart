@@ -50,19 +50,23 @@ class EventMyImagesBloc extends ImageListBloc<EventMyImagesEvent> {
         numberOfImagesPerRequest,
       );
 
-      emit(ImageListPageLoadSuccess(state.copyWith(
-        images: [...state.images, ...page.items],
-        hasMore: page.items.length == numberOfImagesPerRequest,
-        nextPage: state.nextPage + 1,
-      )));
+      emit(
+        ImageListPageLoadSuccess(
+          state.copyWith(
+            images: [...state.images, ...page.items],
+            hasMore: page.items.length == numberOfImagesPerRequest,
+            nextPage: state.nextPage + 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while loading next page of images', error: e);
-      emit(ImageListPageLoadFailure(
-        state.copyWith(
-          hasMore: false,
+      emit(
+        ImageListPageLoadFailure(
+          state.copyWith(hasMore: false),
+          errorMessage: 'Une erreur est survenue.',
         ),
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      );
       return;
     }
   }
@@ -74,25 +78,26 @@ class EventMyImagesBloc extends ImageListBloc<EventMyImagesEvent> {
     emit(ImageListPageLoadInProgress(state));
 
     try {
-      PaginatedList<EventImage> page =
-          await imageRepository.refreshMyEventImages(
-        eventId,
-        numberOfImagesPerRequest,
-      );
+      PaginatedList<EventImage> page = await imageRepository
+          .refreshMyEventImages(eventId, numberOfImagesPerRequest);
 
-      emit(ImageListPageLoadSuccess(state.copyWith(
-        images: page.items,
-        hasMore: page.items.length == numberOfImagesPerRequest,
-        nextPage: 1,
-      )));
+      emit(
+        ImageListPageLoadSuccess(
+          state.copyWith(
+            images: page.items,
+            hasMore: page.items.length == numberOfImagesPerRequest,
+            nextPage: 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while refreshing images', error: e);
-      emit(ImageListPageLoadFailure(
-        state.copyWith(
-          hasMore: false,
+      emit(
+        ImageListPageLoadFailure(
+          state.copyWith(hasMore: false),
+          errorMessage: 'Une erreur est survenue.',
         ),
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      );
       return;
     }
   }
@@ -104,22 +109,23 @@ class EventMyImagesBloc extends ImageListBloc<EventMyImagesEvent> {
     emit(ImageListOperationInProgress(state));
 
     try {
-      await imageRepository.uploadEventImages(
-        eventId,
-        event.images,
-      );
+      await imageRepository.uploadEventImages(eventId, event.images);
 
-      emit(ImageListOperationSuccess(
-        state,
-        shouldRefresh: true,
-        successMessage: "Photos ajoutées avec succès",
-      ));
+      emit(
+        ImageListOperationSuccess(
+          state,
+          shouldRefresh: true,
+          successMessage: "Photos ajoutées avec succès",
+        ),
+      );
     } catch (e) {
       log('Error while uploading images', error: e);
-      emit(ImageListOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        ImageListOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -131,20 +137,19 @@ class EventMyImagesBloc extends ImageListBloc<EventMyImagesEvent> {
     emit(ImageListOperationInProgress(state));
 
     try {
-      await imageRepository.updateImagesVisibility(
-        eventId,
-        event.isPublic,
-      );
+      await imageRepository.updateImagesVisibility(eventId, event.isPublic);
 
       eventRepository.onImagesVisibilityUpdated(event.isPublic, eventId);
 
       emit(ImageListOperationSuccess(state));
     } catch (e) {
       log('Error while updating images visibility', error: e);
-      emit(ImageListOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        ImageListOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }

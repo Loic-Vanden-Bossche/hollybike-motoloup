@@ -48,9 +48,7 @@ class _EventScheduledStatusState extends State<EventScheduledStatus> {
   Future<Calendar?> getCurrentCalendar() async {
     try {
       final calendars = (await deviceCalendarPlugin.retrieveCalendars()).data;
-      return calendars?.firstWhere(
-        (calendar) => calendar.name == 'HollyBike',
-      );
+      return calendars?.firstWhere((calendar) => calendar.name == 'HollyBike');
     } catch (e) {
       return null;
     }
@@ -89,11 +87,11 @@ class _EventScheduledStatusState extends State<EventScheduledStatus> {
     String? calendarId = calendar?.id;
 
     if (calendarId == null) {
-      final calendar = (await deviceCalendarPlugin.createCalendar(
-        "HollyBike",
-        calendarColor: const Color(0xff94e2d5),
-      ))
-          .data;
+      final calendar =
+          (await deviceCalendarPlugin.createCalendar(
+            "HollyBike",
+            calendarColor: const Color(0xff94e2d5),
+          )).data;
       calendarId = calendar;
     }
 
@@ -115,8 +113,10 @@ class _EventScheduledStatusState extends State<EventScheduledStatus> {
       eventId: eventCalendarId,
       title: widget.eventDetails.event.name,
       description: widget.eventDetails.event.description,
-      start:
-          TZDateTime.from(widget.eventDetails.event.startDate, currentLocation),
+      start: TZDateTime.from(
+        widget.eventDetails.event.startDate,
+        currentLocation,
+      ),
       end: TZDateTime.from(endDate(), currentLocation),
       location: widget.eventDetails.journey?.readablePartialLocation,
     );
@@ -125,7 +125,9 @@ class _EventScheduledStatusState extends State<EventScheduledStatus> {
 
     if (createdEvent?.hasErrors == true && mounted) {
       Toast.showErrorToast(
-          context, 'Erreur lors de l\'ajout de l\'événement au calendrier');
+        context,
+        'Erreur lors de l\'ajout de l\'événement au calendrier',
+      );
 
       return;
     }

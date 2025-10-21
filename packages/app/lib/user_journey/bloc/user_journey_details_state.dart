@@ -15,16 +15,10 @@ class UserJourneyDetailsState {
   });
 
   UserJourneyDetailsState.state(UserJourneyDetailsState state)
-      : this(
-          status: state.status,
-        );
+    : this(status: state.status);
 
-  UserJourneyDetailsState copyWith({
-    UserJourneyDetailsStatus? status,
-  }) {
-    return UserJourneyDetailsState(
-      status: status ?? this.status,
-    );
+  UserJourneyDetailsState copyWith({UserJourneyDetailsStatus? status}) {
+    return UserJourneyDetailsState(status: status ?? this.status);
   }
 }
 
@@ -32,7 +26,7 @@ class UserJourneyDetailsInitial extends UserJourneyDetailsState {}
 
 class UserJourneyOperationInProgress extends UserJourneyDetailsState {
   UserJourneyOperationInProgress(UserJourneyDetailsState state)
-      : super.state(state.copyWith(status: UserJourneyDetailsStatus.loading));
+    : super.state(state.copyWith(status: UserJourneyDetailsStatus.loading));
 }
 
 class UserJourneyOperationSuccess extends UserJourneyDetailsState {
@@ -46,7 +40,7 @@ class UserJourneyOperationSuccess extends UserJourneyDetailsState {
 
 class UserJourneyDeleted extends UserJourneyDetailsState {
   UserJourneyDeleted(UserJourneyDetailsState state)
-      : super.state(state.copyWith(status: UserJourneyDetailsStatus.success));
+    : super.state(state.copyWith(status: UserJourneyDetailsStatus.success));
 }
 
 class UserJourneyOperationFailure extends UserJourneyDetailsState {

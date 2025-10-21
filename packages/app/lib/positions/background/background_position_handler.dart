@@ -4,11 +4,15 @@ import 'package:flutter_background_service/flutter_background_service.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:geolocator/geolocator.dart';
 
+import '../../background/background_handler.dart';
 import '../service/my_position_repository.dart';
 
 @pragma('vm:entry-point')
 class BackgroundPositionHandler {
-  static void initialize(ServiceInstance service, FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  static void initialize(
+    ServiceInstance service,
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+  ) async {
     StreamSubscription<Position>? positionSub;
 
     service.on('start_tracking').listen((event) async {
@@ -16,15 +20,32 @@ class BackgroundPositionHandler {
         return;
       }
 
+      flutterLocalNotificationsPlugin.show(
+        BackgroundHandler.backgroundNotificationId,
+        'Service de notifications HollyBike',
+        'HollyBike Locator',
+        NotificationDetails(
+          android: AndroidNotificationDetails(
+            BackgroundHandler.backgroundNotificationChannelId,
+            '${DateTime.now()}',
+            ongoing: true,
+            importance: Importance.low,
+            priority: Priority.low,
+          ),
+        ),
+      );
+
       MyPositionServiceRepository myLocationCallbackRepository =
-      MyPositionServiceRepository();
+          MyPositionServiceRepository();
 
       myLocationCallbackRepository.init(event);
 
       positionSub ??= Geolocator.getPositionStream(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          distanceFilter: 0,
+        locationSettings: AndroidSettings(
+          accuracy: LocationAccuracy.bestForNavigation,
+          distanceFilter: 5,
+          intervalDuration: Duration(seconds: 1),
+          forceLocationManager: false,
         ),
       ).listen((Position position) async {
         service.invoke("position_update");
@@ -34,7 +55,7 @@ class BackgroundPositionHandler {
 
     service.on('stop_tracking').listen((event) async {
       MyPositionServiceRepository myLocationCallbackRepository =
-      MyPositionServiceRepository();
+          MyPositionServiceRepository();
 
       myLocationCallbackRepository.dispose();
       await positionSub?.cancel();
@@ -42,9 +63,7 @@ class BackgroundPositionHandler {
     });
 
     service.on('is_tracking_running').listen((event) {
-      service.invoke('tracking_status', {
-        'isRunning': positionSub != null,
-      });
+      service.invoke('tracking_status', {'isRunning': positionSub != null});
     });
   }
 }

@@ -15,7 +15,6 @@ import 'package:hollybike/positions/bloc/user_positions/user_positions_state.dar
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
 import 'package:lottie/lottie.dart';
 
-
 class EventDetailsMap extends StatefulWidget {
   final int eventId;
   final MinimalJourney? journey;
@@ -38,9 +37,7 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
     super.initState();
 
     context.read<UserPositionsBloc>().add(
-      SubscribeToUserPositions(
-        eventId: widget.eventId,
-      ),
+      SubscribeToUserPositions(eventId: widget.eventId),
     );
   }
 
@@ -53,10 +50,7 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
             onRefresh: () => _refreshEventDetails(context),
             child: ScrollablePlaceholder(
               physics: const AlwaysScrollableScrollPhysics(),
-              padding: MediaQuery
-                  .of(context)
-                  .size
-                  .width * 0.1,
+              padding: MediaQuery.of(context).size.width * 0.1,
               child: _buildPlaceholder(),
             ),
           );
@@ -90,10 +84,7 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
         const SizedBox(height: 16),
         Text(
           'Aucun trajet lié à cet évènement ou aucun utilisateur ne partage sa position.',
-          style: Theme
-              .of(context)
-              .textTheme
-              .bodyMedium,
+          style: Theme.of(context).textTheme.bodyMedium,
           textAlign: TextAlign.center,
         ),
       ],
@@ -101,12 +92,8 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
   }
 
   Future<void> _refreshEventDetails(BuildContext context) {
-    context.read<EventDetailsBloc>().add(
-      LoadEventDetails(),
-    );
+    context.read<EventDetailsBloc>().add(LoadEventDetails());
 
-    return context
-        .read<EventDetailsBloc>()
-        .firstWhenNotLoading;
+    return context.read<EventDetailsBloc>().firstWhenNotLoading;
   }
 }

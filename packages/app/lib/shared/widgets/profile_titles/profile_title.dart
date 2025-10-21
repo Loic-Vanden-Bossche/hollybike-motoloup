@@ -13,17 +13,19 @@ class ProfileTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProfileTitleContainer(children: [
-      Text(
-        "${profile.username} - ${profile.association.name}",
-        style: Theme.of(context).textTheme.titleSmall,
-        overflow: TextOverflow.ellipsis,
-      ),
-      Text(
-        profile.email,
-        style: Theme.of(context).textTheme.bodySmall,
-        overflow: TextOverflow.ellipsis,
-      ),
-    ]);
+    return ProfileTitleContainer(
+      children: [
+        Text(
+          "${profile.username} - ${profile.association.name}",
+          style: Theme.of(context).textTheme.titleSmall,
+          overflow: TextOverflow.ellipsis,
+        ),
+        Text(
+          profile.email,
+          style: Theme.of(context).textTheme.bodySmall,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ],
+    );
   }
 }

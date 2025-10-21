@@ -15,18 +15,19 @@ class EventParticipationRepository {
 
   final _eventParticipationsStreamMapper =
       StreamMapper<List<EventParticipation>, void>(seedValue: []);
-  final _eventCandidatesStreamMapper =
-      StreamMapper<List<EventCandidate>, void>(seedValue: []);
+  final _eventCandidatesStreamMapper = StreamMapper<List<EventCandidate>, void>(
+    seedValue: [],
+  );
 
   EventParticipationRepository({required this.eventParticipationsApi});
 
   Stream<StreamValue<List<EventCandidate>, void>> candidatesStream(
-          int eventId) =>
-      _eventCandidatesStreamMapper.stream(eventId);
+    int eventId,
+  ) => _eventCandidatesStreamMapper.stream(eventId);
 
   Stream<StreamValue<List<EventParticipation>, void>> participationsStream(
-          int eventId) =>
-      _eventParticipationsStreamMapper.stream(eventId);
+    int eventId,
+  ) => _eventParticipationsStreamMapper.stream(eventId);
 
   Future<PaginatedList<EventCandidate>> fetchCandidates(
     int eventId,
@@ -44,10 +45,7 @@ class EventParticipationRepository {
     final candidates = _eventCandidatesStreamMapper.get(eventId);
 
     if (candidates != null) {
-      _eventCandidatesStreamMapper.add(
-        eventId,
-        candidates + pageResult.items,
-      );
+      _eventCandidatesStreamMapper.add(eventId, candidates + pageResult.items);
     }
 
     return pageResult;
@@ -65,10 +63,7 @@ class EventParticipationRepository {
       search,
     );
 
-    _eventCandidatesStreamMapper.add(
-      eventId,
-      pageResult.items,
-    );
+    _eventCandidatesStreamMapper.add(eventId, pageResult.items);
 
     return pageResult;
   }
@@ -106,22 +101,13 @@ class EventParticipationRepository {
       participationsPerPage,
     );
 
-    _eventParticipationsStreamMapper.add(
-      eventId,
-      pageResult.items,
-    );
+    _eventParticipationsStreamMapper.add(eventId, pageResult.items);
 
     return pageResult;
   }
 
-  Future<void> promoteParticipant(
-    int eventId,
-    int userId,
-  ) async {
-    await eventParticipationsApi.promoteParticipant(
-      eventId,
-      userId,
-    );
+  Future<void> promoteParticipant(int eventId, int userId) async {
+    await eventParticipationsApi.promoteParticipant(eventId, userId);
 
     final participations = _eventParticipationsStreamMapper.get(eventId);
 
@@ -129,44 +115,38 @@ class EventParticipationRepository {
       _eventParticipationsStreamMapper.add(
         eventId,
         participations
-            .map((participation) => participation.user.id == userId
-                ? participation.copyWith(role: EventRole.organizer)
-                : participation)
+            .map(
+              (participation) =>
+                  participation.user.id == userId
+                      ? participation.copyWith(role: EventRole.organizer)
+                      : participation,
+            )
             .toList(),
       );
     }
   }
 
-  Future<void> demoteParticipant(
-    int eventId,
-    int userId,
-  ) async {
-    await eventParticipationsApi.demoteParticipant(
-      eventId,
-      userId,
-    );
+  Future<void> demoteParticipant(int eventId, int userId) async {
+    await eventParticipationsApi.demoteParticipant(eventId, userId);
     final participations = _eventParticipationsStreamMapper.get(eventId);
 
     if (participations != null) {
       _eventParticipationsStreamMapper.add(
         eventId,
         participations
-            .map((participation) => participation.user.id == userId
-                ? participation.copyWith(role: EventRole.member)
-                : participation)
+            .map(
+              (participation) =>
+                  participation.user.id == userId
+                      ? participation.copyWith(role: EventRole.member)
+                      : participation,
+            )
             .toList(),
       );
     }
   }
 
-  Future<void> removeParticipant(
-    int eventId,
-    int userId,
-  ) async {
-    await eventParticipationsApi.removeParticipant(
-      eventId,
-      userId,
-    );
+  Future<void> removeParticipant(int eventId, int userId) async {
+    await eventParticipationsApi.removeParticipant(eventId, userId);
 
     final participations = _eventParticipationsStreamMapper.get(eventId);
 
@@ -190,10 +170,7 @@ class EventParticipationRepository {
       userIds,
     );
 
-    await refreshParticipations(
-      eventId,
-      participationsPerPage,
-    );
+    await refreshParticipations(eventId, participationsPerPage);
 
     return participations;
   }
@@ -201,19 +178,19 @@ class EventParticipationRepository {
   void onUserJourneyRemoved(int userJourneyId) {
     for (final counter in _eventParticipationsStreamMapper.counters) {
       counter.add(
-          counter.value.map((participation) {
-            if (participation.journey?.id == userJourneyId) {
-              return EventParticipation(
-                isImagesPublic: participation.isImagesPublic,
-                user: participation.user,
-                role: participation.role,
-                joinedDateTime: participation.joinedDateTime,
-                journey: null,
-              );
-            }
+        counter.value.map((participation) {
+          if (participation.journey?.id == userJourneyId) {
+            return EventParticipation(
+              isImagesPublic: participation.isImagesPublic,
+              user: participation.user,
+              role: participation.role,
+              joinedDateTime: participation.joinedDateTime,
+              journey: null,
+            );
+          }
 
-            return participation;
-          }).toList()
+          return participation;
+        }).toList(),
       );
     }
   }

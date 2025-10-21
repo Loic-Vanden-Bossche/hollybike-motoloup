@@ -9,10 +9,7 @@ import 'package:hollybike/shared/utils/dates.dart';
 class ImageGalleryDetailsEvent extends StatelessWidget {
   final MinimalEvent event;
 
-  const ImageGalleryDetailsEvent({
-    super.key,
-    required this.event,
-  });
+  const ImageGalleryDetailsEvent({super.key, required this.event});
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +56,9 @@ class ImageGalleryDetailsEvent extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      formatReadableDate(event.startDate.toLocal())
-                          .capitalize(),
+                      formatReadableDate(
+                        event.startDate.toLocal(),
+                      ).capitalize(),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],

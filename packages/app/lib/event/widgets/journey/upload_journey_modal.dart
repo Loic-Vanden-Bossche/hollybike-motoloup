@@ -12,10 +12,7 @@ import '../../bloc/event_journey_bloc/event_journey_state.dart';
 class UploadJourneyModal extends StatefulWidget {
   final bool isGpx;
 
-  const UploadJourneyModal({
-    super.key,
-    required this.isGpx,
-  });
+  const UploadJourneyModal({super.key, required this.isGpx});
 
   @override
   State<UploadJourneyModal> createState() => _UploadJourneyModalState();
@@ -169,10 +166,7 @@ class _UploadJourneyModalState extends State<UploadJourneyModal> {
                     child: TweenAnimationBuilder<double>(
                       duration: const Duration(milliseconds: 250),
                       curve: Curves.easeInOut,
-                      tween: Tween<double>(
-                        begin: 0,
-                        end: _progress,
-                      ),
+                      tween: Tween<double>(begin: 0, end: _progress),
                       builder: (context, value, child) {
                         return LinearProgressIndicator(
                           value: value,
@@ -193,11 +187,10 @@ class _UploadJourneyModalState extends State<UploadJourneyModal> {
                   Text(
                     'Veuillez patienter... Ceci peut prendre quelques instants',
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onPrimary
-                              .withValues(alpha: 0.5),
-                        ),
+                      color: Theme.of(
+                        context,
+                      ).colorScheme.onPrimary.withValues(alpha: 0.5),
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],

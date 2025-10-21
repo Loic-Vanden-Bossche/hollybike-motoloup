@@ -81,16 +81,12 @@ class ProfileImages extends StatelessWidget {
   }
 
   Future<void> _refreshImages(BuildContext context) {
-    context.read<ProfileImagesBloc>().add(
-          RefreshProfileImages(),
-        );
+    context.read<ProfileImagesBloc>().add(RefreshProfileImages());
 
     return context.read<ProfileImagesBloc>().firstWhenNotLoading;
   }
 
   void _loadNextPage(BuildContext context) {
-    context.read<ProfileImagesBloc>().add(
-          LoadProfileImagesNextPage(),
-        );
+    context.read<ProfileImagesBloc>().add(LoadProfileImagesNextPage());
   }
 }

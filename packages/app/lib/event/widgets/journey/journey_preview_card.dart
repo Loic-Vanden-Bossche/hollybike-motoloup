@@ -73,9 +73,7 @@ class JourneyPreviewCard extends StatelessWidget {
             onSelection: (type) {
               journeyImportModalFromType(context, type, eventDetails.event);
             },
-            child: EmptyJourneyPreviewCard(
-              event: eventDetails.event,
-            ),
+            child: EmptyJourneyPreviewCard(event: eventDetails.event),
           ),
         ),
       );
@@ -84,9 +82,10 @@ class JourneyPreviewCard extends StatelessWidget {
     return _buildContainer(
       AnimatedCrossFade(
         duration: const Duration(milliseconds: 500),
-        crossFadeState: loadingOperation
-            ? CrossFadeState.showSecond
-            : CrossFadeState.showFirst,
+        crossFadeState:
+            loadingOperation
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
         firstChild: SizedBox(
           height: 140,
           child: JourneyPreviewCardContainer(
@@ -95,14 +94,15 @@ class JourneyPreviewCard extends StatelessWidget {
                 backgroundColor: Colors.transparent,
                 isScrollControlled: true,
                 context: context,
-                builder: (_) => BlocProvider.value(
-                  value: context.read<EventJourneyBloc>(),
-                  child: JourneyModal(
-                    journey: journey!,
-                    eventDetails: eventDetails,
-                    onViewOnMap: onViewOnMap,
-                  ),
-                ),
+                builder:
+                    (_) => BlocProvider.value(
+                      value: context.read<EventJourneyBloc>(),
+                      child: JourneyModal(
+                        journey: journey!,
+                        eventDetails: eventDetails,
+                        onViewOnMap: onViewOnMap,
+                      ),
+                    ),
               );
             },
             child: JourneyPreviewCardContent(
@@ -118,9 +118,7 @@ class JourneyPreviewCard extends StatelessWidget {
               color: Theme.of(context).colorScheme.surfaceContainer,
               borderRadius: BorderRadius.circular(14),
             ),
-            child: const Center(
-              child: CircularProgressIndicator(),
-            ),
+            child: const Center(child: CircularProgressIndicator()),
           ),
         ),
       ),
@@ -131,10 +129,7 @@ class JourneyPreviewCard extends StatelessWidget {
     return Column(
       children: [
         const SizedBox(height: 16),
-        SizedBox(
-          height: 140,
-          child: child,
-        ),
+        SizedBox(height: 140, child: child),
       ],
     );
   }

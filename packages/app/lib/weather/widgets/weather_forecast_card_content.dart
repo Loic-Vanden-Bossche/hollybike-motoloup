@@ -32,12 +32,13 @@ class WeatherForecastCardContent extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => WeatherForecastBloc(
-        weatherForecastApi: WeatherForecastApi(),
-        destination: destination,
-        startDate: startDate,
-        endDate: endDate,
-      )..add(FetchWeatherForecast()),
+      create:
+          (context) => WeatherForecastBloc(
+            weatherForecastApi: WeatherForecastApi(),
+            destination: destination,
+            startDate: startDate,
+            endDate: endDate,
+          )..add(FetchWeatherForecast()),
       child: BlocBuilder<WeatherForecastBloc, WeatherForecastState>(
         builder: (context, state) {
           return AnimatedCrossFade(
@@ -48,9 +49,7 @@ class WeatherForecastCardContent extends StatelessWidget {
                 borderRadius: BorderRadius.circular(14),
               ),
               width: double.infinity,
-              child: const Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: const Center(child: CircularProgressIndicator()),
             ),
             secondChild: SizedBox(
               height: 120,
@@ -58,9 +57,10 @@ class WeatherForecastCardContent extends StatelessWidget {
               child: Material(
                 color: Colors.transparent,
                 child: InkWell(
-                  onTap: state is WeatherForecastSuccess
-                      ? () => onTap(context)
-                      : null,
+                  onTap:
+                      state is WeatherForecastSuccess
+                          ? () => onTap(context)
+                          : null,
                   borderRadius: BorderRadius.circular(14),
                   child: Ink(
                     decoration: BoxDecoration(
@@ -72,10 +72,11 @@ class WeatherForecastCardContent extends StatelessWidget {
                 ),
               ),
             ),
-            crossFadeState: (state is WeatherForecastLoading ||
-                    state is WeatherForecastInitial)
-                ? CrossFadeState.showFirst
-                : CrossFadeState.showSecond,
+            crossFadeState:
+                (state is WeatherForecastLoading ||
+                        state is WeatherForecastInitial)
+                    ? CrossFadeState.showFirst
+                    : CrossFadeState.showSecond,
             duration: const Duration(milliseconds: 300),
           );
         },
@@ -120,10 +121,7 @@ class WeatherForecastCardContent extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  JourneyPosition(
-                    pos: destination,
-                    isLarge: true,
-                  ),
+                  JourneyPosition(pos: destination, isLarge: true),
                   Text(
                     '${firstDay.maxTemperature} / ${firstDay.minTemperature} - ${getWeatherConditionLabel(firstDay.weatherCondition)}',
                     maxLines: 2,

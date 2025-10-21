@@ -19,8 +19,10 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
 
   void Function(FlutterBackgroundService)? onInitialized;
 
-  NotificationBloc({required this.authRepository, required this.backgroundService})
-      : super(NotificationInitial()) {
+  NotificationBloc({
+    required this.authRepository,
+    required this.backgroundService,
+  }) : super(NotificationInitial()) {
     on<InitNotificationService>(_onInitNotificationService);
   }
 

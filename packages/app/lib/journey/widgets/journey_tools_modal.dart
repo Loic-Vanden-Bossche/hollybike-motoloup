@@ -66,11 +66,7 @@ class JourneyToolsModal extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
-          top: 16,
-          left: 16,
-          right: 16,
-        ),
+        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
         child: SafeArea(
           child: SizedBox(
             width: double.infinity,
@@ -135,16 +131,18 @@ class JourneyToolsModal extends StatelessWidget {
                                     children: [
                                       Text(
                                         tool.name,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .titleSmall,
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.titleSmall,
                                       ),
                                       const SizedBox(height: 4),
                                       Text(
                                         tool.description,
-                                        style: Theme.of(context)
-                                            .textTheme
-                                            .bodySmall,
+                                        style:
+                                            Theme.of(
+                                              context,
+                                            ).textTheme.bodySmall,
                                         softWrap: true,
                                       ),
                                     ],

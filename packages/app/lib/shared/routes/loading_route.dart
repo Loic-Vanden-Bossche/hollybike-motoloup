@@ -17,10 +17,7 @@ class LoadingRoute extends StatelessWidget {
   Widget build(BuildContext context) {
     return const Stack(
       alignment: Alignment.center,
-      children: [
-        LoadingBackground(),
-        LoadingTitle(),
-      ],
+      children: [LoadingBackground(), LoadingTitle()],
     );
   }
 }

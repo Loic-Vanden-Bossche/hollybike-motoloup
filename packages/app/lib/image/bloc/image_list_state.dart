@@ -25,12 +25,12 @@ class ImageListState {
   });
 
   ImageListState.state(ImageListState state)
-      : this(
-          images: state.images,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: state.status,
-        );
+    : this(
+        images: state.images,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: state.status,
+      );
 
   ImageListState copyWith({
     EventImagesStatus? status,
@@ -51,38 +51,40 @@ class ImageListInitial extends ImageListState {}
 
 class ImageListPageLoadInProgress extends ImageListState {
   ImageListPageLoadInProgress(ImageListState state)
-      : super.state(state.copyWith(status: EventImagesStatus.loading));
+    : super.state(state.copyWith(status: EventImagesStatus.loading));
 }
 
 class ImageListPageLoadSuccess extends ImageListState {
   ImageListPageLoadSuccess(ImageListState state)
-      : super.state(state.copyWith(status: EventImagesStatus.success));
+    : super.state(state.copyWith(status: EventImagesStatus.success));
 }
 
 class ImageListPageLoadFailure extends ImageListState {
   final String errorMessage;
 
   ImageListPageLoadFailure(ImageListState state, {required this.errorMessage})
-      : super.state(state.copyWith(status: EventImagesStatus.error));
+    : super.state(state.copyWith(status: EventImagesStatus.error));
 }
 
 class ImageListOperationInProgress extends ImageListState {
   ImageListOperationInProgress(ImageListState state)
-      : super.state(state.copyWith(status: EventImagesStatus.loading));
+    : super.state(state.copyWith(status: EventImagesStatus.loading));
 }
 
 class ImageListOperationSuccess extends ImageListState {
   final bool shouldRefresh;
   final String? successMessage;
 
-  ImageListOperationSuccess(ImageListState state,
-      {this.shouldRefresh = false, this.successMessage})
-      : super.state(state.copyWith(status: EventImagesStatus.success));
+  ImageListOperationSuccess(
+    ImageListState state, {
+    this.shouldRefresh = false,
+    this.successMessage,
+  }) : super.state(state.copyWith(status: EventImagesStatus.success));
 }
 
 class ImageListOperationFailure extends ImageListState {
   final String errorMessage;
 
   ImageListOperationFailure(ImageListState state, {required this.errorMessage})
-      : super.state(state.copyWith(status: EventImagesStatus.error));
+    : super.state(state.copyWith(status: EventImagesStatus.error));
 }

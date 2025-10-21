@@ -40,9 +40,7 @@ class ProfilePicture extends StatelessWidget {
           ),
           ProfilePictureContainer(
             size: size,
-            child: Container(
-              color: Colors.black.withValues(alpha: 0.6),
-            ),
+            child: Container(color: Colors.black.withValues(alpha: 0.6)),
           ),
           ProfilePictureContainer(
             size: size,
@@ -52,7 +50,7 @@ class ProfilePicture extends StatelessWidget {
                 color: const Color(0xffcdd6f4),
                 size: size / 3,
               ),
-            )
+            ),
           ),
           Positioned.fill(
             child: Material(

@@ -48,7 +48,7 @@ class ClosableDialog extends StatelessWidget {
               ),
               color: Theme.of(context).colorScheme.primary,
               icon: const Icon(Icons.close),
-            )
+            ),
           ],
         ),
       ),

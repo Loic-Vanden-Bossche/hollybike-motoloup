@@ -34,14 +34,14 @@ sealed class EventDetails with _$EventDetails {
   factory EventDetails.fromJson(JsonMap json) => _$EventDetailsFromJson(json);
 
   factory EventDetails.empty() => EventDetails(
-        event: Event.empty(),
-        journey: null,
-        expenses: null,
-        callerParticipation: null,
-        previewParticipants: [],
-        previewParticipantsCount: 0,
-        totalExpense: null,
-      );
+    event: Event.empty(),
+    journey: null,
+    expenses: null,
+    callerParticipation: null,
+    previewParticipants: [],
+    previewParticipantsCount: 0,
+    totalExpense: null,
+  );
 
   bool get isOwner =>
       callerParticipation != null &&

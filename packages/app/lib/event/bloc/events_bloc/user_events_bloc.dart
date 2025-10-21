@@ -15,7 +15,7 @@ class UserEventsBloc extends EventsBloc {
   final int userId;
 
   UserEventsBloc({required super.eventRepository, required this.userId})
-      : super(requestType: "future") {
+    : super(requestType: "future") {
     on<RefreshUserEvents>(_onRefreshUserEvents);
   }
 
@@ -31,9 +31,7 @@ class UserEventsBloc extends EventsBloc {
         final isRefreshed = data.state;
 
         if (isRefreshed == RefreshedType.none) {
-          return state.copyWith(
-            events: events,
-          );
+          return state.copyWith(events: events);
         }
 
         return EventPageLoadSuccess(
@@ -54,10 +52,7 @@ class UserEventsBloc extends EventsBloc {
     emit(EventPageLoadInProgress(state));
 
     try {
-      await eventRepository.refreshEvents(
-        requestType,
-        userId: userId,
-      );
+      await eventRepository.refreshEvents(requestType, userId: userId);
     } catch (e) {
       emit(handleError(e, 'Error while refreshing events'));
     }

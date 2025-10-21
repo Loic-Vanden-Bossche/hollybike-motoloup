@@ -70,9 +70,7 @@ class _ProfileEventsState extends State<ProfileEvents> {
   Widget _buildPlaceholder(BuildContext context, EventStatus status) {
     switch (status) {
       case EventStatus.loading:
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       case EventStatus.error:
         return ScrollablePlaceholder(
           physics: const AlwaysScrollableScrollPhysics(),

@@ -49,8 +49,8 @@ class _TopBarSearchInputState extends State<TopBarSearchInput> {
               decoration: InputDecoration(
                 hintText: "Recherche",
                 hintStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimaryContainer,
-                    ),
+                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                ),
                 constraints: BoxConstraints(maxHeight: constraints.maxHeight),
                 isDense: true,
                 prefixIcon: Icon(
@@ -62,7 +62,7 @@ class _TopBarSearchInputState extends State<TopBarSearchInput> {
               ),
               controller: _controller,
             );
-          }
+          },
         ),
       ),
     );
@@ -106,9 +106,6 @@ class _TopBarSearchInputState extends State<TopBarSearchInput> {
 
   void _handleChange(String _) {
     _stopActiveDebounce();
-    _changeDebounce = Timer(
-      const Duration(milliseconds: 500),
-      _requestSearch,
-    );
+    _changeDebounce = Timer(const Duration(milliseconds: 500), _requestSearch);
   }
 }

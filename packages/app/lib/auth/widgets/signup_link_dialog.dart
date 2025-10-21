@@ -25,7 +25,7 @@ class _SignupLinkDialogState extends State<SignupLinkDialog> {
   final _formKey = GlobalKey<FormState>();
   final _linkController = TextEditingController();
 
-  get isValid => _formKey.currentState?.validate() == true;
+  bool get isValid => _formKey.currentState?.validate() == true;
 
   @override
   Widget build(BuildContext context) {
@@ -33,57 +33,49 @@ class _SignupLinkDialogState extends State<SignupLinkDialog> {
       title: "Saisissez votre lien d'inscription",
       onClose: () => Navigator.pop(context),
       body: Column(
-        children: addSeparators(
-          [
-            Form(
-              key: _formKey,
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: addSeparators(
-                  [
-                    Expanded(
-                      child: CommonTextField(
-                        controller: _linkController,
-                        title: "Entrez un lien d'invitation",
-                        validator: _validateInvitationLink,
-                      ),
-                    ),
-                    ElevatedButton(
-                      onPressed: _handleSubmit,
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(18),
-                        shape: const RoundedRectangleBorder(
-                          borderRadius: BorderRadius.all(Radius.circular(12)),
-                        ),
-                      ),
-                      child: const Text("Confirmer"),
-                    ),
-                  ],
-                  SizedBox.fromSize(
-                    size: const Size.square(8),
+        children: addSeparators([
+          Form(
+            key: _formKey,
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: addSeparators([
+                Expanded(
+                  child: CommonTextField(
+                    controller: _linkController,
+                    title: "Entrez un lien d'invitation",
+                    validator: _validateInvitationLink,
                   ),
                 ),
-              ),
+                ElevatedButton(
+                  onPressed: _handleSubmit,
+                  style: ElevatedButton.styleFrom(
+                    padding: const EdgeInsets.all(18),
+                    shape: const RoundedRectangleBorder(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                    ),
+                  ),
+                  child: const Text("Confirmer"),
+                ),
+              ], SizedBox.fromSize(size: const Size.square(8))),
             ),
-            Text(
-              "Vous pouvez aussi",
-              style: Theme.of(context).textTheme.titleSmall,
+          ),
+          Text(
+            "Vous pouvez aussi",
+            style: Theme.of(context).textTheme.titleSmall,
+          ),
+          ElevatedButton(
+            onPressed: _onScanQrCode,
+            child: const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text("Scanner un QR code"),
+                SizedBox(width: 8),
+                Icon(Icons.qr_code_scanner),
+              ],
             ),
-            ElevatedButton(
-              onPressed: _onScanQrCode,
-              child: const Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Text("Scanner un QR code"),
-                  SizedBox(width: 8),
-                  Icon(Icons.qr_code_scanner),
-                ],
-              ),
-            ),
-          ],
-          SizedBox.fromSize(size: const Size.square(16)),
-        ),
+          ),
+        ], SizedBox.fromSize(size: const Size.square(16))),
       ),
     );
   }
@@ -118,7 +110,9 @@ class _SignupLinkDialogState extends State<SignupLinkDialog> {
   void _handleSubmit() {
     if (isValid) {
       widget.canPop
-          ? context.router.replacePath("${_linkController.text}&popContext=connected")
+          ? context.router.replacePath(
+            "${_linkController.text}&popContext=connected",
+          )
           : context.router.pushPath("${_linkController.text}&popContext=guard");
     }
   }

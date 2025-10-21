@@ -31,7 +31,8 @@ class TopBar extends StatelessWidget {
           height: 46,
           child: Stack(
             fit: StackFit.expand,
-            children: _renderTitle() +
+            children:
+                _renderTitle() +
                 [
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,37 +46,32 @@ class TopBar extends StatelessWidget {
     );
   }
 
-  List<Widget> _renderFix(Widget? fix) => fix == null
-      ? [const SizedBox()]
-      : [
-          SizedBox(
-            height: double.infinity,
-            child: fix,
-          )
-        ];
+  List<Widget> _renderFix(Widget? fix) =>
+      fix == null
+          ? [const SizedBox()]
+          : [SizedBox(height: double.infinity, child: fix)];
 
-  List<Widget> _renderTitle() => title == null
-      ? <Widget>[]
-      : <Widget>[
-          AnimatedPadding(
-            duration: const Duration(milliseconds: 200),
-            padding: EdgeInsets.only(
-              left: prefix == null ? 0 : 48,
-              right: suffix == null ? 0 : 48,
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Hero(
-                    tag: "top_bar_title",
-                    transitionOnUserGestures: true,
-                    child: BarContainer(
-                      child: title,
+  List<Widget> _renderTitle() =>
+      title == null
+          ? <Widget>[]
+          : <Widget>[
+            AnimatedPadding(
+              duration: const Duration(milliseconds: 200),
+              padding: EdgeInsets.only(
+                left: prefix == null ? 0 : 48,
+                right: suffix == null ? 0 : 48,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Hero(
+                      tag: "top_bar_title",
+                      transitionOnUserGestures: true,
+                      child: BarContainer(child: title),
                     ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-        ];
+          ];
 }

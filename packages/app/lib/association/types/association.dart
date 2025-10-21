@@ -20,11 +20,7 @@ class Association {
       }
     }
 
-    [
-      "id",
-      "name",
-      "status",
-    ].forEach(verifyObjectAttributeNotNull);
+    ["id", "name", "status"].forEach(verifyObjectAttributeNotNull);
 
     return Association(
       id: object["id"],

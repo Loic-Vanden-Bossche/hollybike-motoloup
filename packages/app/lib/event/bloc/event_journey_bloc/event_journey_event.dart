@@ -27,16 +27,11 @@ class AttachJourneyToEvent extends EventJourneyEvent {
   final int eventId;
   final Journey journey;
 
-  AttachJourneyToEvent({
-    required this.eventId,
-    required this.journey,
-  });
+  AttachJourneyToEvent({required this.eventId, required this.journey});
 }
 
 class RemoveJourneyFromEvent extends EventJourneyEvent {
   final int eventId;
 
-  RemoveJourneyFromEvent({
-    required this.eventId,
-  });
+  RemoveJourneyFromEvent({required this.eventId});
 }

@@ -23,12 +23,12 @@ class MyPositionState {
   });
 
   MyPositionState.state(MyPositionState state)
-      : this(
-          lastLocation: state.lastLocation,
-          isRunning: state.isRunning,
-          status: state.status,
-          eventId: state.eventId,
-        );
+    : this(
+        lastLocation: state.lastLocation,
+        isRunning: state.isRunning,
+        status: state.status,
+        eventId: state.eventId,
+      );
 
   MyPositionState copyWith({
     MyPositionStatus? status,
@@ -49,9 +49,7 @@ class MyPositionInitial extends MyPositionState {}
 
 class MyPositionLoading extends MyPositionState {
   MyPositionLoading(state)
-      : super.state(
-          state.copyWith(status: MyPositionStatus.loading),
-        );
+    : super.state(state.copyWith(status: MyPositionStatus.loading));
 }
 
 class MyPositionStarted extends MyPositionState {
@@ -64,14 +62,14 @@ class MyPositionInitialized extends MyPositionState {
 
 class MyPositionStopped extends MyPositionState {
   MyPositionStopped(state)
-      : super.state(
-          MyPositionState(
-            lastLocation: state.lastLocation,
-            isRunning: state.isRunning,
-            status: state.status,
-            eventId: null,
-          ),
-        );
+    : super.state(
+        MyPositionState(
+          lastLocation: state.lastLocation,
+          isRunning: state.isRunning,
+          status: state.status,
+          eventId: null,
+        ),
+      );
 }
 
 class MyPositionFailure extends MyPositionState {
@@ -81,16 +79,13 @@ class MyPositionFailure extends MyPositionState {
 }
 
 class MyPositionUpdated extends MyPositionState {
-  MyPositionUpdated(
-      state,
-      Position? lastLocation
-      )
-      : super.state(
-          MyPositionState(
-            lastLocation: lastLocation,
-            isRunning: state.isRunning,
-            status: state.status,
-            eventId: state.eventId,
-          ),
-        );
+  MyPositionUpdated(state, Position? lastLocation)
+    : super.state(
+        MyPositionState(
+          lastLocation: lastLocation,
+          isRunning: state.isRunning,
+          status: state.status,
+          eventId: state.eventId,
+        ),
+      );
 }

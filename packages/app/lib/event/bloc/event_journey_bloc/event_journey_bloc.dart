@@ -25,7 +25,7 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
     on<RemoveJourneyFromEvent>(_onRemoveJourney);
   }
 
-  _onUploadJourneyFileToEvent(
+  Future<void> _onUploadJourneyFileToEvent(
     UploadJourneyFileToEvent event,
     Emitter<EventJourneyState> emit,
   ) async {
@@ -34,14 +34,14 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
     Journey journey;
 
     try {
-      journey = await journeyRepository.createJourney(
-        event.name,
-      );
+      journey = await journeyRepository.createJourney(event.name);
     } catch (e) {
-      emit(EventJourneyOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventJourneyOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
 
@@ -55,10 +55,7 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
 
       emit(EventJourneyUploadSuccess(state));
 
-      await eventRepository.addJourneyToEvent(
-        event.eventId,
-        journey,
-      );
+      await eventRepository.addJourneyToEvent(event.eventId, journey);
 
       eventRepository.onEventJourneyUpdated(journeyWithFile, event.eventId);
 
@@ -91,10 +88,12 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
         log('Error while deleting journey', error: e);
       }
 
-      emit(EventJourneyOperationFailure(
-        state,
-        errorMessage: 'Le ficher ne semble pas compatible.',
-      ));
+      emit(
+        EventJourneyOperationFailure(
+          state,
+          errorMessage: 'Le ficher ne semble pas compatible.',
+        ),
+      );
     }
   }
 
@@ -105,21 +104,22 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
     emit(EventJourneyOperationInProgress(state));
 
     try {
-      await eventRepository.addJourneyToEvent(
-        event.eventId,
-        event.journey,
-      );
+      await eventRepository.addJourneyToEvent(event.eventId, event.journey);
 
-      emit(EventJourneyOperationSuccess(
-        state,
-        successMessage: 'Parcours mis à jour',
-      ));
+      emit(
+        EventJourneyOperationSuccess(
+          state,
+          successMessage: 'Parcours mis à jour',
+        ),
+      );
     } catch (e) {
       log('Error while attaching journey to event', error: e);
-      emit(EventJourneyOperationFailure(
-        state,
-        errorMessage: 'Impossible de mettre à jour le parcours.',
-      ));
+      emit(
+        EventJourneyOperationFailure(
+          state,
+          errorMessage: 'Impossible de mettre à jour le parcours.',
+        ),
+      );
     }
   }
 
@@ -130,20 +130,22 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
     emit(EventJourneyOperationInProgress(state));
 
     try {
-      await eventRepository.removeJourneyFromEvent(
-        event.eventId,
-      );
+      await eventRepository.removeJourneyFromEvent(event.eventId);
 
-      emit(EventJourneyOperationSuccess(
-        state,
-        successMessage: 'Parcours retiré de l\'événement.',
-      ));
+      emit(
+        EventJourneyOperationSuccess(
+          state,
+          successMessage: 'Parcours retiré de l\'événement.',
+        ),
+      );
     } catch (e) {
       log('Error while removing journey from event', error: e);
-      emit(EventJourneyOperationFailure(
-        state,
-        errorMessage: 'Impossible de retirer le parcours.',
-      ));
+      emit(
+        EventJourneyOperationFailure(
+          state,
+          errorMessage: 'Impossible de retirer le parcours.',
+        ),
+      );
     }
   }
 }

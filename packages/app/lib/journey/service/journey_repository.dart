@@ -18,21 +18,13 @@ class JourneyRepository {
     int page,
     int eventsPerPage,
   ) async {
-    final pageResult = await journeyApi.getJourneys(
-      page,
-      eventsPerPage,
-    );
+    final pageResult = await journeyApi.getJourneys(page, eventsPerPage);
 
     return pageResult;
   }
 
-  Future<PaginatedList<Journey>> refreshJourneys(
-    int eventsPerPage,
-  ) async {
-    final pageResult = await journeyApi.getJourneys(
-      0,
-      eventsPerPage,
-    );
+  Future<PaginatedList<Journey>> refreshJourneys(int eventsPerPage) async {
+    final pageResult = await journeyApi.getJourneys(0, eventsPerPage);
 
     return pageResult;
   }
@@ -47,14 +39,8 @@ class JourneyRepository {
     await journeyApi.deleteJourney(journeyId);
   }
 
-  Future<Journey> uploadJourneyFile(
-    int journeyId,
-    File file,
-  ) async {
-    final journey = await journeyApi.uploadJourneyFile(
-      journeyId,
-      file,
-    );
+  Future<Journey> uploadJourneyFile(int journeyId, File file) async {
+    final journey = await journeyApi.uploadJourneyFile(journeyId, file);
 
     return journey;
   }

@@ -21,10 +21,7 @@ import 'package:hollybike/shared/widgets/pinned_header_delegate.dart';
 import '../../bloc/event_details_bloc/event_details_event.dart';
 
 class InvertedRoundedRectanglePainter extends CustomPainter {
-  InvertedRoundedRectanglePainter({
-    required this.radius,
-    required this.color,
-  });
+  InvertedRoundedRectanglePainter({required this.radius, required this.color});
 
   final double radius;
   final Color color;
@@ -65,9 +62,7 @@ class InvertedRoundedRectanglePainter extends CustomPainter {
 }
 
 class ExpensesModal extends StatefulWidget {
-  const ExpensesModal({
-    super.key,
-  });
+  const ExpensesModal({super.key});
 
   @override
   State<ExpensesModal> createState() => _ExpensesModalState();
@@ -113,11 +108,7 @@ class _ExpensesModalState extends State<ExpensesModal> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.only(
-            top: 16,
-            left: 16,
-            right: 16,
-          ),
+          padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
           child: SafeArea(
             child: SizedBox(
               width: double.infinity,
@@ -154,8 +145,10 @@ class _ExpensesModalState extends State<ExpensesModal> {
                             borderRadius: BorderRadius.circular(14),
                             child: NotificationListener(
                               onNotification: (notificationInfo) {
-                                if (notificationInfo is ScrollUpdateNotification) {
-                                  if (notificationInfo.dragDetails == null && !_animating) {
+                                if (notificationInfo
+                                    is ScrollUpdateNotification) {
+                                  if (notificationInfo.dragDetails == null &&
+                                      !_animating) {
                                     if (scrollController.offset < 16) {
                                       scrollController.jumpTo(16);
                                     }
@@ -177,25 +170,31 @@ class _ExpensesModalState extends State<ExpensesModal> {
                                         children: [
                                           Container(
                                             width: double.infinity,
-                                            color: Theme.of(context)
-                                                .colorScheme
-                                                .primary,
+                                            color:
+                                                Theme.of(
+                                                  context,
+                                                ).colorScheme.primary,
                                             child: Column(
                                               children: [
                                                 Container(
-                                                  padding:
-                                                      const EdgeInsets.all(16),
+                                                  padding: const EdgeInsets.all(
+                                                    16,
+                                                  ),
                                                   decoration: BoxDecoration(
                                                     borderRadius:
-                                                        BorderRadius.circular(14),
-                                                    color: Theme.of(context)
-                                                        .colorScheme
-                                                        .primaryContainer,
+                                                        BorderRadius.circular(
+                                                          14,
+                                                        ),
+                                                    color:
+                                                        Theme.of(context)
+                                                            .colorScheme
+                                                            .primaryContainer,
                                                   ),
                                                   child: BudgetProgress(
                                                     expenses: expenses,
                                                     budget: budget,
-                                                    totalExpenses: totalExpenses,
+                                                    totalExpenses:
+                                                        totalExpenses,
                                                     animateStart: false,
                                                   ),
                                                 ),
@@ -211,12 +210,13 @@ class _ExpensesModalState extends State<ExpensesModal> {
                                               width: double.infinity,
                                               child: CustomPaint(
                                                 painter:
-                                                InvertedRoundedRectanglePainter(
-                                                  radius: 16,
-                                                  color: Theme.of(context)
-                                                      .colorScheme
-                                                      .primary,
-                                                ),
+                                                    InvertedRoundedRectanglePainter(
+                                                      radius: 16,
+                                                      color:
+                                                          Theme.of(
+                                                            context,
+                                                          ).colorScheme.primary,
+                                                    ),
                                               ),
                                             ),
                                           ),
@@ -230,9 +230,15 @@ class _ExpensesModalState extends State<ExpensesModal> {
 
                                       return TweenAnimationBuilder(
                                         tween: Tween<double>(begin: 0, end: 1),
-                                        duration: const Duration(milliseconds: 300),
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
                                         curve: Curves.easeInOut,
-                                        builder: (context, double value, child) {
+                                        builder: (
+                                          context,
+                                          double value,
+                                          child,
+                                        ) {
                                           return Transform.translate(
                                             offset: Offset(30 * (1 - value), 0),
                                             child: Opacity(
@@ -268,9 +274,7 @@ class _ExpensesModalState extends State<ExpensesModal> {
   }
 
   Future<void> _refreshEventDetails(BuildContext context) {
-    context.read<EventDetailsBloc>().add(
-      LoadEventDetails(),
-    );
+    context.read<EventDetailsBloc>().add(LoadEventDetails());
 
     scrollController.animateTo(
       16,

@@ -10,8 +10,11 @@ import 'package:hollybike/shared/widgets/switch_with_text.dart';
 import '../../bloc/event_images_bloc/event_my_images_bloc.dart';
 import '../../bloc/event_images_bloc/event_my_images_event.dart';
 
-Future<void> showEventImagesVisibilityDialog(BuildContext context,
-    {required bool isImagesPublic, required int eventId}) {
+Future<void> showEventImagesVisibilityDialog(
+  BuildContext context, {
+  required bool isImagesPublic,
+  required int eventId,
+}) {
   return showDialog<void>(
     context: context,
     builder: (_) {
@@ -20,10 +23,8 @@ Future<void> showEventImagesVisibilityDialog(BuildContext context,
         eventId: eventId,
         onVisibilityChange: (isPublic) {
           context.read<EventMyImagesBloc>().add(
-                UpdateImagesVisibility(
-                  isPublic: isPublic,
-                ),
-              );
+            UpdateImagesVisibility(isPublic: isPublic),
+          );
         },
       );
     },
@@ -80,11 +81,11 @@ class _EventImagesVisibilityDialogState
   Widget _buildVisibilityHint() {
     return isPublic
         ? const Text(
-            'Vos images sont visibles par tous les membres de l\'assocation',
-          )
+          'Vos images sont visibles par tous les membres de l\'assocation',
+        )
         : const Text(
-            'Seuls les participants de l\'événement peuvent voir vos images',
-          );
+          'Seuls les participants de l\'événement peuvent voir vos images',
+        );
   }
 
   void _onChanged() {

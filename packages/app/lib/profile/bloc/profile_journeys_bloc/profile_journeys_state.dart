@@ -24,12 +24,12 @@ class ProfileJourneysState {
   });
 
   ProfileJourneysState.state(ProfileJourneysState state)
-      : this(
-          userJourneys: state.userJourneys,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: state.status,
-        );
+    : this(
+        userJourneys: state.userJourneys,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: state.status,
+      );
 
   ProfileJourneysState copyWith({
     ProfileJourneysStatus? status,
@@ -50,18 +50,19 @@ class ProfileJourneysInitial extends ProfileJourneysState {}
 
 class ProfileJourneysPageLoadInProgress extends ProfileJourneysState {
   ProfileJourneysPageLoadInProgress(ProfileJourneysState state)
-      : super.state(state.copyWith(status: ProfileJourneysStatus.loading));
+    : super.state(state.copyWith(status: ProfileJourneysStatus.loading));
 }
 
 class ProfileJourneysPageLoadSuccess extends ProfileJourneysState {
   ProfileJourneysPageLoadSuccess(ProfileJourneysState state)
-      : super.state(state.copyWith(status: ProfileJourneysStatus.success));
+    : super.state(state.copyWith(status: ProfileJourneysStatus.success));
 }
 
 class ProfileJourneysPageLoadFailure extends ProfileJourneysState {
   final String errorMessage;
 
-  ProfileJourneysPageLoadFailure(ProfileJourneysState state,
-      {required this.errorMessage})
-      : super.state(state.copyWith(status: ProfileJourneysStatus.error));
+  ProfileJourneysPageLoadFailure(
+    ProfileJourneysState state, {
+    required this.errorMessage,
+  }) : super.state(state.copyWith(status: ProfileJourneysStatus.error));
 }

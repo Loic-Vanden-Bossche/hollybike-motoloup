@@ -53,9 +53,7 @@ class JourneyPreviewCardContent extends StatelessWidget {
             ],
           ),
         ),
-        const SizedBox(
-          width: 12,
-        ),
+        const SizedBox(width: 12),
         Expanded(
           flex: 3,
           child: ClipRRect(
@@ -111,14 +109,9 @@ class JourneyPreviewCardContent extends StatelessWidget {
       wigets.add(
         Row(
           children: [
-            const Icon(
-              Icons.flag,
-              size: 16,
-            ),
+            const Icon(Icons.flag, size: 16),
             const SizedBox(width: 4),
-            Expanded(
-              child: JourneyPosition(pos: start),
-            ),
+            Expanded(child: JourneyPosition(pos: start)),
           ],
         ),
       );
@@ -128,10 +121,7 @@ class JourneyPreviewCardContent extends StatelessWidget {
       wigets.add(
         Row(
           children: [
-            const Icon(
-              Icons.location_on_sharp,
-              size: 16,
-            ),
+            const Icon(Icons.location_on_sharp, size: 16),
             const SizedBox(width: 4),
             Expanded(
               child: Text(

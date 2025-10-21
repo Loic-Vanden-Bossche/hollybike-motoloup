@@ -22,10 +22,11 @@ class AppTitle extends StatelessWidget {
               FontVariation.weight(900),
             ],
             fontSize: fontSize,
-            foreground: Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = 12
-              ..color = Theme.of(context).colorScheme.primary,
+            foreground:
+                Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 12
+                  ..color = Theme.of(context).colorScheme.primary,
           ),
         ),
         Text(
@@ -36,10 +37,11 @@ class AppTitle extends StatelessWidget {
               FontVariation.weight(900),
             ],
             fontSize: fontSize,
-            foreground: Paint()
-              ..style = PaintingStyle.stroke
-              ..strokeWidth = 6
-              ..color = Theme.of(context).colorScheme.onPrimary,
+            foreground:
+                Paint()
+                  ..style = PaintingStyle.stroke
+                  ..strokeWidth = 6
+                  ..color = Theme.of(context).colorScheme.onPrimary,
           ),
         ),
         Text(

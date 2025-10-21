@@ -9,19 +9,17 @@ import 'package:lottie/lottie.dart';
 class EmptyPreviewExpensesCard extends StatelessWidget {
   final void Function()? onTap;
 
-  const EmptyPreviewExpensesCard({
-    super.key,
-    this.onTap,
-  });
+  const EmptyPreviewExpensesCard({super.key, this.onTap});
 
   @override
   Widget build(BuildContext context) {
     return DottedBorder(
-      strokeWidth: 2,
-      color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
-      borderType: BorderType.RRect,
-      radius: const Radius.circular(14),
-      dashPattern: const [5, 5],
+      options: RoundedRectDottedBorderOptions(
+        strokeWidth: 2,
+        color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
+        radius: const Radius.circular(14),
+        dashPattern: const [5, 5],
+      ),
       child: Stack(
         children: [
           Container(
@@ -34,9 +32,7 @@ class EmptyPreviewExpensesCard extends StatelessWidget {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Lottie.asset(
-                  'assets/lottie/lottie_budget.json',
-                ),
+                Lottie.asset('assets/lottie/lottie_budget.json'),
                 const SizedBox(width: 11),
                 Flexible(
                   child: Text(

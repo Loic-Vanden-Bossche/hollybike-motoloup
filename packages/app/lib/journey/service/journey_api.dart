@@ -24,7 +24,7 @@ class JourneyApi {
       queryParameters: {
         'page': page,
         'per_page': journeysPerPage,
-        'sort': 'created_at.desc'
+        'sort': 'created_at.desc',
       },
     );
 
@@ -32,31 +32,22 @@ class JourneyApi {
   }
 
   Future<Journey> createJourney(String name) async {
-    final response = await client.dio.post('/journeys', data: {
-      'name': name,
-    });
+    final response = await client.dio.post('/journeys', data: {'name': name});
 
     return Journey.fromJson(response.data);
   }
 
-  Future<Journey> uploadJourneyFile(
-    int journeyId,
-    File file,
-  ) async {
+  Future<Journey> uploadJourneyFile(int journeyId, File file) async {
     final response = await client.dio.post(
       '/journeys/$journeyId/file',
-      data: FormData.fromMap({
-        'file': await MultipartFile.fromFile(file.path),
-      }),
+      data: FormData.fromMap({'file': await MultipartFile.fromFile(file.path)}),
     );
 
     return Journey.fromJson(response.data);
   }
 
   Future<Journey> getPositions(int journeyId) async {
-    final response = await client.dio.get(
-      '/journeys/$journeyId/positions'
-    );
+    final response = await client.dio.get('/journeys/$journeyId/positions');
 
     return Journey.fromJson(response.data);
   }

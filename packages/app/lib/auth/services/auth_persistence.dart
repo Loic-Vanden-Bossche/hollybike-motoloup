@@ -65,12 +65,14 @@ class AuthPersistence {
   final _oldNewSessionCorrespondence = <AuthSession, AuthSession>{};
 
   Future<void> replaceSession(
-      AuthSession oldSession, AuthSession newSession) async {
+    AuthSession oldSession,
+    AuthSession newSession,
+  ) async {
     _oldNewSessionCorrespondence[oldSession] = newSession;
     sessions = (sessions - oldSession).add(newSession);
   }
 
-  removeCorrespondence(AuthSession oldSession) {
+  void removeCorrespondence(AuthSession oldSession) {
     _oldNewSessionCorrespondence.remove(oldSession);
   }
 
@@ -99,8 +101,9 @@ class AuthPersistence {
     }
   }
 
-  Future<void> waitIfRefreshing(
-      {Duration timeout = const Duration(seconds: 20)}) async {
+  Future<void> waitIfRefreshing({
+    Duration timeout = const Duration(seconds: 20),
+  }) async {
     if (!_refreshing) return;
 
     _refreshingCompleter = Completer<void>();

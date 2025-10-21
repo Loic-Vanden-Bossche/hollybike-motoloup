@@ -71,7 +71,8 @@ class _SearchScreenState extends State<SearchScreen> {
 
             return CustomScrollView(
               controller: _verticalScrollController,
-              slivers: _renderProfilesList(state.profiles, state) +
+              slivers:
+                  _renderProfilesList(state.profiles, state) +
                   [
                     SliverPadding(
                       padding: const EdgeInsets.symmetric(horizontal: 16),
@@ -100,7 +101,8 @@ class _SearchScreenState extends State<SearchScreen> {
                             ),
                           ),
                           SliverList.list(
-                            children: state.events
+                            children:
+                                state.events
                                     .map<Widget>(
                                       (event) => EventPreviewCard(
                                         event: event,
@@ -116,10 +118,10 @@ class _SearchScreenState extends State<SearchScreen> {
                                     .toList() +
                                 (state.status == SearchStatus.loadingEvents
                                     ? [
-                                        const PlaceholderEventPreviewCard(),
-                                        const PlaceholderEventPreviewCard(),
-                                        const PlaceholderEventPreviewCard(),
-                                      ]
+                                      const PlaceholderEventPreviewCard(),
+                                      const PlaceholderEventPreviewCard(),
+                                      const PlaceholderEventPreviewCard(),
+                                    ]
                                     : []),
                           ),
                         ],
@@ -146,9 +148,7 @@ class _SearchScreenState extends State<SearchScreen> {
           0.8 * _verticalScrollController.position.maxScrollExtent;
 
       if (_verticalScrollController.position.pixels > nextPageTrigger) {
-        BlocProvider.of<SearchBloc>(context).add(
-          LoadEventsSearchNextPage(),
-        );
+        BlocProvider.of<SearchBloc>(context).add(LoadEventsSearchNextPage());
       }
     });
 
@@ -158,9 +158,7 @@ class _SearchScreenState extends State<SearchScreen> {
           0.8 * _horizontalScrollController.position.maxScrollExtent;
 
       if (_horizontalScrollController.position.pixels > nextPageTrigger) {
-        BlocProvider.of<SearchBloc>(context).add(
-          LoadProfilesSearchNextPage(),
-        );
+        BlocProvider.of<SearchBloc>(context).add(LoadProfilesSearchNextPage());
       }
     });
   }
@@ -174,7 +172,9 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   List<Widget> _renderProfilesList(
-      List<MinimalUser> profiles, SearchState state) {
+    List<MinimalUser> profiles,
+    SearchState state,
+  ) {
     if (profiles.isEmpty) return <Widget>[];
     return <Widget>[
       SliverMainAxisGroup(
@@ -190,9 +190,7 @@ class _SearchScreenState extends State<SearchScreen> {
                   width: double.infinity,
                   color: Theme.of(context).scaffoldBackgroundColor,
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      vertical: 12,
-                    ),
+                    padding: const EdgeInsets.symmetric(vertical: 12),
                     child: Text(
                       "Profiles",
                       style: Theme.of(context).textTheme.titleMedium,
@@ -208,7 +206,8 @@ class _SearchScreenState extends State<SearchScreen> {
               child: ListView(
                 controller: _horizontalScrollController,
                 scrollDirection: Axis.horizontal,
-                children: <Widget>[const SizedBox.square(dimension: 16)] +
+                children:
+                    <Widget>[const SizedBox.square(dimension: 16)] +
                     addSeparators(
                       profiles
                               .map<Widget>(
@@ -218,10 +217,10 @@ class _SearchScreenState extends State<SearchScreen> {
                               .toList() +
                           (state.status == SearchStatus.loadingProfiles
                               ? [
-                                  const PlaceholderSearchProfileCard(),
-                                  const PlaceholderSearchProfileCard(),
-                                  const PlaceholderSearchProfileCard()
-                                ]
+                                const PlaceholderSearchProfileCard(),
+                                const PlaceholderSearchProfileCard(),
+                                const PlaceholderSearchProfileCard(),
+                              ]
                               : []),
                       const SizedBox.square(dimension: 8),
                     ) +
@@ -239,11 +238,9 @@ class _SearchScreenState extends State<SearchScreen> {
     MinimalEvent event,
     String uniqueKey,
   ) {
-    context.router.push(EventDetailsRoute(
-      event: event,
-      animate: true,
-      uniqueKey: uniqueKey,
-    ));
+    context.router.push(
+      EventDetailsRoute(event: event, animate: true, uniqueKey: uniqueKey),
+    );
   }
 
   void _handleSearchRequest(String query) {
@@ -254,8 +251,6 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _refreshSearch(BuildContext context, String query) {
-    BlocProvider.of<SearchBloc>(context).add(
-      RefreshSearch(query: query),
-    );
+    BlocProvider.of<SearchBloc>(context).add(RefreshSearch(query: query));
   }
 }

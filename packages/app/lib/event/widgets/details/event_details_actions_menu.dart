@@ -39,10 +39,7 @@ class EventDetailsActionsMenu extends StatelessWidget {
     if (actions.isEmpty) return const SizedBox();
 
     return PopupMenuButton(
-      icon: Icon(
-        Icons.more_vert,
-        color: Theme.of(context).colorScheme.primary,
-      ),
+      icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.primary),
       itemBuilder: (context) {
         return actions;
       },
@@ -76,11 +73,7 @@ class EventDetailsActionsMenu extends StatelessWidget {
             children: [
               const Icon(Icons.image),
               const SizedBox(width: 10),
-              Text(
-                hasImage
-                    ? "Modifier l'image"
-                    : "Ajouter une image",
-              ),
+              Text(hasImage ? "Modifier l'image" : "Ajouter une image"),
             ],
           ),
         ),
@@ -142,8 +135,9 @@ class EventDetailsActionsMenu extends StatelessWidget {
       builder: (modalContext) {
         return AlertDialog(
           title: const Text("Annuler l'événement"),
-          content:
-              const Text("Êtes-vous sûr de vouloir annuler cet événement ?"),
+          content: const Text(
+            "Êtes-vous sûr de vouloir annuler cet événement ?",
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -153,9 +147,7 @@ class EventDetailsActionsMenu extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                context.read<EventDetailsBloc>().add(
-                      CancelEvent(),
-                    );
+                context.read<EventDetailsBloc>().add(CancelEvent());
 
                 Navigator.of(modalContext).pop();
               },
@@ -173,8 +165,9 @@ class EventDetailsActionsMenu extends StatelessWidget {
       builder: (modalContext) {
         return AlertDialog(
           title: const Text("Supprimer l'événement"),
-          content:
-              const Text("Êtes-vous sûr de vouloir supprimer cet événement ?"),
+          content: const Text(
+            "Êtes-vous sûr de vouloir supprimer cet événement ?",
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -184,9 +177,7 @@ class EventDetailsActionsMenu extends StatelessWidget {
             ),
             TextButton(
               onPressed: () {
-                context.read<EventDetailsBloc>().add(
-                      DeleteEvent(),
-                    );
+                context.read<EventDetailsBloc>().add(DeleteEvent());
 
                 Navigator.of(modalContext).pop();
               },
@@ -199,13 +190,9 @@ class EventDetailsActionsMenu extends StatelessWidget {
   }
 
   void _onLeave(BuildContext context) {
-    context.read<EventDetailsBloc>().add(
-          LeaveEvent(),
-        );
+    context.read<EventDetailsBloc>().add(LeaveEvent());
 
-    context.read<MyPositionBloc>().add(
-          DisableSendPositions(),
-        );
+    context.read<MyPositionBloc>().add(DisableSendPositions());
   }
 
   void _onUploadImage(BuildContext context) {

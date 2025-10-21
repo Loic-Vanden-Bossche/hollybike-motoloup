@@ -8,11 +8,7 @@ class FormTitle extends StatelessWidget {
   final String title;
   final String? description;
 
-  const FormTitle({
-    super.key,
-    required this.title,
-    this.description,
-  });
+  const FormTitle({super.key, required this.title, this.description});
 
   @override
   Widget build(BuildContext context) {
@@ -27,15 +23,12 @@ class FormTitle extends StatelessWidget {
         Text(
           description as String,
           style: Theme.of(context).textTheme.titleSmall,
-        )
+        ),
       ],
     );
   }
 
   Widget renderTitle(BuildContext context) {
-    return Text(
-      title,
-      style: Theme.of(context).textTheme.titleMedium,
-    );
+    return Text(title, style: Theme.of(context).textTheme.titleMedium);
   }
 }

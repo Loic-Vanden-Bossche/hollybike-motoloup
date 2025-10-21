@@ -12,9 +12,7 @@ abstract class UserPositionsEvent {
 class SubscribeToUserPositions extends UserPositionsEvent {
   final int eventId;
 
-  const SubscribeToUserPositions({
-    required this.eventId,
-  });
+  const SubscribeToUserPositions({required this.eventId});
 }
 
 extension ProfileEventOperations<T extends UserPositionsEvent> on List<T> {
@@ -25,7 +23,7 @@ extension ProfileEventOperations<T extends UserPositionsEvent> on List<T> {
     return null;
   }
 
-  copyUpdated(T profileEvent) {
+  List<T> copyUpdated(T profileEvent) {
     final copy = [...this];
     final alreadyExistingLoadEvent = elementIndex(profileEvent);
     if (alreadyExistingLoadEvent is int) {

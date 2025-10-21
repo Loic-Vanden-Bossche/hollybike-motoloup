@@ -27,11 +27,7 @@ import '../../shared/utils/dates.dart';
 import '../../shared/widgets/bloc_provided_builder.dart';
 import '../../shared/widgets/gradient_progress_bar.dart';
 
-enum JourneyModalAction {
-  resetJourney,
-  deleteJourney,
-  downloadJourney,
-}
+enum JourneyModalAction { resetJourney, deleteJourney, downloadJourney }
 
 class UserJourneyModal extends StatefulWidget {
   final UserJourney journey;
@@ -75,7 +71,8 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
       return;
     }
 
-    _betterPercentage = isBetterThan.entries.fold(0.0, (acc, entry) {
+    _betterPercentage =
+        isBetterThan.entries.fold(0.0, (acc, entry) {
           final isBetter = entry.value;
           return acc + isBetter;
         }) /
@@ -103,10 +100,7 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
           }
         },
         builder: (context, state) {
-          return builder(
-            context,
-            state is EventOperationInProgress,
-          );
+          return builder(context, state is EventOperationInProgress);
         },
       );
     }
@@ -115,48 +109,42 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => UserJourneyDetailsBloc(
-        userJourneyRepository:
-            RepositoryProvider.of<UserJourneyRepository>(context),
-        eventParticipationRepository:
-            RepositoryProvider.of<EventParticipationRepository>(
-          context,
-        ),
-        eventRepository: RepositoryProvider.of<EventRepository>(context),
-        journeyId: widget.journey.id,
-      ),
-      child: _eventBlocNullable(
-        context,
-        (context, isEventLoading) {
-          return BlocConsumer<UserJourneyDetailsBloc, UserJourneyDetailsState>(
-            listener: (context, state) {
-              if (state is UserJourneyDeleted) {
-                widget.onDeleted?.call();
-                Navigator.of(context).pop();
-                Toast.showSuccessToast(
-                  context,
-                  'Parcours supprimé',
-                );
-              }
+      create:
+          (context) => UserJourneyDetailsBloc(
+            userJourneyRepository: RepositoryProvider.of<UserJourneyRepository>(
+              context,
+            ),
+            eventParticipationRepository:
+                RepositoryProvider.of<EventParticipationRepository>(context),
+            eventRepository: RepositoryProvider.of<EventRepository>(context),
+            journeyId: widget.journey.id,
+          ),
+      child: _eventBlocNullable(context, (context, isEventLoading) {
+        return BlocConsumer<UserJourneyDetailsBloc, UserJourneyDetailsState>(
+          listener: (context, state) {
+            if (state is UserJourneyDeleted) {
+              widget.onDeleted?.call();
+              Navigator.of(context).pop();
+              Toast.showSuccessToast(context, 'Parcours supprimé');
+            }
 
-              if (state is UserJourneyOperationSuccess) {
-                Toast.showSuccessToast(context, state.successMessage);
-              }
+            if (state is UserJourneyOperationSuccess) {
+              Toast.showSuccessToast(context, state.successMessage);
+            }
 
-              if (state is UserJourneyOperationFailure) {
-                Toast.showErrorToast(context, state.errorMessage);
-              }
-            },
-            builder: (context, userJourneyState) {
-              final isLoading =
-                  userJourneyState is UserJourneyOperationInProgress ||
-                      isEventLoading;
+            if (state is UserJourneyOperationFailure) {
+              Toast.showErrorToast(context, state.errorMessage);
+            }
+          },
+          builder: (context, userJourneyState) {
+            final isLoading =
+                userJourneyState is UserJourneyOperationInProgress ||
+                isEventLoading;
 
-              return _buildContent(isLoading);
-            },
-          );
-        },
-      ),
+            return _buildContent(isLoading);
+          },
+        );
+      }),
     );
   }
 
@@ -164,11 +152,7 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
     return Container(
       decoration: _modalDecoration(),
       child: Padding(
-        padding: const EdgeInsets.only(
-          top: 16,
-          left: 16,
-          right: 16,
-        ),
+        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
         child: SafeArea(
           child: BlocProvidedBuilder<ProfileBloc, ProfileState>(
             builder: (context, bloc, _) {
@@ -412,14 +396,15 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
         _buildActionButton(context, isLoading),
         const Spacer(),
         ElevatedButton(
-          onPressed: () => {
-            context.router.push(
-              UserJourneyMapRoute(
-                fileUrl: widget.journey.file,
-                title: _getTitle(),
-              ),
-            ),
-          },
+          onPressed:
+              () => {
+                context.router.push(
+                  UserJourneyMapRoute(
+                    fileUrl: widget.journey.file,
+                    title: _getTitle(),
+                  ),
+                ),
+              },
           child: const Text('Voir sur la carte'),
         ),
       ],
@@ -427,8 +412,9 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
   }
 
   String _getTitle() {
-    final date =
-        DateFormat('dd-MM-yyyy').format(widget.journey.createdAt.toLocal());
+    final date = DateFormat(
+      'dd-MM-yyyy',
+    ).format(widget.journey.createdAt.toLocal());
     return 'Parcours du $date';
   }
 
@@ -490,9 +476,7 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
           builder: (_) {
             return AlertDialog(
               title: const Text('Êtes-vous sûr de supprimer le parcours ?'),
-              content: const Text(
-                'Le parcours sera définitivement supprimé.',
-              ),
+              content: const Text('Le parcours sera définitivement supprimé.'),
               actions: <Widget>[
                 TextButton(
                   onPressed: () {
@@ -503,7 +487,9 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
-                    context.read<UserJourneyDetailsBloc>().add(DeleteUserJourney());
+                    context.read<UserJourneyDetailsBloc>().add(
+                      DeleteUserJourney(),
+                    );
                   },
                   child: const Text('Confirmer'),
                 ),
@@ -513,16 +499,17 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
         );
         break;
       case JourneyModalAction.downloadJourney:
-        context.read<UserJourneyDetailsBloc>().add(DownloadUserJourney(
-              fileName: _getJourneyFileName(),
-            ));
+        context.read<UserJourneyDetailsBloc>().add(
+          DownloadUserJourney(fileName: _getJourneyFileName()),
+        );
         break;
     }
   }
 
   String _getJourneyFileName() {
-    final date =
-        DateFormat('dd-MM-yyyy').format(widget.journey.createdAt.toLocal());
+    final date = DateFormat(
+      'dd-MM-yyyy',
+    ).format(widget.journey.createdAt.toLocal());
 
     final uniqueKey = DateTime.now().microsecondsSinceEpoch.toString();
 
@@ -617,10 +604,7 @@ class _JourneyInfoRow extends StatelessWidget {
       children: [
         Icon(icon),
         const SizedBox(width: 8),
-        Text(
-          text,
-          style: titleStyle ?? Theme.of(context).textTheme.bodyMedium,
-        ),
+        Text(text, style: titleStyle ?? Theme.of(context).textTheme.bodyMedium),
       ],
     );
   }
@@ -630,10 +614,7 @@ class _JourneyStatRow extends StatelessWidget {
   final Widget firstStat;
   final Widget secondStat;
 
-  const _JourneyStatRow({
-    required this.firstStat,
-    required this.secondStat,
-  });
+  const _JourneyStatRow({required this.firstStat, required this.secondStat});
 
   @override
   Widget build(BuildContext context) {
@@ -653,10 +634,7 @@ class _JourneyStatCard extends StatelessWidget {
   final String title;
   final List<_StatItem> stats;
 
-  const _JourneyStatCard({
-    required this.title,
-    required this.stats,
-  });
+  const _JourneyStatCard({required this.title, required this.stats});
 
   @override
   Widget build(BuildContext context) {
@@ -702,12 +680,8 @@ class _StatItem extends StatelessWidget {
     return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(
-            horizontal: 16,
-          ),
-          child: Column(
-            children: _getStats(context),
-          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Column(children: _getStats(context)),
         ),
         if (value == 100)
           Positioned(

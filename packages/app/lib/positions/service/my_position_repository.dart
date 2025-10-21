@@ -83,14 +83,15 @@ class MyPositionServiceRepository {
   }
 
   Future<void> _listenAndSubscribe() async {
-    final ws = await WebsocketClient(
-      session: AuthSession(
-        token: _accessToken,
-        host: _host,
-        deviceId: '',
-        refreshToken: '',
-      ),
-    ).connect();
+    final ws =
+        await WebsocketClient(
+          session: AuthSession(
+            token: _accessToken,
+            host: _host,
+            deviceId: '',
+            refreshToken: '',
+          ),
+        ).connect();
 
     ws.onDisconnect(() {
       log('Websocket Disconnected');

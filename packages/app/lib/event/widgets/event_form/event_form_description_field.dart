@@ -7,8 +7,10 @@ import 'package:flutter/material.dart';
 class EventFormDescriptionField extends StatelessWidget {
   final TextEditingController descriptionController;
 
-  const EventFormDescriptionField(
-      {super.key, required this.descriptionController});
+  const EventFormDescriptionField({
+    super.key,
+    required this.descriptionController,
+  });
 
   @override
   Widget build(BuildContext context) {

@@ -24,12 +24,12 @@ sealed class EventFormData with _$EventFormData {
   }) = _EventFormData;
 
   EventFormData withBudget(int? budget) => EventFormData(
-        name: name,
-        description: description,
-        startDate: startDate,
-        endDate: endDate,
-        budget: budget,
-      );
+    name: name,
+    description: description,
+    startDate: startDate,
+    endDate: endDate,
+    budget: budget,
+  );
 
   factory EventFormData.fromJson(JsonMap json) => _$EventFormDataFromJson(json);
 }

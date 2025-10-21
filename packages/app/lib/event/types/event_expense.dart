@@ -20,6 +20,5 @@ sealed class EventExpense with _$EventExpense {
     @JsonKey(name: 'proof_key') String? proofKey,
   }) = _EventExpense;
 
-  factory EventExpense.fromJson(JsonMap json) =>
-      _$EventExpenseFromJson(json);
+  factory EventExpense.fromJson(JsonMap json) => _$EventExpenseFromJson(json);
 }

@@ -37,9 +37,7 @@ class EventParticipationCard extends StatelessWidget {
         onTap: () {
           _onOpenParticipationModal(context);
         },
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         dense: true,
         leading: Hero(
           tag: "profile_picture_participation_${participation.user.id}",
@@ -70,26 +68,20 @@ class EventParticipationCard extends StatelessWidget {
 
   void _onPromote(BuildContext context) {
     context.read<EventParticipationBloc>().add(
-          PromoteEventParticipant(
-            userId: participation.user.id,
-          ),
-        );
+      PromoteEventParticipant(userId: participation.user.id),
+    );
   }
 
   void _onDemote(BuildContext context) {
     context.read<EventParticipationBloc>().add(
-          DemoteEventParticipant(
-            userId: participation.user.id,
-          ),
-        );
+      DemoteEventParticipant(userId: participation.user.id),
+    );
   }
 
   void _onRemove(BuildContext context) {
     context.read<EventParticipationBloc>().add(
-          RemoveEventParticipant(
-            userId: participation.user.id,
-          ),
-        );
+      RemoveEventParticipant(userId: participation.user.id),
+    );
   }
 
   void _onOpenParticipationModal(BuildContext context) {
@@ -99,9 +91,7 @@ class EventParticipationCard extends StatelessWidget {
       builder: (_) {
         return BlocProvider.value(
           value: context.read<EventDetailsBloc>(),
-          child: EventParticipationModal(
-            participation: participation,
-          ),
+          child: EventParticipationModal(participation: participation),
         );
       },
     );

@@ -57,27 +57,17 @@ class _EventFormModalState extends State<EventFormModal> {
         child: Container(
           decoration: BoxDecoration(
             color: Theme.of(context).colorScheme.primary,
-            border: Border(
-              top: border,
-              left: border,
-              right: border,
-            ),
+            border: Border(top: border, left: border, right: border),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(31),
               topRight: Radius.circular(31),
             ),
           ),
           child: Padding(
-            padding: const EdgeInsets.only(
-              top: 18,
-              left: 16,
-              right: 16,
-            ),
+            padding: const EdgeInsets.only(top: 18, left: 16, right: 16),
             child: SafeArea(
               child: ConstrainedBox(
-                constraints: const BoxConstraints(
-                  maxHeight: 335,
-                ),
+                constraints: const BoxConstraints(maxHeight: 335),
                 child: EventForm(
                   canEditDates: widget.canEditDates,
                   submitButtonText: widget.submitButtonText,

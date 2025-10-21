@@ -19,10 +19,7 @@ class ImageApi {
   final DioClient client;
   final Downloader downloader;
 
-  ImageApi({
-    required this.client,
-    required this.downloader,
-  });
+  ImageApi({required this.client, required this.downloader});
 
   Future<PaginatedList<EventImage>> getEventImages(
     int eventId,
@@ -35,7 +32,7 @@ class ImageApi {
         'page': page,
         'per_page': imagesPerPage,
         'id_event': 'eq:$eventId',
-        'sort': 'taken_date_time.desc'
+        'sort': 'taken_date_time.desc',
       },
     );
 
@@ -53,7 +50,7 @@ class ImageApi {
         'page': page,
         'per_page': imagesPerPage,
         'id_event': 'eq:$eventId',
-        'sort': 'upload_date_time.desc'
+        'sort': 'upload_date_time.desc',
       },
     );
 
@@ -71,40 +68,37 @@ class ImageApi {
         'page': page,
         'per_page': imagesPerPage,
         'owner_image': 'eq:$userId',
-        'sort': 'taken_date_time.desc'
+        'sort': 'taken_date_time.desc',
       },
     );
 
     return PaginatedList.fromJson(response.data, EventImage.fromJson);
   }
 
-  Future<void> uploadEventImages(
-    int eventId,
-    List<File> images,
-  ) async {
-    final imageParts = await Future.wait(images.map((image) async {
-      final compressedImage = await FlutterImageCompress.compressWithFile(
-        image.path,
-        quality: 50,
-        keepExif: true,
-      );
+  Future<void> uploadEventImages(int eventId, List<File> images) async {
+    final imageParts = await Future.wait(
+      images.map((image) async {
+        final compressedImage = await FlutterImageCompress.compressWithFile(
+          image.path,
+          quality: 50,
+          keepExif: true,
+        );
 
-      if (compressedImage == null) {
-        throw Exception("Failed to compress image");
-      }
+        if (compressedImage == null) {
+          throw Exception("Failed to compress image");
+        }
 
-      return MultipartFile.fromBytes(
-        compressedImage,
-        filename: image.path.split('/').last,
-        contentType: MediaType.parse('image/jpeg'),
-      );
-    }).toList());
+        return MultipartFile.fromBytes(
+          compressedImage,
+          filename: image.path.split('/').last,
+          contentType: MediaType.parse('image/jpeg'),
+        );
+      }).toList(),
+    );
 
     final response = await client.dio.post(
       '/events/$eventId/images',
-      data: FormData.fromMap(
-        {'images': imageParts},
-      ),
+      data: FormData.fromMap({'images': imageParts}),
     );
 
     if (response.statusCode != 201) {
@@ -112,15 +106,10 @@ class ImageApi {
     }
   }
 
-  Future<void> updateImagesVisibility(
-    int eventId,
-    bool isPublic,
-  ) async {
+  Future<void> updateImagesVisibility(int eventId, bool isPublic) async {
     final response = await client.dio.patch(
       '/events/$eventId/participations/images-visibility',
-      data: {
-        'is_images_public': isPublic,
-      },
+      data: {'is_images_public': isPublic},
     );
 
     if (response.statusCode != 200) {
@@ -128,22 +117,14 @@ class ImageApi {
     }
   }
 
-  Future<EventImageDetails> getImageDetails(
-    int imageId,
-  ) async {
-    final response = await client.dio.get(
-      '/events/images/$imageId',
-    );
+  Future<EventImageDetails> getImageDetails(int imageId) async {
+    final response = await client.dio.get('/events/images/$imageId');
 
     return EventImageDetails.fromJson(response.data);
   }
 
-  Future<void> deleteImage(
-    int imageId,
-  ) async {
-    final response = await client.dio.delete(
-      '/events/images/$imageId',
-    );
+  Future<void> deleteImage(int imageId) async {
+    final response = await client.dio.delete('/events/images/$imageId');
 
     if (response.statusCode != 204) {
       throw Exception("Failed to delete event image");
@@ -153,9 +134,6 @@ class ImageApi {
   Future<void> downloadImage(String url, int imgId) {
     final uniqueKey = DateTime.now().millisecondsSinceEpoch;
 
-    return downloader.downloadFile(
-      url,
-      'hollybike_${imgId}_$uniqueKey.jpg',
-    );
+    return downloader.downloadFile(url, 'hollybike_${imgId}_$uniqueKey.jpg');
   }
 }

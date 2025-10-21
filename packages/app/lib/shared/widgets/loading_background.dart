@@ -21,10 +21,7 @@ class _LoadingBackgroundState extends State<LoadingBackground>
   late final Animation<Offset> _offsetAnimation = Tween<Offset>(
     begin: Offset.zero,
     end: const Offset(0.5, 0),
-  ).animate(CurvedAnimation(
-    parent: _controller,
-    curve: Curves.linear,
-  ));
+  ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
 
   @override
   Widget build(BuildContext context) {

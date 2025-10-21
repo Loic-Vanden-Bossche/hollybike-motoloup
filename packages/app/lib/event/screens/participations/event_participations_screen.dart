@@ -46,14 +46,17 @@ class EventParticipationsScreen extends StatefulWidget
     return MultiBlocProvider(
       providers: [
         BlocProvider<EventParticipationBloc>(
-          create: (context) => EventParticipationBloc(
-            eventId: eventDetails.event.id,
-            eventParticipationsRepository:
-            RepositoryProvider.of<EventParticipationRepository>(
-              context,
-            ),
-            eventRepository: RepositoryProvider.of<EventRepository>(context),
-          )..add(SubscribeToEventParticipations()),
+          create:
+              (context) => EventParticipationBloc(
+                eventId: eventDetails.event.id,
+                eventParticipationsRepository:
+                    RepositoryProvider.of<EventParticipationRepository>(
+                      context,
+                    ),
+                eventRepository: RepositoryProvider.of<EventRepository>(
+                  context,
+                ),
+              )..add(SubscribeToEventParticipations()),
         ),
         if (eventDetailsBloc != null)
           BlocProvider<EventDetailsBloc>.value(value: eventDetailsBloc!),
@@ -116,28 +119,28 @@ class _EventParticipationsScreenState extends State<EventParticipationsScreen> {
           ),
           title: const TopBarTitle("Participants"),
         ),
-        floatingActionButton: Builder(builder: (context) {
-          if (!widget.eventDetails.isOrganizer) {
-            return const SizedBox();
-          }
+        floatingActionButton: Builder(
+          builder: (context) {
+            if (!widget.eventDetails.isOrganizer) {
+              return const SizedBox();
+            }
 
-          return FloatingActionButton.extended(
-            onPressed: () {
-              context.router.push(
-                EventCandidatesRoute(
-                  eventId: widget.eventDetails.event.id,
+            return FloatingActionButton.extended(
+              onPressed: () {
+                context.router.push(
+                  EventCandidatesRoute(eventId: widget.eventDetails.event.id),
+                );
+              },
+              label: Text(
+                'Ajouter',
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: Theme.of(context).colorScheme.primary,
                 ),
-              );
-            },
-            label: Text(
-              'Ajouter',
-              style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
-            ),
-            icon: const Icon(Icons.group_add),
-          );
-        }),
+              ),
+              icon: const Icon(Icons.group_add),
+            );
+          },
+        ),
         body: ThemedRefreshIndicator(
           onRefresh: () => _refreshParticipants(),
           child: Container(
@@ -146,22 +149,20 @@ class _EventParticipationsScreenState extends State<EventParticipationsScreen> {
               padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
               child:
                   BlocBuilder<EventParticipationBloc, EventParticipationsState>(
-                builder: (context, state) {
-                  final isLoading =
-                      state is EventParticipationsPageLoadInProgress &&
+                    builder: (context, state) {
+                      final isLoading =
+                          state is EventParticipationsPageLoadInProgress &&
                           (state.participants.length ==
                                   widget.participationPreview.length ||
                               state.hasMore);
 
-                  if (state is EventParticipationsPageLoadFailure) {
-                    return Center(
-                      child: Text(state.errorMessage),
-                    );
-                  }
+                      if (state is EventParticipationsPageLoadFailure) {
+                        return Center(child: Text(state.errorMessage));
+                      }
 
-                  return _buildList(state.participants, isLoading);
-                },
-              ),
+                      return _buildList(state.participants, isLoading);
+                    },
+                  ),
             ),
           ),
         ),
@@ -182,9 +183,7 @@ class _EventParticipationsScreenState extends State<EventParticipationsScreen> {
         physics: const AlwaysScrollableScrollPhysics(),
         itemBuilder: (context, index) {
           if (isLoading && index == totalCount - 1) {
-            return const Center(
-              child: CircularProgressIndicator(),
-            );
+            return const Center(child: CircularProgressIndicator());
           }
 
           final participation = participants[index];
@@ -201,9 +200,11 @@ class _EventParticipationsScreenState extends State<EventParticipationsScreen> {
                   child: EventParticipationCard(
                     eventId: widget.eventDetails.event.id,
                     participation: participation,
-                    isOwner: widget.eventDetails.event.owner.id ==
+                    isOwner:
+                        widget.eventDetails.event.owner.id ==
                         participation.user.id,
-                    isCurrentUser: participation.user.id ==
+                    isCurrentUser:
+                        participation.user.id ==
                         widget.eventDetails.callerParticipation?.userId,
                     isCurrentUserOrganizer: widget.eventDetails.isOrganizer,
                   ),
@@ -218,16 +219,16 @@ class _EventParticipationsScreenState extends State<EventParticipationsScreen> {
 
   void _loadNextPage() {
     context.read<EventParticipationBloc>().add(
-          LoadEventParticipationsNextPage(),
-        );
+      LoadEventParticipationsNextPage(),
+    );
   }
 
   Future<void> _refreshParticipants() {
     context.read<EventParticipationBloc>().add(
-          RefreshEventParticipations(
-            participationPreview: widget.participationPreview,
-          ),
-        );
+      RefreshEventParticipations(
+        participationPreview: widget.participationPreview,
+      ),
+    );
 
     return context.read<EventParticipationBloc>().firstWhenNotLoading;
   }

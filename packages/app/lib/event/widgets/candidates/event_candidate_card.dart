@@ -29,9 +29,7 @@ class EventCandidateCard extends StatelessWidget {
       child: CheckboxListTile(
         value: isSelected,
         enabled: !alreadyParticipating,
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(10),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
         onChanged: (_) => onTap(),
         secondary: UserProfilePicture(
           url: candidate.profilePicture,
@@ -42,12 +40,13 @@ class EventCandidateCard extends StatelessWidget {
           candidate.username,
           style: Theme.of(context).textTheme.titleSmall,
         ),
-        subtitle: candidate.eventRole != null
-            ? Text(
-                "Déjà ${_eventRoleName(candidate.eventRole!)}",
-                style: Theme.of(context).textTheme.bodyMedium,
-              )
-            : null,
+        subtitle:
+            candidate.eventRole != null
+                ? Text(
+                  "Déjà ${_eventRoleName(candidate.eventRole!)}",
+                  style: Theme.of(context).textTheme.bodyMedium,
+                )
+                : null,
       ),
     );
   }

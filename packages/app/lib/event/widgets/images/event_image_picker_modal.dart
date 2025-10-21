@@ -56,10 +56,6 @@ class _EventImagePickerModalState extends State<EventImagePickerModal> {
   }
 
   void onSubmit(BuildContext context, List<File> images) {
-    context.read<EventMyImagesBloc>().add(
-      UploadEventImages(
-        images: images,
-      ),
-    );
+    context.read<EventMyImagesBloc>().add(UploadEventImages(images: images));
   }
 }

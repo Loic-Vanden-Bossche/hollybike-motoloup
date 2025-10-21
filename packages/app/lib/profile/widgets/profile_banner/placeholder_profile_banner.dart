@@ -10,10 +10,7 @@ import 'package:hollybike/shared/widgets/profile_pictures/loading_profile_pictur
 class PlaceholderProfileBanner extends StatelessWidget {
   final int? loadingProfileId;
 
-  const PlaceholderProfileBanner({
-    super.key,
-    this.loadingProfileId,
-  });
+  const PlaceholderProfileBanner({super.key, this.loadingProfileId});
 
   @override
   Widget build(BuildContext context) {

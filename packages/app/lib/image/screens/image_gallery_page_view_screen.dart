@@ -30,11 +30,10 @@ class ImageGalleryViewScreen extends StatelessWidget
   @override
   Widget wrappedRoute(context) {
     return BlocProvider<EventImageDetailsBloc>(
-      create: (context) => EventImageDetailsBloc(
-        imageRepository: RepositoryProvider.of<ImageRepository>(
-          context,
-        ),
-      ),
+      create:
+          (context) => EventImageDetailsBloc(
+            imageRepository: RepositoryProvider.of<ImageRepository>(context),
+          ),
       child: this,
     );
   }
@@ -43,12 +42,13 @@ class ImageGalleryViewScreen extends StatelessWidget
   Widget build(BuildContext context) {
     return BlocBuilder<ImageListBloc, ImageListState>(
       bloc: bloc,
-      builder: (context, state) => ImageGalleryPageView(
-        imageIndex: imageIndex,
-        images: state.images,
-        onLoadNextPage: onLoadNextPage,
-        onImageDeleted: onRefresh,
-      ),
+      builder:
+          (context, state) => ImageGalleryPageView(
+            imageIndex: imageIndex,
+            images: state.images,
+            onLoadNextPage: onLoadNextPage,
+            onImageDeleted: onRefresh,
+          ),
     );
   }
 }

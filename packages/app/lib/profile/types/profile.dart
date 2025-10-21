@@ -36,43 +36,40 @@ class Profile {
   });
 
   MinimalUser toMinimalUser() => MinimalUser(
-        id: id,
-        username: username,
-        scope: scope,
-        status: status,
-        profilePicture: profilePicture,
-        role: role,
-      );
+    id: id,
+    username: username,
+    scope: scope,
+    status: status,
+    profilePicture: profilePicture,
+    role: role,
+  );
 
   static Profile fromResponseJson(List<int> response) {
     final json = jsonDecode(utf8.decode(response));
     return Profile.fromJson(json);
   }
 
-  withProfilePicture(String profilePicture) => Profile(
-        id: id,
-        email: email,
-        username: username,
-        scope: scope,
-        status: status,
-        lastLogin: lastLogin,
-        association: association,
-        profilePicture: profilePicture,
-      );
+  Profile withProfilePicture(String profilePicture) => Profile(
+    id: id,
+    email: email,
+    username: username,
+    scope: scope,
+    status: status,
+    lastLogin: lastLogin,
+    association: association,
+    profilePicture: profilePicture,
+  );
 
   factory Profile.fromJson(Map<String, dynamic> json) {
-    verifyObjectAttributesNotNull(
-      json,
-      [
-        "id",
-        "email",
-        "username",
-        "scope",
-        "status",
-        "last_login",
-        "association",
-      ],
-    );
+    verifyObjectAttributesNotNull(json, [
+      "id",
+      "email",
+      "username",
+      "scope",
+      "status",
+      "last_login",
+      "association",
+    ]);
     return Profile(
       id: json["id"],
       email: json["email"],

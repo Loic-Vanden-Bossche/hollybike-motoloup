@@ -35,29 +35,31 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     final prefs = await SharedPreferences.getInstance();
     final eventId = prefs.getInt('tracking_event_id');
 
-    emit(MyPositionInitialized(state.copyWith(
-      isRunning: false,
-      eventId: null,
-    )));
+    emit(
+      MyPositionInitialized(state.copyWith(isRunning: false, eventId: null)),
+    );
 
-    final isRunning = await myPositionLocator.backgroundService.isTrackingRunning();
+    final isRunning =
+        await myPositionLocator.backgroundService.isTrackingRunning();
 
-    emit(MyPositionInitialized(state.copyWith(
-      isRunning: isRunning,
-      eventId: isRunning ? eventId : null,
-    )));
+    emit(
+      MyPositionInitialized(
+        state.copyWith(
+          isRunning: isRunning,
+          eventId: isRunning ? eventId : null,
+        ),
+      ),
+    );
 
     posCount = 0;
 
-    myPositionLocator.backgroundService.getPositionStream()?.listen(
-      (_) {
-        posCount++;
+    myPositionLocator.backgroundService.getPositionStream()?.listen((_) {
+      posCount++;
 
-        if (posCount >= 2 && eventId != null) {
-          eventRepository.onUserPositionSent(eventId);
-        }
-      },
-    );
+      if (posCount >= 2 && eventId != null) {
+        eventRepository.onUserPositionSent(eventId);
+      }
+    });
   }
 
   void _onListenAndSendUserPosition(
@@ -77,26 +79,33 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     try {
       await myPositionLocator.start(event.eventId, event.eventName);
     } catch (e) {
-      emit(MyPositionFailure(
-        state.copyWith(
-          isRunning: false,
-          status: MyPositionStatus.error,
-          eventId: event.eventId,
+      emit(
+        MyPositionFailure(
+          state.copyWith(
+            isRunning: false,
+            status: MyPositionStatus.error,
+            eventId: event.eventId,
+          ),
+          "Impossible de démarrer le suivi de la position",
         ),
-        "Impossible de démarrer le suivi de la position",
-      ));
+      );
       return;
     }
 
-    final running = await myPositionLocator.backgroundService.isTrackingRunning();
+    final running =
+        await myPositionLocator.backgroundService.isTrackingRunning();
 
     posCount = 0;
 
-    emit(MyPositionStarted(state.copyWith(
-      isRunning: running,
-      status: running ? MyPositionStatus.success : MyPositionStatus.error,
-      eventId: event.eventId,
-    )));
+    emit(
+      MyPositionStarted(
+        state.copyWith(
+          isRunning: running,
+          status: running ? MyPositionStatus.success : MyPositionStatus.error,
+          eventId: event.eventId,
+        ),
+      ),
+    );
   }
 
   void _onDisableSendPositions(
@@ -107,13 +116,18 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
 
     await myPositionLocator.stop();
 
-    final running = await myPositionLocator.backgroundService.isTrackingRunning();
+    final running =
+        await myPositionLocator.backgroundService.isTrackingRunning();
 
     posCount = 0;
 
-    emit(MyPositionStopped(state.copyWith(
-      isRunning: running,
-      status: running ? MyPositionStatus.error : MyPositionStatus.success,
-    )));
+    emit(
+      MyPositionStopped(
+        state.copyWith(
+          isRunning: running,
+          status: running ? MyPositionStatus.error : MyPositionStatus.success,
+        ),
+      ),
+    );
   }
 }

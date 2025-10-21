@@ -38,24 +38,30 @@ class ProfileJourneysBloc
     emit(ProfileJourneysPageLoadInProgress(state));
 
     try {
-      PaginatedList<UserJourney> page =
-          await userJourneyRepository.fetchUserJourneys(
-        state.nextPage,
-        numberOfUserJourneysPerRequest,
-        userId,
-      );
+      PaginatedList<UserJourney> page = await userJourneyRepository
+          .fetchUserJourneys(
+            state.nextPage,
+            numberOfUserJourneysPerRequest,
+            userId,
+          );
 
-      emit(ProfileJourneysPageLoadSuccess(state.copyWith(
-        userJourneys: [...state.userJourneys, ...page.items],
-        hasMore: page.items.length == numberOfUserJourneysPerRequest,
-        nextPage: state.nextPage + 1,
-      )));
+      emit(
+        ProfileJourneysPageLoadSuccess(
+          state.copyWith(
+            userJourneys: [...state.userJourneys, ...page.items],
+            hasMore: page.items.length == numberOfUserJourneysPerRequest,
+            nextPage: state.nextPage + 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while loading next page of user journeys', error: e);
-      emit(ProfileJourneysPageLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        ProfileJourneysPageLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -67,26 +73,26 @@ class ProfileJourneysBloc
     emit(ProfileJourneysPageLoadInProgress(state));
 
     try {
-      PaginatedList<UserJourney> page =
-          await userJourneyRepository.refreshUserJourneys(
-        numberOfUserJourneysPerRequest,
-        userId,
-      );
+      PaginatedList<UserJourney> page = await userJourneyRepository
+          .refreshUserJourneys(numberOfUserJourneysPerRequest, userId);
 
-      emit(ProfileJourneysPageLoadSuccess(state.copyWith(
-        userJourneys: page.items,
-        hasMore: page.items.length == numberOfUserJourneysPerRequest,
-        nextPage: 1,
-      )));
+      emit(
+        ProfileJourneysPageLoadSuccess(
+          state.copyWith(
+            userJourneys: page.items,
+            hasMore: page.items.length == numberOfUserJourneysPerRequest,
+            nextPage: 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while refreshing user journeys', error: e);
-      emit(ProfileJourneysPageLoadFailure(
-        state.copyWith(
-          userJourneys: [],
-          hasMore: false,
+      emit(
+        ProfileJourneysPageLoadFailure(
+          state.copyWith(userJourneys: [], hasMore: false),
+          errorMessage: 'Une erreur est survenue.',
         ),
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      );
       return;
     }
   }

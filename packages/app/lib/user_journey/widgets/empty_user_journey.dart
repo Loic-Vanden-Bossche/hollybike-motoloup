@@ -10,20 +10,17 @@ class EmptyUserJourney extends StatelessWidget {
   final String? username;
   final Color color;
 
-  const EmptyUserJourney({
-    super.key,
-    this.username,
-    required this.color,
-  });
+  const EmptyUserJourney({super.key, this.username, required this.color});
 
   @override
   Widget build(BuildContext context) {
     return DottedBorder(
-      strokeWidth: 2,
-      color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
-      borderType: BorderType.RRect,
-      radius: const Radius.circular(14),
-      dashPattern: const [5, 5],
+      options: RoundedRectDottedBorderOptions(
+        strokeWidth: 2,
+        color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
+        radius: const Radius.circular(14),
+        dashPattern: const [5, 5],
+      ),
       child: Container(
         height: double.infinity,
         padding: const EdgeInsets.all(8),
@@ -47,8 +44,8 @@ class EmptyUserJourney extends StatelessWidget {
                 softWrap: true,
                 textAlign: TextAlign.center,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: Theme.of(context).colorScheme.onPrimary,
-                    ),
+                  color: Theme.of(context).colorScheme.onPrimary,
+                ),
               ),
             ),
           ],

@@ -10,10 +10,7 @@ import '../../../../event/widgets/event_loading_profile_picture.dart';
 class ImageGalleryDetailsOwner extends StatelessWidget {
   final MinimalUser owner;
 
-  const ImageGalleryDetailsOwner({
-    super.key,
-    required this.owner,
-  });
+  const ImageGalleryDetailsOwner({super.key, required this.owner});
 
   @override
   Widget build(BuildContext context) {

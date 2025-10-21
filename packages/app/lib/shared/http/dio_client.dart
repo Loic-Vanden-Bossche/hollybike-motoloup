@@ -23,10 +23,12 @@ class DioClient {
   void addInterceptor(Interceptor interceptor) {
     dio.interceptors.add(interceptor);
     if (authPersistence is AuthPersistence) {
-      dio.interceptors.add(AuthInterceptor(
-        dio: dio,
-        authPersistence: authPersistence as AuthPersistence,
-      ));
+      dio.interceptors.add(
+        AuthInterceptor(
+          dio: dio,
+          authPersistence: authPersistence as AuthPersistence,
+        ),
+      );
     }
   }
 }

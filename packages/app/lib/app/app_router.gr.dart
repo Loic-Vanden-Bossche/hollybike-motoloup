@@ -9,10 +9,11 @@
 // coverage:ignore-file
 
 // ignore_for_file: no_leading_underscores_for_library_prefixes
-import 'dart:io' as _i22;
+import 'dart:io' as _i23;
 
 import 'package:auto_route/auto_route.dart' as _i15;
-import 'package:flutter/foundation.dart' as _i23;
+import 'package:collection/collection.dart' as _i21;
+import 'package:flutter/foundation.dart' as _i24;
 import 'package:flutter/material.dart' as _i16;
 import 'package:hollybike/auth/screens/login_screen.dart' as _i9;
 import 'package:hollybike/auth/screens/signup_screen.dart' as _i13;
@@ -28,7 +29,7 @@ import 'package:hollybike/event/types/event_details.dart' as _i18;
 import 'package:hollybike/event/types/minimal_event.dart' as _i17;
 import 'package:hollybike/event/types/participation/event_participation.dart'
     as _i19;
-import 'package:hollybike/image/bloc/image_list_bloc.dart' as _i21;
+import 'package:hollybike/image/bloc/image_list_bloc.dart' as _i22;
 import 'package:hollybike/image/screens/image_gallery_page_view_screen.dart'
     as _i6;
 import 'package:hollybike/journey/screen/import_gpx_tool_screen.dart' as _i7;
@@ -93,6 +94,16 @@ class EventCandidatesRouteArgs {
   String toString() {
     return 'EventCandidatesRouteArgs{key: $key, eventId: $eventId}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! EventCandidatesRouteArgs) return false;
+    return key == other.key && eventId == other.eventId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ eventId.hashCode;
 }
 
 /// generated route for
@@ -153,6 +164,20 @@ class EventDetailsRouteArgs {
   String toString() {
     return 'EventDetailsRouteArgs{key: $key, event: $event, animate: $animate, uniqueKey: $uniqueKey}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! EventDetailsRouteArgs) return false;
+    return key == other.key &&
+        event == other.event &&
+        animate == other.animate &&
+        uniqueKey == other.uniqueKey;
+  }
+
+  @override
+  int get hashCode =>
+      key.hashCode ^ event.hashCode ^ animate.hashCode ^ uniqueKey.hashCode;
 }
 
 /// generated route for
@@ -214,6 +239,28 @@ class EventParticipationsRouteArgs {
   String toString() {
     return 'EventParticipationsRouteArgs{key: $key, eventDetails: $eventDetails, participationPreview: $participationPreview, eventDetailsBloc: $eventDetailsBloc}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! EventParticipationsRouteArgs) return false;
+    return key == other.key &&
+        eventDetails == other.eventDetails &&
+        const _i21.ListEquality<_i19.EventParticipation>().equals(
+          participationPreview,
+          other.participationPreview,
+        ) &&
+        eventDetailsBloc == other.eventDetailsBloc;
+  }
+
+  @override
+  int get hashCode =>
+      key.hashCode ^
+      eventDetails.hashCode ^
+      const _i21.ListEquality<_i19.EventParticipation>().hash(
+        participationPreview,
+      ) ^
+      eventDetailsBloc.hashCode;
 }
 
 /// generated route for
@@ -241,7 +288,7 @@ class ImageGalleryViewRoute
     required int imageIndex,
     required void Function() onLoadNextPage,
     required void Function() onRefresh,
-    required _i21.ImageListBloc<dynamic> bloc,
+    required _i22.ImageListBloc<dynamic> bloc,
     List<_i15.PageRouteInfo>? children,
   }) : super(
          ImageGalleryViewRoute.name,
@@ -291,12 +338,24 @@ class ImageGalleryViewRouteArgs {
 
   final void Function() onRefresh;
 
-  final _i21.ImageListBloc<dynamic> bloc;
+  final _i22.ImageListBloc<dynamic> bloc;
 
   @override
   String toString() {
     return 'ImageGalleryViewRouteArgs{key: $key, imageIndex: $imageIndex, onLoadNextPage: $onLoadNextPage, onRefresh: $onRefresh, bloc: $bloc}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ImageGalleryViewRouteArgs) return false;
+    return key == other.key &&
+        imageIndex == other.imageIndex &&
+        bloc == other.bloc;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ imageIndex.hashCode ^ bloc.hashCode;
 }
 
 /// generated route for
@@ -305,7 +364,7 @@ class ImportGpxToolRoute extends _i15.PageRouteInfo<ImportGpxToolRouteArgs> {
   ImportGpxToolRoute({
     _i16.Key? key,
     required String url,
-    required void Function(_i22.File) onGpxDownloaded,
+    required void Function(_i23.File) onGpxDownloaded,
     required void Function() onClose,
     List<_i15.PageRouteInfo>? children,
   }) : super(
@@ -347,7 +406,7 @@ class ImportGpxToolRouteArgs {
 
   final String url;
 
-  final void Function(_i22.File) onGpxDownloaded;
+  final void Function(_i23.File) onGpxDownloaded;
 
   final void Function() onClose;
 
@@ -355,6 +414,16 @@ class ImportGpxToolRouteArgs {
   String toString() {
     return 'ImportGpxToolRouteArgs{key: $key, url: $url, onGpxDownloaded: $onGpxDownloaded, onClose: $onClose}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ImportGpxToolRouteArgs) return false;
+    return key == other.key && url == other.url;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ url.hashCode;
 }
 
 /// generated route for
@@ -423,6 +492,16 @@ class LoginRouteArgs {
   String toString() {
     return 'LoginRouteArgs{key: $key, onAuthSuccess: $onAuthSuccess, canPop: $canPop}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! LoginRouteArgs) return false;
+    return key == other.key && canPop == other.canPop;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ canPop.hashCode;
 }
 
 /// generated route for
@@ -480,6 +559,16 @@ class ProfileRouteArgs {
   String toString() {
     return 'ProfileRouteArgs{key: $key, urlId: $urlId}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! ProfileRouteArgs) return false;
+    return key == other.key && urlId == other.urlId;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ urlId.hashCode;
 }
 
 /// generated route for
@@ -518,7 +607,7 @@ class SignupRoute extends _i15.PageRouteInfo<void> {
 /// [_i14.UserJourneyMapScreen]
 class UserJourneyMapRoute extends _i15.PageRouteInfo<UserJourneyMapRouteArgs> {
   UserJourneyMapRoute({
-    _i23.Key? key,
+    _i24.Key? key,
     required String fileUrl,
     required String title,
     List<_i15.PageRouteInfo>? children,
@@ -554,7 +643,7 @@ class UserJourneyMapRouteArgs {
     required this.title,
   });
 
-  final _i23.Key? key;
+  final _i24.Key? key;
 
   final String fileUrl;
 
@@ -564,4 +653,14 @@ class UserJourneyMapRouteArgs {
   String toString() {
     return 'UserJourneyMapRouteArgs{key: $key, fileUrl: $fileUrl, title: $title}';
   }
+
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    if (other is! UserJourneyMapRouteArgs) return false;
+    return key == other.key && fileUrl == other.fileUrl && title == other.title;
+  }
+
+  @override
+  int get hashCode => key.hashCode ^ fileUrl.hashCode ^ title.hashCode;
 }

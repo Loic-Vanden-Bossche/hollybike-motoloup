@@ -14,10 +14,7 @@ import 'package:hollybike/shared/widgets/dialog/closable_dialog.dart';
 class UpdatePasswordModal extends StatefulWidget {
   final String email;
 
-  const UpdatePasswordModal({
-    super.key,
-    required this.email,
-  });
+  const UpdatePasswordModal({super.key, required this.email});
 
   @override
   State<UpdatePasswordModal> createState() =>
@@ -33,20 +30,20 @@ class _EventImagesVisibilityDialogState extends State<UpdatePasswordModal> {
         texts: FormTexts(
           submit: "Confirmer",
           link: (
-          description: "Mot de passe oublié ?",
-          buttonText: "Réinitialiser",
-          onDestinationClick: () => _onResetPassword(context),
+            description: "Mot de passe oublié ?",
+            buttonText: "Réinitialiser",
+            onDestinationClick: () => _onResetPassword(context),
           ),
         ),
-        onFormSubmit: (fields) =>
-        {
-          if (fields["password"] != null && fields["newPassword"] != null)
-            _onSubmit(
-              context,
-              oldPassword: fields["password"]!,
-              password: fields["newPassword"]!,
-            ),
-        },
+        onFormSubmit:
+            (fields) => {
+              if (fields["password"] != null && fields["newPassword"] != null)
+                _onSubmit(
+                  context,
+                  oldPassword: fields["password"]!,
+                  password: fields["newPassword"]!,
+                ),
+            },
         formFields: {
           "password": FormFieldConfig(
             label: "Mot de passe actuel",
@@ -112,9 +109,7 @@ class _EventImagesVisibilityDialogState extends State<UpdatePasswordModal> {
               onPressed: () {
                 Navigator.of(context).pop();
                 context.read<EditProfileBloc>().add(
-                  ResetPassword(
-                    email: widget.email,
-                  ),
+                  ResetPassword(email: widget.email),
                 );
               },
               child: const Text('Envoyer'),
@@ -132,15 +127,13 @@ class _EventImagesVisibilityDialogState extends State<UpdatePasswordModal> {
     return null;
   }
 
-  void _onSubmit(BuildContext context, {
+  void _onSubmit(
+    BuildContext context, {
     required String oldPassword,
     required String password,
   }) {
     BlocProvider.of<EditProfileBloc>(context).add(
-      ChangeProfilePassword(
-        oldPassword: oldPassword,
-        newPassword: password,
-      ),
+      ChangeProfilePassword(oldPassword: oldPassword, newPassword: password),
     );
   }
 }

@@ -105,14 +105,9 @@ class _EventStatusIndicatorState extends State<EventStatusIndicator> {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        EventDot(
-          status: _status,
-          size: 13,
-        ),
+        EventDot(status: _status, size: 13),
         SizedBox(width: widget.separatorWidth),
-        Flexible(
-          child: _statusText,
-        ),
+        Flexible(child: _statusText),
       ],
     );
   }

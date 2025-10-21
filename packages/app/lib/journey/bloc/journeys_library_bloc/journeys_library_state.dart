@@ -24,12 +24,12 @@ class JourneysLibraryState {
   });
 
   JourneysLibraryState.state(JourneysLibraryState state)
-      : this(
-          journeys: state.journeys,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: state.status,
-        );
+    : this(
+        journeys: state.journeys,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: state.status,
+      );
 
   JourneysLibraryState copyWith({
     JourneysLibraryStatus? status,
@@ -50,18 +50,19 @@ class JourneysLibraryInitial extends JourneysLibraryState {}
 
 class JourneysLibraryPageLoadInProgress extends JourneysLibraryState {
   JourneysLibraryPageLoadInProgress(JourneysLibraryState state)
-      : super.state(state.copyWith(status: JourneysLibraryStatus.loading));
+    : super.state(state.copyWith(status: JourneysLibraryStatus.loading));
 }
 
 class JourneysLibraryPageLoadSuccess extends JourneysLibraryState {
   JourneysLibraryPageLoadSuccess(JourneysLibraryState state)
-      : super.state(state.copyWith(status: JourneysLibraryStatus.success));
+    : super.state(state.copyWith(status: JourneysLibraryStatus.success));
 }
 
 class JourneysLibraryPageLoadFailure extends JourneysLibraryState {
   final String errorMessage;
 
-  JourneysLibraryPageLoadFailure(JourneysLibraryState state,
-      {required this.errorMessage})
-      : super.state(state.copyWith(status: JourneysLibraryStatus.error));
+  JourneysLibraryPageLoadFailure(
+    JourneysLibraryState state, {
+    required this.errorMessage,
+  }) : super.state(state.copyWith(status: JourneysLibraryStatus.error));
 }

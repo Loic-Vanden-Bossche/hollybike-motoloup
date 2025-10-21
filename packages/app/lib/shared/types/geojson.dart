@@ -14,9 +14,7 @@ part 'geojson.g.dart';
 sealed class GeoJSON with _$GeoJSON {
   const GeoJSON._();
 
-  const factory GeoJSON({
-    required List<double> bbox,
-  }) = _GeoJSON;
+  const factory GeoJSON({required List<double> bbox}) = _GeoJSON;
 
   factory GeoJSON.fromJson(JsonMap json) => _$GeoJSONFromJson(json);
 
@@ -30,14 +28,8 @@ sealed class GeoJSON with _$GeoJSON {
     final baseBbox = _baseBbox();
 
     final baseCoordinates = [
-      Coordinate(
-        longitude: baseBbox[0],
-        latitude: baseBbox[1],
-      ),
-      Coordinate(
-        longitude: baseBbox[2],
-        latitude: baseBbox[3],
-      ),
+      Coordinate(longitude: baseBbox[0], latitude: baseBbox[1]),
+      Coordinate(longitude: baseBbox[2], latitude: baseBbox[3]),
     ];
 
     final coordinates = baseCoordinates + extraValues;
@@ -57,7 +49,7 @@ sealed class GeoJSON with _$GeoJSON {
       double.infinity,
       double.infinity,
       double.negativeInfinity,
-      double.negativeInfinity
+      double.negativeInfinity,
     ];
 
     for (var coordinate in coordinates) {
@@ -78,8 +70,7 @@ sealed class GeoJSON with _$GeoJSON {
 
     final adjustedHeight =
         realHeight > realWidth ? 0 : (realWidth - realHeight);
-    final adjustedWidth =
-        realWidth > realHeight ? 0 : (realHeight - realWidth);
+    final adjustedWidth = realWidth > realHeight ? 0 : (realHeight - realWidth);
 
     bbox[0] -= (adjustedWidth + paddingWidth);
     bbox[1] -= (adjustedHeight + paddingHeight);
@@ -91,12 +82,7 @@ sealed class GeoJSON with _$GeoJSON {
 
   List<double> _baseBbox() {
     if (bbox.length == 6) {
-      return [
-        bbox[0],
-        bbox[1],
-        bbox[3],
-        bbox[4],
-      ];
+      return [bbox[0], bbox[1], bbox[3], bbox[4]];
     }
 
     return bbox;
@@ -107,8 +93,5 @@ class Coordinate {
   final double longitude;
   final double latitude;
 
-  Coordinate({
-    required this.longitude,
-    required this.latitude,
-  });
+  Coordinate({required this.longitude, required this.latitude});
 }

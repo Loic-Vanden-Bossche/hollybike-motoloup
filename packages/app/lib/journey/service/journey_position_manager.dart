@@ -19,15 +19,9 @@ class JourneyPositionManager {
   JourneyPositionManager({required this.pointManager, required this.context}) {
     _points = {};
 
-    rootBundle
-        .load(
-      "assets/images/placeholder_map_pin.png",
-    )
-        .then(
-      (ressource) {
-        _placeholderProfilePicture = ressource.buffer.asUint8List();
-      },
-    );
+    rootBundle.load("assets/images/placeholder_map_pin.png").then((ressource) {
+      _placeholderProfilePicture = ressource.buffer.asUint8List();
+    });
   }
 
   void updatePositions(List<WebsocketReceivePosition> positions) async {
@@ -58,9 +52,7 @@ class JourneyPositionManager {
     );
 
     await Future.wait(
-      alreadyAddedPositions.map(
-        (position) => _updateMapPosition(position),
-      ),
+      alreadyAddedPositions.map((position) => _updateMapPosition(position)),
     );
 
     for (final position in positions) {
@@ -71,12 +63,14 @@ class JourneyPositionManager {
   Future<void> _addMapPosition(WebsocketReceivePosition missingPosition) async {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final user = BlocProvider.of<UserPositionsBloc>(context)
-        .getPositionUser(missingPosition);
+    final user = BlocProvider.of<UserPositionsBloc>(
+      context,
+    ).getPositionUser(missingPosition);
     if (user is! UserLoadSuccessEvent) return;
 
-    final profilePicture =
-        BlocProvider.of<UserPositionsBloc>(context).getUserPicture(user);
+    final profilePicture = BlocProvider.of<UserPositionsBloc>(
+      context,
+    ).getUserPicture(user);
     if (user.user.profilePicture != null &&
         profilePicture is! UserPictureLoadSuccessEvent) {
       return;
@@ -117,15 +111,17 @@ class JourneyPositionManager {
   }
 
   Future<void> _updateTitles(WebsocketReceivePosition position) async {
-    final user =
-        BlocProvider.of<UserPositionsBloc>(context).getPositionUser(position);
+    final user = BlocProvider.of<UserPositionsBloc>(
+      context,
+    ).getPositionUser(position);
     if (user is! UserLoadSuccessEvent) return;
 
     final point = _points[user.user.id];
     if (point == null) return;
 
-    final profilePicture =
-        BlocProvider.of<UserPositionsBloc>(context).getUserPicture(user);
+    final profilePicture = BlocProvider.of<UserPositionsBloc>(
+      context,
+    ).getUserPicture(user);
     if (user.user.profilePicture != null &&
         profilePicture is! UserPictureLoadSuccessEvent) {
       return;
@@ -133,9 +129,11 @@ class JourneyPositionManager {
 
     point.textField =
         '${user.user.username}\n${(position.speed * 3.6).round()} km/h';
-    point.image = (profilePicture is UserPictureLoadSuccessEvent
-        ? profilePicture.image
-        : _placeholderProfilePicture) as Uint8List;
+    point.image =
+        (profilePicture is UserPictureLoadSuccessEvent
+                ? profilePicture.image
+                : _placeholderProfilePicture)
+            as Uint8List;
 
     pointManager.update(point);
   }

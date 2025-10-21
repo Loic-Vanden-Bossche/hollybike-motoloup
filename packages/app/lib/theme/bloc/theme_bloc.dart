@@ -75,64 +75,52 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   SwitchThemeData get _switchTheme {
     if (state.isDark) {
       return SwitchThemeData(
-        thumbColor: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.selected)) {
-              return _darkColorScheme.onPrimary;
-            }
-
-            return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
-          },
-        ),
-        trackColor: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.selected)) {
-              return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
-            }
-
-            return _darkColorScheme.primaryContainer;
-          },
-        ),
-        trackOutlineColor: WidgetStateProperty.resolveWith(
-          (states) {
-            if (states.contains(WidgetState.selected)) {
-              return Colors.transparent;
-            }
-
-            return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
-          },
-        ),
-      );
-    }
-
-    return SwitchThemeData(
-      thumbColor: WidgetStateProperty.resolveWith(
-        (states) {
+        thumbColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return _brightColorScheme.onPrimary;
+            return _darkColorScheme.onPrimary;
           }
 
-          return _brightColorScheme.onPrimary.withValues(alpha: 0.7);
-        },
-      ),
-      trackColor: WidgetStateProperty.resolveWith(
-        (states) {
+          return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
+        }),
+        trackColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
-            return _brightColorScheme.onPrimary.withValues(alpha: 0.7);
+            return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
           }
 
-          return _brightColorScheme.primaryContainer;
-        },
-      ),
-      trackOutlineColor: WidgetStateProperty.resolveWith(
-        (states) {
+          return _darkColorScheme.primaryContainer;
+        }),
+        trackOutlineColor: WidgetStateProperty.resolveWith((states) {
           if (states.contains(WidgetState.selected)) {
             return Colors.transparent;
           }
 
+          return _darkColorScheme.onPrimary.withValues(alpha: 0.7);
+        }),
+      );
+    }
+
+    return SwitchThemeData(
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return _brightColorScheme.onPrimary;
+        }
+
+        return _brightColorScheme.onPrimary.withValues(alpha: 0.7);
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
           return _brightColorScheme.onPrimary.withValues(alpha: 0.7);
-        },
-      ),
+        }
+
+        return _brightColorScheme.primaryContainer;
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return Colors.transparent;
+        }
+
+        return _brightColorScheme.onPrimary.withValues(alpha: 0.7);
+      }),
     );
   }
 
@@ -162,13 +150,14 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
       );
     }
     return ElevatedButtonThemeData(
-        style: ElevatedButton.styleFrom(
-      backgroundColor: _brightColorScheme.onPrimary,
-      foregroundColor: _brightColorScheme.primary,
-      textStyle: _textTheme.titleSmall?.copyWith(
-        color: _brightColorScheme.primary,
+      style: ElevatedButton.styleFrom(
+        backgroundColor: _brightColorScheme.onPrimary,
+        foregroundColor: _brightColorScheme.primary,
+        textStyle: _textTheme.titleSmall?.copyWith(
+          color: _brightColorScheme.primary,
+        ),
       ),
-    ));
+    );
   }
 
   FloatingActionButtonThemeData get _floatingActionButtonTheme {
@@ -234,13 +223,9 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
 
   IconThemeData get _iconTheme {
     if (state.isDark) {
-      return IconThemeData(
-        color: Color(_darkColorScheme.onPrimary.toARGB32()),
-      );
+      return IconThemeData(color: Color(_darkColorScheme.onPrimary.toARGB32()));
     }
-    return IconThemeData(
-      color: Color(_brightColorScheme.onPrimary.toARGB32()),
-    );
+    return IconThemeData(color: Color(_brightColorScheme.onPrimary.toARGB32()));
   }
 
   TextSelectionThemeData get _textSelectionTheme {

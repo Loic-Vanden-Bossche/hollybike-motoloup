@@ -42,7 +42,9 @@ class ControlTextField extends StatelessWidget {
   }
 
   String? _confirmFieldValidator(String? value) {
-    if (value == null || value.isEmpty || value != controlledFieldController!.text) {
+    if (value == null ||
+        value.isEmpty ||
+        value != controlledFieldController!.text) {
       return "Ce champ devrait avoir la même valeur que $controlledFieldTitle";
     }
     return null;

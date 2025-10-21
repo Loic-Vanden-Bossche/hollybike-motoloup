@@ -51,9 +51,10 @@ class _EventDetailsDescriptionState extends State<EventDetailsDescription> {
                   child: Text(
                     widget.description!,
                     style: Theme.of(context).textTheme.bodyMedium,
-                    overflow: _expanded
-                        ? TextOverflow.visible
-                        : TextOverflow.ellipsis,
+                    overflow:
+                        _expanded
+                            ? TextOverflow.visible
+                            : TextOverflow.ellipsis,
                     maxLines: _expanded ? null : 3,
                     softWrap: true,
                   ),

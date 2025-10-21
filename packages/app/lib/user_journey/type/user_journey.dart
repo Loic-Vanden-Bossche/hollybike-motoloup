@@ -32,17 +32,17 @@ sealed class UserJourney with _$UserJourney {
     @JsonKey(name: 'is_better_than') required Map<String, double>? isBetterThan,
   }) = _UserJourney;
 
-  get distanceLabel {
+  String get distanceLabel {
     return MinimalJourney.getDistanceLabel(totalDistance);
   }
 
-  get avgSpeedLabel => _speedLabel(avgSpeed);
-  get maxSpeedLabel => _speedLabel(maxSpeed);
+  String get avgSpeedLabel => _speedLabel(avgSpeed);
+  String get maxSpeedLabel => _speedLabel(maxSpeed);
 
-  get avgGForceLabel => _gForceLabel(avgGForce);
-  get maxGForceLabel => _gForceLabel(maxGForce);
+  String get avgGForceLabel => _gForceLabel(avgGForce);
+  String get maxGForceLabel => _gForceLabel(maxGForce);
 
-  get dateLabel {
+  String get dateLabel {
     DateFormat dateFormat = DateFormat('d MMMM yyyy', 'fr_FR');
     DateFormat timeFormat = DateFormat('HH\'h\'mm', 'fr_FR');
 
@@ -52,7 +52,7 @@ sealed class UserJourney with _$UserJourney {
     return '$formattedDate à $formattedTime';
   }
 
-  get totalTimeLabel {
+  String get totalTimeLabel {
     if (totalTime == null) {
       return '';
     }

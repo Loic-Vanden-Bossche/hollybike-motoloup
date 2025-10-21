@@ -14,9 +14,7 @@ class PlaceholderEventPreviewCard extends StatelessWidget {
     return Card(
       color: Theme.of(context).cardColor,
       elevation: 0,
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(10),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: SizedBox(
         height: 110,
         child: Row(
@@ -54,25 +52,27 @@ class PlaceholderEventPreviewCard extends StatelessWidget {
             Expanded(
               child: Padding(
                 padding: const EdgeInsets.all(8.0),
-                child: LayoutBuilder(builder: (context, constraints) {
-                  return Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      TextLoadingPlaceholder(
-                        minLetters: 20,
-                        maxLetters: 29,
-                        textStyle: Theme.of(context).textTheme.titleMedium,
-                      ),
-                      const TextLoadingPlaceholder(
-                        minLetters: 10,
-                        maxLetters: 30,
-                      )
-                    ],
-                  );
-                }),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        TextLoadingPlaceholder(
+                          minLetters: 20,
+                          maxLetters: 29,
+                          textStyle: Theme.of(context).textTheme.titleMedium,
+                        ),
+                        const TextLoadingPlaceholder(
+                          minLetters: 10,
+                          maxLetters: 30,
+                        ),
+                      ],
+                    );
+                  },
+                ),
               ),
-            )
+            ),
           ],
         ),
       ),

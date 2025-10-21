@@ -24,17 +24,12 @@ class PinnedHeaderDelegate extends SliverPersistentHeaderDelegate {
     return Align(
       alignment: Alignment.topLeft,
       child: AnimatedCrossFade(
-        firstChild: SizedBox(
-          height: height,
-          child: child,
-        ),
-        secondChild: SizedBox(
-          height: height,
-          child: child,
-        ),
-        crossFadeState: shrinkOffset > 0
-            ? CrossFadeState.showSecond
-            : CrossFadeState.showFirst,
+        firstChild: SizedBox(height: height, child: child),
+        secondChild: SizedBox(height: height, child: child),
+        crossFadeState:
+            shrinkOffset > 0
+                ? CrossFadeState.showSecond
+                : CrossFadeState.showFirst,
         duration: Duration(milliseconds: animationDuration ?? 1),
       ),
     );

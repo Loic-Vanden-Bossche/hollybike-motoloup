@@ -13,10 +13,7 @@ import '../../../user_journey/widgets/user_journey_card.dart';
 class EventParticipationModal extends StatelessWidget {
   final EventParticipation participation;
 
-  const EventParticipationModal({
-    super.key,
-    required this.participation,
-  });
+  const EventParticipationModal({super.key, required this.participation});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +65,7 @@ class EventParticipationModal extends StatelessWidget {
                     ElevatedButton(
                       onPressed: () => _onOpenUserProfile(context),
                       child: const Text("Voir le profil"),
-                    )
+                    ),
                   ],
                 ),
               ),

@@ -46,9 +46,7 @@ class DeleteEvent extends EventDetailsEvent {
 class EditEvent extends EventDetailsEvent {
   final EventFormData formData;
 
-  EditEvent({
-    required this.formData,
-  });
+  EditEvent({required this.formData});
 }
 
 class TerminateUserJourney extends EventDetailsEvent {
@@ -66,7 +64,5 @@ class EventStarted extends EventDetailsEvent {
 class UploadEventImage extends EventDetailsEvent {
   final File imageFile;
 
-  UploadEventImage({
-    required this.imageFile,
-  });
+  UploadEventImage({required this.imageFile});
 }

@@ -26,21 +26,19 @@ class EventDetailsTabScrollWrapper extends StatelessWidget {
             key: PageStorageKey<String>(scrollViewKey),
             slivers: [
               SliverOverlapInjector(
-                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(context),
+                handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                  context,
+                ),
               ),
               _buildChild(),
             ],
           ),
         );
-      }
+      },
     );
   }
 
   Widget _buildChild() {
-    return sliverChild
-        ? child
-        : SliverToBoxAdapter(
-            child: child,
-          );
+    return sliverChild ? child : SliverToBoxAdapter(child: child);
   }
 }

@@ -57,7 +57,8 @@ class CommonTextField extends StatelessWidget {
         validator: validator,
         obscureText: obscureText,
         decoration: decoration,
-        autovalidateMode: autovalidateMode ?? AutovalidateMode.onUserInteraction,
+        autovalidateMode:
+            autovalidateMode ?? AutovalidateMode.onUserInteraction,
         autofocus: autofocus,
         autofillHints: autofillHints,
         keyboardType: textInputType,

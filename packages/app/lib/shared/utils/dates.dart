@@ -80,9 +80,10 @@ bool checkSameDate(DateTime date1, DateTime date2) {
       date1.day == date2.day;
 }
 
-String? dateToJson(DateTime? dateTime) => dateTime == null
-    ? null
-    : DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(dateTime);
+String? dateToJson(DateTime? dateTime) =>
+    dateTime == null
+        ? null
+        : DateFormat("yyyy-MM-dd'T'HH:mm:ss'Z'").format(dateTime);
 
 String formatPastTime(DateTime date) {
   final now = DateTime.now();

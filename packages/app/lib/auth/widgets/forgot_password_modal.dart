@@ -18,91 +18,80 @@ class ForgotPasswordModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => EditProfileBloc(
-        profileRepository:
-        RepositoryProvider.of<ProfileRepository>(
-          context,
-        ),
-      ),
-      child: Builder(builder: (context) {
-        return BlocConsumer<EditProfileBloc,
-            EditProfileState>(
-          listener: (context, state) {
-            if (state is ResetPasswordSuccess) {
-              Toast.showSuccessToast(
-                context,
-                "Un email de réinitialisation vous a été envoyé.",
-              );
+      create:
+          (context) => EditProfileBloc(
+            profileRepository: RepositoryProvider.of<ProfileRepository>(
+              context,
+            ),
+          ),
+      child: Builder(
+        builder: (context) {
+          return BlocConsumer<EditProfileBloc, EditProfileState>(
+            listener: (context, state) {
+              if (state is ResetPasswordSuccess) {
+                Toast.showSuccessToast(
+                  context,
+                  "Un email de réinitialisation vous a été envoyé.",
+                );
 
-              Navigator.of(context).pop();
-            }
-
-            if (state is ResetPasswordFailure) {
-              Toast.showErrorToast(
-                context,
-                state.errorMessage,
-              );
-            }
-
-            if (state is ResetPasswordNotAvailable) {
-              Toast.showErrorToast(
-                context,
-                "La réinitialisation de mot de passe n'est pas disponible, veuillez contacter votre administrateur.",
-              );
-            }
-          },
-          builder: (context, state) {
-            if (state is ResetPasswordInProgress) {
-              return const Center(
-                child: CircularProgressIndicator(),
-              );
-            }
-
-            return ClosableDialog(
-              title: "Mot de passe oublié",
-              body: Column(
-                children: [
-                  TextFormBuilder(
-                    onFormSubmit: (fields) {
-                      BlocProvider.of<EditProfileBloc>(
-                          context)
-                          .add(
-                        ResetPassword(
-                          email: fields["email"] as String,
-                          host: formatHostFromInput(
-                            fields["host"] as String,
-                          ),
-                        ),
-                      );
-                    },
-                    formFields: {
-                      "host": FormFieldConfig(
-                        label: "Adresse du serveur",
-                        validator: _inputValidator,
-                        defaultValue: "hollybike.chbrx.com",
-                        autofillHints: [AutofillHints.url],
-                        textInputType: TextInputType.url,
-                      ),
-                      "email": FormFieldConfig(
-                        label: "Adresse email",
-                        validator: _emailValidator,
-                        autofillHints: [
-                          AutofillHints.email
-                        ],
-                        textInputType:
-                        TextInputType.emailAddress,
-                      ),
-                    },
-                  )
-                ],
-              ),
-              onClose: () {
                 Navigator.of(context).pop();
-              },
-            );
-          },
-        );
-      }),
+              }
+
+              if (state is ResetPasswordFailure) {
+                Toast.showErrorToast(context, state.errorMessage);
+              }
+
+              if (state is ResetPasswordNotAvailable) {
+                Toast.showErrorToast(
+                  context,
+                  "La réinitialisation de mot de passe n'est pas disponible, veuillez contacter votre administrateur.",
+                );
+              }
+            },
+            builder: (context, state) {
+              if (state is ResetPasswordInProgress) {
+                return const Center(child: CircularProgressIndicator());
+              }
+
+              return ClosableDialog(
+                title: "Mot de passe oublié",
+                body: Column(
+                  children: [
+                    TextFormBuilder(
+                      onFormSubmit: (fields) {
+                        BlocProvider.of<EditProfileBloc>(context).add(
+                          ResetPassword(
+                            email: fields["email"] as String,
+                            host: formatHostFromInput(fields["host"] as String),
+                          ),
+                        );
+                      },
+                      formFields: {
+                        "host": FormFieldConfig(
+                          label: "Adresse du serveur",
+                          validator: _inputValidator,
+                          defaultValue: "api.hollybike.chbrx.com",
+                          autofillHints: [AutofillHints.url],
+                          textInputType: TextInputType.url,
+                        ),
+                        "email": FormFieldConfig(
+                          label: "Adresse email",
+                          validator: _emailValidator,
+                          autofillHints: [AutofillHints.email],
+                          textInputType: TextInputType.emailAddress,
+                        ),
+                      },
+                    ),
+                  ],
+                ),
+                onClose: () {
+                  Navigator.of(context).pop();
+                },
+              );
+            },
+          );
+        },
+      ),
     );
   }
 
@@ -117,8 +106,9 @@ class ForgotPasswordModal extends StatelessWidget {
     if (inputText == null || inputText.isEmpty) {
       return "Ce champ ne peut pas être vide.";
     }
-    if (!RegExp(r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$")
-        .hasMatch(inputText)) {
+    if (!RegExp(
+      r"^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$",
+    ).hasMatch(inputText)) {
       return "Adresse email invalide.";
     }
     return null;

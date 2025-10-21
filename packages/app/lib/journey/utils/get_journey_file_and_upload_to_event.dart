@@ -6,10 +6,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import '../../event/types/event.dart';
 
-Future<PlatformFile?> getJourneyFile(
-  BuildContext context,
-  Event event,
-) async {
+Future<PlatformFile?> getJourneyFile(BuildContext context, Event event) async {
   final FilePickerResult? result = await FilePicker.platform.pickFiles(
     type: FileType.any,
   );
@@ -28,9 +25,7 @@ Future<PlatformFile?> getJourneyFile(
       builder: (context) {
         return AlertDialog(
           title: const Text("Fichier invalide"),
-          content: const Text(
-            "Le fichier doit être au format GPX ou GEOJSON",
-          ),
+          content: const Text("Le fichier doit être au format GPX ou GEOJSON"),
           actions: [
             TextButton(
               onPressed: () {

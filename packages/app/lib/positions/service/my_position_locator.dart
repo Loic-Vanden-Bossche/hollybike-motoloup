@@ -14,7 +14,10 @@ class MyPositionLocator {
   final AuthPersistence authPersistence;
   final BackgroundService backgroundService;
 
-  MyPositionLocator({required this.authPersistence, required this.backgroundService});
+  MyPositionLocator({
+    required this.authPersistence,
+    required this.backgroundService,
+  });
 
   Future<void> start(int eventId, String eventName) async {
     final session = await authPersistence.currentSession;

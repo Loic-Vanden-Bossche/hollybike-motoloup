@@ -30,10 +30,7 @@ class ProfileBanner extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.end,
           children: [
             ProfileBannerDecoration(
-              profilePicture: ProfilePicture(
-                user: profile,
-                size: 100,
-              ),
+              profilePicture: ProfilePicture(user: profile, size: 100),
             ),
             if (canEdit)
               Row(
@@ -52,8 +49,6 @@ class ProfileBanner extends StatelessWidget {
   }
 
   void _onEditProfile(BuildContext context) {
-    context.router.push(
-      const EditProfileRoute(),
-    );
+    context.router.push(const EditProfileRoute());
   }
 }

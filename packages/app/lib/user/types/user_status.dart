@@ -20,6 +20,7 @@ class UserStatusMapper {
         return UserStatus.disabled;
     }
     throw Exception(
-        "string value $value has no equivalence in type UserStatus");
+      "string value $value has no equivalence in type UserStatus",
+    );
   }
 }

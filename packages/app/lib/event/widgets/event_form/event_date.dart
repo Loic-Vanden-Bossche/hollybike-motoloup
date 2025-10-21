@@ -45,15 +45,15 @@ class EventDate extends StatelessWidget {
                     children: [
                       Text(
                         getMinimalDay(date),
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontSize: 10,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleSmall?.copyWith(fontSize: 10),
                       ),
                       Text(
                         date.day.toString(),
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                              fontSize: 14,
-                            ),
+                        style: Theme.of(
+                          context,
+                        ).textTheme.titleSmall?.copyWith(fontSize: 14),
                       ),
                     ],
                   ),

@@ -55,31 +55,16 @@ class EventParticipationsApi {
     return PaginatedList.fromJson(response.data, EventCandidate.fromJson);
   }
 
-  Future<void> promoteParticipant(
-    int eventId,
-    int userId,
-  ) async {
-    await client.dio.patch(
-      '/events/$eventId/participations/$userId/promote',
-    );
+  Future<void> promoteParticipant(int eventId, int userId) async {
+    await client.dio.patch('/events/$eventId/participations/$userId/promote');
   }
 
-  Future<void> demoteParticipant(
-    int eventId,
-    int userId,
-  ) async {
-    await client.dio.patch(
-      '/events/$eventId/participations/$userId/demote',
-    );
+  Future<void> demoteParticipant(int eventId, int userId) async {
+    await client.dio.patch('/events/$eventId/participations/$userId/demote');
   }
 
-  Future<void> removeParticipant(
-    int eventId,
-    int userId,
-  ) async {
-    await client.dio.delete(
-      '/events/$eventId/participations/$userId',
-    );
+  Future<void> removeParticipant(int eventId, int userId) async {
+    await client.dio.delete('/events/$eventId/participations/$userId');
   }
 
   Future<List<EventParticipation>> addParticipants(
@@ -88,14 +73,13 @@ class EventParticipationsApi {
   ) async {
     final response = await client.dio.post(
       '/events/$eventId/participations/add-users',
-      data: {
-        'userIds': userIds,
-      },
+      data: {'userIds': userIds},
     );
 
     return List<EventParticipation>.from(
-      response.data
-          .map((participation) => EventParticipation.fromJson(participation)),
+      response.data.map(
+        (participation) => EventParticipation.fromJson(participation),
+      ),
     );
   }
 }

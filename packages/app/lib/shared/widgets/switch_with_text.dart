@@ -24,30 +24,27 @@ class SwitchWithText extends StatelessWidget {
   Widget build(BuildContext context) {
     final switchWidget = Switch(
       value: value,
-      onChanged: onChange != null
-          ? (value) {
-              onChange?.call();
-            }
-          : null,
+      onChanged:
+          onChange != null
+              ? (value) {
+                onChange?.call();
+              }
+              : null,
     );
 
     const separator = SizedBox(width: 10);
 
-    final label = Expanded(
-      child: Text(
-        text,
-        softWrap: true,
-      ),
-    );
+    final label = Expanded(child: Text(text, softWrap: true));
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onChange,
       child: Row(
         mainAxisSize: MainAxisSize.min,
-        children: alignment == SwitchAlignment.left
-            ? [switchWidget, separator, label]
-            : [label, separator, switchWidget],
+        children:
+            alignment == SwitchAlignment.left
+                ? [switchWidget, separator, label]
+                : [label, separator, switchWidget],
       ),
     );
   }

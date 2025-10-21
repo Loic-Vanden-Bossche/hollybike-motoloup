@@ -26,10 +26,10 @@ sealed class MinimalUser with _$MinimalUser {
       _$MinimalUserFromJson(json);
 
   factory MinimalUser.empty() => const MinimalUser(
-        id: 0,
-        username: '',
-        scope: UserScope.user,
-        status: UserStatus.enabled,
-        profilePicture: null,
-      );
+    id: 0,
+    username: '',
+    scope: UserScope.user,
+    status: UserStatus.enabled,
+    profilePicture: null,
+  );
 }

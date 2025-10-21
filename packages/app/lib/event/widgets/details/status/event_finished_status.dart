@@ -18,7 +18,7 @@ class EventFinishedStatus extends StatelessWidget {
   final bool isLoading;
   final bool isCurrentEvent;
 
-  get canTerminateJourney =>
+  bool get canTerminateJourney =>
       eventDetails.callerParticipation?.journey == null &&
       eventDetails.callerParticipation?.hasRecordedPositions == true;
 
@@ -33,10 +33,8 @@ class EventFinishedStatus extends StatelessWidget {
   Widget build(BuildContext context) {
     return EventDetailsStatusBadge(
       status: EventStatusState.finished,
-      message: 'Terminé ${formatPastTime(
-        eventDetails.event.endDate ??
-            eventDetails.event.startDate.add(const Duration(hours: 4)),
-      )}',
+      message:
+          'Terminé ${formatPastTime(eventDetails.event.endDate ?? eventDetails.event.startDate.add(const Duration(hours: 4)))}',
       loading: isLoading,
       actionText: _getActionText(),
       onAction: _getOnAction(context),
@@ -52,8 +50,7 @@ class EventFinishedStatus extends StatelessWidget {
       return null;
     }
 
-    return () =>
-    {
+    return () => {
       showDialog(
         context: context,
         builder: (contextDialog) {
@@ -73,14 +70,10 @@ class EventFinishedStatus extends StatelessWidget {
                 onPressed: () {
                   Navigator.of(context).pop();
 
-                  context.read<EventDetailsBloc>().add(
-                    TerminateUserJourney(),
-                  );
+                  context.read<EventDetailsBloc>().add(TerminateUserJourney());
 
                   if (isCurrentEvent) {
-                    context.read<MyPositionBloc>().add(
-                      DisableSendPositions(),
-                    );
+                    context.read<MyPositionBloc>().add(DisableSendPositions());
                   }
                 },
                 child: const Text("Terminer"),

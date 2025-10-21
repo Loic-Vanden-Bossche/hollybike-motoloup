@@ -24,12 +24,12 @@ class UserPositionsState {
   });
 
   UserPositionsState.state(UserPositionsState state)
-      : this(
-          userPositions: state.userPositions,
-          usersLoadEvent: state.usersLoadEvent,
-          usersPicturesLoadEvent: state.usersPicturesLoadEvent,
-          status: state.status,
-        );
+    : this(
+        userPositions: state.userPositions,
+        usersLoadEvent: state.usersLoadEvent,
+        usersPicturesLoadEvent: state.usersPicturesLoadEvent,
+        status: state.status,
+      );
 
   UserPositionsState copyWith({
     UserPositionsStatus? status,
@@ -51,37 +51,31 @@ class UserPositionsInitial extends UserPositionsState {}
 
 class UserPositionsLoading extends UserPositionsState {
   UserPositionsLoading(state)
-      : super.state(
-          state.copyWith(status: UserPositionsStatus.loading),
-        );
+    : super.state(state.copyWith(status: UserPositionsStatus.loading));
 }
 
 class UserPositionsInitialized extends UserPositionsState {
   UserPositionsInitialized(state)
-      : super.state(
-          state.copyWith(status: UserPositionsStatus.success),
-        );
+    : super.state(state.copyWith(status: UserPositionsStatus.success));
 }
 
 class UserPositionsUpdated extends UserPositionsState {
   UserPositionsUpdated(state, List<WebsocketReceivePosition> userPositions)
-      : super.state(
-          state.copyWith(
-            status: UserPositionsStatus.success,
-            userPositions: userPositions,
-          ),
-        );
+    : super.state(
+        state.copyWith(
+          status: UserPositionsStatus.success,
+          userPositions: userPositions,
+        ),
+      );
 }
 
 class UserProfilesUpdated extends UserPositionsState {
-  UserProfilesUpdated(
-    UserPositionsState oldState,
-    UserLoadEvent userLoadEvent,
-  ) : super.state(
-          oldState.copyWith(
-            usersLoadEvent: oldState.usersLoadEvent.copyUpdated(userLoadEvent),
-          ),
-        );
+  UserProfilesUpdated(UserPositionsState oldState, UserLoadEvent userLoadEvent)
+    : super.state(
+        oldState.copyWith(
+          usersLoadEvent: oldState.usersLoadEvent.copyUpdated(userLoadEvent),
+        ),
+      );
 }
 
 class UserPicturesUpdated extends UserPositionsState {
@@ -89,18 +83,17 @@ class UserPicturesUpdated extends UserPositionsState {
     UserPositionsState oldState,
     UserPictureLoadEvent userPictureLoadEvent,
   ) : super.state(
-          oldState.copyWith(
-            usersPicturesLoadEvent: oldState.usersPicturesLoadEvent
-                .copyUpdated(userPictureLoadEvent),
+        oldState.copyWith(
+          usersPicturesLoadEvent: oldState.usersPicturesLoadEvent.copyUpdated(
+            userPictureLoadEvent,
           ),
-        );
+        ),
+      );
 }
 
 class UserPositionsError extends UserPositionsState {
   final String message;
 
   UserPositionsError(state, this.message)
-      : super.state(
-          state.copyWith(status: UserPositionsStatus.error),
-        );
+    : super.state(state.copyWith(status: UserPositionsStatus.error));
 }

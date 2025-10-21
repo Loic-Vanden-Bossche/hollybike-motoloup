@@ -42,25 +42,23 @@ class EventImageWithLoader extends StatelessWidget {
                   child: const GradientLoadingPlaceholder(),
                 );
               },
-              imageBuilder: (context, imageProvider) => Image(
-                image: imageProvider,
-                fit: BoxFit.cover,
-              ),
-              errorWidget: (context, url, error) => const Center(
-                child: Icon(
-                  Icons.photo,
-                  size: 48,
-                  color: CupertinoColors.systemGrey,
-                ),
-              ),
+              imageBuilder:
+                  (context, imageProvider) =>
+                      Image(image: imageProvider, fit: BoxFit.cover),
+              errorWidget:
+                  (context, url, error) => const Center(
+                    child: Icon(
+                      Icons.photo,
+                      size: 48,
+                      color: CupertinoColors.systemGrey,
+                    ),
+                  ),
             ),
           ),
           Positioned.fill(
             child: Material(
               color: Colors.transparent,
-              child: InkWell(
-                onTap: onTap,
-              ),
+              child: InkWell(onTap: onTap),
             ),
           ),
         ],

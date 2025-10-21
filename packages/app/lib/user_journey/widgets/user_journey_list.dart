@@ -75,9 +75,7 @@ class UserJourneyList extends StatelessWidget {
           const SliverToBoxAdapter(
             child: Center(
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  vertical: 16.0,
-                ),
+                padding: EdgeInsets.symmetric(vertical: 16.0),
                 child: CircularProgressIndicator(),
               ),
             ),

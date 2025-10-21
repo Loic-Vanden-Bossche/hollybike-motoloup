@@ -8,8 +8,7 @@ class FieldFocusNode {
   final FocusNode focusNode;
   final FocusNode? controlFocusNode;
 
-  FieldFocusNode({
-    bool? hasControlNode,
-  })  : focusNode = FocusNode(),
-        controlFocusNode = hasControlNode == true ? FocusNode() : null;
+  FieldFocusNode({bool? hasControlNode})
+    : focusNode = FocusNode(),
+      controlFocusNode = hasControlNode == true ? FocusNode() : null;
 }

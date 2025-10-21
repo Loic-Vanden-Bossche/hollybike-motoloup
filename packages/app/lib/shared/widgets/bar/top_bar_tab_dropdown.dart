@@ -8,10 +8,7 @@ class TabDropdownEntry {
   final String title;
   final IconData icon;
 
-  const TabDropdownEntry({
-    required this.title,
-    required this.icon,
-  });
+  const TabDropdownEntry({required this.title, required this.icon});
 }
 
 class TopBarTabDropdown extends StatefulWidget {
@@ -58,13 +55,14 @@ class _TopBarTabDropdownState extends State<TopBarTabDropdown> {
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  backgroundColor:
-                      WidgetStatePropertyAll(Theme.of(context).colorScheme.primary),
+                  backgroundColor: WidgetStatePropertyAll(
+                    Theme.of(context).colorScheme.primary,
+                  ),
                 ),
                 onSelected: _handleSelectedValueChange,
                 dropdownMenuEntries: _renderMenuEntries(),
               );
-            }
+            },
           ),
           Positioned.fill(
             child: Material(
@@ -87,7 +85,6 @@ class _TopBarTabDropdownState extends State<TopBarTabDropdown> {
         if (element.widget is TextField) {
           detector = element.widget as TextField;
           return;
-
         } else {
           searchForGestureDetector(element);
         }

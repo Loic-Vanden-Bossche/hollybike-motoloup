@@ -36,7 +36,10 @@ void journeyImportModalFromType(
     final response = await http.get(Uri.parse(url));
 
     final tempDir = Directory.systemTemp;
-    final filePath = path.join(tempDir.path, 'temp-import-user-journey.geojson');
+    final filePath = path.join(
+      tempDir.path,
+      'temp-import-user-journey.geojson',
+    );
     final file = File(filePath);
     file.writeAsBytesSync(response.bodyBytes);
 
@@ -45,11 +48,7 @@ void journeyImportModalFromType(
 
   Future<void> uploadJourneyFile(File file, bool isGpx) async {
     BlocProvider.of<EventJourneyBloc>(context).add(
-      UploadJourneyFileToEvent(
-        eventId: event.id,
-        name: event.name,
-        file: file,
-      ),
+      UploadJourneyFileToEvent(eventId: event.id, name: event.name, file: file),
     );
 
     await showDialog(
@@ -58,9 +57,7 @@ void journeyImportModalFromType(
       builder: (_) {
         return BlocProvider.value(
           value: BlocProvider.of<EventJourneyBloc>(context),
-          child: UploadJourneyModal(
-            isGpx: isGpx,
-          ),
+          child: UploadJourneyModal(isGpx: isGpx),
         );
       },
     );
@@ -75,11 +72,12 @@ void journeyImportModalFromType(
           return BlocProvider.value(
             value: BlocProvider.of<EventJourneyBloc>(context),
             child: BlocProvider<JourneysLibraryBloc>(
-              create: (context) => JourneysLibraryBloc(
-                journeyRepository: RepositoryProvider.of<JourneyRepository>(
-                  context,
-                ),
-              ),
+              create:
+                  (context) => JourneysLibraryBloc(
+                    journeyRepository: RepositoryProvider.of<JourneyRepository>(
+                      context,
+                    ),
+                  ),
               child: JourneyLibraryModal(
                 event: event,
                 onJourneyAdded: () {
@@ -96,9 +94,10 @@ void journeyImportModalFromType(
 
       final currentProfileEvent = profileBloc.currentProfile;
 
-      final currentProfile = currentProfileEvent is ProfileLoadSuccessEvent
-          ? currentProfileEvent.profile
-          : null;
+      final currentProfile =
+          currentProfileEvent is ProfileLoadSuccessEvent
+              ? currentProfileEvent.profile
+              : null;
 
       if (currentProfile == null) {
         return;
@@ -111,12 +110,12 @@ void journeyImportModalFromType(
         ),
         builder: (_) {
           return BlocProvider<ProfileJourneysBloc>(
-            create: (context) => ProfileJourneysBloc(
-              userJourneyRepository: RepositoryProvider.of<UserJourneyRepository>(
-                context,
-              ),
-              userId: currentProfile.id,
-            ),
+            create:
+                (context) => ProfileJourneysBloc(
+                  userJourneyRepository:
+                      RepositoryProvider.of<UserJourneyRepository>(context),
+                  userId: currentProfile.id,
+                ),
             child: UserJourneyListModal(
               fileSelected: (url) async {
                 final file = await downloadFile(url);

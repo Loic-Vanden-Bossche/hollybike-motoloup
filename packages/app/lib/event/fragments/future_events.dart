@@ -11,9 +11,7 @@ import '../bloc/events_bloc/future_events_bloc.dart';
 import 'events_list_fragment.dart';
 
 class FutureEvents extends StatelessWidget {
-  const FutureEvents({
-    super.key,
-  });
+  const FutureEvents({super.key});
 
   @override
   Widget build(BuildContext context) {

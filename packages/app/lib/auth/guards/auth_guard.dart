@@ -17,10 +17,12 @@ class AuthGuard extends AutoRouteGuard {
     if (await authPersistence.isDisconnected ||
         authPersistence.currentSessionExpired) {
       router.replaceAll([
-        LoginRoute(onAuthSuccess: () {
-          router.removeLast();
-          resolver.next(true);
-        }),
+        LoginRoute(
+          onAuthSuccess: () {
+            router.removeLast();
+            resolver.next(true);
+          },
+        ),
       ]);
     } else {
       resolver.next(true);

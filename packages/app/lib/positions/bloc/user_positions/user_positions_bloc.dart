@@ -27,7 +27,7 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
   final AuthPersistence authPersistence;
   final ProfileRepository profileRepository;
 
-  final bool canSeeUserPositions ;
+  final bool canSeeUserPositions;
 
   UserPositionsBloc({
     required this.authPersistence,
@@ -43,8 +43,9 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
 
   UserLoadEvent? getPositionUser(WebsocketReceivePosition position) {
     try {
-      return state.usersLoadEvent
-          .firstWhere((user) => user.id == position.userId);
+      return state.usersLoadEvent.firstWhere(
+        (user) => user.id == position.userId,
+      );
     } catch (_) {
       return null;
     }
@@ -52,11 +53,12 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
 
   UserPictureLoadEvent? getUserPicture(UserLoadSuccessEvent user) {
     final profilePicture = user.user.profilePicture;
-    if(profilePicture == null) return null;
+    if (profilePicture == null) return null;
 
     try {
-      return state.usersPicturesLoadEvent
-          .firstWhere((picture) => picture.picturePath == profilePicture);
+      return state.usersPicturesLoadEvent.firstWhere(
+        (picture) => picture.picturePath == profilePicture,
+      );
     } catch (_) {
       return null;
     }
@@ -83,36 +85,40 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
       event.eventId,
     );
 
-    await emit.forEach(stream, onData: (message) {
-      switch (message.data.type) {
-        case 'subscribed':
-          final subscribed = message.data as WebsocketSubscribed;
+    await emit.forEach(
+      stream,
+      onData: (message) {
+        switch (message.data.type) {
+          case 'subscribed':
+            final subscribed = message.data as WebsocketSubscribed;
 
-          if (subscribed.subscribed) {
-            return UserPositionsInitialized(state);
-          }
+            if (subscribed.subscribed) {
+              return UserPositionsInitialized(state);
+            }
 
-          return UserPositionsError(state, 'Error: Not subscribed');
-        case 'receive-user-position':
-          final newPositions = _replaceUserPosition(
-            state.userPositions,
-            message.data as WebsocketReceivePosition,
-          );
+            return UserPositionsError(state, 'Error: Not subscribed');
+          case 'receive-user-position':
+            final newPositions = _replaceUserPosition(
+              state.userPositions,
+              message.data as WebsocketReceivePosition,
+            );
 
-          _updateUsersProfiles(newPositions);
-          return UserPositionsUpdated(state, newPositions);
-        case 'stop-receive-user-position':
-          final event = message.data as WebsocketStopReceivePosition;
+            _updateUsersProfiles(newPositions);
+            return UserPositionsUpdated(state, newPositions);
+          case 'stop-receive-user-position':
+            final event = message.data as WebsocketStopReceivePosition;
 
-          final newPositions = state.userPositions
-              .where((position) => position.userId != event.userId)
-              .toList();
+            final newPositions =
+                state.userPositions
+                    .where((position) => position.userId != event.userId)
+                    .toList();
 
-          return UserPositionsUpdated(state, newPositions);
-        default:
-          return UserPositionsError(state, 'Error: Unknown message type');
-      }
-    });
+            return UserPositionsUpdated(state, newPositions);
+          default:
+            return UserPositionsError(state, 'Error: Unknown message type');
+        }
+      },
+    );
   }
 
   Future<Stream<WebsocketMessage>> _listenAndSubscribe(
@@ -120,14 +126,15 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
     String accessToken,
     int eventId,
   ) async {
-    final ws = await WebsocketClient(
-      session: AuthSession(
-        token: accessToken,
-        host: host,
-        deviceId: '',
-        refreshToken: '',
-      ),
-    ).connect();
+    final ws =
+        await WebsocketClient(
+          session: AuthSession(
+            token: accessToken,
+            host: host,
+            deviceId: '',
+            refreshToken: '',
+          ),
+        ).connect();
 
     ws.onDisconnect(() {
       log('Websocket Disconnected');
@@ -169,9 +176,12 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
     if (currentSession == null) return;
 
     final missingProfiles = userPositions.where(
-      (userPosition) => !state.usersLoadEvent.any((loadEvent) =>
-          loadEvent.id == userPosition.userId &&
-          loadEvent.observerSession == currentSession),
+      (userPosition) =>
+          !state.usersLoadEvent.any(
+            (loadEvent) =>
+                loadEvent.id == userPosition.userId &&
+                loadEvent.observerSession == currentSession,
+          ),
     );
 
     for (var position in missingProfiles) {
@@ -220,10 +230,7 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
     }
   }
 
-  void _onUserLoadEvent(
-    UserLoadEvent event,
-    Emitter<UserPositionsState> emit,
-  ) {
+  void _onUserLoadEvent(UserLoadEvent event, Emitter<UserPositionsState> emit) {
     emit(UserProfilesUpdated(state, event));
   }
 
@@ -233,14 +240,20 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
   ) {
     final picturePath = event.user.profilePicture;
     if (picturePath == null ||
-        state.usersPicturesLoadEvent
-            .any((picture) => picture.picturePath == picturePath)) {
+        state.usersPicturesLoadEvent.any(
+          (picture) => picture.picturePath == picturePath,
+        )) {
       return;
     }
 
     get(Uri.parse(picturePath)).then(
       (response) {
-        add(UserPictureLoadSuccessEvent(picturePath: picturePath, image: response.bodyBytes));
+        add(
+          UserPictureLoadSuccessEvent(
+            picturePath: picturePath,
+            image: response.bodyBytes,
+          ),
+        );
       },
       onError: (error) {
         add(UserPictureLoadErrorEvent(picturePath: picturePath, error: error));

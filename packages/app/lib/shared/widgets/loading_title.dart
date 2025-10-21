@@ -19,15 +19,9 @@ class LoadingTitle extends StatelessWidget {
       heightFactor: 0.3,
       widthFactor: 1,
       child: Container(
-        decoration: BoxDecoration(
-          border: Border(top: border, bottom: border),
-        ),
+        decoration: BoxDecoration(border: Border(top: border, bottom: border)),
         padding: const EdgeInsets.all(32),
-        child: const FittedBox(
-          child: AppTitle(
-            fontSize: 40,
-          ),
-        ),
+        child: const FittedBox(child: AppTitle(fontSize: 40)),
       ),
     );
   }

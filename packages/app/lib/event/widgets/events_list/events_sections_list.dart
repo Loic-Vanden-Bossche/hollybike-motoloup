@@ -41,75 +41,70 @@ class EventsSectionsList extends StatelessWidget {
     return CustomScrollView(
       controller: controller,
       physics: physics,
-      slivers: sections
-          .map(
-            (section) => SliverMainAxisGroup(
-              slivers: [
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: PinnedHeaderDelegate(
-                    height: 50,
-                    animationDuration: 300,
-                    child: Container(
-                      width: double.infinity,
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 12,
-                        ),
-                        child: Text(
-                          section.title,
-                          style: Theme.of(context).textTheme.titleMedium,
+      slivers:
+          sections
+              .map(
+                (section) => SliverMainAxisGroup(
+                  slivers: [
+                    SliverPersistentHeader(
+                      pinned: true,
+                      delegate: PinnedHeaderDelegate(
+                        height: 50,
+                        animationDuration: 300,
+                        child: Container(
+                          width: double.infinity,
+                          color: Theme.of(context).scaffoldBackgroundColor,
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            child: Text(
+                              section.title,
+                              style: Theme.of(context).textTheme.titleMedium,
+                            ),
+                          ),
                         ),
                       ),
                     ),
-                  ),
-                ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate(
-                    (context, index) {
-                      final event = section.events[index];
+                    SliverList(
+                      delegate: SliverChildBuilderDelegate((context, index) {
+                        final event = section.events[index];
 
-                      return TweenAnimationBuilder(
-                        tween: Tween<double>(begin: 0, end: 1),
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        builder: (context, double value, child) {
-                          return Transform.translate(
-                            offset: Offset(30 * (1 - value), 0),
-                            child: Opacity(
-                              opacity: value,
-                              child: EventPreviewCard(
-                                event: event,
-                                onTap: (uniqueKey) => _navigateToEventDetails(
-                                  context,
-                                  event,
-                                  uniqueKey,
+                        return TweenAnimationBuilder(
+                          tween: Tween<double>(begin: 0, end: 1),
+                          duration: const Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                          builder: (context, double value, child) {
+                            return Transform.translate(
+                              offset: Offset(30 * (1 - value), 0),
+                              child: Opacity(
+                                opacity: value,
+                                child: EventPreviewCard(
+                                  event: event,
+                                  onTap:
+                                      (uniqueKey) => _navigateToEventDetails(
+                                        context,
+                                        event,
+                                        uniqueKey,
+                                      ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      );
-                    },
-                    childCount: section.events.length,
-                  ),
-                ),
-                if (hasMore && section == sections.last)
-                  const SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(
-                          vertical: 16.0,
-                        ),
-                        child: CircularProgressIndicator(),
-                      ),
+                            );
+                          },
+                        );
+                      }, childCount: section.events.length),
                     ),
-                  ),
-              ],
-            ),
-          )
-          .toList(),
+                    if (hasMore && section == sections.last)
+                      const SliverToBoxAdapter(
+                        child: Center(
+                          child: Padding(
+                            padding: EdgeInsets.symmetric(vertical: 16.0),
+                            child: CircularProgressIndicator(),
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+              )
+              .toList(),
     );
   }
 
@@ -142,10 +137,8 @@ class EventsSectionsList extends StatelessWidget {
     MinimalEvent event,
     String uniqueKey,
   ) {
-    context.router.push(EventDetailsRoute(
-      event: event,
-      animate: true,
-      uniqueKey: uniqueKey,
-    ));
+    context.router.push(
+      EventDetailsRoute(event: event, animate: true, uniqueKey: uniqueKey),
+    );
   }
 }

@@ -29,15 +29,16 @@ class EventCancelledStatus extends StatelessWidget {
       message: 'Evénement annulé',
       actionText: 'Publier',
       loading: isLoading,
-      onAction: canCancel ? () {
-        _onPublish(context);
-      } : null,
+      onAction:
+          canCancel
+              ? () {
+                _onPublish(context);
+              }
+              : null,
     );
   }
 
   void _onPublish(BuildContext context) {
-    context.read<EventDetailsBloc>().add(
-          PublishEvent(),
-        );
+    context.read<EventDetailsBloc>().add(PublishEvent());
   }
 }

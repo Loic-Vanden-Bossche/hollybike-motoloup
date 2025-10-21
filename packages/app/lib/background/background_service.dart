@@ -1,4 +1,3 @@
-
 import 'dart:async';
 import 'dart:developer';
 
@@ -31,16 +30,17 @@ class BackgroundService {
       BackgroundHandler.backgroundNotificationChannelId, // id
       'Service de notifications HollyBike', // title
       description:
-      'Ce service permet de recevoir des notifications en temps réel.', // description
+          'Ce service permet de recevoir des notifications en temps réel.', // description
       importance: Importance.low, // importance must be at low or higher level
     );
 
     final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-    FlutterLocalNotificationsPlugin();
+        FlutterLocalNotificationsPlugin();
 
     await flutterLocalNotificationsPlugin
         .resolvePlatformSpecificImplementation<
-        AndroidFlutterLocalNotificationsPlugin>()
+          AndroidFlutterLocalNotificationsPlugin
+        >()
         ?.createNotificationChannel(channel);
 
     await service.configure(
@@ -51,9 +51,11 @@ class BackgroundService {
         isForegroundMode: true,
         initialNotificationTitle: 'Service de notifications HollyBike',
         initialNotificationContent:
-        'Ce service permet de recevoir des notifications en temps réel.',
-        notificationChannelId: BackgroundHandler.backgroundNotificationChannelId,
-        foregroundServiceNotificationId: BackgroundHandler.backgroundNotificationId,
+            'Ce service permet de recevoir des notifications en temps réel.',
+        notificationChannelId:
+            BackgroundHandler.backgroundNotificationChannelId,
+        foregroundServiceNotificationId:
+            BackgroundHandler.backgroundNotificationId,
       ),
       iosConfiguration: IosConfiguration(
         autoStart: true,

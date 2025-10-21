@@ -46,7 +46,7 @@ sealed class MinimalJourney with _$MinimalJourney {
     }
   }
 
-  get distanceLabel {
+  String get distanceLabel {
     return getDistanceLabel(totalDistance);
   }
 
@@ -79,5 +79,5 @@ sealed class MinimalJourney with _$MinimalJourney {
     return texts.join(", ");
   }
 
-  get haveAllPositions => start != null && end != null && destination != null;
+  bool get haveAllPositions => start != null && end != null && destination != null;
 }

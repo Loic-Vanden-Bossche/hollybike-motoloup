@@ -40,9 +40,7 @@ class EventCandidatesBloc
   ) async {
     await emit.forEach<StreamValue<List<EventCandidate>, void>>(
       eventParticipationsRepository.candidatesStream(eventId),
-      onData: (data) => state.copyWith(
-        candidates: data.value,
-      ),
+      onData: (data) => state.copyWith(candidates: data.value),
     );
   }
 
@@ -58,24 +56,30 @@ class EventCandidatesBloc
     emit(EventCandidatesPageLoadInProgress(state));
 
     try {
-      PaginatedList<EventCandidate> page =
-          await eventParticipationsRepository.fetchCandidates(
-        event.eventId,
-        state.nextPage,
-        numberOfCandidatesPerRequest,
-        state.search,
-      );
+      PaginatedList<EventCandidate> page = await eventParticipationsRepository
+          .fetchCandidates(
+            event.eventId,
+            state.nextPage,
+            numberOfCandidatesPerRequest,
+            state.search,
+          );
 
-      emit(EventCandidatesPageLoadSuccess(state.copyWith(
-        hasMore: page.items.length == numberOfCandidatesPerRequest,
-        nextPage: state.nextPage + 1,
-      )));
+      emit(
+        EventCandidatesPageLoadSuccess(
+          state.copyWith(
+            hasMore: page.items.length == numberOfCandidatesPerRequest,
+            nextPage: state.nextPage + 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while loading next page of events', error: e);
-      emit(EventCandidatesPageLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventCandidatesPageLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -87,23 +91,25 @@ class EventCandidatesBloc
     emit(EventCandidatesPageLoadInProgress(state));
 
     try {
-      PaginatedList<EventCandidate> page =
-          await eventParticipationsRepository.refreshCandidates(
-        event.eventId,
-        numberOfCandidatesPerRequest,
-        "",
-      );
+      PaginatedList<EventCandidate> page = await eventParticipationsRepository
+          .refreshCandidates(event.eventId, numberOfCandidatesPerRequest, "");
 
-      emit(EventCandidatesPageLoadSuccess(state.copyWith(
-        hasMore: page.items.length == numberOfCandidatesPerRequest,
-        nextPage: 1,
-      )));
+      emit(
+        EventCandidatesPageLoadSuccess(
+          state.copyWith(
+            hasMore: page.items.length == numberOfCandidatesPerRequest,
+            nextPage: 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while refreshing events', error: e);
-      emit(EventCandidatesPageLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventCandidatesPageLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -112,28 +118,34 @@ class EventCandidatesBloc
     SearchCandidates event,
     Emitter<EventCandidatesState> emit,
   ) async {
-    emit(EventCandidatesPageLoadInProgress(state.copyWith(
-      search: event.search,
-    )));
+    emit(
+      EventCandidatesPageLoadInProgress(state.copyWith(search: event.search)),
+    );
 
     try {
-      PaginatedList<EventCandidate> page =
-          await eventParticipationsRepository.refreshCandidates(
-        event.eventId,
-        numberOfCandidatesPerRequest,
-        event.search,
-      );
+      PaginatedList<EventCandidate> page = await eventParticipationsRepository
+          .refreshCandidates(
+            event.eventId,
+            numberOfCandidatesPerRequest,
+            event.search,
+          );
 
-      emit(EventCandidatesPageLoadSuccess(state.copyWith(
-        hasMore: page.items.length == numberOfCandidatesPerRequest,
-        nextPage: 1,
-      )));
+      emit(
+        EventCandidatesPageLoadSuccess(
+          state.copyWith(
+            hasMore: page.items.length == numberOfCandidatesPerRequest,
+            nextPage: 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while searching candidates', error: e);
-      emit(EventCandidatesPageLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventCandidatesPageLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -145,22 +157,24 @@ class EventCandidatesBloc
     emit(EventAddCandidatesInProgress(state));
 
     try {
-      final addedParticipants =
-          await eventParticipationsRepository.addParticipants(
-        event.eventId,
-        event.userIds,
-        numberOfCandidatesPerRequest,
-      );
+      final addedParticipants = await eventParticipationsRepository
+          .addParticipants(
+            event.eventId,
+            event.userIds,
+            numberOfCandidatesPerRequest,
+          );
 
       eventRepository.onParticipantsAdded(addedParticipants, event.eventId);
 
       emit(EventAddCandidatesSuccess(state));
     } catch (e) {
       log('Error while adding candidates', error: e);
-      emit(EventAddCandidatesFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventAddCandidatesFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }

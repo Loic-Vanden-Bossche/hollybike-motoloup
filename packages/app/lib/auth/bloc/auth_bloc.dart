@@ -75,36 +75,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
         "Oups! Il semble y avoir une erreur. Veuillez vérifier l'adresse du serveur et réessayer.";
 
     try {
-      final session = await authRepository.login(
-        event.host,
-        event.loginDto,
-      );
-
-      authRepository.currentSession = session;
-      emit(AuthConnected(authSession: session));
-    } on DioException catch (exception) {
-      emit(AuthFailure(
-        message: exception.response?.data ?? defaultError,
-        authSession: state.authSession,
-      ));
-    } catch (e) {
-      log(e.toString());
-      emit(AuthFailure(
-        message: defaultError,
-        authSession: state.authSession,
-      ));
-    }
-  }
-
-  void _onSignup(AuthSignup event, Emitter<AuthState> emit) async {
-    const defaultError =
-        "Il semble que le lien d'invitation que vous utilisez est invalide.";
-
-    try {
-      final session = await authRepository.signup(
-        event.host,
-        event.signupDto,
-      );
+      final session = await authRepository.login(event.host, event.loginDto);
 
       authRepository.currentSession = session;
       emit(AuthConnected(authSession: session));
@@ -117,17 +88,36 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       );
     } catch (e) {
       log(e.toString());
+      emit(AuthFailure(message: defaultError, authSession: state.authSession));
+    }
+  }
+
+  void _onSignup(AuthSignup event, Emitter<AuthState> emit) async {
+    const defaultError =
+        "Il semble que le lien d'invitation que vous utilisez est invalide.";
+
+    try {
+      final session = await authRepository.signup(event.host, event.signupDto);
+
+      authRepository.currentSession = session;
+      emit(AuthConnected(authSession: session));
+    } on DioException catch (exception) {
       emit(
         AuthFailure(
-          message: defaultError,
+          message: exception.response?.data ?? defaultError,
           authSession: state.authSession,
         ),
       );
+    } catch (e) {
+      log(e.toString());
+      emit(AuthFailure(message: defaultError, authSession: state.authSession));
     }
   }
 
   void _onSessionExpired(
-      AuthSessionExpired event, Emitter<AuthState> emit) async {
+    AuthSessionExpired event,
+    Emitter<AuthState> emit,
+  ) async {
     await authRepository.removeSession(event.expiredSession);
 
     final currentSession = await authRepository.currentSession;

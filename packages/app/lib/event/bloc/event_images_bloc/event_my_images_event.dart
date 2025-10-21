@@ -20,15 +20,11 @@ class RefreshMyEventImages extends EventMyImagesEvent {
 class UploadEventImages extends EventMyImagesEvent {
   final List<File> images;
 
-  UploadEventImages({
-    required this.images,
-  });
+  UploadEventImages({required this.images});
 }
 
 class UpdateImagesVisibility extends EventMyImagesEvent {
   final bool isPublic;
 
-  UpdateImagesVisibility({
-    required this.isPublic,
-  });
+  UpdateImagesVisibility({required this.isPublic});
 }

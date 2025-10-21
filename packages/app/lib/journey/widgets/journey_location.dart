@@ -22,18 +22,20 @@ class JourneyLocation extends StatelessWidget {
     final locations = <Widget>[];
 
     if (journey.start != null) {
-      final start = JourneyPosition(pos: journey.start!, isLarge: sizeFactor > 1);
+      final start = JourneyPosition(
+        pos: journey.start!,
+        isLarge: sizeFactor > 1,
+      );
 
-      locations.add(Row(
-        children: [
-          Icon(
-            Icons.location_on_rounded,
-            size: 16 * sizeFactor,
-          ),
-          SizedBox(width: 4 * sizeFactor),
-          Expanded(child: start),
-        ],
-      ));
+      locations.add(
+        Row(
+          children: [
+            Icon(Icons.location_on_rounded, size: 16 * sizeFactor),
+            SizedBox(width: 4 * sizeFactor),
+            Expanded(child: start),
+          ],
+        ),
+      );
     }
 
     if (locations.isNotEmpty) {
@@ -42,16 +44,15 @@ class JourneyLocation extends StatelessWidget {
 
     if (journey.end != null) {
       final end = JourneyPosition(pos: journey.end!, isLarge: sizeFactor > 1);
-      locations.add(Row(
-        children: [
-          Icon(
-            Icons.sports_score_rounded,
-            size: 16 * sizeFactor,
-          ),
-          SizedBox(width: 4 * sizeFactor),
-          Expanded(child: end),
-        ],
-      ));
+      locations.add(
+        Row(
+          children: [
+            Icon(Icons.sports_score_rounded, size: 16 * sizeFactor),
+            SizedBox(width: 4 * sizeFactor),
+            Expanded(child: end),
+          ],
+        ),
+      );
     }
 
     return Column(

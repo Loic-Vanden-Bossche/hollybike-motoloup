@@ -29,9 +29,7 @@ class ProofViewModal extends StatelessWidget {
                 return Center(
                   child: Container(
                     color: Colors.black,
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: const Center(child: CircularProgressIndicator()),
                   ),
                 );
               },
@@ -41,9 +39,7 @@ class ProofViewModal extends StatelessWidget {
                   child: const Center(
                     child: Text(
                       'Une erreur est survenue lors du chargement de l\'image',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 );
@@ -55,10 +51,7 @@ class ProofViewModal extends StatelessWidget {
               top: 16,
               right: 16,
               child: IconButton(
-                icon: const Icon(
-                  Icons.close,
-                  color: Colors.white,
-                ),
+                icon: const Icon(Icons.close, color: Colors.white),
                 onPressed: () {
                   Navigator.of(context).pop();
                 },

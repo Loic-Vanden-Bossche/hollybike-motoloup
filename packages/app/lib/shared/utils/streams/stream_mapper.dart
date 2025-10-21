@@ -13,8 +13,11 @@ class StreamMapper<T, K> {
   final T seedValue;
   final K? initialState;
 
-  StreamMapper(
-      {required this.seedValue, this.initialState, this.name = 'StreamMapper'});
+  StreamMapper({
+    required this.seedValue,
+    this.initialState,
+    this.name = 'StreamMapper',
+  });
 
   Stream<StreamValue<T, K>> stream(int key) {
     if (!_streamCounterMap.containsKey(key)) {
@@ -32,15 +35,8 @@ class StreamMapper<T, K> {
     });
   }
 
-  void add(
-    int key,
-    T value, {
-    K? state,
-  }) {
-    _streamCounterMap[key]?.add(
-      value,
-      state: state,
-    );
+  void add(int key, T value, {K? state}) {
+    _streamCounterMap[key]?.add(value, state: state);
   }
 
   T? get(int key) => _streamCounterMap[key]?.value;

@@ -35,9 +35,10 @@ class EventsScreen extends StatefulWidget implements AutoRouteWrapper {
   @override
   Widget wrappedRoute(context) {
     return BlocProvider<FutureEventsBloc>(
-      create: (context) => FutureEventsBloc(
-        eventRepository: RepositoryProvider.of<EventRepository>(context),
-      )..add(SubscribeToEvents()),
+      create:
+          (context) => FutureEventsBloc(
+            eventRepository: RepositoryProvider.of<EventRepository>(context),
+          )..add(SubscribeToEvents()),
       child: this,
     );
   }
@@ -59,10 +60,12 @@ class _EventsScreenState extends State<EventsScreen>
               Toast.showSuccessToast(context, "Événement créé");
 
               Future.delayed(const Duration(milliseconds: 50), () {
-                context.router.push(EventDetailsRoute(
-                  event: state.createdEvent.toMinimalEvent(),
-                  animate: false,
-                ));
+                context.router.push(
+                  EventDetailsRoute(
+                    event: state.createdEvent.toMinimalEvent(),
+                    animate: false,
+                  ),
+                );
               });
             }
 
@@ -97,10 +100,15 @@ class _EventsScreenState extends State<EventsScreen>
               noPadding: true,
               title: TopBarTabDropdown(
                 controller: _controller,
-                entries: tabs
-                    .map((tab) =>
-                        TabDropdownEntry(title: tab.title, icon: tab.icon))
-                    .toList(),
+                entries:
+                    tabs
+                        .map(
+                          (tab) => TabDropdownEntry(
+                            title: tab.title,
+                            icon: tab.icon,
+                          ),
+                        )
+                        .toList(),
               ),
             ),
             floatingActionButton: _getFloatingActionButton(),
@@ -127,10 +135,7 @@ class _EventsScreenState extends State<EventsScreen>
   void initState() {
     super.initState();
 
-    _controller = TabController(
-      length: 3,
-      vsync: this,
-    );
+    _controller = TabController(length: 3, vsync: this);
 
     _currentTab = _controller.index;
     _controller.animation?.addListener(_updateTitle);

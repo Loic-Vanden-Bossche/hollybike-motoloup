@@ -39,9 +39,10 @@ class ExpenseCard extends StatelessWidget {
                     Icon(
                       Icons.photo_album_rounded,
                       size: 14,
-                      color: expense.proof != null
-                          ? Theme.of(context).colorScheme.secondary
-                          : Colors.red.shade200,
+                      color:
+                          expense.proof != null
+                              ? Theme.of(context).colorScheme.secondary
+                              : Colors.red.shade200,
                     ),
                     const SizedBox(width: 4),
                     Text(
@@ -51,7 +52,7 @@ class ExpenseCard extends StatelessWidget {
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ],
-                )
+                ),
               ],
             ),
           ),

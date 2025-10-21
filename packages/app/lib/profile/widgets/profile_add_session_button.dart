@@ -36,9 +36,7 @@ class ProfileAddSessionButton extends StatelessWidget {
             SizedBox(width: 8),
             Text(
               "Ajouter un compte",
-              style: TextStyle(
-                fontVariations: [FontVariation.weight(700)],
-              ),
+              style: TextStyle(fontVariations: [FontVariation.weight(700)]),
             ),
           ],
         ),

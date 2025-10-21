@@ -65,7 +65,8 @@ class EventDetailsInfos extends StatelessWidget {
                             EventParticipationsRoute(
                               eventDetails: eventDetails,
                               participationPreview: previewParticipants,
-                              eventDetailsBloc: context.read<EventDetailsBloc>(),
+                              eventDetailsBloc:
+                                  context.read<EventDetailsBloc>(),
                             ),
                           );
                         });
@@ -78,18 +79,16 @@ class EventDetailsInfos extends StatelessWidget {
                     ),
                   ],
                 ),
-                EventDetailsDescription(
-                  description: event.description,
-                ),
+                EventDetailsDescription(description: event.description),
                 BlocProvider<EventJourneyBloc>(
-                  create: (context) => EventJourneyBloc(
-                    journeyRepository: RepositoryProvider.of<JourneyRepository>(
-                      context,
-                    ),
-                    eventRepository: RepositoryProvider.of<EventRepository>(
-                      context,
-                    ),
-                  ),
+                  create:
+                      (context) => EventJourneyBloc(
+                        journeyRepository:
+                            RepositoryProvider.of<JourneyRepository>(context),
+                        eventRepository: RepositoryProvider.of<EventRepository>(
+                          context,
+                        ),
+                      ),
                   child: JourneyPreviewCard(
                     canAddJourney: eventDetails.canEditJourney,
                     journey: eventDetails.journey,
@@ -97,25 +96,19 @@ class EventDetailsInfos extends StatelessWidget {
                     onViewOnMap: onViewOnMap,
                   ),
                 ),
-                EventMyJourney(
-                  eventDetails: eventDetails,
-                ),
-                WeatherForecastCard(
-                  eventDetails: eventDetails,
-                ),
+                EventMyJourney(eventDetails: eventDetails),
+                WeatherForecastCard(eventDetails: eventDetails),
                 ExpensesPreviewCard(eventDetails: eventDetails),
                 const SizedBox(height: 90),
               ],
             ),
-          )
+          ),
         ],
       ),
     );
   }
 
   void _onJoin(BuildContext context) {
-    context.read<EventDetailsBloc>().add(
-          JoinEvent(),
-        );
+    context.read<EventDetailsBloc>().add(JoinEvent());
   }
 }

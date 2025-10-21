@@ -20,7 +20,8 @@ class ProfileCard extends StatelessWidget {
     BuildContext context,
     AuthSession session,
     Profile profile,
-  )? onTap;
+  )?
+  onTap;
 
   const ProfileCard({
     super.key,

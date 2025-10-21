@@ -29,12 +29,13 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      floatingActionButton: canPop
-          ? FloatingActionButton.small(
-              onPressed: () => context.router.maybePop(),
-              child: const Icon(Icons.arrow_back),
-            )
-          : null,
+      floatingActionButton:
+          canPop
+              ? FloatingActionButton.small(
+                onPressed: () => context.router.maybePop(),
+                child: const Icon(Icons.arrow_back),
+              )
+              : null,
       floatingActionButtonLocation: FloatingActionButtonLocation.miniStartTop,
       body: BlocConsumer<AuthBloc, AuthState>(
         listener: (context, state) {
@@ -62,21 +63,23 @@ class LoginScreen extends StatelessWidget {
                     link: (
                       description: "Vous n'avez pas encore de compte ?",
                       buttonText: "Inscrivez-vous",
-                      onDestinationClick: () =>
-                          _signupLinkDialogBuilder(context)
+                      onDestinationClick:
+                          () => _signupLinkDialogBuilder(context),
                     ),
                   ),
                   onFormSubmit: (formValue) {
-                    BlocProvider.of<AuthBloc>(context).add(AuthLogin(
-                      host: _formatHostFromInput(formValue["host"] as String),
-                      loginDto: LoginDto.fromMap(formValue),
-                    ));
+                    BlocProvider.of<AuthBloc>(context).add(
+                      AuthLogin(
+                        host: _formatHostFromInput(formValue["host"] as String),
+                        loginDto: LoginDto.fromMap(formValue),
+                      ),
+                    );
                   },
                   formFields: {
                     "host": FormFieldConfig(
                       label: "Adresse du serveur",
                       validator: _inputValidator,
-                      defaultValue: "hollybike.chbrx.com",
+                      defaultValue: "api.hollybike.chbrx.com",
                       autofillHints: [AutofillHints.url],
                       textInputType: TextInputType.url,
                     ),
@@ -100,9 +103,10 @@ class LoginScreen extends StatelessWidget {
                   onTap: () {
                     showDialog(
                       context: context,
-                      builder: (_) => ForgotPasswordModal(
-                        formatHostFromInput: _formatHostFromInput,
-                      ),
+                      builder:
+                          (_) => ForgotPasswordModal(
+                            formatHostFromInput: _formatHostFromInput,
+                          ),
                     );
                   },
                   child: Text(
@@ -112,7 +116,7 @@ class LoginScreen extends StatelessWidget {
                       decoration: TextDecoration.underline,
                     ),
                   ),
-                )
+                ),
               ],
             ),
           );

@@ -15,10 +15,7 @@ class NavRoute {
   final String routeName;
   final PageRouteInfo route;
 
-  const NavRoute({
-    required this.routeName,
-    required this.route,
-  });
+  const NavRoute({required this.routeName, required this.route});
 }
 
 class BottomBar extends StatefulWidget {
@@ -32,18 +29,9 @@ class _BottomBarState extends State<BottomBar> {
   late int _currentIndex;
 
   final _routes = [
-    const NavRoute(
-      routeName: EventsRoute.name,
-      route: EventsRoute(),
-    ),
-    const NavRoute(
-      routeName: SearchRoute.name,
-      route: SearchRoute(),
-    ),
-    const NavRoute(
-      routeName: MeRoute.name,
-      route: MeRoute(),
-    ),
+    const NavRoute(routeName: EventsRoute.name, route: EventsRoute()),
+    const NavRoute(routeName: SearchRoute.name, route: SearchRoute()),
+    const NavRoute(routeName: MeRoute.name, route: MeRoute()),
   ];
 
   @override
@@ -85,8 +73,9 @@ class _BottomBarState extends State<BottomBar> {
   int _getRouteIndex(String routeName) {
     try {
       final currentRouteName = context.router.current.name;
-      final index =
-      _routes.indexWhere((route) => route.routeName == currentRouteName);
+      final index = _routes.indexWhere(
+        (route) => route.routeName == currentRouteName,
+      );
 
       if (index != -1) {
         return index;
@@ -103,8 +92,9 @@ class _BottomBarState extends State<BottomBar> {
     return BlocBuilder<ProfileBloc, ProfileState>(
       builder: (context, state) {
         final selectedColor = Theme.of(context).colorScheme.secondary;
-        final unselectedColor =
-            Theme.of(context).colorScheme.onPrimary.withAlpha(100);
+        final unselectedColor = Theme.of(
+          context,
+        ).colorScheme.onPrimary.withAlpha(100);
 
         const iconSize = 30.0;
 
@@ -177,10 +167,7 @@ class NavBarItem {
   final Widget selectedIcon;
   final Widget icon;
 
-  const NavBarItem({
-    required this.selectedIcon,
-    required this.icon,
-  });
+  const NavBarItem({required this.selectedIcon, required this.icon});
 }
 
 class NavBar extends StatelessWidget {
@@ -197,21 +184,25 @@ class NavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-      for (var i = 0; i < children.length; i++)
-        Expanded(
-          child: GestureDetector(
-            onTap: () => onSelected(i),
-            child: _buildContainer(context, i),
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        for (var i = 0; i < children.length; i++)
+          Expanded(
+            child: GestureDetector(
+              onTap: () => onSelected(i),
+              child: _buildContainer(context, i),
+            ),
           ),
-        ),
-    ]);
+      ],
+    );
   }
 
   Widget _buildContainer(BuildContext context, int index) {
-    final selectedIcon = currentIndex == index
-        ? children[index].selectedIcon
-        : children[index].icon;
+    final selectedIcon =
+        currentIndex == index
+            ? children[index].selectedIcon
+            : children[index].icon;
 
     return Container(
       color: Colors.transparent,

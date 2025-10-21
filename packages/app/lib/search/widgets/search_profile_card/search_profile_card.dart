@@ -31,10 +31,7 @@ class SearchProfileCard extends StatelessWidget {
             padding: const EdgeInsets.all(8.0),
             child: Row(
               children: [
-                ProfilePicture(
-                  user: profile,
-                  size: 50,
-                ),
+                ProfilePicture(user: profile, size: 50),
                 const SizedBox.square(dimension: 8),
                 Expanded(
                   child: Hero(
@@ -56,14 +53,11 @@ class SearchProfileCard extends StatelessWidget {
   }
 
   void _handleCardTap(BuildContext context) {
-    Future.delayed(
-      const Duration(milliseconds: 200),
-      () {
-        if (!context.mounted) {
-          return;
-        }
-        context.router.push(ProfileRoute(urlId: "${profile.id}"));
-      },
-    );
+    Future.delayed(const Duration(milliseconds: 200), () {
+      if (!context.mounted) {
+        return;
+      }
+      context.router.push(ProfileRoute(urlId: "${profile.id}"));
+    });
   }
 }

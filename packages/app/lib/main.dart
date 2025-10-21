@@ -54,10 +54,7 @@ void main() async {
 
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
-  await FlutterDownloader.initialize(
-    debug: true,
-    ignoreSsl: true,
-  );
+  await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
 
   FlutterNativeSplash.remove();
 
@@ -104,149 +101,183 @@ class _MyAppState extends State<MyApp> {
       child: MultiProvider(
         providers: [
           Provider(
-            create: (context) => DioClient(
-              authPersistence:
-                  Provider.of<AuthPersistence>(context, listen: false),
-            ),
-          ),
-          Provider(
-            create: (context) => Downloader(
-              authPersistence:
-                  Provider.of<AuthPersistence>(context, listen: false),
-            ),
-          ),
-        ],
-        child: Builder(builder: (context) {
-          return MultiRepositoryProvider(
-            providers: [
-              RepositoryProvider(
-                create: (context) => AuthRepository(
-                  authApi: AuthApi(),
-                  authPersistence:
-                      Provider.of<AuthPersistence>(context, listen: false),
-                ),
-              ),
-              RepositoryProvider(
-                create: (context) => EventRepository(
-                  eventApi: EventApi(
-                    client: RepositoryProvider.of<DioClient>(context),
-                    downloader: RepositoryProvider.of<Downloader>(context),
-                  ),
-                ),
-              ),
-              RepositoryProvider(
-                create: (context) => EventParticipationRepository(
-                  eventParticipationsApi: EventParticipationsApi(
-                    client: RepositoryProvider.of<DioClient>(context),
-                  ),
-                ),
-              ),
-              RepositoryProvider(
-                create: (context) => AuthSessionRepository(),
-              ),
-              RepositoryProvider(
-                create: (context) => ProfileRepository(
+            create:
+                (context) => DioClient(
                   authPersistence: Provider.of<AuthPersistence>(
                     context,
                     listen: false,
                   ),
-                  profileApi: ProfileApi(
-                    client: RepositoryProvider.of<DioClient>(context),
-                    authPersistence: Provider.of<AuthPersistence>(context, listen: false),
+                ),
+          ),
+          Provider(
+            create:
+                (context) => Downloader(
+                  authPersistence: Provider.of<AuthPersistence>(
+                    context,
+                    listen: false,
                   ),
                 ),
-              ),
-              RepositoryProvider(
-                create: (context) => ImageRepository(
-                  imageApi: ImageApi(
-                    client: RepositoryProvider.of<DioClient>(context),
-                    downloader: RepositoryProvider.of<Downloader>(context),
-                  ),
-                ),
-              ),
-              RepositoryProvider(
-                create: (context) => JourneyRepository(
-                  journeyApi: JourneyApi(
-                    client: RepositoryProvider.of<DioClient>(context),
-                  ),
-                ),
-              ),
-              RepositoryProvider(
-                create: (context) => UserJourneyRepository(
-                  userJourneyApi: UserJourneyApi(
-                    client: RepositoryProvider.of<DioClient>(context),
-                    downloader: RepositoryProvider.of<Downloader>(context),
-                  ),
-                ),
-              ),
-            ],
-            child: MultiBlocProvider(
+          ),
+        ],
+        child: Builder(
+          builder: (context) {
+            return MultiRepositoryProvider(
               providers: [
-                BlocProvider<AuthBloc>(
-                  create: (context) => AuthBloc(
-                    authRepository:
-                        RepositoryProvider.of<AuthRepository>(context),
-                    authSessionRepository:
-                        RepositoryProvider.of<AuthSessionRepository>(context),
-                    profileRepository:
-                        RepositoryProvider.of<ProfileRepository>(context),
-                  ),
-                ),
-                BlocProvider<NotificationBloc>(
-                  create: (context) => NotificationBloc(
-                    authRepository:
-                        RepositoryProvider.of<AuthRepository>(context),
-                    backgroundService: BackgroundService()
-                  ),
-                ),
-                BlocProvider<ThemeBloc>(
-                  create: (context) => ThemeBloc(),
-                ),
-                BlocProvider<ProfileBloc>(
-                  lazy: false,
-                  create: (context) => ProfileBloc(
-                    authSessionRepository:
-                        RepositoryProvider.of<AuthSessionRepository>(context),
-                    profileRepository:
-                        RepositoryProvider.of<ProfileRepository>(context),
-                  )
-                    ..add(SubscribeToCurrentSessionChange())
-                    ..add(SubscribeToInvalidatedProfiles()),
-                ),
-                BlocProvider<SearchBloc>(
-                  create: (context) => SearchBloc(
-                    eventRepository: RepositoryProvider.of<EventRepository>(
-                      context,
-                    ),
-                    profileRepository: RepositoryProvider.of<ProfileRepository>(
-                      context,
-                    ),
-                  )..add(SubscribeToEventsSearch()),
-                ),
-                BlocProvider<MyPositionBloc>(
-                  create: (context) => MyPositionBloc(
-                    eventRepository: RepositoryProvider.of<EventRepository>(
-                      context,
-                    ),
-                    myPositionLocator: MyPositionLocator(
-                      authPersistence: Provider.of<AuthPersistence>(
-                        context,
-                        listen: false,
+                RepositoryProvider(
+                  create:
+                      (context) => AuthRepository(
+                        authApi: AuthApi(),
+                        authPersistence: Provider.of<AuthPersistence>(
+                          context,
+                          listen: false,
+                        ),
                       ),
-                      backgroundService: BackgroundService(),
-                    ),
-                  )..add(
-                      SubscribeToMyPositionUpdates(),
-                    ),
+                ),
+                RepositoryProvider(
+                  create:
+                      (context) => EventRepository(
+                        eventApi: EventApi(
+                          client: RepositoryProvider.of<DioClient>(context),
+                          downloader: RepositoryProvider.of<Downloader>(
+                            context,
+                          ),
+                        ),
+                      ),
+                ),
+                RepositoryProvider(
+                  create:
+                      (context) => EventParticipationRepository(
+                        eventParticipationsApi: EventParticipationsApi(
+                          client: RepositoryProvider.of<DioClient>(context),
+                        ),
+                      ),
+                ),
+                RepositoryProvider(
+                  create: (context) => AuthSessionRepository(),
+                ),
+                RepositoryProvider(
+                  create:
+                      (context) => ProfileRepository(
+                        authPersistence: Provider.of<AuthPersistence>(
+                          context,
+                          listen: false,
+                        ),
+                        profileApi: ProfileApi(
+                          client: RepositoryProvider.of<DioClient>(context),
+                          authPersistence: Provider.of<AuthPersistence>(
+                            context,
+                            listen: false,
+                          ),
+                        ),
+                      ),
+                ),
+                RepositoryProvider(
+                  create:
+                      (context) => ImageRepository(
+                        imageApi: ImageApi(
+                          client: RepositoryProvider.of<DioClient>(context),
+                          downloader: RepositoryProvider.of<Downloader>(
+                            context,
+                          ),
+                        ),
+                      ),
+                ),
+                RepositoryProvider(
+                  create:
+                      (context) => JourneyRepository(
+                        journeyApi: JourneyApi(
+                          client: RepositoryProvider.of<DioClient>(context),
+                        ),
+                      ),
+                ),
+                RepositoryProvider(
+                  create:
+                      (context) => UserJourneyRepository(
+                        userJourneyApi: UserJourneyApi(
+                          client: RepositoryProvider.of<DioClient>(context),
+                          downloader: RepositoryProvider.of<Downloader>(
+                            context,
+                          ),
+                        ),
+                      ),
                 ),
               ],
-              child: App(
-                authPersistence:
-                    Provider.of<AuthPersistence>(context, listen: false),
+              child: MultiBlocProvider(
+                providers: [
+                  BlocProvider<AuthBloc>(
+                    create:
+                        (context) => AuthBloc(
+                          authRepository: RepositoryProvider.of<AuthRepository>(
+                            context,
+                          ),
+                          authSessionRepository:
+                              RepositoryProvider.of<AuthSessionRepository>(
+                                context,
+                              ),
+                          profileRepository:
+                              RepositoryProvider.of<ProfileRepository>(context),
+                        ),
+                  ),
+                  BlocProvider<NotificationBloc>(
+                    create:
+                        (context) => NotificationBloc(
+                          authRepository: RepositoryProvider.of<AuthRepository>(
+                            context,
+                          ),
+                          backgroundService: BackgroundService(),
+                        ),
+                  ),
+                  BlocProvider<ThemeBloc>(create: (context) => ThemeBloc()),
+                  BlocProvider<ProfileBloc>(
+                    lazy: false,
+                    create:
+                        (context) =>
+                            ProfileBloc(
+                                authSessionRepository: RepositoryProvider.of<
+                                  AuthSessionRepository
+                                >(context),
+                                profileRepository:
+                                    RepositoryProvider.of<ProfileRepository>(
+                                      context,
+                                    ),
+                              )
+                              ..add(SubscribeToCurrentSessionChange())
+                              ..add(SubscribeToInvalidatedProfiles()),
+                  ),
+                  BlocProvider<SearchBloc>(
+                    create:
+                        (context) => SearchBloc(
+                          eventRepository:
+                              RepositoryProvider.of<EventRepository>(context),
+                          profileRepository:
+                              RepositoryProvider.of<ProfileRepository>(context),
+                        )..add(SubscribeToEventsSearch()),
+                  ),
+                  BlocProvider<MyPositionBloc>(
+                    create:
+                        (context) => MyPositionBloc(
+                          eventRepository:
+                              RepositoryProvider.of<EventRepository>(context),
+                          myPositionLocator: MyPositionLocator(
+                            authPersistence: Provider.of<AuthPersistence>(
+                              context,
+                              listen: false,
+                            ),
+                            backgroundService: BackgroundService(),
+                          ),
+                        )..add(SubscribeToMyPositionUpdates()),
+                  ),
+                ],
+                child: App(
+                  authPersistence: Provider.of<AuthPersistence>(
+                    context,
+                    listen: false,
+                  ),
+                ),
               ),
-            ),
-          );
-        }),
+            );
+          },
+        ),
       ),
     );
   }

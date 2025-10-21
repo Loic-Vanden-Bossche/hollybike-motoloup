@@ -9,7 +9,7 @@ abstract class UserLoadEvent extends ProfileEvent {
   final int id;
 
   const UserLoadEvent({required this.observerSession, required this.id})
-      : super();
+    : super();
 
   @override
   bool operator ==(covariant UserLoadEvent other) {

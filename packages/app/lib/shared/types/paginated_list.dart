@@ -8,11 +8,7 @@ import 'package:hollybike/shared/types/json_map.dart';
 part 'paginated_list.freezed.dart';
 part 'paginated_list.g.dart';
 
-enum RefreshedType {
-  none,
-  refreshed,
-  refreshedAndHasMore,
-}
+enum RefreshedType { none, refreshed, refreshedAndHasMore }
 
 @Freezed(genericArgumentFactories: true)
 sealed class PaginatedList<T> with _$PaginatedList<T> {
@@ -35,9 +31,8 @@ sealed class PaginatedList<T> with _$PaginatedList<T> {
   factory PaginatedList.fromJson(
     JsonMap json,
     T Function(JsonMap json) fromItemJson,
-  ) =>
-      _$PaginatedListFromJson(
-        json,
-        (Object? test) => fromItemJson(test as JsonMap),
-      );
+  ) => _$PaginatedListFromJson(
+    json,
+    (Object? test) => fromItemJson(test as JsonMap),
+  );
 }

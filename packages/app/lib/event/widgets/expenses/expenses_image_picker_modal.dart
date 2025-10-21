@@ -64,13 +64,14 @@ class _ExpensesImagePickerModalState extends State<ExpensesImagePickerModal> {
 
   void onSubmit(BuildContext context, File image) {
     context.read<EventExpensesBloc>().add(
-          UploadExpenseProof(
-            image: image,
-            expenseId: widget.expenseId,
-            successMessage: widget.isEditingExpense
+      UploadExpenseProof(
+        image: image,
+        expenseId: widget.expenseId,
+        successMessage:
+            widget.isEditingExpense
                 ? 'Preuve de paiment modifiée.'
                 : 'Preuve de paiment ajoutée.',
-          ),
-        );
+      ),
+    );
   }
 }

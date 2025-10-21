@@ -34,9 +34,10 @@ class _TopBarActionContainerState extends State<TopBarActionContainer>
         child: Container(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
-            color: widget.colorInverted
-                ? Theme.of(context).colorScheme.onPrimary
-                : Theme.of(context).colorScheme.primary,
+            color:
+                widget.colorInverted
+                    ? Theme.of(context).colorScheme.onPrimary
+                    : Theme.of(context).colorScheme.primary,
           ),
           child: Material(
             shape: const CircleBorder(),

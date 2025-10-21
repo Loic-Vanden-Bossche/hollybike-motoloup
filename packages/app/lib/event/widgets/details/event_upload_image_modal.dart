@@ -58,10 +58,6 @@ class _EventUploadImageModalState extends State<EventUploadImageModal> {
   void onSubmit(BuildContext context, List<File> images) {
     final file = images.first;
 
-    context.read<EventDetailsBloc>().add(
-      UploadEventImage(
-        imageFile: file,
-      ),
-    );
+    context.read<EventDetailsBloc>().add(UploadEventImage(imageFile: file));
   }
 }

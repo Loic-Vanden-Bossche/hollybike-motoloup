@@ -27,30 +27,24 @@ class ProfileDescription extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: addSeparators(
-          [
-            Hero(
-              tag: "user-${profile.id}-username",
-              child: SizedBox(
-                width: double.infinity,
-                child: Text(
-                  profile.username,
-                  style: Theme.of(context).textTheme.titleMedium,
-                ),
+        children: addSeparators([
+          Hero(
+            tag: "user-${profile.id}-username",
+            child: SizedBox(
+              width: double.infinity,
+              child: Text(
+                profile.username,
+                style: Theme.of(context).textTheme.titleMedium,
               ),
             ),
-            if (email != null)
-              ProfileDescriptionSpec(
-                icon: Icons.email,
-                text: email!,
-              ),
-            ProfileDescriptionSpec(
-              icon: Icons.groups,
-              text: '${association.name}, ${profile.role ?? "Membre"}',
-            ),
-          ],
-          const SizedBox.square(dimension: 8),
-        ),
+          ),
+          if (email != null)
+            ProfileDescriptionSpec(icon: Icons.email, text: email!),
+          ProfileDescriptionSpec(
+            icon: Icons.groups,
+            text: '${association.name}, ${profile.role ?? "Membre"}',
+          ),
+        ], const SizedBox.square(dimension: 8)),
       ),
     );
   }

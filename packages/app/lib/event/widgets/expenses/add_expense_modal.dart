@@ -7,11 +7,8 @@ import 'package:hollybike/event/widgets/expenses/currency_input.dart';
 import 'package:hollybike/shared/widgets/text_field/common_text_field.dart';
 
 class AddExpenseModal extends StatefulWidget {
-  final void Function(
-    String name,
-    int amount,
-    String? description,
-  ) onAddExpense;
+  final void Function(String name, int amount, String? description)
+  onAddExpense;
 
   const AddExpenseModal({super.key, required this.onAddExpense});
 
@@ -39,9 +36,7 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
 
     return AlertDialog(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      title: const Text(
-        'Ajouter une dépense',
-      ),
+      title: const Text('Ajouter une dépense'),
       content: Form(
         key: formKey,
         child: Column(
@@ -98,9 +93,10 @@ class _AddExpenseModalState extends State<AddExpenseModal> {
               _amountController.text.replaceAll(RegExp(r'[^0-9]'), ''),
             );
 
-            final description = _descriptionController.text.isNotEmpty
-                ? _descriptionController.text
-                : null;
+            final description =
+                _descriptionController.text.isNotEmpty
+                    ? _descriptionController.text
+                    : null;
 
             widget.onAddExpense(name, amount, description);
 

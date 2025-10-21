@@ -12,11 +12,7 @@ class Img {
   final File file;
   final String? entityId;
 
-  Img({
-    required this.image,
-    required this.file,
-    this.entityId,
-  });
+  Img({required this.image, required this.file, this.entityId});
 
   static Img fromFile(File file) {
     final image = Image(
@@ -37,13 +33,10 @@ class Img {
       },
     );
 
-    return Img(
-      image: image,
-      file: file,
-    );
+    return Img(image: image, file: file);
   }
 
-  static fromAssetEntity(AssetEntity assetEntity) async {
+  static Future<Img> fromAssetEntity(AssetEntity assetEntity) async {
     final file = await assetEntity.file;
     if (file == null) {
       throw Exception('File not found');

@@ -35,20 +35,19 @@ sealed class Journey with _$Journey {
     required int? totalElevationLoss,
   }) = _Journey;
 
-  MinimalJourney toMinimalJourney() =>
-      MinimalJourney(
-        id: id,
-        file: file,
-        previewImage: previewImage,
-        start: start,
-        end: end,
-        destination: destination,
-        totalDistance: totalDistance,
-        minElevation: minElevation,
-        maxElevation: maxElevation,
-        totalElevationGain: totalElevationGain,
-        totalElevationLoss: totalElevationLoss,
-      );
+  MinimalJourney toMinimalJourney() => MinimalJourney(
+    id: id,
+    file: file,
+    previewImage: previewImage,
+    start: start,
+    end: end,
+    destination: destination,
+    totalDistance: totalDistance,
+    minElevation: minElevation,
+    maxElevation: maxElevation,
+    totalElevationGain: totalElevationGain,
+    totalElevationLoss: totalElevationLoss,
+  );
 
   factory Journey.fromJson(JsonMap json) => _$JourneyFromJson(json);
 }

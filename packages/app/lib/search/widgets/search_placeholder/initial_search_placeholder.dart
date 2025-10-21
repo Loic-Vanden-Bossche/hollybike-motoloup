@@ -38,7 +38,7 @@ class InitialSearchPlaceholder extends StatelessWidget {
             ElevatedButton(
               onPressed: onButtonTap,
               child: const Text("Commencer votre recherche"),
-            )
+            ),
           ],
         ),
       ),

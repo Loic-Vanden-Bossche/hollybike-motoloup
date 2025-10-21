@@ -33,8 +33,9 @@ class _AppState extends State<App> {
   void initState() {
     super.initState();
 
-    initializeDateFormatting("fr_FR")
-        .then((value) => Intl.defaultLocale = "fr_FR");
+    initializeDateFormatting(
+      "fr_FR",
+    ).then((value) => Intl.defaultLocale = "fr_FR");
 
     MapboxOptions.setAccessToken(
       const String.fromEnvironment('PUBLIC_ACCESS_TOKEN'),
@@ -79,9 +80,7 @@ class _AppState extends State<App> {
               color: Theme.of(context).scaffoldBackgroundColor,
               child: MaterialApp.router(
                 localizationsDelegates: GlobalMaterialLocalizations.delegates,
-                supportedLocales: const [
-                  Locale('fr', 'FR'),
-                ],
+                supportedLocales: const [Locale('fr', 'FR')],
                 title: 'Hollybike',
                 theme: BlocProvider.of<ThemeBloc>(context).getThemeData,
                 routerConfig: appRouter.config(

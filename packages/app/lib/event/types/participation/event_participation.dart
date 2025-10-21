@@ -39,7 +39,7 @@ sealed class EventParticipation with _$EventParticipation {
     );
   }
 
-  get roleName {
+  String get roleName {
     switch (role) {
       case EventRole.organizer:
         return 'Organisateur';

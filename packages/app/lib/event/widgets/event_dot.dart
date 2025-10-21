@@ -13,21 +13,14 @@ class EventDot extends StatelessWidget {
   final EventStatusState status;
   final double size;
 
-  const EventDot({
-    super.key,
-    required this.status,
-    this.size = 13,
-  });
+  const EventDot({super.key, required this.status, this.size = 13});
 
   @override
   Widget build(BuildContext context) {
     final color = Event.getStatusColor(status);
 
     if (status == EventStatusState.now) {
-      return PulsingDot(
-        size: size,
-        color: color,
-      );
+      return PulsingDot(size: size, color: color);
     }
 
     return StaticDot(size: size, color: color);

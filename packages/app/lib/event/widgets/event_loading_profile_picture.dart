@@ -37,9 +37,8 @@ class UserProfilePicture extends StatelessWidget {
 
     final placeHolder = CircleAvatar(
       radius: radius,
-      backgroundImage: Image.asset(
-        "assets/images/placeholder_profile_picture.jpg",
-      ).image,
+      backgroundImage:
+          Image.asset("assets/images/placeholder_profile_picture.jpg").image,
     );
 
     if (url == null || url!.isEmpty) {
@@ -49,10 +48,9 @@ class UserProfilePicture extends StatelessWidget {
     return CachedNetworkImage(
       cacheKey: profilePictureKey,
       imageUrl: url!,
-      imageBuilder: (context, imageProvider) => CircleAvatar(
-        radius: radius,
-        backgroundImage: imageProvider,
-      ),
+      imageBuilder:
+          (context, imageProvider) =>
+              CircleAvatar(radius: radius, backgroundImage: imageProvider),
       placeholder: (context, url) => loadingPlaceHolder,
       errorWidget: (context, url, error) => placeHolder,
     );

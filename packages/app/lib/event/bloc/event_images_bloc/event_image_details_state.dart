@@ -18,10 +18,7 @@ class EventImageDetailsState {
   });
 
   EventImageDetailsState.state(EventImageDetailsState state)
-      : this(
-          imageDetails: state.imageDetails,
-          status: state.status,
-        );
+    : this(imageDetails: state.imageDetails, status: state.status);
 
   EventImageDetailsState copyWith({
     EventImageDetailsStatus? status,
@@ -38,33 +35,34 @@ class EventImageDetailsInitial extends EventImageDetailsState {}
 
 class EventImageDetailsLoadInProgress extends EventImageDetailsState {
   EventImageDetailsLoadInProgress(EventImageDetailsState state)
-      : super.state(state.copyWith(status: EventImageDetailsStatus.loading));
+    : super.state(state.copyWith(status: EventImageDetailsStatus.loading));
 }
 
 class EventImageDetailsLoadSuccess extends EventImageDetailsState {
   EventImageDetailsLoadSuccess(EventImageDetailsState state)
-      : super.state(state.copyWith(status: EventImageDetailsStatus.success));
+    : super.state(state.copyWith(status: EventImageDetailsStatus.success));
 }
 
 class EventImageDetailsLoadFailure extends EventImageDetailsState {
   final String errorMessage;
 
-  EventImageDetailsLoadFailure(EventImageDetailsState state,
-      {required this.errorMessage})
-      : super.state(state.copyWith(status: EventImageDetailsStatus.error));
+  EventImageDetailsLoadFailure(
+    EventImageDetailsState state, {
+    required this.errorMessage,
+  }) : super.state(state.copyWith(status: EventImageDetailsStatus.error));
 }
 
 class DeleteImageInProgress extends EventImageDetailsState {
   DeleteImageInProgress(EventImageDetailsState state)
-      : super.state(state.copyWith(status: EventImageDetailsStatus.loading));
+    : super.state(state.copyWith(status: EventImageDetailsStatus.loading));
 }
 
 class DeleteImageSuccess extends EventImageDetailsState {
   DeleteImageSuccess(EventImageDetailsState state)
-      : super.state(state.copyWith(status: EventImageDetailsStatus.success));
+    : super.state(state.copyWith(status: EventImageDetailsStatus.success));
 }
 
 class DownloadImageSuccess extends EventImageDetailsState {
   DownloadImageSuccess(EventImageDetailsState state)
-      : super.state(state.copyWith(status: EventImageDetailsStatus.success));
+    : super.state(state.copyWith(status: EventImageDetailsStatus.success));
 }

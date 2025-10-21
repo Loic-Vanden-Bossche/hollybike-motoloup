@@ -40,23 +40,23 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
   bool _loadingImages = true;
   final imagePicker = ImagePicker();
 
-  get isLoading => _loadingImages || widget.isLoading;
+  bool get isLoading => _loadingImages || widget.isLoading;
 
   @override
   void initState() {
     super.initState();
 
-    _checkImagesPermission().then(
-      (granted) {
-        if (granted) {
-          return _loadImages();
-        }
-      },
-    ).whenComplete(() {
-      setState(() {
-        _loadingImages = false;
-      });
-    });
+    _checkImagesPermission()
+        .then((granted) {
+          if (granted) {
+            return _loadImages();
+          }
+        })
+        .whenComplete(() {
+          setState(() {
+            _loadingImages = false;
+          });
+        });
   }
 
   @override
@@ -75,7 +75,7 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
       ImagePickerGalleryButton(
         mode: widget.mode,
         onImagesSelected: widget.onImagesSelected,
-      )
+      ),
     ];
 
     const height = 100.0;
@@ -102,10 +102,7 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
           scrollDirection: Axis.horizontal,
           itemCount: list.length,
           itemBuilder: (BuildContext context, int index) {
-            return AspectRatio(
-              aspectRatio: 1,
-              child: list[index],
-            );
+            return AspectRatio(aspectRatio: 1, child: list[index]);
           },
         ),
       ),

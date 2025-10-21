@@ -31,23 +31,23 @@ sealed class MinimalEvent with _$MinimalEvent {
     @JsonKey(name: "image_key") String? imageKey,
   }) = _MinimalEvent;
 
-  get color => Event.getStatusColor(status);
+  Color get color => Event.getStatusColor(status);
 
   factory MinimalEvent.fromJson(JsonMap json) => _$MinimalEventFromJson(json);
 
   factory MinimalEvent.empty() => MinimalEvent(
-        id: 0,
-        name: '',
-        owner: MinimalUser.empty(),
-        status: EventStatusState.scheduled,
-        startDate: DateTime.now(),
-        createdAt: DateTime.now(),
-        updatedAt: DateTime.now(),
-      );
+    id: 0,
+    name: '',
+    owner: MinimalUser.empty(),
+    status: EventStatusState.scheduled,
+    startDate: DateTime.now(),
+    createdAt: DateTime.now(),
+    updatedAt: DateTime.now(),
+  );
 
   ImageProvider get imageProvider => Event.imageProviderFromDateTimeAndImage(
-        startDate,
-        image: image,
-        cacheKey: imageKey,
-      );
+    startDate,
+    image: image,
+    cacheKey: imageKey,
+  );
 }

@@ -34,10 +34,7 @@ class UserJourneyCard extends StatelessWidget {
     if (journey == null) {
       return SizedBox(
         height: 80,
-        child: EmptyUserJourney(
-          username: user?.username,
-          color: color,
-        ),
+        child: EmptyUserJourney(username: user?.username, color: color),
       );
     }
 

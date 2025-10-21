@@ -26,9 +26,13 @@ class Downloader {
 
     final url = authenticate ? '${currentSession!.host}/api$route' : route;
 
-    final headers = authenticate
-        ? {'Authorization': 'Bearer ${currentSession!.token}', ...extraHeaders}
-        : extraHeaders;
+    final headers =
+        authenticate
+            ? {
+              'Authorization': 'Bearer ${currentSession!.token}',
+              ...extraHeaders,
+            }
+            : extraHeaders;
 
     final downloadPath = await getDownloadPath();
 

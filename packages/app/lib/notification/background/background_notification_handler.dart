@@ -1,4 +1,3 @@
-
 import 'dart:developer';
 import 'dart:math' show Random;
 
@@ -21,7 +20,10 @@ import '../../shared/websocket/websocket_message.dart';
 
 @pragma('vm:entry-point')
 class BackgroundNotificationHandler {
-  static void initialize(ServiceInstance service,FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin) async {
+  static void initialize(
+    ServiceInstance service,
+    FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin,
+  ) async {
     bool initializing = true;
 
     final authPersistence = AuthPersistence();
@@ -159,9 +161,7 @@ class BackgroundNotificationHandler {
     initializing = false;
   }
 
-  static void onSubscribed(
-      WebsocketBody event,
-      ) async {
+  static void onSubscribed(WebsocketBody event) async {
     final data = event as WebsocketSubscribed;
 
     if (data.subscribed) {
@@ -172,9 +172,9 @@ class BackgroundNotificationHandler {
   }
 
   static Future<int> onEventStatusUpdated(
-      WebsocketBody event,
-      FlutterLocalNotificationsPlugin notificationPlugin,
-      ) async {
+    WebsocketBody event,
+    FlutterLocalNotificationsPlugin notificationPlugin,
+  ) async {
     final data = event as WebsocketEventStatusUpdated;
 
     log('Event status updated: ${data.name}, ${data.status}');
@@ -183,32 +183,31 @@ class BackgroundNotificationHandler {
       'hollybike-event-updated-notifications',
       'Mise à jour des événements',
       channelDescription:
-      'Canal de notifications de Hollybike pour le status des événements',
+          'Canal de notifications de Hollybike pour le status des événements',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: false,
     );
 
-    final title = event.status == EventStatusState.canceled
-        ? 'L\'événement ${event.name} a été annulé'
-        : 'Le statut de l\'événement ${event.name} a été mis à jour';
+    final title =
+        event.status == EventStatusState.canceled
+            ? 'L\'événement ${event.name} a été annulé'
+            : 'Le statut de l\'événement ${event.name} a été mis à jour';
 
     await notificationPlugin.show(
       Random().nextInt(100),
       event.name,
       title,
-      const NotificationDetails(
-        android: notificationDetails,
-      ),
+      const NotificationDetails(android: notificationDetails),
     );
 
     return data.notificationId;
   }
 
   static Future<int> onAddedToEvent(
-      WebsocketBody event,
-      FlutterLocalNotificationsPlugin notificationPlugin,
-      ) async {
+    WebsocketBody event,
+    FlutterLocalNotificationsPlugin notificationPlugin,
+  ) async {
     final data = event as WebsocketAddedToEvent;
 
     log('Added to event: ${data.name}', name: 'Notifications');
@@ -217,7 +216,7 @@ class BackgroundNotificationHandler {
       'hollybike-event-participation-notifications',
       'Participation aux événements',
       channelDescription:
-      'Canal de notifications de Hollybike pour vos participations aux événements',
+          'Canal de notifications de Hollybike pour vos participations aux événements',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: false,
@@ -227,18 +226,16 @@ class BackgroundNotificationHandler {
       Random().nextInt(100),
       data.name,
       'Vous avez été ajouté à l\'événement ${data.name}',
-      const NotificationDetails(
-        android: notificationDetails,
-      ),
+      const NotificationDetails(android: notificationDetails),
     );
 
     return data.notificationId;
   }
 
   static Future<int> onRemovedFromEvent(
-      WebsocketBody event,
-      FlutterLocalNotificationsPlugin notificationPlugin,
-      ) async {
+    WebsocketBody event,
+    FlutterLocalNotificationsPlugin notificationPlugin,
+  ) async {
     final data = event as WebsocketRemovedFromEvent;
 
     log('Removed from event: ${data.name}', name: 'Notifications');
@@ -247,7 +244,7 @@ class BackgroundNotificationHandler {
       'hollybike-event-participation-notifications',
       'Participation aux événements',
       channelDescription:
-      'Canal de notifications de Hollybike pour vos participations aux événements',
+          'Canal de notifications de Hollybike pour vos participations aux événements',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: false,
@@ -257,18 +254,16 @@ class BackgroundNotificationHandler {
       Random().nextInt(100),
       data.name,
       'Vous avez été retiré de l\'événement ${data.name}',
-      const NotificationDetails(
-        android: notificationDetails,
-      ),
+      const NotificationDetails(android: notificationDetails),
     );
 
     return data.notificationId;
   }
 
   static Future<int> onEventDeleted(
-      WebsocketBody event,
-      FlutterLocalNotificationsPlugin notificationPlugin,
-      ) async {
+    WebsocketBody event,
+    FlutterLocalNotificationsPlugin notificationPlugin,
+  ) async {
     final data = event as WebsocketEventDeleted;
 
     log('Event deleted: ${data.name}', name: 'Notifications');
@@ -277,7 +272,7 @@ class BackgroundNotificationHandler {
       'hollybike-event-deletion-notifications',
       'Suppression des événements',
       channelDescription:
-      'Canal de notifications de Hollybike pour la suppression des événements',
+          'Canal de notifications de Hollybike pour la suppression des événements',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: false,
@@ -287,18 +282,16 @@ class BackgroundNotificationHandler {
       Random().nextInt(100),
       data.name,
       'L\'événement ${data.name} a été supprimé',
-      const NotificationDetails(
-        android: notificationDetails,
-      ),
+      const NotificationDetails(android: notificationDetails),
     );
 
     return data.notificationId;
   }
 
   static Future<int> onEventUpdated(
-      WebsocketBody event,
-      FlutterLocalNotificationsPlugin notificationPlugin,
-      ) async {
+    WebsocketBody event,
+    FlutterLocalNotificationsPlugin notificationPlugin,
+  ) async {
     final data = event as WebsocketEventUpdated;
 
     log('Event updated: ${data.name}', name: 'Notifications');
@@ -307,7 +300,7 @@ class BackgroundNotificationHandler {
       'hollybike-event-updated-notifications',
       'Mise à jour des événements',
       channelDescription:
-      'Canal de notifications de Hollybike pour les mises à jour des événements',
+          'Canal de notifications de Hollybike pour les mises à jour des événements',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: false,
@@ -317,18 +310,16 @@ class BackgroundNotificationHandler {
       Random().nextInt(100),
       data.name,
       'L\'événement ${data.name} a été mis à jour',
-      const NotificationDetails(
-        android: notificationDetails,
-      ),
+      const NotificationDetails(android: notificationDetails),
     );
 
     return data.notificationId;
   }
 
   static Future<int> onEventPublished(
-      WebsocketBody event,
-      FlutterLocalNotificationsPlugin notificationPlugin,
-      ) async {
+    WebsocketBody event,
+    FlutterLocalNotificationsPlugin notificationPlugin,
+  ) async {
     final data = event as WebsocketEventPublished;
 
     log('New event: ${data.name}', name: 'Notifications');
@@ -337,7 +328,7 @@ class BackgroundNotificationHandler {
       'hollybike-event-creation-notifications',
       'Création des événements',
       channelDescription:
-      'Canal de notifications de Hollybike pour la création des événements',
+          'Canal de notifications de Hollybike pour la création des événements',
       importance: Importance.max,
       priority: Priority.high,
       showWhen: false,
@@ -347,9 +338,7 @@ class BackgroundNotificationHandler {
       Random().nextInt(100),
       data.name,
       'Nouvel événement ${data.name} publié, prévu pour ${formatTimeDate(data.start.toLocal())}',
-      const NotificationDetails(
-        android: notificationDetails,
-      ),
+      const NotificationDetails(android: notificationDetails),
     );
 
     return data.notificationId;

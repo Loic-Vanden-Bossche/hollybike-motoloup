@@ -47,12 +47,11 @@ class _SecuredTextFieldState extends State<SecuredTextField> {
       autofillHints: widget.autofillHints,
       textInputType: widget.textInputType,
       iconButton: IconButton(
-        onPressed: () => setState(() {
-          _hide = !_hide;
-        }),
-        icon: Icon(
-          _hide ? Icons.visibility : Icons.visibility_off,
-        ),
+        onPressed:
+            () => setState(() {
+              _hide = !_hide;
+            }),
+        icon: Icon(_hide ? Icons.visibility : Icons.visibility_off),
       ),
     );
   }

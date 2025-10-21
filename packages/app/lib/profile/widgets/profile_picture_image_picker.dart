@@ -63,7 +63,10 @@ class _EventImagePickerModalState
         }
       } catch (e) {
         if (context.mounted) {
-          Toast.showErrorToast(context, 'Image incompatible. Veuillez réessayer.');
+          Toast.showErrorToast(
+            context,
+            'Image incompatible. Veuillez réessayer.',
+          );
         }
       }
 
@@ -98,15 +101,9 @@ class _EventImagePickerModalState
       throw Exception("Failed to decode image");
     }
 
-    final alphaImage = img.copyCropCircle(
-      image.convert(numChannels: 4),
-    );
+    final alphaImage = img.copyCropCircle(image.convert(numChannels: 4));
 
-    final resizedImage = img.copyResize(
-      alphaImage,
-      width: 256,
-      height: 256,
-    );
+    final resizedImage = img.copyResize(alphaImage, width: 256, height: 256);
 
     return img.encodePng(resizedImage);
   }

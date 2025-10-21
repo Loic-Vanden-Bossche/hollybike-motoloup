@@ -18,10 +18,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
   final EventRepository eventRepository;
   final ProfileRepository profileRepository;
 
-  SearchBloc({
-    required this.eventRepository,
-    required this.profileRepository,
-  }) : super(SearchInitial()) {
+  SearchBloc({required this.eventRepository, required this.profileRepository})
+    : super(SearchInitial()) {
     on<SubscribeToEventsSearch>(_onSubscribeToEventsSearch);
     on<LoadEventsSearchNextPage>(_onLoadEventsSearchNextPage);
     on<LoadProfilesSearchNextPage>(_onLoadProfilesSearchNextPage);
@@ -39,9 +37,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
         final isRefreshed = data.state;
 
         if (isRefreshed == RefreshedType.none) {
-          return state.copyWith(
-            events: events,
-          );
+          return state.copyWith(events: events);
         }
 
         return SearchLoadSuccess(
@@ -129,10 +125,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     emit(SearchLoadInProgress(const SearchState(), SearchStatus.fullLoading));
 
     try {
-      await eventRepository.refreshEvents(
-        null,
-        query: event.query,
-      );
+      await eventRepository.refreshEvents(null, query: event.query);
 
       final profilesPage = await profileRepository.searchProfiles(
         null,
@@ -145,7 +138,8 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
           state.copyWith(
             lastSearchQuery: event.query,
             profiles: profilesPage.items,
-            hasMoreProfiles: profilesPage.items.length ==
+            hasMoreProfiles:
+                profilesPage.items.length ==
                 eventRepository.numberOfEventsPerRequest,
             profilesNextPage: 1,
           ),
@@ -158,9 +152,6 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
 
   SearchState handleError(Object e, String logMessage) {
     log(logMessage, error: e);
-    return SearchLoadFailure(
-      state,
-      errorMessage: 'Une erreur est survenue.',
-    );
+    return SearchLoadFailure(state, errorMessage: 'Une erreur est survenue.');
   }
 }

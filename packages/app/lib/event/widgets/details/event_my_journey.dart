@@ -20,10 +20,7 @@ class EventMyJourney extends StatelessWidget {
     }
 
     return Column(
-      children: [
-        const SizedBox(height: 16),
-        _buildMyJourney(context),
-      ],
+      children: [const SizedBox(height: 16), _buildMyJourney(context)],
     );
   }
 

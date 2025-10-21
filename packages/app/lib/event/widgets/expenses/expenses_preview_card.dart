@@ -17,10 +17,7 @@ import 'expenses_modal.dart';
 class ExpensesPreviewCard extends StatelessWidget {
   final EventDetails eventDetails;
 
-  const ExpensesPreviewCard({
-    super.key,
-    required this.eventDetails,
-  });
+  const ExpensesPreviewCard({super.key, required this.eventDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -53,9 +50,7 @@ class ExpensesPreviewCard extends StatelessWidget {
     int totalExpenses,
   ) {
     if (expenses.isEmpty && budget == null) {
-      return EmptyPreviewExpensesCard(
-        onTap: () => onTap(context),
-      );
+      return EmptyPreviewExpensesCard(onTap: () => onTap(context));
     }
 
     return ExpensesPreviewCardContent(
@@ -78,12 +73,13 @@ class ExpensesPreviewCard extends StatelessWidget {
               value: BlocProvider.of<EventDetailsBloc>(context),
             ),
             BlocProvider(
-              create: (context) => EventExpensesBloc(
-                eventId: eventDetails.event.id,
-                eventRepository: RepositoryProvider.of<EventRepository>(
-                  context,
-                ),
-              ),
+              create:
+                  (context) => EventExpensesBloc(
+                    eventId: eventDetails.event.id,
+                    eventRepository: RepositoryProvider.of<EventRepository>(
+                      context,
+                    ),
+                  ),
             ),
           ],
           child: const ExpensesModal(),

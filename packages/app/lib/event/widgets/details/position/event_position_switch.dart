@@ -16,10 +16,7 @@ import '../../../../positions/bloc/my_position/my_position_state.dart';
 class EventPositionSwitch extends StatelessWidget {
   final EventDetails eventDetails;
 
-  const EventPositionSwitch({
-    super.key,
-    required this.eventDetails,
-  });
+  const EventPositionSwitch({super.key, required this.eventDetails});
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +24,8 @@ class EventPositionSwitch extends StatelessWidget {
       builder: (context, state) {
         final isLoading = state is MyPositionLoading;
 
-        final isEligible = eventDetails.callerParticipation != null &&
+        final isEligible =
+            eventDetails.callerParticipation != null &&
             eventDetails.callerParticipation?.journey == null &&
             eventDetails.event.status == EventStatusState.now;
 
@@ -45,10 +43,7 @@ class EventPositionSwitch extends StatelessWidget {
             width: double.infinity,
             color: Theme.of(context).colorScheme.primary,
             child: Padding(
-              padding: const EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: 6,
-              ),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               child: _switchContent(
                 context,
                 state,
@@ -75,9 +70,7 @@ class EventPositionSwitch extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              'Votre position est partagée sur un autre événement',
-            ),
+            Text('Votre position est partagée sur un autre événement'),
           ],
         ),
       );
@@ -87,11 +80,7 @@ class EventPositionSwitch extends StatelessWidget {
       alignment: SwitchAlignment.right,
       text: getSwitchLabel(state.isRunning),
       value: state.isRunning,
-      onChange: () => _onSelected(
-        context,
-        state.isRunning,
-        isLoading,
-      ),
+      onChange: () => _onSelected(context, state.isRunning, isLoading),
     );
   }
 
@@ -116,11 +105,11 @@ class EventPositionSwitch extends StatelessWidget {
   void _onStart(BuildContext context) async {
     if (await _checkLocationPermission() && context.mounted) {
       context.read<MyPositionBloc>().add(
-            EnableSendPosition(
-              eventId: eventDetails.event.id,
-              eventName: eventDetails.event.name,
-            ),
-          );
+        EnableSendPosition(
+          eventId: eventDetails.event.id,
+          eventName: eventDetails.event.name,
+        ),
+      );
     }
   }
 
@@ -132,8 +121,6 @@ class EventPositionSwitch extends StatelessWidget {
   }
 
   void _cancelPositions(BuildContext context) {
-    context.read<MyPositionBloc>().add(
-          DisableSendPositions(),
-        );
+    context.read<MyPositionBloc>().add(DisableSendPositions());
   }
 }

@@ -18,9 +18,8 @@ class JourneysLibraryBloc
 
   final JourneyRepository journeyRepository;
 
-  JourneysLibraryBloc({
-    required this.journeyRepository,
-  }) : super(JourneysLibraryInitial()) {
+  JourneysLibraryBloc({required this.journeyRepository})
+    : super(JourneysLibraryInitial()) {
     on<LoadJourneysLibraryNextPage>(_onLoadJourneysLibraryNextPage);
     on<RefreshJourneysLibrary>(_onRefreshJourneysLibrary);
   }
@@ -42,17 +41,23 @@ class JourneysLibraryBloc
         numberOfJourneysPerRequest,
       );
 
-      emit(JourneysLibraryPageLoadSuccess(state.copyWith(
-        journeys: [...state.journeys, ...page.items],
-        hasMore: page.items.length == numberOfJourneysPerRequest,
-        nextPage: state.nextPage + 1,
-      )));
+      emit(
+        JourneysLibraryPageLoadSuccess(
+          state.copyWith(
+            journeys: [...state.journeys, ...page.items],
+            hasMore: page.items.length == numberOfJourneysPerRequest,
+            nextPage: state.nextPage + 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while loading next page of journeys', error: e);
-      emit(JourneysLibraryPageLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        JourneysLibraryPageLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -68,17 +73,23 @@ class JourneysLibraryBloc
         numberOfJourneysPerRequest,
       );
 
-      emit(JourneysLibraryPageLoadSuccess(state.copyWith(
-        journeys: page.items,
-        hasMore: page.items.length == numberOfJourneysPerRequest,
-        nextPage: 1,
-      )));
+      emit(
+        JourneysLibraryPageLoadSuccess(
+          state.copyWith(
+            journeys: page.items,
+            hasMore: page.items.length == numberOfJourneysPerRequest,
+            nextPage: 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while refreshing journeys', error: e);
-      emit(JourneysLibraryPageLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        JourneysLibraryPageLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }

@@ -40,9 +40,7 @@ class SignupDto {
       associationKey,
       roleKey,
       invitationKey,
-    ].where(
-      (keyName) => map[keyName] == null,
-    );
+    ].where((keyName) => map[keyName] == null);
     if (missingValues.isNotEmpty) {
       const String separator = "\n- ";
       final List<String> prefix = [

@@ -36,15 +36,14 @@ class _TabsLoadingPlaceholderState extends State<TabsLoadingPlaceholder>
             controller: _controller,
             labelColor: Theme.of(context).colorScheme.secondary,
             indicatorColor: Theme.of(context).colorScheme.secondary,
-            tabs: Iterable.generate(
-              widget.length,
-              (_) => loadingTabIcon,
-            ).toList(),
+            tabs:
+                Iterable.generate(
+                  widget.length,
+                  (_) => loadingTabIcon,
+                ).toList(),
           ),
           const Expanded(
-            child: SizedBox.expand(
-              child: GradientLoadingPlaceholder(),
-            ),
+            child: SizedBox.expand(child: GradientLoadingPlaceholder()),
           ),
         ],
       ),

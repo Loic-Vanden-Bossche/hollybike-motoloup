@@ -72,11 +72,7 @@ class _ProfileJourneysState extends State<ProfileJourneys> {
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: ThemedRefreshIndicator(
             onRefresh: _onRefresh,
-            child: _buildList(
-              state.userJourneys,
-              state.hasMore,
-              state.status,
-            ),
+            child: _buildList(state.userJourneys, state.hasMore, state.status),
           ),
         );
       },
@@ -104,9 +100,7 @@ class _ProfileJourneysState extends State<ProfileJourneys> {
   Widget _buildPlaceholder(BuildContext context, ProfileJourneysStatus status) {
     switch (status) {
       case ProfileJourneysStatus.loading:
-        return const Center(
-          child: CircularProgressIndicator(),
-        );
+        return const Center(child: CircularProgressIndicator());
       case ProfileJourneysStatus.error:
         return ScrollablePlaceholder(
           physics: const AlwaysScrollableScrollPhysics(),

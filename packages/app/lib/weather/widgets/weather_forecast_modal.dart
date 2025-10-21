@@ -34,11 +34,7 @@ class WeatherForecastModal extends StatelessWidget {
         ),
       ),
       child: Padding(
-        padding: const EdgeInsets.only(
-          top: 16,
-          left: 16,
-          right: 16,
-        ),
+        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
         child: SafeArea(
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -63,9 +59,7 @@ class WeatherForecastModal extends StatelessWidget {
               BlocBuilder<WeatherForecastBloc, WeatherForecastState>(
                 builder: (context, state) {
                   return ConstrainedBox(
-                    constraints: const BoxConstraints(
-                      maxHeight: 400,
-                    ),
+                    constraints: const BoxConstraints(maxHeight: 400),
                     child: _buildWeatherForecast(
                       context,
                       state.weatherForecast,
@@ -110,88 +104,98 @@ class WeatherForecastModal extends StatelessWidget {
                           ),
                         ),
                       ),
-                      MultiSliver(children: [
-                        SliverPersistentHeader(
-                          pinned: true,
-                          delegate: PinnedHeaderDelegate(
-                            height: 50,
-                            animationDuration: 300,
-                            child: Container(
-                              width: double.infinity,
-                              decoration: BoxDecoration(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .primaryContainer,
-                                borderRadius: BorderRadius.circular(14),
-                              ),
-                              child: Padding(
-                                padding:
-                                    const EdgeInsets.symmetric(horizontal: 16),
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: [
-                                    _buildDayHeader(dailyWeather),
-                                  ],
+                      MultiSliver(
+                        children: [
+                          SliverPersistentHeader(
+                            pinned: true,
+                            delegate: PinnedHeaderDelegate(
+                              height: 50,
+                              animationDuration: 300,
+                              child: Container(
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color:
+                                      Theme.of(
+                                        context,
+                                      ).colorScheme.primaryContainer,
+                                  borderRadius: BorderRadius.circular(14),
+                                ),
+                                child: Padding(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                  ),
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [_buildDayHeader(dailyWeather)],
+                                  ),
                                 ),
                               ),
                             ),
                           ),
-                        ),
-                        SliverPadding(
-                          padding: const EdgeInsets.only(
-                            left: 16,
-                            right: 16,
-                            bottom: 16,
-                          ),
-                          sliver: Builder(builder: (context) {
-                            if (dailyWeather.hourlyWeather.isEmpty) {
-                              return const SliverToBoxAdapter(
-                                child: SizedBox(
-                                  height: 70,
-                                  child: Center(
-                                    child: Text(
-                                      'Pas de données disponibles pour ce jour',
-                                    ),
-                                  ),
-                                ),
-                              );
-                            }
-
-                            return SliverList.separated(
-                              itemCount: dailyWeather.hourlyWeather.length,
-                              itemBuilder: (context, index) {
-                                final hourlyWeather =
-                                    dailyWeather.hourlyWeather[index];
-
-                                return TweenAnimationBuilder(
-                                  tween: Tween<double>(begin: 0, end: 1),
-                                  duration: const Duration(milliseconds: 300),
-                                  curve: Curves.easeInOut,
-                                  builder: (context, double value, child) {
-                                    return Transform.translate(
-                                      offset: Offset(30 * (1 - value), 0),
-                                      child: Opacity(
-                                        opacity: value,
-                                        child: _buildHourlyData(hourlyWeather),
+                          SliverPadding(
+                            padding: const EdgeInsets.only(
+                              left: 16,
+                              right: 16,
+                              bottom: 16,
+                            ),
+                            sliver: Builder(
+                              builder: (context) {
+                                if (dailyWeather.hourlyWeather.isEmpty) {
+                                  return const SliverToBoxAdapter(
+                                    child: SizedBox(
+                                      height: 70,
+                                      child: Center(
+                                        child: Text(
+                                          'Pas de données disponibles pour ce jour',
+                                        ),
                                       ),
+                                    ),
+                                  );
+                                }
+
+                                return SliverList.separated(
+                                  itemCount: dailyWeather.hourlyWeather.length,
+                                  itemBuilder: (context, index) {
+                                    final hourlyWeather =
+                                        dailyWeather.hourlyWeather[index];
+
+                                    return TweenAnimationBuilder(
+                                      tween: Tween<double>(begin: 0, end: 1),
+                                      duration: const Duration(
+                                        milliseconds: 300,
+                                      ),
+                                      curve: Curves.easeInOut,
+                                      builder: (context, double value, child) {
+                                        return Transform.translate(
+                                          offset: Offset(30 * (1 - value), 0),
+                                          child: Opacity(
+                                            opacity: value,
+                                            child: _buildHourlyData(
+                                              hourlyWeather,
+                                            ),
+                                          ),
+                                        );
+                                      },
                                     );
                                   },
+                                  separatorBuilder:
+                                      (context, index) => Divider(
+                                        color: Theme.of(context)
+                                            .colorScheme
+                                            .onPrimary
+                                            .withValues(alpha: 0.5),
+                                        height: 0.5,
+                                        thickness: 0.5,
+                                      ),
                                 );
                               },
-                              separatorBuilder: (context, index) => Divider(
-                                color: Theme.of(context)
-                                    .colorScheme
-                                    .onPrimary
-                                    .withValues(alpha: 0.5),
-                                height: 0.5,
-                                thickness: 0.5,
-                              ),
-                            );
-                          }),
-                        ),
-                      ])
+                            ),
+                          ),
+                        ],
+                      ),
                     ],
                   ),
                 ],
@@ -207,9 +211,7 @@ class WeatherForecastModal extends StatelessWidget {
   Future<void> _onRefresh(BuildContext context) {
     final bloc = BlocProvider.of<WeatherForecastBloc>(context);
 
-    bloc.add(
-      FetchWeatherForecast(),
-    );
+    bloc.add(FetchWeatherForecast());
 
     return bloc.firstWhenNotLoading;
   }
@@ -224,10 +226,7 @@ class WeatherForecastModal extends StatelessWidget {
         children: [
           TextSpan(
             text: '${dayName.capitalize()} ',
-            style: const TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.bold,
-            ),
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
           ),
           const TextSpan(
             text: '- ',
@@ -239,9 +238,7 @@ class WeatherForecastModal extends StatelessWidget {
           TextSpan(
             text:
                 '${dailyWeather.maxTemperature} / ${dailyWeather.minTemperature}',
-            style: const TextStyle(
-              fontSize: 18,
-            ),
+            style: const TextStyle(fontSize: 18),
           ),
         ],
       ),
@@ -251,8 +248,9 @@ class WeatherForecastModal extends StatelessWidget {
   Widget _buildHourlyData(HourlyWeather hourlyWeather) {
     String hourString = hourlyWeather.time;
     String temperature = hourlyWeather.temperature;
-    String weatherCondition =
-        getWeatherConditionLabel(hourlyWeather.weatherCondition);
+    String weatherCondition = getWeatherConditionLabel(
+      hourlyWeather.weatherCondition,
+    );
 
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -270,28 +268,13 @@ class WeatherForecastModal extends StatelessWidget {
           const SizedBox(width: 8),
           SizedBox(
             width: 60,
-            child: Text(
-              hourString,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
+            child: Text(hourString, style: const TextStyle(fontSize: 16)),
           ),
           SizedBox(
             width: 50,
-            child: Text(
-              temperature,
-              style: const TextStyle(
-                fontSize: 16,
-              ),
-            ),
+            child: Text(temperature, style: const TextStyle(fontSize: 16)),
           ),
-          Text(
-            '-  $weatherCondition',
-            style: const TextStyle(
-              fontSize: 16,
-            ),
-          ),
+          Text('-  $weatherCondition', style: const TextStyle(fontSize: 16)),
         ],
       ),
     );

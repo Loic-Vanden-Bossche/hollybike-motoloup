@@ -26,16 +26,9 @@ class TextLoadingPlaceholder extends StatelessWidget {
     final string = List.filled(numberOfLetters, "  ").join();
 
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(4),
-      ),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(4)),
       clipBehavior: Clip.hardEdge,
-      child: GradientLoadingPlaceholder(
-        child: Text(
-          string,
-          style: textStyle,
-        ),
-      ),
+      child: GradientLoadingPlaceholder(child: Text(string, style: textStyle)),
     );
   }
 }

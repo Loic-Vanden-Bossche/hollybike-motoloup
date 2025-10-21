@@ -45,10 +45,7 @@ class Args {
   final MinimalEvent? event;
   final bool animate;
 
-  Args({
-    required this.event,
-    this.animate = true,
-  });
+  Args({required this.event, this.animate = true});
 }
 
 @RoutePage()
@@ -70,12 +67,13 @@ class EventDetailsScreen extends StatefulWidget implements AutoRouteWrapper {
   @override
   Widget wrappedRoute(context) {
     return BlocProvider(
-      create: (context) => EventDetailsBloc(
-        eventRepository: RepositoryProvider.of<EventRepository>(context),
-        eventParticipationRepository:
-            RepositoryProvider.of<EventParticipationRepository>(context),
-        eventId: event.id,
-      )..add(SubscribeToEvent()),
+      create:
+          (context) => EventDetailsBloc(
+            eventRepository: RepositoryProvider.of<EventRepository>(context),
+            eventParticipationRepository:
+                RepositoryProvider.of<EventParticipationRepository>(context),
+            eventId: event.id,
+          )..add(SubscribeToEvent()),
       child: this,
     );
   }
@@ -144,29 +142,33 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
           context.router.removeWhere((route) {
             if (route.path == '/event-participations') {
-              final eventId = route
-                  .argsAs(
-                    orElse: () => EventParticipationsRouteArgs(
-                      eventDetails: EventDetails.empty(),
-                      participationPreview: [],
-                    ),
-                  )
-                  .eventDetails
-                  .event
-                  .id;
+              final eventId =
+                  route
+                      .argsAs(
+                        orElse:
+                            () => EventParticipationsRouteArgs(
+                              eventDetails: EventDetails.empty(),
+                              participationPreview: [],
+                            ),
+                      )
+                      .eventDetails
+                      .event
+                      .id;
 
               return eventId == widget.event.id;
             }
 
             if (route.path == "/event-details") {
-              final eventId = route
-                  .argsAs(
-                    orElse: () => EventDetailsRouteArgs(
-                      event: MinimalEvent.empty(),
-                    ),
-                  )
-                  .event
-                  .id;
+              final eventId =
+                  route
+                      .argsAs(
+                        orElse:
+                            () => EventDetailsRouteArgs(
+                              event: MinimalEvent.empty(),
+                            ),
+                      )
+                      .event
+                      .id;
 
               return eventId == widget.event.id;
             }
@@ -180,23 +182,25 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           return MultiBlocProvider(
             providers: [
               BlocProvider<EventImagesBloc>(
-                create: (context) => EventImagesBloc(
-                  eventId: widget.event.id,
-                  imageRepository: RepositoryProvider.of<ImageRepository>(
-                    context,
-                  ),
-                ),
+                create:
+                    (context) => EventImagesBloc(
+                      eventId: widget.event.id,
+                      imageRepository: RepositoryProvider.of<ImageRepository>(
+                        context,
+                      ),
+                    ),
               ),
               BlocProvider(
-                create: (context) => EventMyImagesBloc(
-                  eventId: widget.event.id,
-                  imageRepository: RepositoryProvider.of<ImageRepository>(
-                    context,
-                  ),
-                  eventRepository: RepositoryProvider.of<EventRepository>(
-                    context,
-                  ),
-                ),
+                create:
+                    (context) => EventMyImagesBloc(
+                      eventId: widget.event.id,
+                      imageRepository: RepositoryProvider.of<ImageRepository>(
+                        context,
+                      ),
+                      eventRepository: RepositoryProvider.of<EventRepository>(
+                        context,
+                      ),
+                    ),
               ),
             ],
             child: Hud(
@@ -218,7 +222,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   return <Widget>[
                     SliverToBoxAdapter(
                       child: EventDetailsHeader(
-                        event: state.eventDetails?.event.toMinimalEvent() ??
+                        event:
+                            state.eventDetails?.event.toMinimalEvent() ??
                             widget.event,
                         animate: _animate,
                         uniqueKey: widget.uniqueKey,
@@ -244,9 +249,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                                 Tab(icon: Icon(Icons.info)),
                                 Tab(icon: Icon(Icons.photo_library_rounded)),
                                 Tab(
-                                  icon: Icon(
-                                    Icons.add_photo_alternate_rounded,
-                                  ),
+                                  icon: Icon(Icons.add_photo_alternate_rounded),
                                 ),
                                 Tab(icon: Icon(Icons.explore_rounded)),
                               ],
@@ -271,23 +274,20 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       builder: (context, state) {
         if (state.eventDetails == null && state is EventDetailsLoadFailure) {
           return const Center(
-            child: Text(
-              "Impossible de charger les détails de l'événement",
-            ),
+            child: Text("Impossible de charger les détails de l'événement"),
           );
         }
 
         return AnimatedCrossFade(
           duration: const Duration(milliseconds: 300),
-          firstChild: state.eventDetails == null
-              ? const SizedBox()
-              : TabBarView(
-                  controller: _tabController,
-                  children: _getTabs(state.eventDetails!),
-                ),
-          secondChild: const Center(
-            child: CircularProgressIndicator(),
-          ),
+          firstChild:
+              state.eventDetails == null
+                  ? const SizedBox()
+                  : TabBarView(
+                    controller: _tabController,
+                    children: _getTabs(state.eventDetails!),
+                  ),
+          secondChild: const Center(child: CircularProgressIndicator()),
           crossFadeState:
               state is EventDetailsLoadInProgress && state.eventDetails == null
                   ? CrossFadeState.showSecond
@@ -297,9 +297,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
   }
 
-  List<Widget> _getTabs(
-    EventDetails eventDetails,
-  ) {
+  List<Widget> _getTabs(EventDetails eventDetails) {
     return [
       ThemedRefreshIndicator(
         onRefresh: _refreshEventDetails,
@@ -310,14 +308,16 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
           },
         ),
       ),
-      Builder(builder: (context) {
-        return EventDetailsImages(
-          scrollController: _scrollController,
-          eventId: eventDetails.event.id,
-          isParticipating: eventDetails.isParticipating,
-          onAddPhotos: () => _onAddPhotoFromAllPhotos(context),
-        );
-      }),
+      Builder(
+        builder: (context) {
+          return EventDetailsImages(
+            scrollController: _scrollController,
+            eventId: eventDetails.event.id,
+            isParticipating: eventDetails.isParticipating,
+            onAddPhotos: () => _onAddPhotoFromAllPhotos(context),
+          );
+        },
+      ),
       EventDetailsMyImages(
         scrollController: _scrollController,
         isParticipating: eventDetails.isParticipating,
@@ -326,16 +326,17 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         eventId: eventDetails.event.id,
       ),
       BlocProvider(
-        create: (context) => UserPositionsBloc(
-          authPersistence: Provider.of<AuthPersistence>(
-            context,
-            listen:false
-          ),
-          profileRepository: RepositoryProvider.of<ProfileRepository>(
-            context,
-          ),
-          canSeeUserPositions: eventDetails.isParticipating,
-        ),
+        create:
+            (context) => UserPositionsBloc(
+              authPersistence: Provider.of<AuthPersistence>(
+                context,
+                listen: false,
+              ),
+              profileRepository: RepositoryProvider.of<ProfileRepository>(
+                context,
+              ),
+              canSeeUserPositions: eventDetails.isParticipating,
+            ),
         child: EventDetailsMap(
           eventId: eventDetails.event.id,
           journey: eventDetails.journey,
@@ -352,9 +353,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   }
 
   Future<void> _refreshEventDetails() {
-    context.read<EventDetailsBloc>().add(
-          LoadEventDetails(),
-        );
+    context.read<EventDetailsBloc>().add(LoadEventDetails());
 
     return context.read<EventDetailsBloc>().firstWhenNotLoading;
   }
@@ -395,15 +394,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             final eventDetails = state.eventDetails!;
 
             return FloatingActionButton.extended(
-              onPressed: () => showEventImagesPicker(
-                context,
-                eventDetails.event.id,
-              ),
+              onPressed:
+                  () => showEventImagesPicker(context, eventDetails.event.id),
               label: Text(
                 "Ajouter des photos",
                 style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
+                  color: Theme.of(context).colorScheme.primary,
+                ),
               ),
               icon: const Icon(Icons.add_a_photo),
             );
@@ -446,9 +443,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   }
 
   void _onEdit(EventFormData formData) {
-    context.read<EventDetailsBloc>().add(
-          EditEvent(formData: formData),
-        );
+    context.read<EventDetailsBloc>().add(EditEvent(formData: formData));
 
     Navigator.of(context).pop();
   }

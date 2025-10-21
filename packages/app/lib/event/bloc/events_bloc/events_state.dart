@@ -43,66 +43,66 @@ class EventInitial extends EventsState {}
 
 class EventPageLoadInProgress extends EventsState {
   EventPageLoadInProgress(EventsState state)
-      : super(
-          events: state.events,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: EventStatus.loading,
-        );
+    : super(
+        events: state.events,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: EventStatus.loading,
+      );
 }
 
 class EventPageLoadSuccess extends EventsState {
   EventPageLoadSuccess(EventsState state)
-      : super(
-          events: state.events,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: EventStatus.success,
-        );
+    : super(
+        events: state.events,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: EventStatus.success,
+      );
 }
 
 class EventPageLoadFailure extends EventsState {
   final String errorMessage;
 
   EventPageLoadFailure(EventsState state, {required this.errorMessage})
-      : super(
-          events: state.events,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: EventStatus.error,
-        );
+    : super(
+        events: state.events,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: EventStatus.error,
+      );
 }
 
 class EventCreationInProgress extends EventsState {
   EventCreationInProgress(EventsState state)
-      : super(
-          events: state.events,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: EventStatus.error,
-        );
+    : super(
+        events: state.events,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: EventStatus.error,
+      );
 }
 
 class EventCreationSuccess extends EventsState {
   final Event createdEvent;
 
   EventCreationSuccess(EventsState state, {required this.createdEvent})
-      : super(
-          events: state.events,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: EventStatus.error,
-        );
+    : super(
+        events: state.events,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: EventStatus.error,
+      );
 }
 
 class EventCreationFailure extends EventsState {
   final String errorMessage;
 
   EventCreationFailure(EventsState state, {required this.errorMessage})
-      : super(
-          events: state.events,
-          hasMore: state.hasMore,
-          nextPage: state.nextPage,
-          status: EventStatus.error,
-        );
+    : super(
+        events: state.events,
+        hasMore: state.hasMore,
+        nextPage: state.nextPage,
+        status: EventStatus.error,
+      );
 }

@@ -26,10 +26,10 @@ class ProfileApi {
 
   Future<Profile> getProfile(AuthSession profileSession) async {
     final AuthSession(:host, :token) = profileSession;
-    final response = await client.dio.get("$host/api/users/me",
-        options: Options(
-          headers: {'Authorization': "Bearer $token"},
-        ));
+    final response = await client.dio.get(
+      "$host/api/users/me",
+      options: Options(headers: {'Authorization': "Bearer $token"}),
+    );
     return Profile.fromJson(response.data);
   }
 
@@ -88,10 +88,7 @@ class ProfileApi {
     return updatedProfile;
   }
 
-  Future<void> updatePassword(
-    String oldPassword,
-    String newPassword,
-  ) async {
+  Future<void> updatePassword(String oldPassword, String newPassword) async {
     final currentSession = await authPersistence.currentSession;
 
     if (currentSession == null) {
@@ -101,17 +98,16 @@ class ProfileApi {
     await Dio(
       BaseOptions(
         baseUrl: "${currentSession.host}/api",
-        headers: {
-          'Authorization': "Bearer ${currentSession.token}",
-        },
+        headers: {'Authorization': "Bearer ${currentSession.token}"},
       ),
     ).patch(
       "/users/me",
-      data: UpdatePassword(
-        oldPassword: oldPassword,
-        newPassword: newPassword,
-        newPasswordAgain: newPassword,
-      ).toJson(),
+      data:
+          UpdatePassword(
+            oldPassword: oldPassword,
+            newPassword: newPassword,
+            newPasswordAgain: newPassword,
+          ).toJson(),
     );
   }
 
@@ -125,11 +121,7 @@ class ProfileApi {
     }
 
     await Dio(
-      BaseOptions(
-        baseUrl: "$apiHost/api",
-      ),
-    ).post(
-      "/users/password/$email/send",
-    );
+      BaseOptions(baseUrl: "$apiHost/api"),
+    ).post("/users/password/$email/send");
   }
 }

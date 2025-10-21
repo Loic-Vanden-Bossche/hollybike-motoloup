@@ -23,10 +23,7 @@ class JourneyPreviewCardContainer extends StatelessWidget {
             color: Theme.of(context).colorScheme.surfaceContainer,
             borderRadius: BorderRadius.circular(14),
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: child,
-          ),
+          child: Padding(padding: const EdgeInsets.all(14), child: child),
         ),
         Positioned.fill(
           child: Material(

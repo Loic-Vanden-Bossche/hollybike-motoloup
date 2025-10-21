@@ -16,7 +16,7 @@ enum ExpensesModalAction {
   editBudget,
   addBudget,
   downloadCSV,
-  removeBudget
+  removeBudget,
 }
 
 class ExpensesModalHeader extends StatelessWidget {
@@ -38,12 +38,7 @@ class ExpensesModalHeader extends StatelessWidget {
       children: [
         PopupMenuButton(
           onSelected: (value) {
-            _onModalActionSelected(
-              context,
-              value,
-              budget,
-              eventName,
-            );
+            _onModalActionSelected(context, value, budget, eventName);
           },
           itemBuilder: (context) {
             return _buildBudgetActions(budget, expenses);
@@ -51,12 +46,13 @@ class ExpensesModalHeader extends StatelessWidget {
         ),
         const Spacer(),
         ElevatedButton(
-          onPressed: () => _onModalActionSelected(
-            context,
-            ExpensesModalAction.addExpense,
-            budget,
-            eventName,
-          ),
+          onPressed:
+              () => _onModalActionSelected(
+                context,
+                ExpensesModalAction.addExpense,
+                budget,
+                eventName,
+              ),
           child: const Text('Ajouter une dépense'),
         ),
       ],
@@ -74,15 +70,17 @@ class ExpensesModalHeader extends StatelessWidget {
         showDialog(
           context: context,
           builder: (_) {
-            return AddExpenseModal(onAddExpense: (name, amount, description) {
-              context.read<EventExpensesBloc>().add(
-                    AddExpense(
-                      name: name,
-                      amount: amount,
-                      description: description,
-                    ),
-                  );
-            });
+            return AddExpenseModal(
+              onAddExpense: (name, amount, description) {
+                context.read<EventExpensesBloc>().add(
+                  AddExpense(
+                    name: name,
+                    amount: amount,
+                    description: description,
+                  ),
+                );
+              },
+            );
           },
         );
         break;
@@ -93,11 +91,8 @@ class ExpensesModalHeader extends StatelessWidget {
             return EditBudgetModal(
               onBudgetChange: (budget) {
                 context.read<EventExpensesBloc>().add(
-                      EditBudget(
-                        budget: budget,
-                        successMessage: 'Budget ajouté.',
-                      ),
-                    );
+                  EditBudget(budget: budget, successMessage: 'Budget ajouté.'),
+                );
               },
               addMode: true,
             );
@@ -106,11 +101,8 @@ class ExpensesModalHeader extends StatelessWidget {
         break;
       case ExpensesModalAction.removeBudget:
         context.read<EventExpensesBloc>().add(
-              EditBudget(
-                budget: null,
-                successMessage: 'Budget supprimé.',
-              ),
-            );
+          EditBudget(budget: null, successMessage: 'Budget supprimé.'),
+        );
         break;
       case ExpensesModalAction.editBudget:
         showDialog(
@@ -120,51 +112,48 @@ class ExpensesModalHeader extends StatelessWidget {
               budget: budget,
               onBudgetChange: (budget) {
                 context.read<EventExpensesBloc>().add(
-                      EditBudget(
-                        budget: budget,
-                        successMessage: 'Budget modifié.',
-                      ),
-                    );
+                  EditBudget(budget: budget, successMessage: 'Budget modifié.'),
+                );
               },
             );
           },
         );
         break;
       case ExpensesModalAction.downloadCSV:
-        context.read<EventExpensesBloc>().add(
-              DownloadReport(),
-            );
+        context.read<EventExpensesBloc>().add(DownloadReport());
 
         break;
     }
   }
 
   List<PopupMenuItem> _buildBudgetActions(
-      int? budget, List<EventExpense> expenses) {
+    int? budget,
+    List<EventExpense> expenses,
+  ) {
     final hasBudget = budget != null;
 
     final actions = <PopupMenuItem>[
       hasBudget
           ? const PopupMenuItem(
-              value: ExpensesModalAction.editBudget,
-              child: Row(
-                children: [
-                  Icon(Icons.edit),
-                  SizedBox(width: 8),
-                  Text('Modifier le budget'),
-                ],
-              ),
-            )
+            value: ExpensesModalAction.editBudget,
+            child: Row(
+              children: [
+                Icon(Icons.edit),
+                SizedBox(width: 8),
+                Text('Modifier le budget'),
+              ],
+            ),
+          )
           : const PopupMenuItem(
-              value: ExpensesModalAction.addBudget,
-              child: Row(
-                children: [
-                  Icon(Icons.add_circle_outline_rounded),
-                  SizedBox(width: 8),
-                  Text('Ajouter un budget'),
-                ],
-              ),
-            )
+            value: ExpensesModalAction.addBudget,
+            child: Row(
+              children: [
+                Icon(Icons.add_circle_outline_rounded),
+                SizedBox(width: 8),
+                Text('Ajouter un budget'),
+              ],
+            ),
+          ),
     ];
 
     if (hasBudget) {

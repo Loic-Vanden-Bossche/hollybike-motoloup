@@ -34,16 +34,14 @@ class ImageGalleryPageView extends StatefulWidget {
 }
 
 class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
-  late final controller = PageController(
-    initialPage: widget.imageIndex,
-  );
+  late final controller = PageController(initialPage: widget.imageIndex);
 
   late int currentPage = widget.imageIndex;
 
   bool isZoomed = false;
   bool modalOpened = false;
 
-  get currentImage {
+  EventImage? get currentImage {
     try {
       return widget.images[currentPage];
     } catch (e) {
@@ -67,9 +65,7 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
     final currentImage = this.currentImage;
 
     if (currentImage == null) {
-      return Container(
-        color: Colors.black,
-      );
+      return Container(color: Colors.black);
     }
 
     return BlocListener<EventImageDetailsBloc, EventImageDetailsState>(
@@ -107,18 +103,18 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
             }
           },
           controller: controller,
-          physics: isZoomed || modalOpened
-              ? const NeverScrollableScrollPhysics()
-              : const AlwaysScrollableScrollPhysics(),
+          physics:
+              isZoomed || modalOpened
+                  ? const NeverScrollableScrollPhysics()
+                  : const AlwaysScrollableScrollPhysics(),
           itemCount: widget.images.length,
           itemBuilder: (context, index) {
             final image = widget.images[index];
 
-            final hero = index == currentPage
-                ? PhotoViewHeroAttributes(
-                    tag: 'event_image_${image.id}',
-                  )
-                : null;
+            final hero =
+                index == currentPage
+                    ? PhotoViewHeroAttributes(tag: 'event_image_${image.id}')
+                    : null;
 
             return PhotoView(
               initialScale: PhotoViewComputedScale.contained,
@@ -137,9 +133,7 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
                 return Center(
                   child: Container(
                     color: Colors.black,
-                    child: const Center(
-                      child: CircularProgressIndicator(),
-                    ),
+                    child: const Center(child: CircularProgressIndicator()),
                   ),
                 );
               },
@@ -149,9 +143,7 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
                   child: const Center(
                     child: Text(
                       'Une erreur est survenue lors du chargement de l\'image',
-                      style: TextStyle(
-                        color: Colors.white,
-                      ),
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 );

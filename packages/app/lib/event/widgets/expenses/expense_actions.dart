@@ -64,11 +64,7 @@ class ExpenseActions extends StatelessWidget {
       const PopupMenuItem(
         value: ExpenseAction.delete,
         child: Row(
-          children: [
-            Icon(Icons.delete),
-            SizedBox(width: 8),
-            Text('Supprimer'),
-          ],
+          children: [Icon(Icons.delete), SizedBox(width: 8), Text('Supprimer')],
         ),
       ),
     ]);
@@ -91,11 +87,7 @@ class ExpenseActions extends StatelessWidget {
   }
 
   void _onDelete(BuildContext context) {
-    context.read<EventExpensesBloc>().add(
-          DeleteExpense(
-            expenseId: expense.id,
-          ),
-        );
+    context.read<EventExpensesBloc>().add(DeleteExpense(expenseId: expense.id));
   }
 
   void _onAddProof(BuildContext context) {
@@ -122,10 +114,7 @@ class ExpenseActions extends StatelessWidget {
     showDialog(
       context: context,
       builder: (_) {
-        return ProofViewModal(
-          expenseId: expense.id,
-          proof: expense.proof!,
-        );
+        return ProofViewModal(expenseId: expense.id, proof: expense.proof!);
       },
     );
   }

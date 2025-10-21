@@ -21,13 +21,18 @@ class UserEvents extends StatelessWidget {
     return BlocProvidedBuilder<ProfileBloc, ProfileState>(
       builder: (context, bloc, state) {
         final currentProfile = bloc.currentProfile;
-        if (currentProfile is! ProfileLoadSuccessEvent) return const Text("loading");
+        if (currentProfile is! ProfileLoadSuccessEvent) {
+          return const Text("loading");
+        }
 
         return BlocProvider<UserEventsBloc>(
-          create: (context) => UserEventsBloc(
-            eventRepository: RepositoryProvider.of<EventRepository>(context),
-            userId: currentProfile.profile.id,
-          )..add(SubscribeToEvents()),
+          create:
+              (context) => UserEventsBloc(
+                eventRepository: RepositoryProvider.of<EventRepository>(
+                  context,
+                ),
+                userId: currentProfile.profile.id,
+              )..add(SubscribeToEvents()),
           child: Builder(
             builder: (context) {
               return EventsListFragment<UserEventsBloc>(
@@ -43,15 +48,11 @@ class UserEvents extends StatelessWidget {
   }
 
   void _loadNextPage(BuildContext context) {
-    context.read<UserEventsBloc>().add(
-          LoadEventsNextPage(),
-        );
+    context.read<UserEventsBloc>().add(LoadEventsNextPage());
   }
 
   Future<void> _refreshEvents(BuildContext context) {
-    context.read<UserEventsBloc>().add(
-          RefreshUserEvents(),
-        );
+    context.read<UserEventsBloc>().add(RefreshUserEvents());
 
     return context.read<UserEventsBloc>().firstWhenNotLoading;
   }

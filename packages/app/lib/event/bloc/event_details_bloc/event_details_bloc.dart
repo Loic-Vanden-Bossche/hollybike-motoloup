@@ -22,9 +22,9 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     required EventRepository eventRepository,
     required EventParticipationRepository eventParticipationRepository,
     required this.eventId,
-  })  : _eventRepository = eventRepository,
-        _eventParticipationRepository = eventParticipationRepository,
-        super(const EventDetailsState()) {
+  }) : _eventRepository = eventRepository,
+       _eventParticipationRepository = eventParticipationRepository,
+       super(const EventDetailsState()) {
     on<SubscribeToEvent>(_onSubscribeToEvent);
     on<LoadEventDetails>(_onLoadEventDetails);
     on<PublishEvent>(_onPublishEvent);
@@ -45,10 +45,9 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
   ) async {
     await emit.forEach<StreamValue<EventDetails?, void>>(
       _eventRepository.eventDetailsStream(eventId),
-      onData: (data) => EventDetailsState(
-        eventDetails: data.value,
-        status: state.status,
-      ),
+      onData:
+          (data) =>
+              EventDetailsState(eventDetails: data.value, status: state.status),
     );
   }
 
@@ -62,10 +61,12 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
       await _eventRepository.fetchEventDetails(eventId);
     } catch (e) {
       log('Error while loading event details', error: e);
-      emit(EventDetailsLoadFailure(
-        state,
-        errorMessage: 'Impossible de charger les détails de l\'évènement',
-      ));
+      emit(
+        EventDetailsLoadFailure(
+          state,
+          errorMessage: 'Impossible de charger les détails de l\'évènement',
+        ),
+      );
     }
   }
 
@@ -78,16 +79,15 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     try {
       await _eventRepository.publishEvent(eventId);
 
-      emit(EventOperationSuccess(
-        state,
-        successMessage: 'Évènement publié',
-      ));
+      emit(EventOperationSuccess(state, successMessage: 'Évènement publié'));
     } catch (e) {
       log('Error while publishing event', error: e);
-      emit(EventOperationFailure(
-        state,
-        errorMessage: 'Impossible de publier l\'évènement',
-      ));
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible de publier l\'évènement',
+        ),
+      );
     }
   }
 
@@ -106,16 +106,15 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
         ),
       );
 
-      emit(EventOperationSuccess(
-        state,
-        successMessage: 'Évènement modifié',
-      ));
+      emit(EventOperationSuccess(state, successMessage: 'Évènement modifié'));
     } catch (e) {
       log('Error while editing event', error: e);
-      emit(EventOperationFailure(
-        state,
-        errorMessage: 'Impossible de modifier l\'évènement',
-      ));
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible de modifier l\'évènement',
+        ),
+      );
     }
   }
 
@@ -128,16 +127,20 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     try {
       await _eventRepository.joinEvent(eventId);
 
-      emit(EventOperationSuccess(
-        state,
-        successMessage: 'Vous avez rejoint l\'évènement',
-      ));
+      emit(
+        EventOperationSuccess(
+          state,
+          successMessage: 'Vous avez rejoint l\'évènement',
+        ),
+      );
     } catch (e) {
       log('Error while publishing event', error: e);
-      emit(EventOperationFailure(
-        state,
-        errorMessage: 'Impossible de rejoindre l\'évènement',
-      ));
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible de rejoindre l\'évènement',
+        ),
+      );
     }
   }
 
@@ -150,18 +153,22 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     try {
       await _eventRepository.leaveEvent(eventId);
 
-      emit(EventOperationSuccess(
-        state,
-        successMessage: 'Vous avez quitté l\'évènement',
-      ));
+      emit(
+        EventOperationSuccess(
+          state,
+          successMessage: 'Vous avez quitté l\'évènement',
+        ),
+      );
 
       emit(LeaveEventSuccess(state));
     } catch (e) {
       log('Error while leaving event', error: e);
-      emit(EventOperationFailure(
-        state,
-        errorMessage: 'Impossible de quitter l\'évènement',
-      ));
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible de quitter l\'évènement',
+        ),
+      );
     }
   }
 
@@ -177,10 +184,12 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
       emit(DeleteEventSuccess(state));
     } catch (e) {
       log('Error while deleting event', error: e);
-      emit(DeleteEventFailure(
-        state,
-        errorMessage: 'Impossible de supprimer l\'évènement',
-      ));
+      emit(
+        DeleteEventFailure(
+          state,
+          errorMessage: 'Impossible de supprimer l\'évènement',
+        ),
+      );
     }
   }
 
@@ -193,16 +202,15 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     try {
       await _eventRepository.cancelEvent(eventId);
 
-      emit(EventOperationSuccess(
-        state,
-        successMessage: 'Évènement annulé',
-      ));
+      emit(EventOperationSuccess(state, successMessage: 'Évènement annulé'));
     } catch (e) {
       log('Error while canceling event', error: e);
-      emit(EventOperationFailure(
-        state,
-        errorMessage: 'Impossible d\'annuler l\'évènement',
-      ));
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible d\'annuler l\'évènement',
+        ),
+      );
     }
   }
 
@@ -215,16 +223,15 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     try {
       await _eventRepository.terminateUserJourney(eventId);
 
-      emit(EventOperationSuccess(
-        state,
-        successMessage: 'Trajet terminé',
-      ));
+      emit(EventOperationSuccess(state, successMessage: 'Trajet terminé'));
     } catch (e) {
       log('Error while terminating user journey', error: e);
-      emit(EventOperationFailure(
-        state,
-        errorMessage: 'Impossible de terminer le trajet',
-      ));
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible de terminer le trajet',
+        ),
+      );
     }
   }
 
@@ -246,10 +253,12 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
       emit(UserJourneyReset(state));
     } catch (e) {
       log('Error while resetting user journey', error: e);
-      emit(EventOperationFailure(
-        state,
-        errorMessage: 'Impossible de réinitialiser le trajet',
-      ));
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible de réinitialiser le trajet',
+        ),
+      );
     }
   }
 
@@ -267,25 +276,21 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
   Future<void> _onUploadEventImage(
     UploadEventImage event,
     Emitter<EventDetailsState> emit,
-      ) async {
+  ) async {
     emit(EventOperationInProgress(state));
 
     try {
-      await _eventRepository.uploadEventImage(
-        eventId,
-        event.imageFile,
-      );
+      await _eventRepository.uploadEventImage(eventId, event.imageFile);
 
-      emit(EventOperationSuccess(
-        state,
-        successMessage: 'Image mise à jour',
-      ));
+      emit(EventOperationSuccess(state, successMessage: 'Image mise à jour'));
     } catch (e) {
       log('Error while uploading event image', error: e);
-      emit(EventOperationFailure(
-        state,
-        errorMessage: 'Impossible d\'ajouter l\'image',
-      ));
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible d\'ajouter l\'image',
+        ),
+      );
     }
   }
 }

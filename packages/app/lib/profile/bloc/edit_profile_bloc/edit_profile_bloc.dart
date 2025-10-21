@@ -13,9 +13,8 @@ import 'package:hollybike/profile/services/profile_repository.dart';
 class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
   final ProfileRepository profileRepository;
 
-  EditProfileBloc({
-    required this.profileRepository,
-  }) : super(EditProfileInitial()) {
+  EditProfileBloc({required this.profileRepository})
+    : super(EditProfileInitial()) {
     on<SaveProfileChanges>(_onSaveProfileChanges);
     on<ChangeProfilePassword>(_onChangeProfilePassword);
     on<ResetPassword>(_onResetPassword);
@@ -35,15 +34,11 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
       );
 
       profileRepository.invalidateCurrentProfile();
-      emit(EditProfileLoadSuccess(
-        state,
-        successMessage: 'Profil mis à jour.',
-      ));
+      emit(EditProfileLoadSuccess(state, successMessage: 'Profil mis à jour.'));
     } catch (e) {
-      emit(EditProfileLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EditProfileLoadFailure(state, errorMessage: 'Une erreur est survenue.'),
+      );
     }
   }
 
@@ -68,18 +63,19 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     } catch (e) {
       if (e is DioException) {
         if (e.response?.statusCode == 401) {
-          emit(EditProfileLoadFailure(
-            state,
-            errorMessage: 'Mot de passe incorrect.',
-          ));
+          emit(
+            EditProfileLoadFailure(
+              state,
+              errorMessage: 'Mot de passe incorrect.',
+            ),
+          );
           return;
         }
       }
 
-      emit(EditProfileLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EditProfileLoadFailure(state, errorMessage: 'Une erreur est survenue.'),
+      );
     }
   }
 
@@ -90,16 +86,9 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
     emit(ResetPasswordInProgress(state));
 
     try {
-      await profileRepository.resetPassword(
-        event.email,
-        host: event.host,
-      );
+      await profileRepository.resetPassword(event.email, host: event.host);
 
-      emit(
-        ResetPasswordSuccess(
-          state,
-        ),
-      );
+      emit(ResetPasswordSuccess(state));
     } catch (e) {
       if (e is DioException) {
         if (e.response?.statusCode == 503) {
@@ -109,10 +98,9 @@ class EditProfileBloc extends Bloc<EditProfileEvent, EditProfileState> {
         }
       }
 
-      emit(ResetPasswordFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        ResetPasswordFailure(state, errorMessage: 'Une erreur est survenue.'),
+      );
     }
   }
 }

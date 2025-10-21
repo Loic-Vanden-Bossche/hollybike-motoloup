@@ -59,9 +59,7 @@ class JourneyLibraryCard extends StatelessWidget {
                         ],
                       ),
                     ),
-                    const SizedBox(
-                      width: 12,
-                    ),
+                    const SizedBox(width: 12),
                     Expanded(
                       flex: 2,
                       child: ClipRRect(
@@ -75,10 +73,8 @@ class JourneyLibraryCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(
-                height: 12,
-              ),
-              JourneyLocation(journey: journey.toMinimalJourney())
+              const SizedBox(height: 12),
+              JourneyLocation(journey: journey.toMinimalJourney()),
             ],
           ),
         ),

@@ -23,12 +23,13 @@ class Hud extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: appBar == null
-          ? null
-          : PreferredSize(
-              preferredSize: const Size.fromHeight(60),
-              child: Center(child: appBar as Widget),
-            ),
+      appBar:
+          appBar == null
+              ? null
+              : PreferredSize(
+                preferredSize: const Size.fromHeight(60),
+                child: Center(child: appBar as Widget),
+              ),
       floatingActionButton: floatingActionButton,
       body: Column(
         children: <Widget>[
@@ -39,7 +40,7 @@ class Hud extends StatelessWidget {
               bottom: true,
               child: body ?? Container(),
             ),
-          )
+          ),
         ],
       ),
       bottomNavigationBar: displayNavBar ? const BottomBar() : null,

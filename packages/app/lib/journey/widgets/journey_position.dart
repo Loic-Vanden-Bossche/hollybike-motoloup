@@ -10,11 +10,7 @@ class JourneyPosition extends StatelessWidget {
   final bool isLarge;
   final Position pos;
 
-  const JourneyPosition({
-    super.key,
-    this.isLarge = false,
-    required this.pos,
-  });
+  const JourneyPosition({super.key, this.isLarge = false, required this.pos});
 
   @override
   Widget build(BuildContext context) {
@@ -24,12 +20,7 @@ class JourneyPosition extends StatelessWidget {
 
     void addSpan(TextSpan span) {
       if (texts.isNotEmpty) {
-        texts.add(
-          TextSpan(
-            text: ", ",
-            style: textStyle,
-          ),
-        );
+        texts.add(TextSpan(text: ", ", style: textStyle));
       }
 
       texts.add(span);
@@ -40,24 +31,15 @@ class JourneyPosition extends StatelessWidget {
     final countryName = pos.countryName;
 
     if (cityName != null) {
-      addSpan(TextSpan(
-        text: cityName,
-        style: textStyle,
-      ));
+      addSpan(TextSpan(text: cityName, style: textStyle));
     }
 
     if (countyName != null) {
-      addSpan(TextSpan(
-        text: countyName,
-        style: textStyle,
-      ));
+      addSpan(TextSpan(text: countyName, style: textStyle));
     }
 
     if (countryName != null && countryName != "France") {
-      addSpan(TextSpan(
-        text: countryName,
-        style: textStyle,
-      ));
+      addSpan(TextSpan(text: countryName, style: textStyle));
     }
 
     if (texts.isEmpty) {
@@ -68,9 +50,7 @@ class JourneyPosition extends StatelessWidget {
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
       softWrap: true,
-      text: TextSpan(
-        children: texts,
-      ),
+      text: TextSpan(children: texts),
     );
   }
 

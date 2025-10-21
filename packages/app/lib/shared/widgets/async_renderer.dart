@@ -25,10 +25,13 @@ class AsyncRenderer<T> extends StatelessWidget {
 
     return FutureBuilder(
       future: future as Future<T>,
-      builder: (context, snapshot) => switch (snapshot) {
-        AsyncSnapshot<T>(data: final data) when data != null => builder(data),
-        _ => placeholder,
-      },
+      builder:
+          (context, snapshot) => switch (snapshot) {
+            AsyncSnapshot<T>(data: final data) when data != null => builder(
+              data,
+            ),
+            _ => placeholder,
+          },
     );
   }
 }

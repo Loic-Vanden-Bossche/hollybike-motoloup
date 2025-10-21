@@ -35,20 +35,20 @@ class ProfileRepository {
     profiles.remove(currentSession);
 
     if (profile is Profile && users.containsKey(currentSession)) {
-      users[currentSession] = users[currentSession]!
-          .where((user) => user.id != profile.id)
-          .toList();
+      users[currentSession] =
+          users[currentSession]!
+              .where((user) => user.id != profile.id)
+              .toList();
     }
 
-    _profileInvalidationStream
-        .add(ProfileIdentifier(session: currentSession, id: profile?.id));
+    _profileInvalidationStream.add(
+      ProfileIdentifier(session: currentSession, id: profile?.id),
+    );
   }
 
-  ProfileRepository({
-    required this.authPersistence,
-    required this.profileApi,
-  })  : profiles = {},
-        users = {};
+  ProfileRepository({required this.authPersistence, required this.profileApi})
+    : profiles = {},
+      users = {};
 
   FutureOr<Profile> getProfile(
     AuthSession session, {
@@ -95,11 +95,7 @@ class ProfileRepository {
     int eventsPerPage,
     String query,
   ) async {
-    return profileApi.searchUsers(
-      page ?? 0,
-      eventsPerPage,
-      query,
-    );
+    return profileApi.searchUsers(page ?? 0, eventsPerPage, query);
   }
 
   Future<Profile> updateMyProfile(
@@ -116,23 +112,11 @@ class ProfileRepository {
     return updatedProfile;
   }
 
-  Future<void> updateMyPassword(
-    String oldPassword,
-    String newPassword,
-  ) {
-    return profileApi.updatePassword(
-      oldPassword,
-      newPassword,
-    );
+  Future<void> updateMyPassword(String oldPassword, String newPassword) {
+    return profileApi.updatePassword(oldPassword, newPassword);
   }
 
-  Future<void> resetPassword(
-    String email,
-  {String? host}
-  ) {
-    return profileApi.resetPassword(
-      email,
-      host: host,
-    );
+  Future<void> resetPassword(String email, {String? host}) {
+    return profileApi.resetPassword(email, host: host);
   }
 }

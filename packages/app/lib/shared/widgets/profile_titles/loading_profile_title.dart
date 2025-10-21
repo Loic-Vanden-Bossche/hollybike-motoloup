@@ -11,17 +11,19 @@ class LoadingProfileTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ProfileTitleContainer(children: [
-      TextLoadingPlaceholder(
-        textStyle: Theme.of(context).textTheme.titleSmall,
-        minLetters: 4,
-        maxLetters: 12,
-      ),
-      TextLoadingPlaceholder(
-        textStyle: Theme.of(context).textTheme.bodySmall,
-        minLetters: 13,
-        maxLetters: 25,
-      ),
-    ]);
+    return ProfileTitleContainer(
+      children: [
+        TextLoadingPlaceholder(
+          textStyle: Theme.of(context).textTheme.titleSmall,
+          minLetters: 4,
+          maxLetters: 12,
+        ),
+        TextLoadingPlaceholder(
+          textStyle: Theme.of(context).textTheme.bodySmall,
+          minLetters: 13,
+          maxLetters: 25,
+        ),
+      ],
+    );
   }
 }

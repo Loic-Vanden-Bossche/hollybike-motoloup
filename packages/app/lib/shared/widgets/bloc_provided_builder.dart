@@ -14,11 +14,7 @@ class BlocProvidedBuilder<B extends StateStreamable<S>, S>
   @override
   Widget build(BuildContext context) {
     return BlocBuilder<B, S>(
-      builder: (context, state) => builder(
-        context,
-        context.read<B>(),
-        state,
-      ),
+      builder: (context, state) => builder(context, context.read<B>(), state),
     );
   }
 }

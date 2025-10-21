@@ -47,10 +47,7 @@ class _EventFormState extends State<EventForm> {
 
   final ScrollController _scrollController = ScrollController();
 
-  var _dateRange = DateTimeRange(
-    start: DateTime.now(),
-    end: DateTime.now(),
-  );
+  var _dateRange = DateTimeRange(start: DateTime.now(), end: DateTime.now());
   var _date = DateTime.now();
   var _startTime = TimeOfDay.now();
   var _endTime = TimeOfDay.now();
@@ -100,7 +97,7 @@ class _EventFormState extends State<EventForm> {
                 _onSubmit();
               },
               child: Text(widget.submitButtonText),
-            )
+            ),
           ],
         ),
         Flexible(
@@ -108,10 +105,7 @@ class _EventFormState extends State<EventForm> {
             controller: _scrollController,
             scrollDirection: Axis.vertical,
             child: Padding(
-              padding: const EdgeInsets.only(
-                bottom: 15,
-                top: 12,
-              ),
+              padding: const EdgeInsets.only(bottom: 15, top: 12),
               child: Form(
                 key: _formKey,
                 child: Column(
@@ -167,10 +161,7 @@ class _EventFormState extends State<EventForm> {
 
     final localEndDate = endDate.toLocal();
 
-    _dateRange = DateTimeRange(
-      start: _date,
-      end: localEndDate,
-    );
+    _dateRange = DateTimeRange(start: _date, end: localEndDate);
 
     _startTime = TimeOfDay.fromDateTime(_date);
     _endTime = TimeOfDay.fromDateTime(localEndDate);
@@ -181,15 +172,10 @@ class _EventFormState extends State<EventForm> {
       _date = DateTime.now().add(const Duration(days: 1));
       _startTime = const TimeOfDay(hour: 8, minute: 30);
     } else {
-      _startTime = _startTime.replacing(
-        hour: DateTime.now().hour + 1,
-      );
+      _startTime = _startTime.replacing(hour: DateTime.now().hour + 1);
     }
 
-    _dateRange = DateTimeRange(
-      start: _date,
-      end: _date,
-    );
+    _dateRange = DateTimeRange(start: _date, end: _date);
 
     _endTime = _startTime.replacing(hour: _startTime.hour + 1);
   }
@@ -215,10 +201,7 @@ class _EventFormState extends State<EventForm> {
 
     setState(() {
       _date = date;
-      _dateRange = DateTimeRange(
-        start: date,
-        end: date,
-      );
+      _dateRange = DateTimeRange(start: date, end: date);
     });
   }
 
@@ -286,9 +269,10 @@ class _EventFormState extends State<EventForm> {
 
   void _onSubmit() {
     if (_formKey.currentState!.validate()) {
-      final description = _descriptionController.text.isNotEmpty
-          ? _descriptionController.text
-          : null;
+      final description =
+          _descriptionController.text.isNotEmpty
+              ? _descriptionController.text
+              : null;
 
       final initialData = widget.initialData;
 
@@ -306,12 +290,13 @@ class _EventFormState extends State<EventForm> {
           return;
         }
 
-        final endDate = _selectEndDate
-            ? _dateRange.end.copyWith(
-          hour: _endTime.hour,
-          minute: _endTime.minute,
-        )
-            : null;
+        final endDate =
+            _selectEndDate
+                ? _dateRange.end.copyWith(
+                  hour: _endTime.hour,
+                  minute: _endTime.minute,
+                )
+                : null;
 
         if (endDate != null && endDate.isBefore(startDate)) {
           showEventDateWarningDialog(
@@ -374,10 +359,7 @@ class _EventFormState extends State<EventForm> {
       children: [
         SizedBox(
           width: 180,
-          child: EventDateInput(
-            date: _date,
-            onDateChanged: _onDateChanged,
-          ),
+          child: EventDateInput(date: _date, onDateChanged: _onDateChanged),
         ),
         EventTimeInput(
           label: "Heure",

@@ -13,9 +13,6 @@ class BannerDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DialogContainer(
-      head: const AppBanner(),
-      body: body,
-    );
+    return DialogContainer(head: const AppBanner(), body: body);
   }
 }

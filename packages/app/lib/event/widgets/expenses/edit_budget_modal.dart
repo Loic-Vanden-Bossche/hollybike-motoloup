@@ -9,9 +9,7 @@ class EditBudgetModal extends StatefulWidget {
   final bool addMode;
   final int? budget;
 
-  final void Function(
-    int budget,
-  ) onBudgetChange;
+  final void Function(int budget) onBudgetChange;
 
   const EditBudgetModal({
     super.key,
@@ -29,9 +27,7 @@ class _EditBudgetModalState extends State<EditBudgetModal> {
 
   @override
   void initState() {
-    _budgetController = TextEditingController(
-      text: _getDefaultBudget(),
-    );
+    _budgetController = TextEditingController(text: _getDefaultBudget());
     super.initState();
   }
 
@@ -61,9 +57,7 @@ class _EditBudgetModalState extends State<EditBudgetModal> {
 
     return AlertDialog(
       backgroundColor: Theme.of(context).colorScheme.primary,
-      title: Text(
-        widget.addMode ? 'Ajouter un budget' : 'Modifier le budget',
-      ),
+      title: Text(widget.addMode ? 'Ajouter un budget' : 'Modifier le budget'),
       content: Form(
         key: formKey,
         child: Column(
@@ -98,9 +92,7 @@ class _EditBudgetModalState extends State<EditBudgetModal> {
               _budgetController.text.replaceAll(RegExp(r'[^0-9]'), ''),
             );
 
-            widget.onBudgetChange(
-              (budget / 100).round(),
-            );
+            widget.onBudgetChange((budget / 100).round());
 
             Navigator.of(context).pop();
           },

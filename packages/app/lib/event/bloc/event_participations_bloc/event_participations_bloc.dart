@@ -41,9 +41,7 @@ class EventParticipationBloc
   ) async {
     await emit.forEach<StreamValue<List<EventParticipation>, void>>(
       eventParticipationsRepository.participationsStream(eventId),
-      onData: (data) => state.copyWith(
-        participants: data.value,
-      ),
+      onData: (data) => state.copyWith(participants: data.value),
     );
   }
 
@@ -61,21 +59,27 @@ class EventParticipationBloc
     try {
       PaginatedList<EventParticipation> page =
           await eventParticipationsRepository.fetchParticipations(
-        eventId,
-        state.nextPage,
-        numberOfParticipationsPerRequest,
-      );
+            eventId,
+            state.nextPage,
+            numberOfParticipationsPerRequest,
+          );
 
-      emit(EventParticipationsPageLoadSuccess(state.copyWith(
-        hasMore: page.items.length == numberOfParticipationsPerRequest,
-        nextPage: state.nextPage + 1,
-      )));
+      emit(
+        EventParticipationsPageLoadSuccess(
+          state.copyWith(
+            hasMore: page.items.length == numberOfParticipationsPerRequest,
+            nextPage: state.nextPage + 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while loading next page of events', error: e);
-      emit(EventParticipationsPageLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventParticipationsPageLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -84,32 +88,40 @@ class EventParticipationBloc
     RefreshEventParticipations event,
     Emitter<EventParticipationsState> emit,
   ) async {
-    final participants = state.participants.isEmpty
-        ? event.participationPreview
-        : state.participants;
+    final participants =
+        state.participants.isEmpty
+            ? event.participationPreview
+            : state.participants;
 
-    emit(EventParticipationsPageLoadInProgress(
-        EventParticipationsInitial().copyWith(
-      participants: participants,
-    )));
+    emit(
+      EventParticipationsPageLoadInProgress(
+        EventParticipationsInitial().copyWith(participants: participants),
+      ),
+    );
 
     try {
       PaginatedList<EventParticipation> page =
           await eventParticipationsRepository.refreshParticipations(
-        eventId,
-        numberOfParticipationsPerRequest,
-      );
+            eventId,
+            numberOfParticipationsPerRequest,
+          );
 
-      emit(EventParticipationsPageLoadSuccess(state.copyWith(
-        hasMore: page.items.length == numberOfParticipationsPerRequest,
-        nextPage: 1,
-      )));
+      emit(
+        EventParticipationsPageLoadSuccess(
+          state.copyWith(
+            hasMore: page.items.length == numberOfParticipationsPerRequest,
+            nextPage: 1,
+          ),
+        ),
+      );
     } catch (e) {
       log('Error while refreshing events', error: e);
-      emit(EventParticipationsPageLoadFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventParticipationsPageLoadFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -126,14 +138,20 @@ class EventParticipationBloc
         event.userId,
       );
 
-      emit(EventParticipationsOperationSuccess(state,
-          successMessage: 'Participant promu.'));
+      emit(
+        EventParticipationsOperationSuccess(
+          state,
+          successMessage: 'Participant promu.',
+        ),
+      );
     } catch (e) {
       log('Error while promoting participant', error: e);
-      emit(EventParticipationsOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventParticipationsOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -150,14 +168,20 @@ class EventParticipationBloc
         event.userId,
       );
 
-      emit(EventParticipationsOperationSuccess(state,
-          successMessage: 'Participant rétrogradé.'));
+      emit(
+        EventParticipationsOperationSuccess(
+          state,
+          successMessage: 'Participant rétrogradé.',
+        ),
+      );
     } catch (e) {
       log('Error while demoting participant', error: e);
-      emit(EventParticipationsOperationFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventParticipationsOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }
@@ -179,10 +203,12 @@ class EventParticipationBloc
       emit(EventParticipationsDeleted(state));
     } catch (e) {
       log('Error while removing participant', error: e);
-      emit(EventParticipationsDeletionFailure(
-        state,
-        errorMessage: 'Une erreur est survenue.',
-      ));
+      emit(
+        EventParticipationsDeletionFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
       return;
     }
   }

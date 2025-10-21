@@ -10,6 +10,7 @@ abstract class ProfileEvent {
 }
 
 class SubscribeToCurrentSessionChange extends ProfileEvent {}
+
 class SubscribeToInvalidatedProfiles extends ProfileEvent {}
 
 extension ProfileEventOperations<T extends ProfileEvent> on List<T> {
@@ -20,7 +21,7 @@ extension ProfileEventOperations<T extends ProfileEvent> on List<T> {
     return null;
   }
 
-  copyUpdatedFromNullable(T? profileEvent) {
+  List<T> copyUpdatedFromNullable(T? profileEvent) {
     final copy = [...this];
     if (profileEvent == null) return copy;
 

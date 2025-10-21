@@ -15,7 +15,8 @@ sealed class WeatherForecastResponse with _$WeatherForecastResponse {
     @JsonKey(name: 'generationtime_ms') required double generationTimeMs,
     @JsonKey(name: 'utc_offset_seconds') required int utcOffsetSeconds,
     required String timezone,
-    @JsonKey(name: 'timezone_abbreviation') required String timezoneAbbreviation,
+    @JsonKey(name: 'timezone_abbreviation')
+    required String timezoneAbbreviation,
     required double elevation,
     @JsonKey(name: 'hourly_units') required HourlyUnits hourlyUnits,
     required Hourly hourly,
@@ -23,7 +24,8 @@ sealed class WeatherForecastResponse with _$WeatherForecastResponse {
     required Daily daily,
   }) = _WeatherForecastResponse;
 
-  factory WeatherForecastResponse.fromJson(Map<String, dynamic> json) => _$WeatherForecastResponseFromJson(json);
+  factory WeatherForecastResponse.fromJson(Map<String, dynamic> json) =>
+      _$WeatherForecastResponseFromJson(json);
 }
 
 @freezed
@@ -34,7 +36,8 @@ sealed class HourlyUnits with _$HourlyUnits {
     @JsonKey(name: 'weather_code') required String weatherCode,
   }) = _HourlyUnits;
 
-  factory HourlyUnits.fromJson(Map<String, dynamic> json) => _$HourlyUnitsFromJson(json);
+  factory HourlyUnits.fromJson(Map<String, dynamic> json) =>
+      _$HourlyUnitsFromJson(json);
 }
 
 @freezed
@@ -59,7 +62,8 @@ sealed class DailyUnits with _$DailyUnits {
     @JsonKey(name: 'sunset') required String sunset,
   }) = _DailyUnits;
 
-  factory DailyUnits.fromJson(Map<String, dynamic> json) => _$DailyUnitsFromJson(json);
+  factory DailyUnits.fromJson(Map<String, dynamic> json) =>
+      _$DailyUnitsFromJson(json);
 }
 
 @freezed
@@ -67,8 +71,10 @@ sealed class Daily with _$Daily {
   const factory Daily({
     required List<String> time,
     @JsonKey(name: 'weather_code') required List<int?> weatherCode,
-    @JsonKey(name: 'temperature_2m_max') required List<double?> temperature2mMax,
-    @JsonKey(name: 'temperature_2m_min') required List<double?> temperature2mMin,
+    @JsonKey(name: 'temperature_2m_max')
+    required List<double?> temperature2mMax,
+    @JsonKey(name: 'temperature_2m_min')
+    required List<double?> temperature2mMin,
     @JsonKey(name: 'sunrise') required List<String?> sunrise,
     @JsonKey(name: 'sunset') required List<String?> sunset,
   }) = _Daily;

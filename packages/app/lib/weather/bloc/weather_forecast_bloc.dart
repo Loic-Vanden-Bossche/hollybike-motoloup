@@ -33,9 +33,10 @@ class WeatherForecastBloc
   ) async {
     emit(WeatherForecastLoading(state));
     try {
-      final startDate = this.startDate.isBefore(DateTime.now())
-          ? DateTime.now()
-          : this.startDate;
+      final startDate =
+          this.startDate.isBefore(DateTime.now())
+              ? DateTime.now()
+              : this.startDate;
 
       DateTime endDate = this.endDate ?? startDate;
 
@@ -59,9 +60,11 @@ class WeatherForecastBloc
         return;
       }
 
-      emit(WeatherForecastSuccess(
-        state.copyWith(weatherForecast: groupedWeatherForecast),
-      ));
+      emit(
+        WeatherForecastSuccess(
+          state.copyWith(weatherForecast: groupedWeatherForecast),
+        ),
+      );
     } catch (e) {
       log('error occurred', error: e);
       emit(WeatherForecastFailure(state, errorMessage: e.toString()));

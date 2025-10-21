@@ -14,9 +14,10 @@ class LoginDto {
     const String emailKey = "email";
     const String passwordKey = "password";
 
-    final missingValues = [emailKey, passwordKey].where(
-      (keyName) => map[keyName] == null,
-    );
+    final missingValues = [
+      emailKey,
+      passwordKey,
+    ].where((keyName) => map[keyName] == null);
     if (missingValues.isNotEmpty) {
       const String separator = "\n- ";
       final List<String> prefix = [
@@ -32,9 +33,6 @@ class LoginDto {
   }
 
   Object asJson() {
-    return json.encode({
-      "email": email,
-      "password": password,
-    });
+    return json.encode({"email": email, "password": password});
   }
 }

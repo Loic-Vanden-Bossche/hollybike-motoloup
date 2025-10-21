@@ -42,18 +42,12 @@ class EventDetailsMyImages extends StatelessWidget {
           BlocListener<EventMyImagesBloc, ImageListState>(
             listener: (context, state) {
               if (state is ImageListOperationFailure) {
-                Toast.showErrorToast(
-                  context,
-                  state.errorMessage,
-                );
+                Toast.showErrorToast(context, state.errorMessage);
               }
 
               if (state is ImageListOperationSuccess) {
                 if (state.successMessage != null) {
-                  Toast.showSuccessToast(
-                    context,
-                    state.successMessage!,
-                  );
+                  Toast.showSuccessToast(context, state.successMessage!);
                 }
 
                 if (state.shouldRefresh) {
@@ -112,9 +106,7 @@ class EventDetailsMyImages extends StatelessWidget {
                       child: Row(
                         mainAxisSize: MainAxisSize.min,
                         children: [
-                          Flexible(
-                            child: _buildVisibilityText(context),
-                          ),
+                          Flexible(child: _buildVisibilityText(context)),
                           const SizedBox(width: 7),
                           _buildVisibilityIcon(context),
                         ],
@@ -155,17 +147,17 @@ class EventDetailsMyImages extends StatelessWidget {
   Widget _buildVisibilityText(BuildContext context) {
     return Text(
       isImagesPublic ? "Vos images sont publiques" : "Vos images sont privées",
-      style: Theme.of(context)
-          .textTheme
-          .titleSmall
-          ?.copyWith(color: Theme.of(context).colorScheme.onPrimary),
+      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+        color: Theme.of(context).colorScheme.onPrimary,
+      ),
     );
   }
 
   Widget _buildPlaceholder(BuildContext context) {
-    final message = isParticipating
-        ? "Vous n'avez ajouté aucune photo"
-        : "Vous devez participer à l'évènement ajouter des photos";
+    final message =
+        isParticipating
+            ? "Vous n'avez ajouté aucune photo"
+            : "Vous devez participer à l'évènement ajouter des photos";
 
     final widgets = <Widget>[
       Lottie.asset(
@@ -174,10 +166,7 @@ class EventDetailsMyImages extends StatelessWidget {
         repeat: false,
         height: 150,
       ),
-      Text(
-        message,
-        textAlign: TextAlign.center,
-      ),
+      Text(message, textAlign: TextAlign.center),
     ];
 
     if (!isParticipating) {
@@ -190,29 +179,20 @@ class EventDetailsMyImages extends StatelessWidget {
       ]);
     }
 
-    return Column(
-      mainAxisSize: MainAxisSize.min,
-      children: widgets,
-    );
+    return Column(mainAxisSize: MainAxisSize.min, children: widgets);
   }
 
   Future<void> _refreshImages(BuildContext context) {
-    context.read<EventMyImagesBloc>().add(
-          RefreshMyEventImages(),
-        );
+    context.read<EventMyImagesBloc>().add(RefreshMyEventImages());
 
     return context.read<EventMyImagesBloc>().firstWhenNotLoading;
   }
 
   void _loadNextPage(BuildContext context) {
-    context.read<EventMyImagesBloc>().add(
-          LoadMyEventImagesNextPage(),
-        );
+    context.read<EventMyImagesBloc>().add(LoadMyEventImagesNextPage());
   }
 
   void _onJoin(BuildContext context) {
-    context.read<EventDetailsBloc>().add(
-          JoinEvent(),
-        );
+    context.read<EventDetailsBloc>().add(JoinEvent());
   }
 }

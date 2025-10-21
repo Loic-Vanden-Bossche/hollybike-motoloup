@@ -11,10 +11,8 @@ part 'update_profile.g.dart';
 
 @freezed
 sealed class UpdateProfile with _$UpdateProfile {
-  const factory UpdateProfile({
-    required String username,
-    String? role,
-  }) = _UpdateProfile;
+  const factory UpdateProfile({required String username, String? role}) =
+      _UpdateProfile;
 
   factory UpdateProfile.fromJson(JsonMap json) => _$UpdateProfileFromJson(json);
 }

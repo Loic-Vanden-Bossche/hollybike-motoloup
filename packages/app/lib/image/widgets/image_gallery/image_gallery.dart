@@ -66,9 +66,7 @@ class _ImageGalleryState extends State<ImageGallery> {
 
     if (widget.loading && widget.images.isEmpty) {
       return const SliverFillRemaining(
-        child: Center(
-          child: CircularProgressIndicator(),
-        ),
+        child: Center(child: CircularProgressIndicator()),
       );
     }
 
@@ -77,9 +75,7 @@ class _ImageGalleryState extends State<ImageGallery> {
         child: Column(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            widget.emptyPlaceholder,
-          ],
+          children: [widget.emptyPlaceholder],
         ),
       );
     }

@@ -73,74 +73,56 @@ class UserJourneyContent extends StatelessWidget {
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: addSeparators(
-                        [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.north_east_rounded,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 4),
-                              Text(
-                                '${existingJourney.totalElevationGain?.round()} m',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.terrain_rounded,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                '${existingJourney.maxElevation?.round()} m',
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ],
-                        const SizedBox(height: 3),
-                      ),
+                      children: addSeparators([
+                        Row(
+                          children: [
+                            const Icon(Icons.north_east_rounded, size: 20),
+                            const SizedBox(width: 4),
+                            Text(
+                              '${existingJourney.totalElevationGain?.round()} m',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.terrain_rounded, size: 20),
+                            const SizedBox(width: 5),
+                            Text(
+                              '${existingJourney.maxElevation?.round()} m',
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ], const SizedBox(height: 3)),
                     ),
                     const SizedBox(width: 16),
                     Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       crossAxisAlignment: CrossAxisAlignment.start,
-                      children: addSeparators(
-                        [
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.speed_rounded,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                existingJourney.maxSpeedLabel,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                          Row(
-                            children: [
-                              const Icon(
-                                Icons.gps_fixed_rounded,
-                                size: 20,
-                              ),
-                              const SizedBox(width: 5),
-                              Text(
-                                existingJourney.maxGForceLabel,
-                                style: Theme.of(context).textTheme.bodySmall,
-                              ),
-                            ],
-                          ),
-                        ],
-                        const SizedBox(height: 3),
-                      ),
-                    )
+                      children: addSeparators([
+                        Row(
+                          children: [
+                            const Icon(Icons.speed_rounded, size: 20),
+                            const SizedBox(width: 5),
+                            Text(
+                              existingJourney.maxSpeedLabel,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                        Row(
+                          children: [
+                            const Icon(Icons.gps_fixed_rounded, size: 20),
+                            const SizedBox(width: 5),
+                            Text(
+                              existingJourney.maxGForceLabel,
+                              style: Theme.of(context).textTheme.bodySmall,
+                            ),
+                          ],
+                        ),
+                      ], const SizedBox(height: 3)),
+                    ),
                   ],
                 ),
               ),
@@ -154,9 +136,10 @@ class UserJourneyContent extends StatelessWidget {
               borderRadius: BorderRadius.circular(14),
               onTap:
                   onJourneySelected == null ? () => showDetails(context) : null,
-              onTapDown: onJourneySelected != null
-                  ? (details) => showJourneyMenu(context, details)
-                  : null,
+              onTapDown:
+                  onJourneySelected != null
+                      ? (details) => showJourneyMenu(context, details)
+                      : null,
             ),
           ),
         ),
@@ -178,10 +161,7 @@ class UserJourneyContent extends StatelessWidget {
           value: 'select',
           child: Text('Sélectionner ce trajet'),
         ),
-        const PopupMenuItem(
-          value: 'details',
-          child: Text('Détails du trajet'),
-        ),
+        const PopupMenuItem(value: 'details', child: Text('Détails du trajet')),
       ],
     );
 

@@ -20,10 +20,7 @@ class EventJoinButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (isJoined) {
-      return const ElevatedButton(
-        onPressed: null,
-        child: Text("Déjà inscrit"),
-      );
+      return const ElevatedButton(onPressed: null, child: Text("Déjà inscrit"));
     }
 
     if (!canJoin) {

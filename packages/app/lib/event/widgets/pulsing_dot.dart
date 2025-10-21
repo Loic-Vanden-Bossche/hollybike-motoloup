@@ -8,11 +8,7 @@ class PulsingDot extends StatefulWidget {
   final double size;
   final Color color;
 
-  const PulsingDot({
-    super.key,
-    required this.size,
-    required this.color,
-  });
+  const PulsingDot({super.key, required this.size, required this.color});
 
   @override
   State<PulsingDot> createState() => _PulsingDotState();
@@ -32,14 +28,14 @@ class _PulsingDotState extends State<PulsingDot>
       duration: const Duration(milliseconds: 1500),
     )..repeat();
 
-    _scaleAnimation = Tween<double>(begin: 0, end: 1.2).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut,
-    ));
-    _fadeAnimation = Tween<double>(begin: 1, end: 0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeIn,
-    ));
+    _scaleAnimation = Tween<double>(
+      begin: 0,
+      end: 1.2,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeInOut));
+    _fadeAnimation = Tween<double>(
+      begin: 1,
+      end: 0,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeIn));
   }
 
   @override
@@ -67,11 +63,7 @@ class _PulsingDotState extends State<PulsingDot>
             ),
           ),
         ),
-        Icon(
-          Icons.circle,
-          size: widget.size,
-          color: widget.color,
-        )
+        Icon(Icons.circle, size: widget.size, color: widget.color),
       ],
     );
   }
