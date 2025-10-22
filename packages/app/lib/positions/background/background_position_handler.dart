@@ -42,9 +42,9 @@ class BackgroundPositionHandler {
 
       positionSub ??= Geolocator.getPositionStream(
         locationSettings: AndroidSettings(
-          accuracy: LocationAccuracy.bestForNavigation,
-          distanceFilter: 5,
-          intervalDuration: Duration(seconds: 1),
+          accuracy: LocationAccuracy.best,
+          distanceFilter: 10,
+          intervalDuration: Duration(seconds: 2),
           forceLocationManager: false,
         ),
       ).listen((Position position) async {
