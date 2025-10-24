@@ -1,28 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ExternalStorageConfigurationManager" enabled="true" />
   <component name="FrameworkDetectionExcludesConfiguration">
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/device_calendar-4.3.3/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/device_info_plus-11.3.3/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/device_info_plus-12.2.0/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-10.1.2/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/file_picker-10.3.3/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_background_service_android-6.3.0/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_background_service_android-6.3.1/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_displaymode-0.6.0/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_displaymode-0.7.0/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_downloader-1.12.0/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_image_compress_common-1.0.6/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_inappwebview_android-1.1.3/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_local_notifications-18.0.1/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_native_splash-2.4.6/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_native_splash-2.4.7/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.27/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/flutter_plugin_android_lifecycle-2.0.32/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/geolocator_android-5.0.1+1/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/geolocator_android-5.0.2/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.12+22/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.13+5/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/mapbox_maps_flutter-2.11.0/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/mapbox_maps_flutter-2.7.0/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/native_qr-0.0.3/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/package_info_plus-8.3.1/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.16/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/path_provider_android-2.2.20/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/permission_handler_android-13.0.1/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/photo_manager-3.6.4/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/photo_manager-3.7.1/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/sensors_plus-6.1.1/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/sensors_plus-7.0.0/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/share_plus-10.1.4/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/share_plus-12.0.1/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.4.15/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/shared_preferences_android-2.4.9/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/sqflite_android-2.4.1/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/sqflite_android-2.4.2+2/android" />
     <file type="web" url="file://$USER_HOME$/dev/flutter/packages/flutter_tools/gradle" />
     <file type="web" url="file://$PROJECT_DIR$/packages/app/android" />
     <file type="web" url="file://$PROJECT_DIR$/packages/backend" />

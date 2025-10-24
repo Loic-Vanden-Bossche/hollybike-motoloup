@@ -2,6 +2,24 @@ allprojects {
     repositories {
         google()
         mavenCentral()
+
+		allprojects {
+			repositories {
+				google()
+				mavenCentral()
+
+				maven {
+					url = uri("https://api.mapbox.com/downloads/v2/releases/maven")
+					credentials(PasswordCredentials::class) {
+						username = "mapbox"
+						password = providers
+							.gradleProperty("MAPBOX_DOWNLOADS_TOKEN")
+							.orElse(providers.environmentVariable("MAPBOX_DOWNLOADS_TOKEN"))
+							.get()
+					}
+				}
+			}
+		}
     }
 }
 
@@ -14,6 +32,16 @@ subprojects {
             }
         }
     }
+
+	configurations.configureEach {
+		resolutionStrategy.dependencySubstitution {
+			// Maps SDK
+			substitute(module("com.mapbox.maps:android"))
+				.using(module("com.mapbox.maps:android-ndk27:11.16.0"))
+			substitute(module("com.mapbox.maps:common"))
+				.using(module("com.mapbox.maps:common-ndk27:11.16.0"))
+		}
+	}
 }
 
 val newBuildDir: Directory = rootProject.layout.buildDirectory.dir("../../build").get()
