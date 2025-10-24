@@ -32,13 +32,13 @@ class JourneyToolsModal extends StatelessWidget {
     JourneyTool(
       name: 'Kurviger',
       icon: AssetImage('assets/images/journey_tools/kurviger.jpg'),
-      url: 'https://kurviger.de/fr',
+      url: 'https://kurviger.com/fr/plan',
       description: 'Planificateur de parcours pour les motards',
     ),
     JourneyTool(
       name: 'GPX studio',
       icon: AssetImage('assets/images/journey_tools/gpxstudio.png'),
-      url: 'https://gpx.studio/l/fr/',
+      url: 'https://gpx.studio/fr/app',
       description: 'Créer, éditer et visualiser des fichiers GPX',
     ),
     JourneyTool(
