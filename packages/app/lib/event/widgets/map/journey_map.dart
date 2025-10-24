@@ -79,7 +79,6 @@ class _JourneyMapState extends State<JourneyMap> {
   }
 
   void _onMapCreated(MapboxMap map) {
-    print("hello");
     final isDark = BlocProvider.of<ThemeBloc>(context).state.isDark;
     final file = widget.journey?.file;
 
@@ -92,8 +91,6 @@ class _JourneyMapState extends State<JourneyMap> {
           file == null ? Future.value(null) : _getGeoJsonData(file),
         )
         .then((values) async {
-          print("loaded");
-          print(values);
           final (_, geoJsonRaw) = values;
           setState(() {
             currentPositions = {};
@@ -201,7 +198,6 @@ class _JourneyMapState extends State<JourneyMap> {
           );
         })
         .catchError((error) {
-          print("EEERR");
           if (kDebugMode) {
             print("Error loading map: $error");
           }
