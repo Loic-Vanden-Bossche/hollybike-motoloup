@@ -34,6 +34,8 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
 
   bool _popped = false;
 
+  void _log(String msg) => debugPrint('[HollybikeWebView] $msg');
+
   @override
   Widget build(BuildContext context) {
     return PopScope(
@@ -71,12 +73,14 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
             // ===== LIFECYCLE / LOGGING =====
             onWebViewCreated: (controller) {
               _controller = controller;
+              _log('WebView created for ${widget.url}');
 
               // JS -> Flutter logging bridge
               controller.addJavaScriptHandler(
                 handlerName: 'log',
                 callback: (args) async {
                   final msg = args.isNotEmpty ? '${args[0]}' : '';
+                  _log('[JS] $msg');
                 },
               );
 
@@ -85,6 +89,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
                 handlerName: 'gpxText',
                 callback: (args) async {
                   final text = (args.isNotEmpty ? args.first : '') as String? ?? '';
+                  _log('Received gpxText, length=${text.length}');
                   if (!text.contains('<gpx')) return;
                   _onGpxDownloaded(context, writeTempFile(utf8.encode(text)));
                 },
@@ -93,6 +98,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
                 handlerName: 'gpxBase64',
                 callback: (args) async {
                   final b64 = (args.isNotEmpty ? args.first : '') as String? ?? '';
+                  _log('Received gpxBase64, length=${b64.length}');
                   if (b64.isEmpty) return;
                   final bytes = base64Decode(b64);
                   final maybeText = utf8.decode(bytes, allowMalformed: true);
@@ -103,12 +109,35 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
             },
 
             onLoadStart: (controller, url) async {
+              _log('onLoadStart: $url');
+
               // Inject a *very early* debug & capture script
               await controller.evaluateJavascript(source: _earlyInjectorJs());
             },
 
+            onLoadStop: (controller, url) async {
+              _log('onLoadStop: $url');
+            },
+
+            onConsoleMessage: (controller, consoleMessage) {
+              _log('console[${consoleMessage.messageLevel}]: ${consoleMessage.message}');
+            },
+
+            onReceivedError: (controller, request, error) {
+              _log('onReceivedError: url=${request.url} type=${error.type} desc=${error.description}');
+            },
+
+            onReceivedHttpError: (controller, request, errorResponse) {
+              _log('onReceivedHttpError: ${request.url} status=${errorResponse.statusCode}');
+            },
+
+            onLoadResource: (controller, resource) {
+              _log('onLoadResource: ${resource.url} ''start=${resource.startTime}ms dur=${resource.duration}ms');
+            },
+
             shouldInterceptFetchRequest: (controller, request) async {
               final url = request.url.toString();
+              _log('shouldInterceptFetchRequest: $url headers=${request.headers}');
 
               // Your OpenRunner fast-path
               final isOpenrunnerFile =
@@ -116,6 +145,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
                       url.endsWith("/export/gpx-track");
 
               if (isOpenrunnerFile) {
+                _log('OpenRunner match. Fetching via Dart http...');
                 final response = await http.get(
                   Uri.parse(url),
                   headers: {
@@ -124,6 +154,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
                   },
                 );
 
+                _log('OpenRunner response: ${response.statusCode} len=${response.bodyBytes.length}');
                 if (!response.body.contains('<gpx')) {
                   return Future.value(request);
                 }
@@ -139,10 +170,16 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
 
             onDownloadStartRequest: (controller, data) async {
               final requestUrl = data.url.toString();
+              _log('onDownloadStartRequest: $requestUrl '
+                  'mime=${data.mimeType} contentDisposition=${data.contentDisposition} '
+                  'userAgent=${data.userAgent}');
+
               // data: URLs
               if (requestUrl.startsWith('data:text')) {
+                _log('Handling data: URL');
                 final cleanUrl = requestUrl.replaceAll(RegExp(r'data:text.*?,'), '');
                 final decoded = Uri.decodeFull(cleanUrl);
+                _log('data: length=${decoded.length}');
                 if (!decoded.contains('<gpx')) return;
                 _onGpxDownloaded(context, writeTempFile(utf8.encode(decoded)));
                 return;
@@ -150,6 +187,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
 
               // blob: URLs -> DO NOT fetch (CSP). The early JS injector captures these blobs
               if (requestUrl.startsWith('blob:')) {
+                _log('blob: URL detected. Relying on early JS capture. (CSP blocks fetch)');
                 // Nothing to do here; the JS hook should have already sent gpxText/gpxBase64.
                 // Optionally ping JS to try extracting from any live objectURL map.
                 await controller.evaluateJavascript(source: """
@@ -163,6 +201,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
 
               // Regular http/https
               final uri = Uri.parse(requestUrl);
+              _log('Fetching via Dart http: $uri');
               final response = await http.get(
                 uri,
                 headers: {
@@ -170,6 +209,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
                   if (data.mimeType != null) 'Accept': data.mimeType!,
                 },
               );
+              _log('HTTP response: ${response.statusCode} len=${response.bodyBytes.length}');
               if (!response.body.contains('<gpx')) return;
 
               if (context.mounted) {
@@ -315,10 +355,12 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
     final filePath = path.join(tempDir.path, 'hollybike-temp.gpx');
     final file = File(filePath);
     file.writeAsBytesSync(bytes);
+    _log('Temp GPX written: $filePath (${bytes.length} bytes)');
     return file;
   }
 
   void _onGpxDownloaded(BuildContext context, File file) async {
+    _log('GPX ready -> popping and invoking callback');
     await context.router.maybePop();
     widget.onGpxDownloaded(file);
   }
