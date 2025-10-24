@@ -11,6 +11,7 @@ import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:hollybike/shared/utils/safe_set_state.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
+import 'package:permission_handler/permission_handler.dart';
 
 @RoutePage()
 class ImportGpxToolScreen extends StatefulWidget {
@@ -40,37 +41,41 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (_) async {
+      onPopInvokedWithResult: (didPop, result) {
         if (_popped) return;
 
-        final canPopInWebView = await canPopFromController();
+        () async {
+          if (didPop) return;
 
-        if (canPopInWebView) {
-          _controller?.goBack();
-          return;
-        }
+          final canPopInWebView = await canPopFromController();
 
-        safeSetState(() => _popped = true);
-        widget.onClose();
+          if (canPopInWebView) {
+            _controller?.goBack();
+            return;
+          }
+
+          safeSetState(() {
+            _popped = true;
+          });
+
+          widget.onClose();
+        }();
       },
       child: Scaffold(
         body: SafeArea(
           child: InAppWebView(
             initialUrlRequest: URLRequest(url: WebUri(widget.url)),
             initialSettings: InAppWebViewSettings(
-              // keep your flags
               useOnDownloadStart: true,
               useShouldInterceptFetchRequest: true,
-              // extra helpful flags
               javaScriptEnabled: true,
               incognito: false,
               clearCache: false,
-              geolocationEnabled: false,
+              geolocationEnabled: true,
               mediaPlaybackRequiresUserGesture: true,
-              isInspectable: true, // enables Chrome DevTools on Android 10+
+              isInspectable: false,
             ),
 
-            // ===== LIFECYCLE / LOGGING =====
             onWebViewCreated: (controller) {
               _controller = controller;
               _log('WebView created for ${widget.url}');
@@ -108,10 +113,28 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
               );
             },
 
+            onGeolocationPermissionsShowPrompt: (controller, origin) async {
+              _log('onGeolocationPermissionsShowPrompt origin=$origin');
+
+              var status = await Permission.locationWhenInUse.status;
+              if (!status.isGranted) {
+                status = await Permission.locationWhenInUse.request();
+                _log('Re-requested OS location permission: $status');
+              }
+
+              final allow = status.isGranted;
+              _log('Granting geolocation to web origin=$origin -> $allow');
+
+              return GeolocationPermissionShowPromptResponse(
+                origin: origin,
+                allow: allow,
+                retain: true,
+              );
+            },
+
             onLoadStart: (controller, url) async {
               _log('onLoadStart: $url');
 
-              // Inject a *very early* debug & capture script
               await controller.evaluateJavascript(source: _earlyInjectorJs());
             },
 
@@ -139,7 +162,6 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
               final url = request.url.toString();
               _log('shouldInterceptFetchRequest: $url headers=${request.headers}');
 
-              // Your OpenRunner fast-path
               final isOpenrunnerFile =
                   url.startsWith("https://api.openrunner.com/api/v2/routes/") &&
                       url.endsWith("/export/gpx-track");
@@ -189,7 +211,6 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
               if (requestUrl.startsWith('blob:')) {
                 _log('blob: URL detected. Relying on early JS capture. (CSP blocks fetch)');
                 // Nothing to do here; the JS hook should have already sent gpxText/gpxBase64.
-                // Optionally ping JS to try extracting from any live objectURL map.
                 await controller.evaluateJavascript(source: """
                   (function(){
                     window.__HB_log && window.__HB_log('Flutter pinged after blob download start');
