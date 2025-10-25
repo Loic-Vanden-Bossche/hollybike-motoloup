@@ -106,7 +106,7 @@ class _UploadJourneyModalState extends State<UploadJourneyModal> {
     safeSetState(() {
       _canClose = true;
 
-      Navigator.of(context).pop();
+      // Navigator.of(context).pop();
     });
   }
 
