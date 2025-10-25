@@ -8,7 +8,6 @@ import 'dart:io';
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
-import 'package:hollybike/shared/utils/safe_set_state.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
@@ -34,31 +33,44 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
   InAppWebViewController? _controller;
 
   bool _popped = false;
+  bool _allowSystemPop = true;
 
   void _log(String msg) => debugPrint('[HollybikeWebView] $msg');
+
+  Future<void> _refreshCanPop() async {
+    final canGoBack = await _controller?.canGoBack() ?? false;
+    if (!mounted) return;
+    setState(() => _allowSystemPop = !canGoBack);
+  }
 
   @override
   Widget build(BuildContext context) {
     return PopScope(
-      canPop: false,
+      canPop: _allowSystemPop,
       onPopInvokedWithResult: (didPop, result) {
         if (_popped) return;
 
+        // Non-async callback; wrap awaits if you have any.
         () async {
-          if (didPop) return;
-
-          final canPopInWebView = await canPopFromController();
-
-          if (canPopInWebView) {
-            _controller?.goBack();
+          if (didPop) {
+            // Route actually popped → do cleanup
+            _popped = true;
+            _forceClose(); // make sure this doesn't pop again
             return;
           }
 
-          safeSetState(() {
-            _popped = true;
-          });
+          // Navigator did NOT pop (because canPop was false) → drive WebView back
+          final canGoBack = await _controller?.canGoBack() ?? false;
+          if (canGoBack) {
+            _controller?.goBack();
+            // refresh flags after navigation
+            Future.microtask(_refreshCanPop);
+            return;
+          }
 
-          widget.onClose();
+          // No history but canPop was false (shouldn't happen often).
+          // Fall back to forcing a route pop.
+          _forceClose();
         }();
       },
       child: Scaffold(
@@ -78,6 +90,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
 
             onWebViewCreated: (controller) {
               _controller = controller;
+              _refreshCanPop(); // initial state
               _log('WebView created for ${widget.url}');
 
               // JS -> Flutter logging bridge
@@ -133,9 +146,14 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
             },
 
             onLoadStart: (controller, url) async {
+              await _refreshCanPop();
               _log('onLoadStart: $url');
 
               await controller.evaluateJavascript(source: _earlyInjectorJs());
+            },
+
+            onUpdateVisitedHistory: (controller, url, androidIsReload) async {
+              await _refreshCanPop();
             },
 
             onLoadStop: (controller, url) async {
@@ -380,9 +398,15 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
     return file;
   }
 
+  void _forceClose() {
+    widget.onClose();
+  }
+
   void _onGpxDownloaded(BuildContext context, File file) async {
     _log('GPX ready -> popping and invoking callback');
-    await context.router.maybePop();
+
+    _forceClose();
+
     widget.onGpxDownloaded(file);
   }
 }
