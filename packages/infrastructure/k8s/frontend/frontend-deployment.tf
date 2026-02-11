@@ -29,8 +29,8 @@ resource "kubernetes_deployment" "frontend" {
         }
 
         container {
-          name  = "frontend"
-          image = var.image
+          name              = "frontend"
+          image             = var.image
           image_pull_policy = "IfNotPresent"
 
           port {

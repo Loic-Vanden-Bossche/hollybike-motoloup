@@ -14,7 +14,7 @@ resource "aws_ecs_capacity_provider" "cas" {
   }
 
   tags = {
-    Name        = "${var.namespace}_ECS_CapacityProvider_${var.environment}"
+    Name = "${var.namespace}_ECS_CapacityProvider_${var.environment}"
   }
 }
 

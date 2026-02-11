@@ -59,7 +59,7 @@ variable "ghcr_image_tag" {
 }
 
 variable "public_subnet_list" {
-  type = list(string)
+  type        = list(string)
   description = "List of public subnet IDs"
 }
 

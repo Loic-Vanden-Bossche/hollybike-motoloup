@@ -10,7 +10,7 @@ data "aws_iam_policy_document" "ecs_service_policy" {
 
     principals {
       type        = "Service"
-      identifiers = ["ecs.amazonaws.com",]
+      identifiers = ["ecs.amazonaws.com", ]
     }
   }
 }
@@ -23,7 +23,7 @@ resource "aws_iam_role_policy" "ecs_service_role_policy" {
 
 data "aws_iam_policy_document" "ecs_service_role_policy" {
   statement {
-    effect  = "Allow"
+    effect = "Allow"
     actions = [
       "ec2:AuthorizeSecurityGroupIngress",
       "ec2:Describe*",

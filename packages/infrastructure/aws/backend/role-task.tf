@@ -19,7 +19,7 @@ resource "aws_iam_role_policy" "ecs_backend_task_iam_s3_role_policy" {
   role = aws_iam_role.ecs_task_iam_role.id
 
   policy = jsonencode({
-    Version   = "2012-10-17"
+    Version = "2012-10-17"
     Statement = [
       {
         "Effect" : "Allow",
