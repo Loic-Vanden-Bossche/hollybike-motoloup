@@ -62,7 +62,7 @@ class MeScreen extends StatelessWidget {
     );
   }
 
-  void _handlePrefixClick(context) {
+  void _handlePrefixClick(BuildContext context) {
     showModalBottomSheet(
       context: context,
       backgroundColor: Colors.transparent,

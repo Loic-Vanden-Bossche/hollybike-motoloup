@@ -314,7 +314,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             scrollController: _scrollController,
             eventId: eventDetails.event.id,
             isParticipating: eventDetails.isParticipating,
-            onAddPhotos: () => _onAddPhotoFromAllPhotos(context),
+            onAddPhotos: _onAddPhotoFromAllPhotos,
           );
         },
       ),
@@ -411,10 +411,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     }
   }
 
-  void _onAddPhotoFromAllPhotos(BuildContext context) {
+  void _onAddPhotoFromAllPhotos() {
     _tabController.animateTo(2);
 
     Future.delayed(const Duration(milliseconds: 500), () {
+      if (!mounted) return;
       showEventImagesPicker(context, widget.event.id);
     });
   }

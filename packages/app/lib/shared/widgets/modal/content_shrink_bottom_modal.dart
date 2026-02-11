@@ -88,7 +88,7 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
                 width: double.infinity,
                 child: PopScope(
                   canPop: !modalOpened,
-                  onPopInvoked: _onPopInvoked,
+                  onPopInvokedWithResult: _onPopInvokedWithResult,
                   child:
                       modalOpening
                           ? widget.modalContent
@@ -172,8 +172,8 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
     _onClosed();
   }
 
-  void _onPopInvoked(bool canPop) {
-    if (!canPop) {
+  void _onPopInvokedWithResult(bool didPop, Object? result) {
+    if (!didPop) {
       _onClosed();
     }
   }

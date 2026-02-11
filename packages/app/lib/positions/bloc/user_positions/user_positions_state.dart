@@ -50,17 +50,20 @@ class UserPositionsState {
 class UserPositionsInitial extends UserPositionsState {}
 
 class UserPositionsLoading extends UserPositionsState {
-  UserPositionsLoading(state)
+  UserPositionsLoading(UserPositionsState state)
     : super.state(state.copyWith(status: UserPositionsStatus.loading));
 }
 
 class UserPositionsInitialized extends UserPositionsState {
-  UserPositionsInitialized(state)
+  UserPositionsInitialized(UserPositionsState state)
     : super.state(state.copyWith(status: UserPositionsStatus.success));
 }
 
 class UserPositionsUpdated extends UserPositionsState {
-  UserPositionsUpdated(state, List<WebsocketReceivePosition> userPositions)
+  UserPositionsUpdated(
+    UserPositionsState state,
+    List<WebsocketReceivePosition> userPositions,
+  )
     : super.state(
         state.copyWith(
           status: UserPositionsStatus.success,
@@ -94,6 +97,6 @@ class UserPicturesUpdated extends UserPositionsState {
 class UserPositionsError extends UserPositionsState {
   final String message;
 
-  UserPositionsError(state, this.message)
+  UserPositionsError(UserPositionsState state, this.message)
     : super.state(state.copyWith(status: UserPositionsStatus.error));
 }

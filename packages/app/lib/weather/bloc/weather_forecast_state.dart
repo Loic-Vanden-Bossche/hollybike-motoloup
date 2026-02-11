@@ -34,18 +34,18 @@ class WeatherForecastState {
 class WeatherForecastInitial extends WeatherForecastState {}
 
 class WeatherForecastLoading extends WeatherForecastState {
-  WeatherForecastLoading(state)
+  WeatherForecastLoading(WeatherForecastState state)
     : super.state(state.copyWith(status: WeatherForecastStatus.loading));
 }
 
 class WeatherForecastSuccess extends WeatherForecastState {
-  WeatherForecastSuccess(state)
+  WeatherForecastSuccess(WeatherForecastState state)
     : super.state(state.copyWith(status: WeatherForecastStatus.success));
 }
 
 class WeatherForecastFailure extends WeatherForecastState {
   final String errorMessage;
 
-  WeatherForecastFailure(state, {required this.errorMessage})
+  WeatherForecastFailure(WeatherForecastState state, {required this.errorMessage})
     : super.state(state.copyWith(status: WeatherForecastStatus.error));
 }

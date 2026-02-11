@@ -42,8 +42,8 @@ class _EventFormModalState extends State<EventFormModal> {
       ),
       child: PopScope(
         canPop: false,
-        onPopInvoked: (canPop) {
-          if (canPop) return;
+        onPopInvokedWithResult: (didPop, result) {
+          if (didPop) return;
 
           if (!touched) {
             Navigator.of(context).pop();

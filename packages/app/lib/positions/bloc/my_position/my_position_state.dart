@@ -48,7 +48,7 @@ class MyPositionState {
 class MyPositionInitial extends MyPositionState {}
 
 class MyPositionLoading extends MyPositionState {
-  MyPositionLoading(state)
+  MyPositionLoading(MyPositionState state)
     : super.state(state.copyWith(status: MyPositionStatus.loading));
 }
 
@@ -61,7 +61,7 @@ class MyPositionInitialized extends MyPositionState {
 }
 
 class MyPositionStopped extends MyPositionState {
-  MyPositionStopped(state)
+  MyPositionStopped(MyPositionState state)
     : super.state(
         MyPositionState(
           lastLocation: state.lastLocation,
@@ -79,7 +79,7 @@ class MyPositionFailure extends MyPositionState {
 }
 
 class MyPositionUpdated extends MyPositionState {
-  MyPositionUpdated(state, Position? lastLocation)
+  MyPositionUpdated(MyPositionState state, Position? lastLocation)
     : super.state(
         MyPositionState(
           lastLocation: lastLocation,
