@@ -1,52 +1,44 @@
-name: Backend - Frontend CI/CD
+name: Backend + Frontend CI/CD
 
 on:
   workflow_call:
     inputs:
-      externall_call:
-        description: 'To distinguish workflow_call from regular events'
-        type: boolean
-        required: false
-        default: true
       version:
-        description: 'Version of the release'
+        description: "Release version"
+        required: true
         type: string
-        required: true
       create-executables:
-        description: 'Create executables'
-        type: boolean
+        description: "Whether to build on-premises executables"
         required: true
+        type: boolean
     secrets:
       SCW_ACCESS_KEY_ID:
+        description: "Scaleway access key ID"
         required: false
-        description: 'AWS Access Key ID'
       SCW_SECRET_KEY:
+        description: "Scaleway secret key"
         required: false
-        description: 'AWS Secret Access Key'
       MAPBOX_PUBLIC_ACCESS_TOKEN:
+        description: "Mapbox public token"
         required: true
-        description: 'Mapbox public token'
-#      GH_IMAGE_PULL_TOKEN:
-#        required: true
-#        description: 'GitHub Image Pull Token'
       MINIO_USERNAME:
+        description: "MinIO username"
         required: true
-        description: 'MinIO Username'
       MINIO_PASSWORD:
+        description: "MinIO password"
         required: true
-        description: 'MinIO Password'
       DATABASE_USERNAME:
+        description: "Database username"
         required: true
-        description: 'Database Username'
       DATABASE_PASSWORD:
+        description: "Database password"
         required: true
-        description: 'Database Password'
       BACKEND_SECUTIRY_SECRET:
+        description: "Backend security secret"
         required: true
-        description: 'Backend Security Secret'
       KUBE_CONFIG:
+        description: "Kubernetes config (base64)"
         required: true
-        description: 'Kubernetes Config'
 
 env:
   CI: true
@@ -56,24 +48,25 @@ jobs:
     name: Build Backend
     uses: ./.github/workflows/build-backend.yml
     with:
-      version: ${{ github.event.inputs.version }}
+      version: ${{ inputs.version }}
 
   build-frontend:
     name: Build Frontend
     uses: ./.github/workflows/build-frontend.yml
     with:
-      version: ${{ github.event.inputs.version }}
+      version: ${{ inputs.version }}
     secrets:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
   deploy-k8s-infrastructure:
-    name: Infrastructure & Deployment
-    needs: [ build-frontend, build-backend ]
+    name: Deploy Infrastructure
+    needs:
+      - build-backend
+      - build-frontend
     uses: ./.github/workflows/infrastructure.yml
     secrets:
       SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
       SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
-#      GH_IMAGE_PULL_TOKEN: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
       MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
       MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
@@ -83,9 +76,10 @@ jobs:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
   build-backend-on-premises:
-    name: Build On Premises
+    name: Build Backend On-Premises
     if: inputs.create-executables
-    needs: [ build-frontend ]
+    needs:
+      - build-frontend
     uses: ./.github/workflows/build-backend-on-premises.yml
     with:
-      version: ${{ github.event.inputs.version }}
+      version: ${{ inputs.version }}

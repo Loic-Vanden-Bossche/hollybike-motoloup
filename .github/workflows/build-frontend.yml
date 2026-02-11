@@ -4,25 +4,28 @@ on:
   workflow_call:
     inputs:
       externall_call:
-        description: 'To distinguish workflow_call from regular events'
-        type: boolean
+        description: "Whether this run is triggered from another workflow"
         required: false
+        type: boolean
         default: true
       version:
-        description: 'Version of the release'
-        type: string
+        description: "Release version"
         required: true
+        type: string
     secrets:
       MAPBOX_PUBLIC_ACCESS_TOKEN:
-        description: 'Mapbox public token'
+        description: "Mapbox public token"
         required: true
-
   pull_request:
     branches:
       - main
     paths:
-      - 'packages/frontend/**'
-      - '.github/workflows/build-frontend.yml'
+      - "packages/frontend/**"
+      - ".github/workflows/build-frontend.yml"
+
+concurrency:
+  group: frontend-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CI: true
@@ -33,70 +36,71 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-
-    defaults:
-      run:
-        working-directory: packages/frontend
-
     permissions:
       contents: read
       packages: write
-
-    services:
-      docker:
-        image: docker:dind
-        options: --privileged
+    defaults:
+      run:
+        working-directory: packages/frontend
+        shell: bash
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Bun
+      - name: Set up Bun
         uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: latest
 
       - name: Install dependencies
-        run: bun install
+        run: bun install --frozen-lockfile
 
       - name: Run linter
         run: bun run lint
 
-      - name: Try building application
+      - name: Build frontend
         env:
           VITE_MAPBOX_KEY: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-          VITE_BACKEND_BASE_URL: 'https://api.hollybike.chbrx.com/api'
+          VITE_BACKEND_BASE_URL: https://api.hollybike.chbrx.com/api
         run: bun run build
 
-      - name: Log in to the Container registry
-        if: ${{ inputs.externall_call }}
+      - name: Set up Docker Buildx
+        if: inputs.externall_call
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to container registry
+        if: inputs.externall_call
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract metadata (tags, labels) for Docker
-        if: ${{ inputs.externall_call }}
+      - name: Extract Docker metadata
+        if: inputs.externall_call
         id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
-            latest
-            ${{ inputs.version }}
+            type=raw,value=latest
+            type=raw,value=${{ inputs.version }}
 
-      - name: Build and push
-        if: ${{ inputs.externall_call }}
+      - name: Build and push container image
+        if: inputs.externall_call
         uses: docker/build-push-action@v5
         with:
+          context: packages/frontend
           push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          context: packages/frontend
 
-      - name: Upload artifacts
-        if: ${{ inputs.externall_call }}
+      - name: Upload frontend artifact
+        if: inputs.externall_call
         uses: actions/upload-artifact@v4
         with:
           name: HollyBike-Frontend-${{ inputs.version }}
           path: packages/frontend/dist
           retention-days: 1
+          if-no-files-found: error

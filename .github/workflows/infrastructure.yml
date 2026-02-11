@@ -4,53 +4,54 @@ on:
   workflow_call:
     inputs:
       externall_call:
-        description: 'To distinguish workflow_call from regular events'
-        type: boolean
+        description: "Whether this run is triggered from another workflow"
         required: false
+        type: boolean
         default: true
-
     secrets:
       SCW_ACCESS_KEY_ID:
+        description: "Scaleway access key ID"
         required: false
-        description: 'Scaleway Access Key ID'
       SCW_SECRET_KEY:
+        description: "Scaleway secret key"
         required: false
-        description: 'Scaleway Secret Key'
       MINIO_USERNAME:
+        description: "MinIO username"
         required: true
-        description: 'MinIO Username'
       MINIO_PASSWORD:
+        description: "MinIO password"
         required: true
-        description: 'MinIO Password'
       MAPBOX_PUBLIC_ACCESS_TOKEN:
+        description: "Mapbox public token"
         required: true
-        description: 'Mapbox public token'
       DATABASE_USERNAME:
+        description: "Database username"
         required: true
-        description: 'Database Username'
       DATABASE_PASSWORD:
+        description: "Database password"
         required: true
-        description: 'Database Password'
       BACKEND_SECUTIRY_SECRET:
+        description: "Backend security secret"
         required: true
-        description: 'Backend Security Secret'
       KUBE_CONFIG:
+        description: "Kubernetes config (base64)"
         required: true
-        description: 'Kubernetes Config'
-
   pull_request:
     branches:
       - main
     paths:
-      - 'packages/infrastructure/k8s/**'
-      - '.github/workflows/infrastructure.yml'
-
+      - "packages/infrastructure/k8s/**"
+      - ".github/workflows/infrastructure.yml"
   push:
     branches:
       - main
     paths:
-      - 'packages/infrastructure/k8s/**'
-      - '.github/workflows/infrastructure.yml'
+      - "packages/infrastructure/k8s/**"
+      - ".github/workflows/infrastructure.yml"
+
+concurrency:
+  group: infra-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CI: true
@@ -70,109 +71,114 @@ env:
 defaults:
   run:
     working-directory: packages/infrastructure/k8s
+    shell: bash
 
 jobs:
   deploy:
     name: Terraform Infrastructure
     runs-on: self-hosted
     permissions:
-      pull-requests: write
+      contents: read
       packages: read
+      pull-requests: write
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: SonarSource/sonarqube-scan-action@v4
+      - name: Run SonarQube scan on main push
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+        uses: SonarSource/sonarqube-scan-action@v4
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
-      - name: Decode Kube Config
-        run: mkdir ~/.kube && echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
+      - name: Decode kube config
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
 
-      - name: Setup Terraform
+      - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
 
-      - name: Terraform Format
+      - name: Terraform format check
         id: fmt
-        run: terraform fmt -check
+        run: terraform fmt -check -recursive
 
-      - name: Terraform Init
+      - name: Terraform init
         id: init
         run: terraform init
 
-      - name: Terraform Validate
+      - name: Terraform validate
         id: validate
         run: terraform validate -no-color
 
-      - name: Get latest frontend image tag from repository
-        working-directory: .github/scripts
+      - name: Get latest frontend image tag
         id: frontend-image-version
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          package_name=$(echo "${{ env.FRONTEND_IMAGE_NAME }}" | cut -d'/' -f2)
-          echo chmod +x get-latest-tag.sh
-          echo "tag=$(./get-latest-tag.sh $package_name)" >> $GITHUB_OUTPUT
-
-      - name: Get latest backend image tag from repository
         working-directory: .github/scripts
-        id: backend-image-version
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-            package_name=$(echo "${{ env.BACKEND_IMAGE_NAME }}" | cut -d'/' -f2)
-            echo chmod +x get-latest-tag.sh
-            echo "tag=$(./get-latest-tag.sh $package_name)" >> $GITHUB_OUTPUT
+          chmod +x get-latest-tag.sh
+          package_name="$(echo "${{ env.FRONTEND_IMAGE_NAME }}" | cut -d'/' -f2)"
+          echo "tag=$(./get-latest-tag.sh "$package_name")" >> "$GITHUB_OUTPUT"
 
-      - name: Terraform Plan
+      - name: Get latest backend image tag
+        id: backend-image-version
+        working-directory: .github/scripts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          chmod +x get-latest-tag.sh
+          package_name="$(echo "${{ env.BACKEND_IMAGE_NAME }}" | cut -d'/' -f2)"
+          echo "tag=$(./get-latest-tag.sh "$package_name")" >> "$GITHUB_OUTPUT"
+
+      - name: Terraform plan
+        id: plan
+        if: github.event_name == 'pull_request'
+        continue-on-error: true
         env:
           TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.frontend-image-version.outputs.tag }}
           TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.backend-image-version.outputs.tag }}
-        id: plan
-        if: github.event_name == 'pull_request'
         run: terraform plan -no-color -input=false
-        continue-on-error: true
 
-      - name: Update Pull Request
-        uses: actions/github-script@v6
+      - name: Comment plan on pull request
         if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
         env:
           PLAN: ${{ steps.plan.outputs.stdout }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            const output = `#### Terraform Format and Style 🖌\`${{ steps.fmt.outcome }}\`
-            #### Terraform Initialization ⚙️\`${{ steps.init.outcome }}\`
-            #### Terraform Validation 🤖\`${{ steps.validate.outcome }}\`
-            #### Terraform Plan 📖\`${{ steps.plan.outcome }}\`
+            const output = `#### Terraform Format: \`${{ steps.fmt.outcome }}\`
+            #### Terraform Init: \`${{ steps.init.outcome }}\`
+            #### Terraform Validate: \`${{ steps.validate.outcome }}\`
+            #### Terraform Plan: \`${{ steps.plan.outcome }}\`
 
             <details><summary>Show Plan</summary>
 
-            \`\`\`terraform\n
+            \`\`\`terraform
             ${process.env.PLAN}
             \`\`\`
 
             </details>
 
-            *Pushed by: @${{ github.actor }}, Action: \`${{ github.event_name }}\`*`;
+            *Actor: @${{ github.actor }}, Event: \`${{ github.event_name }}\`*`;
 
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
               body: output
-            })
+            });
 
-      - name: Terraform Plan Status
-        if: steps.plan.outcome == 'failure'
+      - name: Fail when Terraform plan fails
+        if: github.event_name == 'pull_request' && steps.plan.outcome == 'failure'
         run: exit 1
 
-      - name: Terraform Apply
+      - name: Terraform apply
+        if: inputs.externall_call || (github.ref == 'refs/heads/main' && github.event_name == 'push')
         env:
           TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.frontend-image-version.outputs.tag }}
           TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.backend-image-version.outputs.tag }}
-        if: ${{ inputs.externall_call || (github.ref == 'refs/heads/main' && github.event_name == 'push') }}
         run: terraform apply -auto-approve -input=false
