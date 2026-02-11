@@ -4,6 +4,7 @@ resource "kubernetes_ingress_v1" "hollybike_backend_ingress" {
     namespace = var.namespace
     annotations = {
       "cert-manager.io/cluster-issuer"                 = "letsencrypt-production",
+      "acme.cert-manager.io/http01-edit-in-place"      = "true",
       "nginx.ingress.kubernetes.io/ssl-redirect"       = "true",
       "nginx.ingress.kubernetes.io/force-ssl-redirect" = "true",
       "nginx.ingress.kubernetes.io/backend-protocol"   = "HTTP",
