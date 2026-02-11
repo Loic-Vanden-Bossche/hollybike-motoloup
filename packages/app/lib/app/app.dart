@@ -57,11 +57,14 @@ class _AppState extends State<App> {
 
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state is AuthConnected) {
-          context.read<NotificationBloc>().add(InitNotificationService());
-        } else if (state is AuthDisconnected) {
-          context.read<NotificationBloc>().add(InitNotificationService());
+        if (state.authSession != null) {
+          context.read<NotificationBloc>().add(
+            StartNotificationService(state.authSession!),
+          );
+          return;
         }
+
+        context.read<NotificationBloc>().add(StopNotificationService());
       },
       child: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (context, state) {

@@ -6,27 +6,33 @@
 import 'package:bloc/bloc.dart';
 import 'package:hollybike/event/services/event/event_repository.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_state.dart';
-import 'package:hollybike/positions/service/my_position_locator.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../auth/services/auth_persistence.dart';
+import '../../background/background_location_facade.dart';
 import 'my_position_event.dart';
+
+import 'dart:async';
 
 class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
   final EventRepository eventRepository;
-  final MyPositionLocator myPositionLocator;
+  final BackgroundLocationFacade locationFacade;
+  final AuthPersistence authPersistence;
+  StreamSubscription<void>? _positionSubscription;
 
   int posCount = 0;
 
   MyPositionBloc({
     required this.eventRepository,
-    required this.myPositionLocator,
+    required this.locationFacade,
+    required this.authPersistence,
   }) : super(MyPositionInitial()) {
     on<SubscribeToMyPositionUpdates>(_onSubscribeToPositionUpdates);
     on<EnableSendPosition>(_onListenAndSendUserPosition);
     on<DisableSendPositions>(_onDisableSendPositions);
   }
 
-  void _onSubscribeToPositionUpdates(
+  Future<void> _onSubscribeToPositionUpdates(
     SubscribeToMyPositionUpdates event,
     Emitter<MyPositionState> emit,
   ) async {
@@ -40,7 +46,7 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     );
 
     final isRunning =
-        await myPositionLocator.backgroundService.isTrackingRunning();
+        await locationFacade.backgroundService.isTrackingRunning();
 
     emit(
       MyPositionInitialized(
@@ -53,31 +59,35 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
 
     posCount = 0;
 
-    myPositionLocator.backgroundService.getPositionStream()?.listen((_) {
-      posCount++;
-
-      if (posCount >= 2 && eventId != null) {
-        eventRepository.onUserPositionSent(eventId);
-      }
-    });
+    // Listen to background position ticks from headless isolate via MethodChannel.
+    await _positionSubscription?.cancel();
+    _positionSubscription = locationFacade.backgroundService
+        .getPositionStream()
+        .listen((_) {
+          posCount++;
+          if (posCount >= 2 && (eventId != null)) {
+            // Keep your existing UX hook (after a couple samples)
+            eventRepository.onUserPositionSent(eventId);
+          }
+        });
   }
 
-  void _onListenAndSendUserPosition(
+  Future<void> _onListenAndSendUserPosition(
     EnableSendPosition event,
     Emitter<MyPositionState> emit,
   ) async {
     emit(MyPositionLoading(state));
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
-
     await prefs.setInt('tracking_event_id', event.eventId);
 
     if (state.isRunning) {
-      await myPositionLocator.stop();
+      await locationFacade.stop();
     }
 
     try {
-      await myPositionLocator.start(event.eventId, event.eventName);
+      final session = await authPersistence.currentSession;
+      await locationFacade.start(event.eventId, session!);
     } catch (e) {
       emit(
         MyPositionFailure(
@@ -92,9 +102,7 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
       return;
     }
 
-    final running =
-        await myPositionLocator.backgroundService.isTrackingRunning();
-
+    final running = await locationFacade.backgroundService.isTrackingRunning();
     posCount = 0;
 
     emit(
@@ -108,17 +116,15 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     );
   }
 
-  void _onDisableSendPositions(
+  Future<void> _onDisableSendPositions(
     DisableSendPositions event,
     Emitter<MyPositionState> emit,
   ) async {
     emit(MyPositionLoading(state));
 
-    await myPositionLocator.stop();
+    await locationFacade.stop();
 
-    final running =
-        await myPositionLocator.backgroundService.isTrackingRunning();
-
+    final running = await locationFacade.backgroundService.isTrackingRunning();
     posCount = 0;
 
     emit(
@@ -129,5 +135,12 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
         ),
       ),
     );
+  }
+
+  @override
+  Future<void> close() async {
+    await _positionSubscription?.cancel();
+    await locationFacade.dispose();
+    return super.close();
   }
 }

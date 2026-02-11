@@ -5,37 +5,71 @@
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'package:hollybike/auth/services/auth_repository.dart';
+import 'package:hollybike/auth/types/auth_session.dart';
 
-import '../../background/background_service.dart';
+import '../background/notif_facade.dart';
 
 part 'notification_event.dart';
 part 'notification_state.dart';
 
 class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
-  final AuthRepository authRepository;
-  final BackgroundService backgroundService;
+  final RealtimeNotificationsFacade notifications;
+  String? _activeSessionKey;
 
-  void Function(FlutterBackgroundService)? onInitialized;
-
-  NotificationBloc({
-    required this.authRepository,
-    required this.backgroundService,
-  }) : super(NotificationInitial()) {
-    on<InitNotificationService>(_onInitNotificationService);
+  NotificationBloc({required this.notifications})
+    : super(NotificationInitial()) {
+    on<StartNotificationService>(_onStartNotificationService);
+    on<StopNotificationService>(_onStopNotificationService);
   }
 
-  void _onInitNotificationService(
-    InitNotificationService event,
+  Future<void> _onStartNotificationService(
+    StartNotificationService event,
     Emitter<NotificationState> emit,
   ) async {
-    final currentSession = await authRepository.currentSession;
-
-    if (currentSession == null) {
+    final sessionKey = _sessionKey(event.session);
+    if (_activeSessionKey == sessionKey) {
       return;
     }
 
-    backgroundService.connectNotifications(currentSession);
+    try {
+      if (_activeSessionKey != null) {
+        await notifications.disconnect();
+      }
+      await notifications.connectNotifications(event.session);
+      _activeSessionKey = sessionKey;
+      emit(NotificationServiceRunning());
+    } catch (e) {
+      _activeSessionKey = null;
+      emit(NotificationServiceFailure(e.toString()));
+    }
   }
+
+  Future<void> _onStopNotificationService(
+    StopNotificationService event,
+    Emitter<NotificationState> emit,
+  ) async {
+    if (_activeSessionKey == null) {
+      emit(NotificationServiceStopped());
+      return;
+    }
+
+    try {
+      await notifications.disconnect();
+    } catch (_) {
+      // Best effort stop.
+    } finally {
+      _activeSessionKey = null;
+      emit(NotificationServiceStopped());
+    }
+  }
+
+  @override
+  Future<void> close() async {
+    try {
+      await notifications.disconnect();
+    } catch (_) {}
+    return super.close();
+  }
+
+  String _sessionKey(AuthSession session) => '${session.host}|${session.token}';
 }

@@ -7,6 +7,12 @@ part of 'notification_bloc.dart';
 @immutable
 abstract class NotificationEvent {}
 
-class InitNotificationService extends NotificationEvent {
-  InitNotificationService();
+class StartNotificationService extends NotificationEvent {
+  StartNotificationService(this.session);
+
+  final AuthSession session;
+}
+
+class StopNotificationService extends NotificationEvent {
+  StopNotificationService();
 }
