@@ -180,6 +180,10 @@ class EventService(
 				exception.message ?: "Description de l'événement invalide"
 			)
 
+			is BadRequestException -> call.respond(
+				HttpStatusCode.BadRequest,
+				exception.message ?: "Requete invalide"
+			)
 			is AlreadyParticipatingToEventException -> call.respond(
 				HttpStatusCode.Conflict,
 				exception.message ?: "Vous participer déjà à l'événement"

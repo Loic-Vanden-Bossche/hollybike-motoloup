@@ -20,7 +20,6 @@ import 'package:hollybike/image/services/image_repository.dart';
 import 'package:hollybike/notification/bloc/notification_bloc.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_bloc.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_event.dart';
-import 'package:hollybike/positions/service/my_position_locator.dart';
 import 'package:hollybike/profile/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hollybike/profile/services/profile_api.dart';
 import 'package:hollybike/profile/services/profile_repository.dart';
@@ -33,7 +32,6 @@ import 'package:hollybike/user_journey/services/user_journey_api.dart';
 import 'package:hollybike/user_journey/services/user_journey_repository.dart';
 import 'package:provider/provider.dart';
 
-import 'background/background_service.dart';
 import 'event/services/event/event_api.dart';
 import 'event/services/event/event_repository.dart';
 import 'event/services/participation/event_participation_api.dart';
@@ -42,6 +40,12 @@ import 'image/services/image_api.dart';
 import 'journey/service/journey_api.dart';
 import 'journey/service/journey_repository.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
+
+import 'positions/background/background_location_facade.dart';
+import 'notification/background/notif_facade.dart';
+import 'notification/background/realtime_background_runner.dart';
+
+import 'positions/background/location_background_runner.dart';
 
 Future<void> infiniteDelay() async {
   final completer = Completer<void>();
@@ -221,10 +225,7 @@ class _MyAppState extends State<MyApp> {
                   BlocProvider<NotificationBloc>(
                     create:
                         (context) => NotificationBloc(
-                          authRepository: RepositoryProvider.of<AuthRepository>(
-                            context,
-                          ),
-                          backgroundService: BackgroundService(),
+                          notifications: RealtimeNotificationsFacade(),
                         ),
                   ),
                   BlocProvider<ThemeBloc>(create: (context) => ThemeBloc()),
@@ -258,12 +259,10 @@ class _MyAppState extends State<MyApp> {
                         (context) => MyPositionBloc(
                           eventRepository:
                               RepositoryProvider.of<EventRepository>(context),
-                          myPositionLocator: MyPositionLocator(
-                            authPersistence: Provider.of<AuthPersistence>(
-                              context,
-                              listen: false,
-                            ),
-                            backgroundService: BackgroundService(),
+                          locationFacade: BackgroundLocationFacade(),
+                          authPersistence: Provider.of<AuthPersistence>(
+                            context,
+                            listen: false,
                           ),
                         )..add(SubscribeToMyPositionUpdates()),
                   ),
@@ -281,4 +280,16 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
+}
+
+@pragma('vm:entry-point')
+Future<void> locationServiceMain() async {
+  final service = LocationBackgroundRunner();
+  await service.initialize();
+}
+
+@pragma('vm:entry-point')
+Future<void> realtimeServiceMain() async {
+  final service = RealtimeBackgroundRunner();
+  await service.initialize();
 }

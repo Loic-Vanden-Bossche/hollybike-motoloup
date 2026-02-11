@@ -4,6 +4,7 @@
 */
 package hollybike.api.services
 
+import hollybike.api.exceptions.BadRequestException
 import hollybike.api.json
 import hollybike.api.repository.*
 import hollybike.api.services.storage.StorageService
@@ -314,6 +315,10 @@ class UserEventPositionService(
 			UsersEventsPositions.deleteWhere {
 				(UsersEventsPositions.user eq user.id) and (UsersEventsPositions.event eq event.id)
 			}
+		}
+
+		if (totalCount == 0 || coord.isEmpty() || times.isEmpty()) {
+			throw BadRequestException("Aucune position exploitable pour terminer le trajet")
 		}
 
 		val avgSpeed = totalSpeed / totalCount

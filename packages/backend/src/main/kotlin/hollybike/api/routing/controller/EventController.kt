@@ -342,14 +342,19 @@ class EventController(
 			userEventPositionService.getUserJourneyFromEvent(call.user, event)?.let {
 				call.respond(HttpStatusCode.Conflict, "Trajet déjà terminé")
 			} ?: run {
-				val journey = userEventPositionService.terminateUserJourney(call.user, event)
-				call.respond(
-					HttpStatusCode.Created,
-					TUserJourney(
-						journey,
-						userEventPositionService.getIsBetterThanForUserJourney(journey)
+				runCatching {
+					userEventPositionService.terminateUserJourney(call.user, event)
+				}.onSuccess { journey ->
+					call.respond(
+						HttpStatusCode.Created,
+						TUserJourney(
+							journey,
+							userEventPositionService.getIsBetterThanForUserJourney(journey)
+						)
 					)
-				)
+				}.onFailure {
+					eventService.handleEventExceptions(it, call)
+				}
 			}
 		}
 	}

@@ -10,3 +10,13 @@ typedef Notification = ({String message, bool? isError, String? consumerId});
 abstract class NotificationState {}
 
 class NotificationInitial extends NotificationState {}
+
+class NotificationServiceRunning extends NotificationState {}
+
+class NotificationServiceStopped extends NotificationState {}
+
+class NotificationServiceFailure extends NotificationState {
+  NotificationServiceFailure(this.message);
+
+  final String message;
+}

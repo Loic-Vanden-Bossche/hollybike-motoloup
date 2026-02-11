@@ -63,7 +63,6 @@ dependencies:
   device_calendar: ^4.3.3
   flutter_displaymode: ^0.7.0
   flutter_local_notifications: ^18.0.1
-  flutter_background_service: ^5.1.0
   flutter_downloader: ^1.12.0
   flutter_native_splash: ^2.4.6
   flutter_inappwebview: ^6.1.5
