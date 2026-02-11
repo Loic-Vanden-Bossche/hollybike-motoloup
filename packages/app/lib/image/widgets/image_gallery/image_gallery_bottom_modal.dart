@@ -163,9 +163,12 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
     final directory = Directory.systemTemp;
     final imagePath = await _downloadImageToPath(directory.path);
 
-    Share.shareXFiles([
-      XFile(imagePath),
-    ], text: "Partage de l'image depuis Hollybike");
+    await SharePlus.instance.share(
+      ShareParams(
+        files: [XFile(imagePath)],
+        text: "Partage de l'image depuis Hollybike",
+      ),
+    );
   }
 
   void _onDownloadImage() {

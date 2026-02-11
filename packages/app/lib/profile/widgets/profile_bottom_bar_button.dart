@@ -27,7 +27,7 @@ class ProfileBottomBarButton extends StatelessWidget {
     return _renderProfilePicture(context);
   }
 
-  void _handleLongPress(context) {
+  void _handleLongPress(BuildContext context) {
     HapticFeedback.heavyImpact();
     showModalBottomSheet(
       context: context,

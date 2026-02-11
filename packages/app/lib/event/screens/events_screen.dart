@@ -60,6 +60,7 @@ class _EventsScreenState extends State<EventsScreen>
               Toast.showSuccessToast(context, "Événement créé");
 
               Future.delayed(const Duration(milliseconds: 50), () {
+                if (!context.mounted) return;
                 context.router.push(
                   EventDetailsRoute(
                     event: state.createdEvent.toMinimalEvent(),

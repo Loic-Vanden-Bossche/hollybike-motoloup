@@ -91,6 +91,7 @@ class _JourneyMapState extends State<JourneyMap> {
           file == null ? Future.value(null) : _getGeoJsonData(file),
         )
         .then((values) async {
+          if (!mounted) return;
           final (_, geoJsonRaw) = values;
           setState(() {
             currentPositions = {};
@@ -149,6 +150,7 @@ class _JourneyMapState extends State<JourneyMap> {
             map.annotations.createPointAnnotationManager().then((
               pointManager,
             ) async {
+              if (!mounted) return;
               final journeyPositionManager = JourneyPositionManager(
                 pointManager: pointManager,
                 context: context,

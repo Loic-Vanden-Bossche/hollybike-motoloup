@@ -90,8 +90,8 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
   Widget build(BuildContext context) {
     return PopScope(
       canPop: false,
-      onPopInvoked: (canPop) {
-        if (canPop) return;
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) return;
 
         if (!_touched) {
           Navigator.of(context).pop();
