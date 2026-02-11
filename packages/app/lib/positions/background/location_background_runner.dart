@@ -70,6 +70,7 @@ class LocationBackgroundRunner {
             'lat': position.latitude,
             'lng': position.longitude,
             'ts': position.timestamp.toIso8601String(),
+            'accuracy': position.accuracy,
           });
         } catch (_) {
           // UI isolate may be gone; forwarding is best effort only.

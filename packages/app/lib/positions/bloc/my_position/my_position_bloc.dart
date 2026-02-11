@@ -15,10 +15,12 @@ import 'my_position_event.dart';
 import 'dart:async';
 
 class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
+  static const double _maxAcceptedAccuracy = 20.0;
+
   final EventRepository eventRepository;
   final BackgroundLocationFacade locationFacade;
   final AuthPersistence authPersistence;
-  StreamSubscription<void>? _positionSubscription;
+  StreamSubscription<double>? _positionSubscription;
 
   int posCount = 0;
 
@@ -63,7 +65,11 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     await _positionSubscription?.cancel();
     _positionSubscription = locationFacade.backgroundService
         .getPositionStream()
-        .listen((_) {
+        .listen((accuracy) {
+          if (accuracy > _maxAcceptedAccuracy) {
+            return;
+          }
+
           posCount++;
           if (posCount >= 2 && (eventId != null)) {
             // Keep your existing UX hook (after a couple samples)

@@ -16,13 +16,14 @@ class BackgroundLocationFacade {
   static const _prefsKeyEventId = 'tracking_event_id';
   static const _methodPosition = 'position';
 
-  final StreamController<void> _positionEvents =
-      StreamController<void>.broadcast();
+  final StreamController<double> _positionEvents =
+      StreamController<double>.broadcast();
 
   BackgroundLocationFacade() {
     _uiBridge.setMethodCallHandler((call) async {
       if (call.method == _methodPosition && !_positionEvents.isClosed) {
-        _positionEvents.add(null);
+        final accuracy = _extractAccuracy(call.arguments);
+        _positionEvents.add(accuracy);
       }
       return null;
     });
@@ -30,7 +31,21 @@ class BackgroundLocationFacade {
 
   BackgroundServiceShim get backgroundService => BackgroundServiceShim(this);
 
-  Stream<void> getPositionStream() => _positionEvents.stream;
+  Stream<double> getPositionStream() => _positionEvents.stream;
+
+  double _extractAccuracy(dynamic arguments) {
+    if (arguments is Map) {
+      final dynamic rawAccuracy = arguments['accuracy'];
+      if (rawAccuracy is num) {
+        return rawAccuracy.toDouble();
+      }
+      if (rawAccuracy is String) {
+        return double.tryParse(rawAccuracy) ?? double.infinity;
+      }
+    }
+
+    return double.infinity;
+  }
 
   Future<void> start(int eventId, AuthSession session) async {
     await _ensureNotificationPermission();
