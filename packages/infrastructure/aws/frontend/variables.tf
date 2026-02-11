@@ -25,16 +25,16 @@ variable "public_cert_frontend_arn" {
 }
 
 variable "application_storage_bucket_id" {
-  type = string
+  type        = string
   description = "The ID of the S3 bucket used for application storage"
 }
 
 variable "application_storage_bucket_domain_name" {
-  type = string
+  type        = string
   description = "The domain name of the S3 bucket used for application storage"
 }
 
 variable "cf_key_json_output" {
-  type = string
+  type        = string
   description = "The JSON output of the CloudFront public key"
 }

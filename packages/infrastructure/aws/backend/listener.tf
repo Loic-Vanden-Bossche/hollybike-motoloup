@@ -2,7 +2,7 @@ resource "aws_lb_listener_rule" "header_condition" {
   listener_arn = aws_lb_listener.alb_listener.arn
 
   action {
-    type = "forward"
+    type             = "forward"
     target_group_arn = aws_alb_target_group.service_target_group.arn
   }
 

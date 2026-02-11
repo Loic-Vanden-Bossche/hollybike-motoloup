@@ -1,19 +1,26 @@
 name: Release & Deploy
 
 run-name: >
-  Release & Deploy HollyBike v${{ inputs.version }}
-  ${{ inputs.create-executables == 'true' && '(production only)' || '' }}
+  Release v${{ inputs.version }}
+  ${{ inputs.create-executables && '(production only)' || '' }}
   by @${{ github.actor }}
+
 on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Version of the release'
+        description: "Release version (example: v1.2.3)"
         required: true
+        type: string
       create-executables:
+        description: "Build release executables (APK + on-prem binaries)"
+        required: false
         type: boolean
-        description: 'Create executables'
         default: false
+
+concurrency:
+  group: release-${{ inputs.version }}
+  cancel-in-progress: false
 
 env:
   CI: true
@@ -21,33 +28,31 @@ env:
 permissions:
   contents: write
   packages: write
-  pull-requests: write
 
 jobs:
   build-frontend-backend:
-    name: Frontend & Backend
+    name: Frontend + Backend
     uses: ./.github/workflows/backend-frontend.yml
     with:
-      version: ${{ github.event.inputs.version }}
-      create-executables: ${{ github.event.inputs.create-executables == 'true' }}
+      version: ${{ inputs.version }}
+      create-executables: ${{ inputs.create-executables }}
     secrets:
       SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
       SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
       MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
       MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
-#      GH_IMAGE_PULL_TOKEN: ${{ secrets.GH_IMAGE_PULL_TOKEN }}
       DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
       DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
       BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
   build-app:
-    name: App
+    name: Android App
     uses: ./.github/workflows/app.yml
     with:
-      version: ${{ github.event.inputs.version }}
-      create-executables: ${{ github.event.inputs.create-executables == 'true' }}
+      version: ${{ inputs.version }}
+      create-executables: ${{ inputs.create-executables }}
     secrets:
       ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
       ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
@@ -56,39 +61,46 @@ jobs:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
   create-release:
-    name: Create Release
-    if: |
-      always() &&
-      needs.build-app.result == 'success' &&
-      needs.build-frontend-backend.result == 'success'
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
     needs:
       - build-app
       - build-frontend-backend
-    runs-on: ubuntu-latest
-
+    if: always() && needs.build-app.result == 'success' && needs.build-frontend-backend.result == 'success'
+    permissions:
+      contents: write
     env:
-      version: ${{ github.event.inputs.version }}
+      VERSION: ${{ inputs.version }}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Get app artifact
+      - name: Download release artifacts
         if: inputs.create-executables
         uses: actions/download-artifact@v4
         with:
+          pattern: HollyBike-${{ env.VERSION }}-*
           merge-multiple: true
-          pattern: HollyBike-${{ env.version }}-*
           path: .
 
       - name: Create release
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          EXECUTABLES: 'hollybike-Android-${{ env.version }}.apk hollybike-Windows-${{ env.version }}-x86_64.exe hollybike-Linux-${{ env.version }}-x86_64'
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          gh release create "$version" \
-              --repo="$GITHUB_REPOSITORY" \
-              --title="${GITHUB_REPOSITORY#*/}-${version#v}${{ fromJSON('[" (production only)", ""]')[inputs.create-executables] }}" \
+          title="${GITHUB_REPOSITORY#*/}-${VERSION#v}"
+          if [[ "${{ inputs.create-executables }}" == "true" ]]; then
+            title="$title (production only)"
+            gh release create "$VERSION" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$title" \
               --generate-notes \
-              ${{ fromJSON('["", "$EXECUTABLES"]')[inputs.create-executables] }}
-
+              "hollybike-Android-${VERSION}.apk" \
+              "hollybike-Windows-${VERSION}-x86_64.exe" \
+              "hollybike-Linux-${VERSION}-x86_64"
+          else
+            gh release create "$VERSION" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$title" \
+              --generate-notes
+          fi

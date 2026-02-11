@@ -12,9 +12,9 @@ data "aws_availability_zones" "available" {}
 
 
 resource "aws_default_subnet" "public" {
-  count                           = var.az_count
-  availability_zone               = data.aws_availability_zones.available.names[count.index]
-  map_public_ip_on_launch         = true
+  count                   = var.az_count
+  availability_zone       = data.aws_availability_zones.available.names[count.index]
+  map_public_ip_on_launch = true
 
   assign_ipv6_address_on_creation = true
 

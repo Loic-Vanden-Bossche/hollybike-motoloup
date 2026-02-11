@@ -1,43 +1,47 @@
-name: Flutter App CI/CD
+name: App CI/CD
 
 on:
   workflow_call:
     inputs:
       externall_call:
-        description: 'To distinguish workflow_call from regular events'
-        type: boolean
+        description: "Whether this run is triggered from another workflow"
         required: false
+        type: boolean
         default: true
       version:
-        description: 'Version of the release'
+        description: "Release version"
+        required: true
         type: string
-        required: true
       create-executables:
-        description: 'Create executables'
-        type: boolean
+        description: "Build APK for release assets"
         required: true
+        type: boolean
     secrets:
       ANDROID_KEYSTORE:
+        description: "Android keystore (base64)"
         required: true
-        description: 'Android keystore'
       ANDROID_KEY_PROPERTIES:
+        description: "Android signing properties (base64)"
         required: true
-        description: 'Android key properties'
       PRODUCTION_CREDENTIAL_FILE:
+        description: "Google Play service account JSON (base64)"
         required: true
-        description: 'Production credential file'
       MAPBOX_DOWNLOADS_TOKEN:
+        description: "Mapbox downloads token"
         required: true
-        description: 'Mapbox downloads token'
       MAPBOX_PUBLIC_ACCESS_TOKEN:
+        description: "Mapbox public access token"
         required: true
-        description: 'Mapbox public access token'
   pull_request:
     branches:
       - main
     paths:
-      - 'packages/app/**'
-      - '.github/workflows/app.yml'
+      - "packages/app/**"
+      - ".github/workflows/app.yml"
+
+concurrency:
+  group: app-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 env:
   CI: true
@@ -46,16 +50,13 @@ jobs:
   build:
     name: Build
     runs-on: ubuntu-latest
-
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: packages/app
-
-    permissions:
-      contents: write
-
+        shell: bash
     env:
-      AAB_PATH: packages/app/build/app/outputs/bundle/release/app-release.aab
       KEYSTORE_PATH: android/upload-keystore.jks
       KEY_PROPS_PATH: android/key.properties
 
@@ -63,97 +64,78 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          distribution: 'corretto'
-          java-version: '17'
-
-      - name: Cache Flutter dependencies
-        uses: actions/cache@v4
-        with:
-          path: /opt/hostedtoolcache/flutter
-          key: flutter-install-cache
+          distribution: corretto
+          java-version: "17"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Remove package name from AndroidManifest.xml
-        run: |
-          sed -i 's/\s*package="team.ion.native_qr"//' /home/runner/.pub-cache/hosted/pub.dev/native_qr-0.0.3/android/src/main/AndroidManifest.xml      
-
-#      - name: Analyze code
-#        run: flutter analyze
+      - name: Patch native_qr manifest
+        run: sed -i 's/\s*package="team.ion.native_qr"//' /home/runner/.pub-cache/hosted/pub.dev/native_qr-0.0.3/android/src/main/AndroidManifest.xml
 
       - name: Run tests
         run: flutter test
 
       - name: Decode Android keystore
         if: inputs.create-executables
-        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > ${{ env.KEYSTORE_PATH }}
+        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > "${{ env.KEYSTORE_PATH }}"
 
-      - name: Copy keystore
+      - name: Install keystore
         if: inputs.create-executables
-        run: cp ${{ env.KEYSTORE_PATH }} android/app/upload-keystore.jks
+        run: cp "${{ env.KEYSTORE_PATH }}" android/app/upload-keystore.jks
 
       - name: Decode Android key properties
         if: inputs.create-executables
-        run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > ${{ env.KEY_PROPS_PATH }}
+        run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > "${{ env.KEY_PROPS_PATH }}"
 
-      - name: Create gradle directory
+      - name: Configure Gradle credentials
         if: inputs.create-executables
-        run: mkdir -p ~/.gradle
-
-      - name: Add Mapbox Download Token
-        if: inputs.create-executables
-        run: echo "MAPBOX_DOWNLOADS_TOKEN=${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}" >> ~/.gradle/gradle.properties
+        run: |
+          mkdir -p ~/.gradle
+          echo "MAPBOX_DOWNLOADS_TOKEN=${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}" >> ~/.gradle/gradle.properties
 
       - name: Build APK
         if: inputs.create-executables
         run: |
           flutter build apk \
             --release \
-            --build-name=${{ inputs.version }} \
-            --build-number=$(echo ${{ inputs.version }} | tr -d .) \
-            --dart-define=PUBLIC_ACCESS_TOKEN=${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-
-      #      - name: Create build directory
-      #        if: inputs.create-executables
-      #        run: mkdir -p build/app/outputs/flutter-apk
-      #
-      #      - name: Create fake APK
-      #        if: inputs.create-executables
-      #        run: touch build/app/outputs/flutter-apk/app-release.apk
+            --build-name="${{ inputs.version }}" \
+            --build-number="$(echo "${{ inputs.version }}" | tr -d .)" \
+            --dart-define=PUBLIC_ACCESS_TOKEN="${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}"
 
       - name: Rename APK
         if: inputs.create-executables
-        run: mv build/app/outputs/flutter-apk/app-release.apk hollybike-Android-${{ inputs.version }}.apk
+        run: mv build/app/outputs/flutter-apk/app-release.apk "hollybike-Android-${{ inputs.version }}.apk"
 
-      - name: Upload APK to artifacts
+      - name: Upload APK artifact
         if: inputs.create-executables
         uses: actions/upload-artifact@v4
         with:
           name: HollyBike-${{ inputs.version }}-Android
           path: packages/app/hollybike-Android-${{ inputs.version }}.apk
           retention-days: 1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          if-no-files-found: error
 
   deploy:
     name: Deploy
-    if: ${{ inputs.externall_call }}
-    runs-on: ubuntu-latest
+    if: inputs.externall_call
     needs: build
-
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
     defaults:
       run:
         working-directory: packages/app
-
+        shell: bash
     env:
       AAB_PATH: packages/app/build/app/outputs/bundle/release/app-release.aab
       KEYSTORE_PATH: android/upload-keystore.jks
@@ -164,61 +146,55 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - uses: actions/setup-java@v4
+      - name: Set up Java
+        uses: actions/setup-java@v4
         with:
-          distribution: 'corretto'
-          java-version: '17'
-
-      - name: Cache Flutter dependencies
-        uses: actions/cache@v4
-        with:
-          path: /opt/hostedtoolcache/flutter
-          key: flutter-install-cache
+          distribution: corretto
+          java-version: "17"
 
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
           channel: stable
+          cache: true
 
       - name: Install dependencies
         run: flutter pub get
 
-      - name: Remove package name from AndroidManifest.xml
-        run: |
-          sed -i 's/\s*package="team.ion.native_qr"//' /home/runner/.pub-cache/hosted/pub.dev/native_qr-0.0.3/android/src/main/AndroidManifest.xml      
+      - name: Patch native_qr manifest
+        run: sed -i 's/\s*package="team.ion.native_qr"//' /home/runner/.pub-cache/hosted/pub.dev/native_qr-0.0.3/android/src/main/AndroidManifest.xml
 
       - name: Decode Android keystore
-        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > ${{ env.KEYSTORE_PATH }}
+        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > "${{ env.KEYSTORE_PATH }}"
 
-      - name: Copy keystore
-        run: cp ${{ env.KEYSTORE_PATH }} android/app/upload-keystore.jks
+      - name: Install keystore
+        run: cp "${{ env.KEYSTORE_PATH }}" android/app/upload-keystore.jks
 
       - name: Decode Android key properties
-        run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > ${{ env.KEY_PROPS_PATH }}
+        run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > "${{ env.KEY_PROPS_PATH }}"
 
-      - name: Decode Android Service Account
-        run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > ${{ env.SERVICE_ACCOUNT_PATH }}
+      - name: Decode service account file
+        run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > "${{ env.SERVICE_ACCOUNT_PATH }}"
 
-      - name: Create gradle directory
-        run: mkdir -p ~/.gradle
-
-      - name: Add Mapbox Download Token
-        run: echo "MAPBOX_DOWNLOADS_TOKEN=${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}" >> ~/.gradle/gradle.properties
+      - name: Configure Gradle credentials
+        run: |
+          mkdir -p ~/.gradle
+          echo "MAPBOX_DOWNLOADS_TOKEN=${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}" >> ~/.gradle/gradle.properties
 
       - name: Build app bundle
         run: |
           flutter build appbundle \
             --release \
-            --build-name=${{ inputs.version }} \
-            --build-number=$(echo ${{ inputs.version }} | tr -d .) \
-            --dart-define=PUBLIC_ACCESS_TOKEN=${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+            --build-name="${{ inputs.version }}" \
+            --build-number="$(echo "${{ inputs.version }}" | tr -d .)" \
+            --dart-define=PUBLIC_ACCESS_TOKEN="${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}"
 
-      - name: Deploy to Play Store (Internal testing)
+      - name: Deploy to Play Store (internal testing)
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJson: packages/app/${{ env.SERVICE_ACCOUNT_PATH }}
           packageName: com.hollybike.hollybike
           releaseFiles: ${{ env.AAB_PATH }}
-          status: draft
           track: internal
-  
+          status: draft
+          changesNotSentForReview: true

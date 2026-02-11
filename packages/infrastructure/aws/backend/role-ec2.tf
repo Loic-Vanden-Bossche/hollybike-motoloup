@@ -19,7 +19,7 @@ data "aws_iam_policy_document" "ec2_instance_role_policy" {
     effect  = "Allow"
 
     principals {
-      type        = "Service"
+      type = "Service"
       identifiers = [
         "ec2.amazonaws.com",
         "ecs.amazonaws.com"

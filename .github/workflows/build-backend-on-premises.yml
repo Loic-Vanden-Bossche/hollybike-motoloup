@@ -1,36 +1,32 @@
-name: Build Backend On Premises
+name: Build Backend On-Premises
 
 on:
   workflow_call:
     inputs:
-      externall_call:
-        description: 'To distinguish workflow_call from regular events'
-        type: boolean
-        required: false
-        default: true
       version:
-        description: 'Version of the release'
-        type: string
+        description: "Release version"
         required: true
+        type: string
 
 jobs:
   build-backend-on-premises:
-    name: Build
-    strategy:
-      matrix:
-        os: [ ubuntu-latest, windows-latest ]
-        java-version: [ '21' ]
-        include:
-          - os: ubuntu-latest
-            executable-suffix: ''
-          - os: windows-latest
-            executable-suffix: '.exe'
-
+    name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
-
     permissions:
       contents: read
-
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+        java-version:
+          - "21"
+        include:
+          - os: ubuntu-latest
+            executable-suffix: ""
+          - os: windows-latest
+            executable-suffix: ".exe"
     defaults:
       run:
         working-directory: packages/backend
@@ -43,39 +39,32 @@ jobs:
       - name: Set up GraalVM (Java ${{ matrix.java-version }})
         uses: graalvm/setup-graalvm@v1
         with:
-          java-version: '${{ matrix.java-version }}'
-          version: '23.1.2'
-          distribution: 'graalvm-community'
-          components: 'native-image'
-          cache: 'gradle'
+          distribution: graalvm-community
+          version: "23.1.2"
+          java-version: ${{ matrix.java-version }}
+          components: native-image
+          cache: gradle
 
-      - name: Read rights to gradlew
+      - name: Ensure Gradle wrapper is executable
         run: chmod +x gradlew
 
-      - id: executable
-        run: echo "executable_name=hollybike-${{ runner.os }}-${{ inputs.version }}-x86_64" >> $GITHUB_OUTPUT
+      - name: Compute executable name
+        id: executable
+        run: echo "name=hollybike-${{ runner.os }}-${{ inputs.version }}-x86_64" >> "$GITHUB_OUTPUT"
 
-      - name: Download a single artifact
+      - name: Download frontend artifact
         uses: actions/download-artifact@v4
         with:
           name: HollyBike-Frontend-${{ inputs.version }}
           path: packages/backend/src/main/resources/front
 
-      - name: Run native compile
-        run: ./gradlew nativeCompile -Pimage_name=${{ steps.executable.outputs.executable_name }} -Pis_on_premise=true
+      - name: Build native executable
+        run: ./gradlew nativeCompile -Pimage_name="${{ steps.executable.outputs.name }}" -Pis_on_premise=true
 
-      #      - name: Create native fake folder
-      #        run: mkdir -p build/native/nativeCompile
-      #
-      #      - name: Create fake executable
-      #        run: touch build/native/nativeCompile/${{ steps.executable.outputs.executable_name }}${{ matrix.executable-suffix }}
-
-      - name: Upload executable to the artifacts
+      - name: Upload executable artifact
         uses: actions/upload-artifact@v4
         with:
-          name: HollyBike-${{ inputs.version }}-Backend-${{ runner.os }}-${{ inputs.version }}
-          path: packages/backend/build/native/nativeCompile/${{ steps.executable.outputs.executable_name }}${{ matrix.executable-suffix }}
+          name: HollyBike-${{ inputs.version }}-Backend-${{ runner.os }}
+          path: packages/backend/build/native/nativeCompile/${{ steps.executable.outputs.name }}${{ matrix.executable-suffix }}
           retention-days: 1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
+          if-no-files-found: error

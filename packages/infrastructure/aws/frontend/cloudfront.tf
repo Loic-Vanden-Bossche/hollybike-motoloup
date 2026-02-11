@@ -11,12 +11,12 @@ data "aws_cloudfront_origin_request_policy" "all" {
 }
 
 resource "random_password" "alb_header_value" {
-  length            = 40
-  special           = true
-  min_special       = 5
-  override_special  = "!#$%^&*()-_=+[]{}<>:?"
-  keepers           = {
-    pass_version  = 1
+  length           = 40
+  special          = true
+  min_special      = 5
+  override_special = "!#$%^&*()-_=+[]{}<>:?"
+  keepers = {
+    pass_version = 1
   }
 }
 
@@ -92,7 +92,7 @@ resource "aws_cloudfront_distribution" "cf_dist_frontend" {
 
     path_pattern = "/api*"
 
-    cache_policy_id = data.aws_cloudfront_cache_policy.disabled.id
+    cache_policy_id          = data.aws_cloudfront_cache_policy.disabled.id
     origin_request_policy_id = data.aws_cloudfront_origin_request_policy.all.id
   }
 
@@ -125,7 +125,7 @@ resource "aws_cloudfront_distribution" "cf_dist_frontend" {
   restrictions {
     geo_restriction {
       restriction_type = "none"
-      locations = []
+      locations        = []
     }
   }
 

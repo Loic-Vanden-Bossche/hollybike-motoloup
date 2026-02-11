@@ -17,7 +17,7 @@ resource "kubernetes_ingress_v1" "hollybike_backend_ingress" {
     ingress_class_name = "nginx"
 
     tls {
-      hosts = [var.domain]
+      hosts       = [var.domain]
       secret_name = "hollybike-api-cert"
     }
 
