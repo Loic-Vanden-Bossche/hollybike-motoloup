@@ -63,6 +63,10 @@ jobs:
     needs:
       - build-backend
       - build-frontend
+    permissions:
+      contents: read
+      packages: read
+      pull-requests: write
     uses: ./.github/workflows/infrastructure.yml
     secrets:
       SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
