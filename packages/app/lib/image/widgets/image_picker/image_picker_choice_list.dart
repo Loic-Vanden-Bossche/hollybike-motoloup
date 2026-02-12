@@ -2,18 +2,10 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
-import 'dart:io';
-
-import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:hollybike/image/type/image_picker_mode.dart';
 import 'package:hollybike/image/utils/image_picker/img.dart';
 import 'package:hollybike/image/widgets/image_picker/image_picker_gallery_button.dart';
-import 'package:hollybike/image/widgets/image_picker/image_picker_thumbnail.dart';
-import 'package:hollybike/shared/utils/permissions.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:photo_manager/photo_manager.dart';
 
 import 'image_picker_camera_button.dart';
 
@@ -36,28 +28,7 @@ class ImagePickerChoiceList extends StatefulWidget {
 }
 
 class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
-  final assetEntitiesList = <AssetEntity>[];
-  bool _loadingImages = true;
-  final imagePicker = ImagePicker();
-
-  bool get isLoading => _loadingImages || widget.isLoading;
-
-  @override
-  void initState() {
-    super.initState();
-
-    _checkImagesPermission()
-        .then((granted) {
-          if (granted) {
-            return _loadImages();
-          }
-        })
-        .whenComplete(() {
-          setState(() {
-            _loadingImages = false;
-          });
-        });
-  }
+  bool get isLoading => widget.isLoading;
 
   @override
   Widget build(BuildContext context) {
@@ -65,13 +36,6 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
       ImagePickerCameraButton(
         onImageSelected: (image) => widget.onImagesSelected([image]),
       ),
-      ...assetEntitiesList.map((entity) {
-        return ImagePickerThumbnail(
-          assetEntity: entity,
-          isSelected: widget.entityIdSelectedList.contains(entity.id),
-          onImageSelected: (image) => widget.onImagesSelected([image]),
-        );
-      }),
       ImagePickerGalleryButton(
         mode: widget.mode,
         onImagesSelected: widget.onImagesSelected,
@@ -107,57 +71,5 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
         ),
       ),
     );
-  }
-
-  void _loadImages() async {
-    final List<AssetPathEntity> paths = await PhotoManager.getAssetPathList(
-      onlyAll: true,
-    );
-
-    if (paths.isEmpty) {
-      return;
-    }
-
-    var path = paths.first;
-
-    final List<AssetEntity> entities = await path.getAssetListPaged(
-      page: 0,
-      size: 10,
-    );
-
-    setState(() {
-      assetEntitiesList.addAll(entities);
-    });
-    // PhotoGallery.listAlbums(
-    //   mediumType: MediumType.image,
-    //   newest: true,
-    //   hideIfEmpty: true,
-    // ).then((albums) async {
-    //   final album = albums.firstOrNull;
-    //
-    //   if (album != null) {
-    //     final mediaPage = await album.listMedia(
-    //       take: 10,
-    //     );
-    //
-    //     setState(() {
-    //       mediumIdList.addAll(mediaPage.items.map((e) => e.id));
-    //     });
-    //   }
-    // });
-  }
-
-  Future<bool> _checkImagesPermission() async {
-    await Permission.accessMediaLocation.requestAndCheck();
-
-    if (Platform.isAndroid) {
-      final androidInfo = await DeviceInfoPlugin().androidInfo;
-
-      if (androidInfo.version.sdkInt <= 32) {
-        return Permission.storage.requestAndCheck();
-      }
-    }
-
-    return Permission.photos.requestAndCheck();
   }
 }
