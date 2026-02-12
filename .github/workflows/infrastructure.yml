@@ -98,8 +98,15 @@ jobs:
           mkdir -p ~/.kube
           echo "${{ secrets.KUBE_CONFIG }}" | base64 --decode > ~/.kube/config
 
+      - name: Set up Node.js for GitHub JavaScript actions
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: latest
 
       - name: Terraform format check
         id: fmt
