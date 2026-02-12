@@ -16,6 +16,11 @@ on:
         description: "Build APK for release assets"
         required: true
         type: boolean
+      play_changes_not_sent_for_review:
+        description: "Set true when Play Console requires changesNotSentForReview"
+        required: false
+        type: boolean
+        default: false
     secrets:
       ANDROID_KEYSTORE:
         description: "Android keystore (base64)"
@@ -197,4 +202,4 @@ jobs:
           releaseFiles: ${{ env.AAB_PATH }}
           track: internal
           status: draft
-          changesNotSentForReview: true
+          changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}

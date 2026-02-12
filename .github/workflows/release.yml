@@ -17,6 +17,11 @@ on:
         required: false
         type: boolean
         default: false
+      play_changes_not_sent_for_review:
+        description: "Set true when Play Console requires changesNotSentForReview"
+        required: false
+        type: boolean
+        default: false
 
 concurrency:
   group: release-${{ inputs.version }}
@@ -54,6 +59,7 @@ jobs:
     with:
       version: ${{ inputs.version }}
       create-executables: ${{ inputs.create-executables }}
+      play_changes_not_sent_for_review: ${{ inputs.play_changes_not_sent_for_review }}
     secrets:
       ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
       ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
