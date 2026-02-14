@@ -15,6 +15,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthPersistence {
   final String key = "sessions-store";
   final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+  List<AuthSession>? _cachedSessions;
 
   List<AuthSession> _decodeSessions(String? payload) {
     if (payload == null || payload.isEmpty) return <AuthSession>[];
@@ -26,19 +27,28 @@ class AuthPersistence {
   }
 
   FutureOr<List<AuthSession>> get sessions async {
+    final cache = _cachedSessions;
+    if (cache != null) {
+      return cache;
+    }
+
     final secureValue = await _secureStorage.read(key: key);
     if (secureValue != null) {
-      return _decodeSessions(secureValue);
+      final decoded = _decodeSessions(secureValue);
+      _cachedSessions = decoded;
+      return decoded;
     }
 
     // One-time migration from SharedPreferences to secure storage.
     final sharedPreferences = await SharedPreferences.getInstance();
     final legacySessions = sharedPreferences.getStringList(key);
     if (legacySessions == null || legacySessions.isEmpty) {
+      _cachedSessions = <AuthSession>[];
       return <AuthSession>[];
     }
 
     final migratedSessions = legacySessions.map(AuthSession.fromJson).toList();
+    _cachedSessions = migratedSessions;
     await _secureStorage.write(
       key: key,
       value: jsonEncode(
@@ -48,6 +58,19 @@ class AuthPersistence {
     await sharedPreferences.remove(key);
 
     return migratedSessions;
+  }
+
+  Future<void> _persistSessions(List<AuthSession> newSessions) async {
+    await _secureStorage.write(
+      key: key,
+      value: jsonEncode(
+        newSessions.map((newSession) => newSession.asMap()).toList(),
+      ),
+    );
+
+    // Clean old storage key if present.
+    final sharedPreferences = await SharedPreferences.getInstance();
+    await sharedPreferences.remove(key);
   }
 
   Future<bool> get isConnected async => (await sessions).isNotEmpty;
@@ -66,17 +89,17 @@ class AuthPersistence {
   }
 
   set sessions(FutureOr<List<AuthSession>> newFutureSessions) {
-    newFutureSessions.apply((newSessions) async {
-      await _secureStorage.write(
-        key: key,
-        value: jsonEncode(
-          newSessions.map((newSession) => newSession.asMap()).toList(),
-        ),
-      );
+    if (newFutureSessions is List<AuthSession>) {
+      final loadedSessions = List<AuthSession>.from(newFutureSessions);
+      _cachedSessions = loadedSessions;
+      unawaited(_persistSessions(loadedSessions));
+      return;
+    }
 
-      // Clean old storage key if present.
-      final sharedPreferences = await SharedPreferences.getInstance();
-      await sharedPreferences.remove(key);
+    newFutureSessions.apply((newSessions) async {
+      final loadedSessions = List<AuthSession>.from(newSessions);
+      _cachedSessions = loadedSessions;
+      await _persistSessions(loadedSessions);
     });
   }
 
@@ -85,12 +108,24 @@ class AuthPersistence {
 
   set currentSession(FutureOr<AuthSession?> session) {
     if (session == null) return;
+    if (session is Future<AuthSession?>) {
+      session.then((resolvedSession) {
+        if (resolvedSession != null) {
+          currentSession = resolvedSession;
+        }
+      });
+      return;
+    }
 
     currentSessionExpired = false;
-
-    final FutureOr<List<AuthSession>> filteredSessions =
-        sessions - (session as FutureOr<AuthSession>);
-    sessions = filteredSessions.add(session);
+    final resolvedSession = session as AuthSession;
+    final current = _cachedSessions ?? <AuthSession>[];
+    final updatedSessions = [
+      resolvedSession,
+      ...current.where((savedSession) => savedSession != resolvedSession),
+    ];
+    _cachedSessions = updatedSessions;
+    unawaited(_persistSessions(updatedSessions));
   }
 
   Future<void> removeSession(AuthSession session) async {
