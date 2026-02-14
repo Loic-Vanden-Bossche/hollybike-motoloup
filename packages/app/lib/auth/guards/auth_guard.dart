@@ -16,14 +16,16 @@ class AuthGuard extends AutoRouteGuard {
   void onNavigation(NavigationResolver resolver, StackRouter router) async {
     if (await authPersistence.isDisconnected ||
         authPersistence.currentSessionExpired) {
-      router.replaceAll([
+      router.push(
         LoginRoute(
           onAuthSuccess: () {
-            router.removeLast();
+            if (router.canPop()) {
+              router.pop();
+            }
             resolver.next(true);
           },
         ),
-      ]);
+      );
     } else {
       resolver.next(true);
     }
