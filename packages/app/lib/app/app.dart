@@ -46,15 +46,15 @@ class _AppState extends State<App> {
       context,
       authPersistence: widget.authPersistence,
     );
-  }
 
-  @override
-  Widget build(BuildContext context) {
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top],
     );
+  }
 
+  @override
+  Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.authSession != null) {
@@ -70,8 +70,6 @@ class _AppState extends State<App> {
         builder: (context, state) {
           return AnnotatedRegion<SystemUiOverlayStyle>(
             value: SystemUiOverlayStyle(
-              statusBarColor: Colors.transparent,
-              systemNavigationBarColor: Colors.transparent,
               systemNavigationBarContrastEnforced: false,
               systemStatusBarContrastEnforced: false,
               systemNavigationBarIconBrightness:
