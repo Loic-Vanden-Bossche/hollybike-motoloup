@@ -46,6 +46,8 @@ class WeatherForecastSuccess extends WeatherForecastState {
 class WeatherForecastFailure extends WeatherForecastState {
   final String errorMessage;
 
-  WeatherForecastFailure(WeatherForecastState state, {required this.errorMessage})
-    : super.state(state.copyWith(status: WeatherForecastStatus.error));
+  WeatherForecastFailure(
+    WeatherForecastState state, {
+    required this.errorMessage,
+  }) : super.state(state.copyWith(status: WeatherForecastStatus.error));
 }

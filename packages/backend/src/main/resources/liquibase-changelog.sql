@@ -540,3 +540,15 @@ ALTER TABLE invitations
 
 ALTER TABLE invitations
     ADD CONSTRAINT invitations_association_fkey FOREIGN KEY (association) REFERENCES associations(id_association) ON DELETE CASCADE;
+
+--changeset codex:1
+ALTER TABLE tokens
+    ALTER COLUMN token TYPE VARCHAR(128);
+
+DELETE FROM tokens t1
+USING tokens t2
+WHERE t1.id_token < t2.id_token
+  AND t1."user" = t2."user"
+  AND t1.device = t2.device;
+
+CREATE UNIQUE INDEX IF NOT EXISTS tokens_user_device_uindex ON tokens("user", device);

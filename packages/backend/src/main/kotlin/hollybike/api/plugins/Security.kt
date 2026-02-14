@@ -9,6 +9,7 @@ import com.auth0.jwt.algorithms.Algorithm
 import hollybike.api.conf
 import hollybike.api.repository.User
 import hollybike.api.repository.Users
+import hollybike.api.types.association.EAssociationsStatus
 import hollybike.api.types.user.EUserStatus
 import io.ktor.http.auth.*
 import io.ktor.server.application.*
@@ -48,9 +49,12 @@ fun Application.configureSecurity(db: Database) {
 						val user = transaction(db) {
 							User.find {
 								(Users.email eq credential.payload.getClaim("email")
-									.asString()) and (Users.status neq EUserStatus.Disabled.value)
+									.asString()) and (Users.status eq EUserStatus.Enabled.value)
 							}.with(User::association).singleOrNull()
 						} ?: run {
+							return@validate null
+						}
+						if (user.association.status != EAssociationsStatus.Enabled) {
 							return@validate null
 						}
 						this.attributes.put(userAttributeKey, user)
@@ -58,8 +62,7 @@ fun Application.configureSecurity(db: Database) {
 					} else {
 						null
 					}
-				}catch (e: Exception) {
-					e.printStackTrace()
+				} catch (_: Exception) {
 					null
 				}
 			}

@@ -19,13 +19,17 @@ class AuthSession {
     required this.deviceId,
   });
 
-  String toJson() {
-    return json.encode({
+  Map<String, dynamic> asMap() {
+    return {
       "token": token,
       "refresh_token": refreshToken,
       "device_id": deviceId,
       "host": host,
-    });
+    };
+  }
+
+  String toJson() {
+    return json.encode(asMap());
   }
 
   @override

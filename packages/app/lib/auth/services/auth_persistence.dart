@@ -3,20 +3,51 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'dart:async';
+import 'dart:convert';
 
 import 'package:hollybike/auth/types/auth_session.dart';
 import 'package:hollybike/shared/utils/apply_on_future_or.dart';
 import 'package:hollybike/shared/utils/calculate_future_or_list.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthPersistence {
   final String key = "sessions-store";
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
+
+  List<AuthSession> _decodeSessions(String? payload) {
+    if (payload == null || payload.isEmpty) return <AuthSession>[];
+
+    final decoded = jsonDecode(payload) as List<dynamic>;
+    return decoded
+        .map((entry) => AuthSession.fromJson(jsonEncode(entry)))
+        .toList();
+  }
 
   FutureOr<List<AuthSession>> get sessions async {
-    final sessions = (await SharedPreferences.getInstance()).getStringList(key);
+    final secureValue = await _secureStorage.read(key: key);
+    if (secureValue != null) {
+      return _decodeSessions(secureValue);
+    }
 
-    return sessions?.map(AuthSession.fromJson).toList() ?? <AuthSession>[];
+    // One-time migration from SharedPreferences to secure storage.
+    final sharedPreferences = await SharedPreferences.getInstance();
+    final legacySessions = sharedPreferences.getStringList(key);
+    if (legacySessions == null || legacySessions.isEmpty) {
+      return <AuthSession>[];
+    }
+
+    final migratedSessions = legacySessions.map(AuthSession.fromJson).toList();
+    await _secureStorage.write(
+      key: key,
+      value: jsonEncode(
+        migratedSessions.map((session) => session.asMap()).toList(),
+      ),
+    );
+    await sharedPreferences.remove(key);
+
+    return migratedSessions;
   }
 
   Future<bool> get isConnected async => (await sessions).isNotEmpty;
@@ -35,13 +66,17 @@ class AuthPersistence {
   }
 
   set sessions(FutureOr<List<AuthSession>> newFutureSessions) {
-    SharedPreferences.getInstance().then((sharedPreferences) {
-      newFutureSessions.apply((newSessions) {
-        sharedPreferences.setStringList(
-          key,
-          newSessions.map((newSession) => newSession.toJson()).toList(),
-        );
-      });
+    newFutureSessions.apply((newSessions) async {
+      await _secureStorage.write(
+        key: key,
+        value: jsonEncode(
+          newSessions.map((newSession) => newSession.asMap()).toList(),
+        ),
+      );
+
+      // Clean old storage key if present.
+      final sharedPreferences = await SharedPreferences.getInstance();
+      await sharedPreferences.remove(key);
     });
   }
 
@@ -62,22 +97,12 @@ class AuthPersistence {
     sessions = sessions - session;
   }
 
-  final _oldNewSessionCorrespondence = <AuthSession, AuthSession>{};
-
   Future<void> replaceSession(
     AuthSession oldSession,
     AuthSession newSession,
   ) async {
-    _oldNewSessionCorrespondence[oldSession] = newSession;
     sessions = (sessions - oldSession).add(newSession);
   }
-
-  void removeCorrespondence(AuthSession oldSession) {
-    _oldNewSessionCorrespondence.remove(oldSession);
-  }
-
-  AuthSession? getNewSession(AuthSession oldSession) =>
-      _oldNewSessionCorrespondence[oldSession];
 
   Future<AuthSession?> getSessionByToken(String token) async {
     try {
@@ -87,32 +112,48 @@ class AuthPersistence {
     }
   }
 
-  bool _refreshing = false;
-  Completer<void>? _refreshingCompleter;
-
-  bool get refreshing => _refreshing;
-
-  set refreshing(bool value) {
-    _refreshing = value;
-    if (!value &&
-        _refreshingCompleter != null &&
-        !_refreshingCompleter!.isCompleted) {
-      _refreshingCompleter!.complete();
+  Future<AuthSession?> getSessionByHostAndDevice(
+    String host,
+    String deviceId,
+  ) async {
+    try {
+      return (await sessions).firstWhere(
+        (session) => session.host == host && session.deviceId == deviceId,
+      );
+    } catch (e) {
+      return null;
     }
   }
 
-  Future<void> waitIfRefreshing({
+  final Map<String, Completer<void>> _refreshLocks = {};
+
+  String refreshLockKey(AuthSession session) =>
+      "${session.host}|${session.deviceId}";
+
+  bool isRefreshing(String lockKey) => _refreshLocks[lockKey] != null;
+
+  void markRefreshing(String lockKey) {
+    _refreshLocks.putIfAbsent(lockKey, () => Completer<void>());
+  }
+
+  void markRefreshDone(String lockKey) {
+    final completer = _refreshLocks.remove(lockKey);
+    if (completer != null && !completer.isCompleted) {
+      completer.complete();
+    }
+  }
+
+  Future<void> waitIfRefreshing(
+    String lockKey, {
     Duration timeout = const Duration(seconds: 20),
   }) async {
-    if (!_refreshing) return;
+    final completer = _refreshLocks[lockKey];
+    if (completer == null) return;
 
-    _refreshingCompleter = Completer<void>();
     try {
-      await _refreshingCompleter!.future.timeout(timeout);
+      await completer.future.timeout(timeout);
     } catch (e) {
       return;
-    } finally {
-      _refreshingCompleter = null;
     }
   }
 }

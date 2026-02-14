@@ -106,7 +106,8 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
               controller.addJavaScriptHandler(
                 handlerName: 'gpxText',
                 callback: (args) async {
-                  final text = (args.isNotEmpty ? args.first : '') as String? ?? '';
+                  final text =
+                      (args.isNotEmpty ? args.first : '') as String? ?? '';
                   _log('Received gpxText, length=${text.length}');
                   if (!text.contains('<gpx')) return;
                   _onGpxDownloaded(context, writeTempFile(utf8.encode(text)));
@@ -115,7 +116,8 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
               controller.addJavaScriptHandler(
                 handlerName: 'gpxBase64',
                 callback: (args) async {
-                  final b64 = (args.isNotEmpty ? args.first : '') as String? ?? '';
+                  final b64 =
+                      (args.isNotEmpty ? args.first : '') as String? ?? '';
                   _log('Received gpxBase64, length=${b64.length}');
                   if (b64.isEmpty) return;
                   final bytes = base64Decode(b64);
@@ -161,28 +163,39 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
             },
 
             onConsoleMessage: (controller, consoleMessage) {
-              _log('console[${consoleMessage.messageLevel}]: ${consoleMessage.message}');
+              _log(
+                'console[${consoleMessage.messageLevel}]: ${consoleMessage.message}',
+              );
             },
 
             onReceivedError: (controller, request, error) {
-              _log('onReceivedError: url=${request.url} type=${error.type} desc=${error.description}');
+              _log(
+                'onReceivedError: url=${request.url} type=${error.type} desc=${error.description}',
+              );
             },
 
             onReceivedHttpError: (controller, request, errorResponse) {
-              _log('onReceivedHttpError: ${request.url} status=${errorResponse.statusCode}');
+              _log(
+                'onReceivedHttpError: ${request.url} status=${errorResponse.statusCode}',
+              );
             },
 
             onLoadResource: (controller, resource) {
-              _log('onLoadResource: ${resource.url} ''start=${resource.startTime}ms dur=${resource.duration}ms');
+              _log(
+                'onLoadResource: ${resource.url} '
+                'start=${resource.startTime}ms dur=${resource.duration}ms',
+              );
             },
 
             shouldInterceptFetchRequest: (controller, request) async {
               final url = request.url.toString();
-              _log('shouldInterceptFetchRequest: $url headers=${request.headers}');
+              _log(
+                'shouldInterceptFetchRequest: $url headers=${request.headers}',
+              );
 
               final isOpenrunnerFile =
                   url.startsWith("https://api.openrunner.com/api/v2/routes/") &&
-                      url.endsWith("/export/gpx-track");
+                  url.endsWith("/export/gpx-track");
 
               if (isOpenrunnerFile) {
                 _log('OpenRunner match. Fetching via Dart http...');
@@ -194,7 +207,9 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
                   },
                 );
 
-                _log('OpenRunner response: ${response.statusCode} len=${response.bodyBytes.length}');
+                _log(
+                  'OpenRunner response: ${response.statusCode} len=${response.bodyBytes.length}',
+                );
                 if (!response.body.contains('<gpx')) {
                   return Future.value(request);
                 }
@@ -210,14 +225,19 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
 
             onDownloadStartRequest: (controller, data) async {
               final requestUrl = data.url.toString();
-              _log('onDownloadStartRequest: $requestUrl '
-                  'mime=${data.mimeType} contentDisposition=${data.contentDisposition} '
-                  'userAgent=${data.userAgent}');
+              _log(
+                'onDownloadStartRequest: $requestUrl '
+                'mime=${data.mimeType} contentDisposition=${data.contentDisposition} '
+                'userAgent=${data.userAgent}',
+              );
 
               // data: URLs
               if (requestUrl.startsWith('data:text')) {
                 _log('Handling data: URL');
-                final cleanUrl = requestUrl.replaceAll(RegExp(r'data:text.*?,'), '');
+                final cleanUrl = requestUrl.replaceAll(
+                  RegExp(r'data:text.*?,'),
+                  '',
+                );
                 final decoded = Uri.decodeFull(cleanUrl);
                 _log('data: length=${decoded.length}');
                 if (!decoded.contains('<gpx')) return;
@@ -227,14 +247,18 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
 
               // blob: URLs -> DO NOT fetch (CSP). The early JS injector captures these blobs
               if (requestUrl.startsWith('blob:')) {
-                _log('blob: URL detected. Relying on early JS capture. (CSP blocks fetch)');
+                _log(
+                  'blob: URL detected. Relying on early JS capture. (CSP blocks fetch)',
+                );
                 // Nothing to do here; the JS hook should have already sent gpxText/gpxBase64.
-                await controller.evaluateJavascript(source: """
+                await controller.evaluateJavascript(
+                  source: """
                   (function(){
                     window.__HB_log && window.__HB_log('Flutter pinged after blob download start');
                     if (window.__HB_tryEmitPendingBlob) window.__HB_tryEmitPendingBlob(${"jsonEncode(requestUrl)"});
                   })();
-                """);
+                """,
+                );
                 return;
               }
 
@@ -248,7 +272,9 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
                   if (data.mimeType != null) 'Accept': data.mimeType!,
                 },
               );
-              _log('HTTP response: ${response.statusCode} len=${response.bodyBytes.length}');
+              _log(
+                'HTTP response: ${response.statusCode} len=${response.bodyBytes.length}',
+              );
               if (!response.body.contains('<gpx')) return;
 
               if (context.mounted) {

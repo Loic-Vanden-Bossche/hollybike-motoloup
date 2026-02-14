@@ -10,6 +10,7 @@ import com.auth0.jwt.exceptions.JWTVerificationException
 import hollybike.api.ConfSecurity
 import hollybike.api.repository.User
 import hollybike.api.repository.Users
+import hollybike.api.types.association.EAssociationsStatus
 import hollybike.api.types.user.EUserStatus
 import io.ktor.util.logging.*
 import org.jetbrains.exposed.dao.with
@@ -36,22 +37,21 @@ class AuthVerifier(conf: ConfSecurity, private val db: Database, private val log
 					val user = transaction(db) {
 						User.find {
 							(Users.email eq decoded.getClaim("email")
-								.asString()) and (Users.status neq EUserStatus.Disabled.value)
+								.asString()) and (Users.status eq EUserStatus.Enabled.value)
 						}.with(User::association).singleOrNull()
 					} ?: run {
 						return null
 					}
-					user
+					if (user.association.status == EAssociationsStatus.Enabled) user else null
 				} else {
 					null
 				}
 			} catch (e: Exception) {
-				e.printStackTrace()
+				logger.warn("WebSocket auth verification failed during user lookup", e)
 				null
 			}
 		} catch (e: JWTVerificationException) {
-			e.printStackTrace()
-			println("Token error")
+			logger.info("Invalid WebSocket JWT: {}", e.message)
 			null
 		}
 	}

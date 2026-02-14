@@ -79,5 +79,6 @@ sealed class MinimalJourney with _$MinimalJourney {
     return texts.join(", ");
   }
 
-  bool get haveAllPositions => start != null && end != null && destination != null;
+  bool get haveAllPositions =>
+      start != null && end != null && destination != null;
 }

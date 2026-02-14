@@ -4,7 +4,6 @@
 */
 package hollybike.api.services.auth
 
-import aws.smithy.kotlin.runtime.text.encoding.encodeBase64String
 import com.auth0.jwt.JWT
 import com.auth0.jwt.algorithms.Algorithm
 import de.nycode.bcrypt.hash
@@ -26,7 +25,11 @@ import kotlinx.datetime.*
 import org.jetbrains.exposed.dao.load
 import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.or
 import org.jetbrains.exposed.sql.transactions.transaction
+import java.nio.charset.StandardCharsets
+import java.security.MessageDigest
+import java.security.SecureRandom
 import java.util.*
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
@@ -34,6 +37,7 @@ import kotlin.concurrent.schedule
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.milliseconds
 
 class AuthService(
 	private val db: Database,
@@ -43,9 +47,8 @@ class AuthService(
 	private val mailSender: MailSender?
 ) {
 	private val key = SecretKeySpec(conf.secret.toByteArray(), "HmacSHA256")
-	private val mac = Mac.getInstance("HmacSHA256").apply {
-		init(key)
-	}
+	private val secureRandom = SecureRandom()
+	private val refreshTokenInactivity = conf.refreshTokenInactivityMs.coerceAtLeast(1L).milliseconds
 
 	private val timer = Timer()
 
@@ -55,7 +58,7 @@ class AuthService(
 	}
 
 	private fun scheduleClean() {
-		timer.schedule(Date.from((Clock.System.now() + 30.days).toJavaInstant())) {
+		timer.schedule(Date.from((Clock.System.now() + refreshTokenInactivity).toJavaInstant())) {
 			cleanToken()
 			scheduleClean()
 		}
@@ -63,7 +66,7 @@ class AuthService(
 
 	private fun cleanToken() {
 		transaction(db) {
-			Token.find { Tokens.lastUse less Clock.System.now() - 30.days }.forEach { it.delete() }
+			Token.find { Tokens.lastUse less Clock.System.now() - refreshTokenInactivity }.forEach { it.delete() }
 		}
 	}
 
@@ -75,8 +78,19 @@ class AuthService(
 		.withIssuer(conf.domain)
 		.withClaim("email", email)
 		.withClaim("scope", scope.value)
-		.withExpiresAt(Date(System.currentTimeMillis() + 60_000 * 60 * 24))
+		.withExpiresAt(Date(System.currentTimeMillis() + conf.jwtExpirationMs))
 		.sign(Algorithm.HMAC256(conf.secret))
+
+	private fun hmacSha256(value: String): ByteArray {
+		val mac = Mac.getInstance("HmacSHA256")
+		mac.init(key)
+		return mac.doFinal(value.toByteArray(Charsets.UTF_8))
+	}
+
+	private fun constantTimeEquals(left: String, right: String): Boolean = MessageDigest.isEqual(
+		left.toByteArray(StandardCharsets.UTF_8),
+		right.toByteArray(StandardCharsets.UTF_8)
+	)
 
 	private fun verifyLinkSignature(
 		signature: String,
@@ -84,12 +98,12 @@ class AuthService(
 		role: EUserScope,
 		association: Int,
 		invitation: Int
-	): Boolean = getLinkSignature(host, role, association, invitation) == signature
+	): Boolean = constantTimeEquals(getLinkSignature(host, role, association, invitation), signature)
 
 	@OptIn(ExperimentalEncodingApi::class)
 	private fun getLinkSignature(host: String, role: EUserScope, association: Int, invitation: Int): String {
 		val value = "$host$role$association$invitation"
-		return encoder.encode(mac.doFinal(value.toByteArray()))
+		return encoder.encode(hmacSha256(value))
 	}
 
 	fun generateLink(host: String, invitation: Invitation): String {
@@ -108,15 +122,20 @@ class AuthService(
 		if (user.status != EUserStatus.Enabled || user.association.status != EAssociationsStatus.Enabled) {
 			return Result.failure(UserDisabled())
 		}
-		val refresh = randomString(35)
-		val device = login.device ?: UUID.randomUUID().toString()
+		val refresh = generateRefreshToken()
+		val refreshHash = hashRefreshToken(refresh)
+		val device = normalizeDeviceIdForSession(login.device)
 		transaction(db) {
 			Token.find { (Tokens.user eq user.id) and (Tokens.device eq device) }.firstOrNull()
-				?.apply { token = refresh }
+				?.apply {
+					token = refreshHash
+					lastUse = Clock.System.now()
+				}
 				?: Token.new {
 					this.user = user
 					this.device = device
-					this.token = refresh
+					this.token = refreshHash
+					this.lastUse = Clock.System.now()
 				}
 		}
 		return Result.success(
@@ -128,12 +147,30 @@ class AuthService(
 		)
 	}
 
-	private val allowedChars = ('A'..'Z') + ('a'..'z') + ('0'..'9')
+	private fun normalizeDeviceIdForSession(deviceId: String?): String {
+		if (deviceId.isNullOrBlank() || deviceId.length > 40) {
+			return UUID.randomUUID().toString()
+		}
+		return deviceId
+	}
 
-	private fun randomString(length: Int): String {
-		return (1..length)
-			.map { allowedChars.random() }
-			.joinToString("")
+	private fun sanitizeDeviceId(deviceId: String?): String? {
+		if (deviceId.isNullOrBlank() || deviceId.length > 40) {
+			return null
+		}
+		return deviceId
+	}
+
+	@OptIn(ExperimentalEncodingApi::class)
+	private fun generateRefreshToken(): String {
+		val bytes = ByteArray(32)
+		secureRandom.nextBytes(bytes)
+		return encoder.encode(bytes)
+	}
+
+	private fun hashRefreshToken(token: String): String {
+		val digest = MessageDigest.getInstance("SHA-256").digest(token.toByteArray(StandardCharsets.UTF_8))
+		return digest.joinToString("") { "%02x".format(it) }
 	}
 
 	fun signup(host: String, signup: TSignup): Result<TAuthInfo> {
@@ -159,19 +196,20 @@ class AuthService(
 				return Result.failure(InvitationNotFoundException())
 			}
 
-			val refresh = randomString(35)
+			val refresh = generateRefreshToken()
 			val deviceId = UUID.randomUUID().toString()
 			transaction(db) {
 				Token.new {
 					user = it
-					token = refresh
+					token = hashRefreshToken(refresh)
 					device = deviceId
+					lastUse = Clock.System.now()
 				}
 			}
 			TAuthInfo(
 				generateJWT(it.email, it.scope),
-				randomString(35),
-				UUID.randomUUID().toString()
+				refresh,
+				deviceId
 			)
 		}.onFailure {
 			return Result.failure(it)
@@ -179,18 +217,32 @@ class AuthService(
 	}
 
 	fun refreshAccessToken(refresh: TRefresh): TAuthInfo? {
-		val newRefresh = randomString(35)
+		val providedDevice = sanitizeDeviceId(refresh.device) ?: return null
+		val providedHash = hashRefreshToken(refresh.token)
+		val newRefresh = generateRefreshToken()
+		val newRefreshHash = hashRefreshToken(newRefresh)
 		return transaction(db) {
-			Token.find { Tokens.device eq refresh.device }.firstOrNull()?.let {
-				if (it.token == refresh.token) {
-					it.token = newRefresh
-					generateJWT(it.user.email, it.user.scope)
-				} else {
-					Token.find { Tokens.user eq it.user.id }.forEach { t -> t.delete() }
-					null
+			Token.find {
+				(Tokens.device eq providedDevice) and (
+					(Tokens.token eq providedHash) or (Tokens.token eq refresh.token)
+				)
+			}.firstOrNull()?.let { session ->
+				val user = session.user.load(User::association)
+				if (user.status != EUserStatus.Enabled || user.association.status != EAssociationsStatus.Enabled) {
+					session.delete()
+					return@let null
 				}
-			}?.let {
-				TAuthInfo(it, newRefresh, refresh.device)
+				if (session.lastUse < Clock.System.now() - refreshTokenInactivity) {
+					session.delete()
+					return@let null
+				}
+				session.token = newRefreshHash
+				session.lastUse = Clock.System.now()
+				TAuthInfo(
+					generateJWT(user.email, user.scope),
+					newRefresh,
+					providedDevice
+				)
 			}
 		}
 	}
@@ -201,7 +253,7 @@ class AuthService(
 			return Result.failure(UserNotFoundException())
 		}
 		val expire = Clock.System.now() + 1.days
-		val token = encoder.encode(mac.doFinal("$mail-${expire.epochSeconds}".toByteArray(Charsets.UTF_8)))
+		val token = encoder.encode(hmacSha256("$mail-${expire.epochSeconds}"))
 		val link = "${conf.domain}/change-password?user=$mail&expire=${expire.epochSeconds}&token=$token"
 		mailSender?.passwordMail(link, user.username, user.email) ?: run {
 			return Result.failure(NoMailSenderException())
@@ -217,8 +269,8 @@ class AuthService(
 		val user = transaction(db) { User.find { Users.email eq mail }.firstOrNull() } ?: run {
 			return Result.failure(UserNotFoundException())
 		}
-		val verify = encoder.encode(mac.doFinal("$mail-${password.expire}".toByteArray(Charsets.UTF_8)))
-		if(password.token != verify) {
+		val verify = encoder.encode(hmacSha256("$mail-${password.expire}"))
+		if(!constantTimeEquals(password.token, verify)) {
 			return Result.failure(NotAllowedException())
 		}
 		if(password.newPassword != password.newPasswordConfirmation) {
@@ -227,7 +279,10 @@ class AuthService(
 		if(Instant.fromEpochSeconds(password.expire) < Clock.System.now()) {
 			return Result.failure(LinkExpire())
 		}
-		transaction(db) { user.password = hash(password.newPassword).encodeBase64() }
+		transaction(db) {
+			user.password = hash(password.newPassword).encodeBase64()
+			Token.find { Tokens.user eq user.id }.forEach { it.delete() }
+		}
 		return Result.success(Unit)
 	}
 }

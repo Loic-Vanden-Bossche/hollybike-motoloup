@@ -50,7 +50,10 @@ class EventExpensesBloc extends Bloc<EventExpensesEvent, EventExpensesState> {
     );
   }
 
-  Future<void> _onAddExpense(AddExpense event, Emitter<EventExpensesState> emit) async {
+  Future<void> _onAddExpense(
+    AddExpense event,
+    Emitter<EventExpensesState> emit,
+  ) async {
     emit(EventExpensesOperationInProgress(state));
 
     try {
@@ -79,7 +82,10 @@ class EventExpensesBloc extends Bloc<EventExpensesEvent, EventExpensesState> {
     }
   }
 
-  Future<void> _onEditBudget(EditBudget event, Emitter<EventExpensesState> emit) async {
+  Future<void> _onEditBudget(
+    EditBudget event,
+    Emitter<EventExpensesState> emit,
+  ) async {
     emit(EventExpensesOperationInProgress(state));
 
     try {

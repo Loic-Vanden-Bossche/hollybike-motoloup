@@ -38,8 +38,7 @@ class AuthenticationController(
 				call.respond(it)
 			}.onFailure {
 				when (it) {
-					is UserNotFoundException -> call.respond(HttpStatusCode.NotFound, "Utilisateur inconnu")
-					is UserWrongPassword -> call.respond(HttpStatusCode.Unauthorized, "Mauvais mot de passe")
+					is UserNotFoundException, is UserWrongPassword -> call.respond(HttpStatusCode.Unauthorized, "Identifiants invalides")
 					is UserDisabled -> call.respond(HttpStatusCode.Forbidden)
 				}
 			}
