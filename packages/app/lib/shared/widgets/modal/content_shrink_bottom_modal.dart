@@ -10,6 +10,9 @@ class ContentShrinkBottomModal extends StatefulWidget {
   final bool enableDrag;
   final int maxModalHeight;
   final bool modalOpened;
+  final Color backgroundColor;
+  final bool showAppBar;
+  final double appBarOpacity;
   final void Function(bool opened)? onStatusChanged;
 
   const ContentShrinkBottomModal({
@@ -20,6 +23,9 @@ class ContentShrinkBottomModal extends StatefulWidget {
     this.onStatusChanged,
     this.enableDrag = true,
     this.maxModalHeight = 300,
+    this.backgroundColor = Colors.black,
+    this.showAppBar = true,
+    this.appBarOpacity = 1,
   });
 
   @override
@@ -55,19 +61,25 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: Colors.transparent,
       extendBodyBehindAppBar: true,
       extendBody: true,
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        actions: _buildActions(),
-      ),
+      appBar:
+          widget.showAppBar
+              ? AppBar(
+                backgroundColor: Colors.transparent,
+                elevation: 0,
+                automaticallyImplyLeading: false,
+                leading: _buildLeading(widget.appBarOpacity.clamp(0, 1)),
+                actions: _buildActions(widget.appBarOpacity.clamp(0, 1)),
+              )
+              : null,
       body: GestureDetector(
         onVerticalDragUpdate: widget.enableDrag ? _onVerticalDragUpdate : null,
         onVerticalDragEnd: widget.enableDrag ? _onVerticalDragEnd : null,
         onVerticalDragStart: widget.enableDrag ? _onVerticalDragStart : null,
         child: Container(
-          color: Colors.black,
+          color: widget.backgroundColor,
           height: MediaQuery.of(context).size.height,
           child: Column(
             children: [
@@ -102,17 +114,45 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
     );
   }
 
-  List<Widget>? _buildActions() {
+  Widget? _buildLeading(double opacity) {
+    if (!Navigator.of(context).canPop()) {
+      return null;
+    }
+
+    return IgnorePointer(
+      ignoring: opacity <= 0.01,
+      child: AnimatedOpacity(
+        duration: const Duration(milliseconds: 140),
+        curve: Curves.easeOut,
+        opacity: opacity,
+        child: BackButton(
+          onPressed: () {
+            Navigator.of(context).maybePop();
+          },
+        ),
+      ),
+    );
+  }
+
+  List<Widget>? _buildActions(double opacity) {
     if (_modalOpened || !widget.enableDrag) {
       return null;
     }
 
     return [
-      IconButton(
-        onPressed: () {
-          _onOpened();
-        },
-        icon: const Icon(Icons.more_vert_rounded),
+      IgnorePointer(
+        ignoring: opacity <= 0.01,
+        child: AnimatedOpacity(
+          duration: const Duration(milliseconds: 140),
+          curve: Curves.easeOut,
+          opacity: opacity,
+          child: IconButton(
+            onPressed: () {
+              _onOpened();
+            },
+            icon: const Icon(Icons.more_vert_rounded),
+          ),
+        ),
       ),
     ];
   }

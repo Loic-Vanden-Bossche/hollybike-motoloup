@@ -44,6 +44,7 @@ class AppRouter extends RootStackRouter {
       guards: [AuthGuard(authPersistence: authPersistence)],
       page: ImageGalleryViewRoute.page,
       path: '/image-view',
+      opaque: false,
       transitionsBuilder: TransitionsBuilders.fadeIn,
     ),
     CustomRoute(
