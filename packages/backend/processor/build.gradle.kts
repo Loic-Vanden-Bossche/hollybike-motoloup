@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-	implementation("com.google.devtools.ksp:symbol-processing-api:1.9.23-1.0.20")
+	implementation("com.google.devtools.ksp:symbol-processing-api:2.3.5")
 }
 
 tasks.test {
@@ -18,4 +18,8 @@ tasks.test {
 }
 kotlin {
     jvmToolchain(21)
+}
+tasks.named<Jar>("jar") {
+    archiveFileName.set("processor-ksp.jar")
+    destinationDirectory.set(layout.buildDirectory.dir("ksp-libs"))
 }

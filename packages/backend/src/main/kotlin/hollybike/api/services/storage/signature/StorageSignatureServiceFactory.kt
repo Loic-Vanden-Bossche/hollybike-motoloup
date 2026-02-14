@@ -17,3 +17,5 @@ object StorageSignatureServiceFactory {
 		return CloudFrontStorageSignatureService(conf.security)
 	}
 }
+
+

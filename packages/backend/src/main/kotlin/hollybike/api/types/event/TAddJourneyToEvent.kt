@@ -12,3 +12,6 @@ data class TAddJourneyToEvent(
 	@SerialName("journey_id")
 	val journeyId: Int,
 )
+
+
+

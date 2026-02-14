@@ -15,8 +15,8 @@ import liquibase.command.core.helpers.DbUrlConnectionArgumentsCommandStep
 import liquibase.command.core.helpers.ShowSummaryArgument
 import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.DatabaseConfig
+import org.jetbrains.exposed.v1.core.DatabaseConfig
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.postgresql.util.PSQLException
 import java.sql.Connection
 
@@ -44,7 +44,9 @@ fun Application.configureDatabase(): Database? {
 
 fun runMigration(isDev: Boolean, isCloud: Boolean, isTestEnv: Boolean, connection: Connection) {
 	val changelog = "/liquibase-changelog.sql"
-	val context = (if (isDev) "dev," else "") + (if (isTestEnv) "test," else "") + (if (isCloud) "cloud" else "premise")
+	val context = (if (isDev && !isTestEnv) "dev," else "") +
+		(if (isTestEnv) "test," else "") +
+		(if (isCloud) "cloud" else "premise")
 
 	val db = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(JdbcConnection(connection))
 	CommandScope("update").apply {
@@ -54,3 +56,5 @@ fun runMigration(isDev: Boolean, isCloud: Boolean, isTestEnv: Boolean, connectio
 		addArgumentValue(ShowSummaryArgument.SHOW_SUMMARY, UpdateSummaryEnum.OFF)
 	}.execute()
 }
+
+

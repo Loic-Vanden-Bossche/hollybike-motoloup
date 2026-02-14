@@ -7,7 +7,7 @@ package hollybike.api.types.event
 import hollybike.api.types.user.TUserPartial
 import hollybike.api.repository.Event
 import hollybike.api.types.association.TPartialAssociation
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -50,3 +50,6 @@ data class TEvent(
 		budget = if(viewBudget) entity.budget else null
 	)
 }
+
+
+

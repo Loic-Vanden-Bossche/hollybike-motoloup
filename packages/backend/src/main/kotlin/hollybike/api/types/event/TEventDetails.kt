@@ -40,3 +40,5 @@ data class TEventDetails(
 		totalExpense = expenses?.sumOf { it.amount }
 	)
 }
+
+

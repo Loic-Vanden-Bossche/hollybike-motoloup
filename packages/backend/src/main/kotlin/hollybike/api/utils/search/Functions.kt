@@ -4,24 +4,27 @@
 */
 package hollybike.api.utils.search
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.database.lower
 import hollybike.api.database.unaccent
 import io.ktor.http.*
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.datetime.LocalDate
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.atStartOfDayIn
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greater
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.greaterEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNull
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.less
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.lessEq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.like
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.neq
-import org.jetbrains.exposed.sql.kotlin.datetime.KotlinInstantColumnType
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.greater
+import org.jetbrains.exposed.v1.core.greaterEq
+import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.isNull
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.lessEq
+import org.jetbrains.exposed.v1.core.like
+import org.jetbrains.exposed.v1.core.neq
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IdTable
+import org.jetbrains.exposed.v1.datetime.KotlinInstantColumnType
 
 fun Parameters.getSearchParam(mapper: Mapper): SearchParam {
 	val page = get("page")?.toIntOrNull() ?: 0
@@ -75,7 +78,7 @@ fun Query.applyParam(searchParam: SearchParam, pagination: Boolean = true): Quer
 	var q = this
 	q = q.orderBy(*searchParam.sort.map { (c, o) -> c to o }.toTypedArray())
 	if (pagination) {
-		q = q.limit(searchParam.perPage, searchParam.page * searchParam.perPage.toLong())
+		q = q.limit(searchParam.perPage).offset(searchParam.page * searchParam.perPage.toLong())
 	}
 	val filter = searchParamFilter(searchParam.filter)
 	val query = if ((searchParam.query?.split(" ")?.size ?: 0) == 2) {
@@ -144,24 +147,33 @@ private fun searchParamFilter(filter: List<Filter>): Op<Boolean>? = filter
 		acc and v
 	}
 
+private fun parseInstantValue(value: String): Instant? = try {
+	Instant.parse(value)
+} catch (_: IllegalArgumentException) {
+	try {
+		Instant.fromEpochMilliseconds(LocalDate.parse(value).atStartOfDayIn(TimeZone.UTC).toEpochMilliseconds())
+	} catch (_: Exception) {
+		null
+	}
+}
+
 @Suppress("UNCHECKED_CAST")
 private infix fun Column<out Any?>.equal(value: String): Op<Boolean>? =
 	when (columnType) {
 		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) eq it }
 		is VarCharColumnType -> (this as Column<String?>) eq value
-		is KotlinInstantColumnType -> try {
-			Instant.parse(value)
-		} catch (e: IllegalArgumentException) {
-			try {
-				LocalDate.parse(value).atStartOfDayIn(TimeZone.UTC)
-			} catch (_: Exception) {
-				null
-			}
-		}?.let { (this as Column<Instant?>) eq it }
+		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) eq it }
 
 		is EntityIDColumnType<*> -> {
 			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
-				value.toIntOrNull()?.let { (this as Column<Int?>) eq it }
+				val entityIdType = columnType as? EntityIDColumnType<Int>
+				val id = value.toIntOrNull()
+				if (entityIdType != null && id != null) {
+					val table = entityIdType.idColumn.table as IdTable<Int>
+					(this as Column<EntityID<Int>>) eq EntityID(id, table)
+				} else {
+					null
+				}
 			} else {
 				null
 			}
@@ -175,19 +187,18 @@ private infix fun Column<out Any?>.nEqual(value: String): Op<Boolean>? =
 	when (columnType) {
 		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) neq it }
 		is VarCharColumnType -> (this as Column<String?>) neq value
-		is KotlinInstantColumnType -> try {
-			Instant.parse(value)
-		} catch (e: IllegalArgumentException) {
-			try {
-				LocalDate.parse(value).atStartOfDayIn(TimeZone.UTC)
-			} catch (_: Exception) {
-				null
-			}
-		}?.let { (this as Column<Instant?>) neq it }
+		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) neq it }
 
 		is EntityIDColumnType<*> -> {
 			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
-				value.toIntOrNull()?.let { (this as Column<Int?>) neq it }
+				val entityIdType = columnType as? EntityIDColumnType<Int>
+				val id = value.toIntOrNull()
+				if (entityIdType != null && id != null) {
+					val table = entityIdType.idColumn.table as IdTable<Int>
+					(this as Column<EntityID<Int>>) neq EntityID(id, table)
+				} else {
+					null
+				}
 			} else {
 				null
 			}
@@ -201,15 +212,7 @@ private infix fun Column<out Any?>.lt(value: String): Op<Boolean>? =
 	when (columnType) {
 		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) less it }
 		is VarCharColumnType -> (this as Column<String?>) less value
-		is KotlinInstantColumnType -> try {
-			Instant.parse(value)
-		} catch (e: IllegalArgumentException) {
-			try {
-				LocalDate.parse(value).atStartOfDayIn(TimeZone.UTC)
-			} catch (_: Exception) {
-				null
-			}
-		}?.let { (this as Column<Instant?>) less it }
+		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) less it }
 
 		is EntityIDColumnType<*> -> {
 			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
@@ -227,15 +230,7 @@ private infix fun Column<out Any?>.gt(value: String): Op<Boolean>? =
 	when (columnType) {
 		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) greater it }
 		is VarCharColumnType -> (this as Column<String?>) greater value
-		is KotlinInstantColumnType -> try {
-			Instant.parse(value)
-		} catch (e: IllegalArgumentException) {
-			try {
-				LocalDate.parse(value).atStartOfDayIn(TimeZone.UTC)
-			} catch (_: Exception) {
-				null
-			}
-		}?.let { (this as Column<Instant?>) greater it }
+		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) greater it }
 
 		is EntityIDColumnType<*> -> {
 			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
@@ -253,15 +248,7 @@ private infix fun Column<out Any?>.lte(value: String): Op<Boolean>? =
 	when (columnType) {
 		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) lessEq it }
 		is VarCharColumnType -> (this as Column<String?>) lessEq value
-		is KotlinInstantColumnType -> try {
-			Instant.parse(value)
-		} catch (e: IllegalArgumentException) {
-			try {
-				LocalDate.parse(value).atStartOfDayIn(TimeZone.UTC)
-			} catch (_: Exception) {
-				null
-			}
-		}?.let { (this as Column<Instant?>) lessEq it }
+		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) lessEq it }
 
 		is EntityIDColumnType<*> -> {
 			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
@@ -279,15 +266,7 @@ private infix fun Column<out Any?>.gte(value: String): Op<Boolean>? =
 	when (columnType) {
 		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) greaterEq it }
 		is VarCharColumnType -> (this as Column<String?>) greaterEq value
-		is KotlinInstantColumnType -> try {
-			Instant.parse(value)
-		} catch (e: IllegalArgumentException) {
-			try {
-				LocalDate.parse(value).atStartOfDayIn(TimeZone.UTC)
-			} catch (_: Exception) {
-				null
-			}
-		}?.let { (this as Column<Instant?>) greaterEq it }
+		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) greaterEq it }
 
 		is EntityIDColumnType<*> -> {
 			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
@@ -309,3 +288,6 @@ fun Mapper.getMapperData(): Map<String, String> = this.mapValues {
 		else -> "Unknown"
 	}
 }
+
+
+

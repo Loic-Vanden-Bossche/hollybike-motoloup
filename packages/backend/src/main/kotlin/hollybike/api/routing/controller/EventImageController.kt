@@ -74,15 +74,21 @@ class EventImageController(
 	private fun Route.uploadImages() {
 		post<Events.Id.Images> { data ->
 			val multipart = call.receiveMultipart()
-			val allParts = multipart.readAllParts()
-
-			val images = allParts.filterIsInstance<PartData.FileItem>().map { item ->
-				val contentType = checkContentType(item).getOrElse {
-					return@post call.respond(HttpStatusCode.BadRequest, it.message!!)
+			val images = mutableListOf<Pair<ByteArray, String>>()
+			var badRequest: String? = null
+			multipart.forEachPart { part ->
+				if (part is PartData.FileItem) {
+					val contentType = checkContentType(part).getOrElse {
+						badRequest = it.message
+						null
+					}
+					if (contentType != null) {
+						images.add(part.streamProvider().readBytes() to contentType.toString())
+					}
 				}
-
-				item.streamProvider().readBytes() to contentType.toString()
+				part.dispose()
 			}
+			badRequest?.let { return@post call.respond(HttpStatusCode.BadRequest, it) }
 
 			eventImageService.uploadImages(call.user, data.event.id, images).onSuccess {
 				call.respond(HttpStatusCode.Created, it.map { image -> TEventImage(image) })
@@ -122,3 +128,6 @@ class EventImageController(
 		}
 	}
 }
+
+
+

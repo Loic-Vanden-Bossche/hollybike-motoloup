@@ -5,7 +5,7 @@
 package hollybike.api.types.websocket
 
 import hollybike.api.repository.UserEventPosition
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -58,3 +58,5 @@ data object StopUserSendPosition : Body
 data class StopUserReceivePosition(
 	val user: Int
 ): Body
+
+

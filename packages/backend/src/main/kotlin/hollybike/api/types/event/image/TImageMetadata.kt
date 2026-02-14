@@ -4,7 +4,7 @@
 */
 package hollybike.api.types.event.image
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 
 data class TImageMetadata(
 	val takenDateTime: Instant?,
@@ -16,3 +16,6 @@ data class TImageMetadata(
 		val altitude: Double?,
 	)
 }
+
+
+

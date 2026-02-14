@@ -4,6 +4,7 @@
 */
 package hollybike.api.services
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.exceptions.BadRequestException
 import hollybike.api.json
 import hollybike.api.repository.*
@@ -19,15 +20,15 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.math.sqrt
 
 class UserEventPositionService(
@@ -371,3 +372,6 @@ class UserEventPositionService(
 		return path
 	}
 }
+
+
+

@@ -15,3 +15,5 @@ enum class EInvitationStatus(val value: Int) {
 		operator fun get(value: Int) = EInvitationStatus.entries.first { it.value == value }
 	}
 }
+
+

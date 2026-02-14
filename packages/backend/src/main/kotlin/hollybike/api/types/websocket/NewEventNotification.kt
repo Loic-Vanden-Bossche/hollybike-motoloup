@@ -5,7 +5,7 @@
 package hollybike.api.types.websocket
 
 import hollybike.api.repository.Event
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,3 +32,6 @@ data class NewEventNotification(
 		entity.owner.username
 	)
 }
+
+
+

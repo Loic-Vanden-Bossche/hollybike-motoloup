@@ -22,3 +22,5 @@ data class PathParam(private val key: String): PathElement {
 	override fun equals(other: Any?): Boolean = other is PathParam && other.key == key || other is PathFragment
 	override fun hashCode(): Int = key.hashCode()
 }
+
+

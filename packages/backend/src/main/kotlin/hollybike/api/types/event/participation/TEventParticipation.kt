@@ -6,7 +6,7 @@ package hollybike.api.types.event.participation
 
 import hollybike.api.repository.EventParticipation
 import hollybike.api.types.user.TUserPartial
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -25,3 +25,6 @@ data class TEventParticipation(
 		journey = entity.journey?.let { TUserJourney(it, isBetterThan) }
 	)
 }
+
+
+

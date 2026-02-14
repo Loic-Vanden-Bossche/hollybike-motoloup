@@ -10,3 +10,6 @@ import kotlinx.serialization.Serializable
 data class TNewAssociation(
 	val name: String
 )
+
+
+

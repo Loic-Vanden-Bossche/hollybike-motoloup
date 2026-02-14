@@ -38,3 +38,5 @@ fun Application.configureRestart(confMode: Boolean) {
 		}
 	}
 }
+
+

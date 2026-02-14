@@ -4,7 +4,7 @@
 */
 package hollybike.api.types.journey
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.JsonObject
@@ -181,3 +181,5 @@ data class Link(
 	@XmlElement(true) val text: String? = null,
 	@XmlElement(true) val type: String? = null
 )
+
+

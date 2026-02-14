@@ -11,3 +11,5 @@ class Storage {
 	@Resource("object")
 	class Object(val storage: Storage = Storage())
 }
+
+

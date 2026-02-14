@@ -5,7 +5,7 @@
 package hollybike.api.services.image
 
 import hollybike.api.types.event.image.TImageMetadata
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.apache.commons.imaging.Imaging
 import org.apache.commons.imaging.bytesource.ByteSource
 import org.apache.commons.imaging.common.RationalNumber
@@ -134,3 +134,5 @@ class ImageMetadataService {
 		Imaging.getImageSize(data).let { return Pair(it.width, it.height) }
 	}
 }
+
+

@@ -20,3 +20,5 @@ class Invitation(val api: API = API()) {
 	@Resource("meta-data")
 	class MetaData(val invitation: Invitation = Invitation())
 }
+
+

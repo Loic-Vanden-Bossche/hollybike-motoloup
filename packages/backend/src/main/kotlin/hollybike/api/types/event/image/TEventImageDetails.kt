@@ -8,7 +8,7 @@ import hollybike.api.repository.EventImage
 import hollybike.api.types.event.TEventPartial
 import hollybike.api.types.position.TPosition
 import hollybike.api.types.user.TUserPartial
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -32,3 +32,5 @@ data class TEventImageDetails(
 		uploadedDateTime = entity.uploadDateTime,
 	)
 }
+
+

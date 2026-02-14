@@ -4,6 +4,7 @@
 */
 package hollybike.api.services
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.json
 import hollybike.api.repository.Notification
 import hollybike.api.repository.Notifications
@@ -17,10 +18,10 @@ import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.serialization.encodeToString
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class NotificationService(
 	private val db: Database
@@ -106,3 +107,5 @@ class NotificationService(
 		Notification.findById(notificationId)?.load(Notification::user, User::association) getIfAllowed caller
 	}
 }
+
+

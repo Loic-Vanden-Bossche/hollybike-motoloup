@@ -13,3 +13,5 @@ class TImageForProcessing(
 	val data: ByteArray,
 	val position: TImageMetadata.Position?
 )
+
+

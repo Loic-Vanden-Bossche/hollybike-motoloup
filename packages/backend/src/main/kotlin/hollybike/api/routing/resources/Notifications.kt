@@ -20,3 +20,5 @@ class Notifications(val api: API = API()) {
 	@Resource("seen")
 	class Seen(val notifications: Notifications = Notifications())
 }
+
+

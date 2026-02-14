@@ -13,3 +13,5 @@ class AssociationOnboardingUserNotEditedException(message: String? = null): Exce
 class AssociationsOnboardingAssociationNotEditedException(message: String? = null): Exception(message)
 
 class AssociationsOnboardingNotCompletedException(message: String? = null): Exception(message)
+
+

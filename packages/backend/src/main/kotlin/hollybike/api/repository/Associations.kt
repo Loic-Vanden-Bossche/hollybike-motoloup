@@ -7,10 +7,10 @@ package hollybike.api.repository
 import hollybike.api.signatureService
 import hollybike.api.types.association.EAssociationsStatus
 import hollybike.api.utils.search.Mapper
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
 
 object Associations : IntIdTable("associations", "id_association") {
 	val name = varchar("name", 1_000)
@@ -38,3 +38,5 @@ val associationMapper: Mapper = mapOf(
 	"name" to Associations.name,
 	"status" to Associations.status
 )
+
+

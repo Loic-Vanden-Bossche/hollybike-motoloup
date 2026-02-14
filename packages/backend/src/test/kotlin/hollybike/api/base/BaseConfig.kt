@@ -11,3 +11,4 @@ data class BaseConfig(
 	val isOnPremise: Boolean = true,
 	val fakeCloudFrontKeys: Boolean = false,
 )
+

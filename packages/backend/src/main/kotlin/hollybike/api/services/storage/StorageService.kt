@@ -16,3 +16,5 @@ sealed interface StorageService {
 	suspend fun batchStore(data: List<Pair<ByteArray, String>>, dataContentType: String)
 	suspend fun batchDelete(paths: List<String>)
 }
+
+

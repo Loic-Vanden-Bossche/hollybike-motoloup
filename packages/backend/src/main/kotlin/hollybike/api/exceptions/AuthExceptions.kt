@@ -13,3 +13,5 @@ class InvalidMailException(message: String? = null) : Exception(message)
 class LinkExpire(message: String? = null) : Exception(message)
 
 class PasswordInvalid(message: String? = null) : Exception(message)
+
+

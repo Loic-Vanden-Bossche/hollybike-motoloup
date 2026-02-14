@@ -8,3 +8,5 @@ enum class StorageSignatureMode {
 	JWT,
 	CLOUDFRONT
 }
+
+

@@ -18,12 +18,12 @@ import hollybike.api.services.storage.StorageService
 import hollybike.api.utils.MailSender
 import hollybike.api.utils.websocket.AuthVerifier
 import io.ktor.server.application.*
-import io.ktor.server.plugins.callloging.*
+import io.ktor.server.plugins.calllogging.*
 import io.ktor.server.resources.*
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
-import org.jetbrains.exposed.sql.Database
+import org.jetbrains.exposed.v1.jdbc.Database
 import org.slf4j.event.Level
 
 val json = Json {
@@ -85,3 +85,6 @@ fun Application.api(storageService: StorageService, db: Database) {
 		ConfController(this, false)
 	}
 }
+
+
+

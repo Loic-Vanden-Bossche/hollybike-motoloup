@@ -5,7 +5,7 @@
 package hollybike.api.types.event.participation
 
 import hollybike.api.repository.EventParticipation
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -26,3 +26,6 @@ data class TEventCallerParticipation(
 		hasRecordedPositions = entity.hasRecordedPositions
 	)
 }
+
+
+

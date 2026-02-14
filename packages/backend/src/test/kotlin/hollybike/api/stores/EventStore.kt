@@ -142,3 +142,4 @@ class EventStore {
 		val unknown = 999 to "Unknown Event"
 	}
 }
+

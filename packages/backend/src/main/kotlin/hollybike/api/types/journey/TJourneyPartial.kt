@@ -43,3 +43,6 @@ data class TJourneyPartial(
 		journey.totalElevationLoss
 	)
 }
+
+
+

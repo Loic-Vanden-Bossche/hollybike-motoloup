@@ -47,3 +47,6 @@ data class TUserPartial(
 		role = entity.role
 	)
 }
+
+
+

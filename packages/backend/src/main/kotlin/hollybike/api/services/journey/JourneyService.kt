@@ -4,6 +4,7 @@
 */
 package hollybike.api.services.journey
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.ConfMapBox
 import hollybike.api.exceptions.AssociationNotFound
 import hollybike.api.exceptions.NotAllowedException
@@ -23,14 +24,14 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
 import kotlinx.coroutines.runBlocking
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlinx.serialization.json.JsonPrimitive
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.dao.with
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.dao.with
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
 class JourneyService(
@@ -268,4 +269,9 @@ class JourneyService(
 		return Result.success(response.readBytes())
 	}
 }
+
+
+
+
+
 

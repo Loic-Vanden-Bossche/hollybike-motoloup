@@ -16,10 +16,11 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
 import io.ktor.util.*
-import org.jetbrains.exposed.dao.with
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.with
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 private val userAttributeKey = AttributeKey<User>("user")
 private val objectPathAttributeKey = AttributeKey<String>("objectPath")
@@ -50,11 +51,10 @@ fun Application.configureSecurity(db: Database) {
 							User.find {
 								(Users.email eq credential.payload.getClaim("email")
 									.asString()) and (Users.status eq EUserStatus.Enabled.value)
-							}.with(User::association).singleOrNull()
+							}.with(User::association).singleOrNull()?.takeIf {
+								it.association.status == EAssociationsStatus.Enabled
+							}
 						} ?: run {
-							return@validate null
-						}
-						if (user.association.status != EAssociationsStatus.Enabled) {
 							return@validate null
 						}
 						this.attributes.put(userAttributeKey, user)
@@ -95,3 +95,6 @@ fun Application.configureSecurity(db: Database) {
 		}
 	}
 }
+
+
+

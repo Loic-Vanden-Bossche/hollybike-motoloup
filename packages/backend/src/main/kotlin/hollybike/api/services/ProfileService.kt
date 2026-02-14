@@ -4,13 +4,14 @@
 */
 package hollybike.api.services
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.repository.*
 import hollybike.api.types.user.EUserScope
 import hollybike.api.utils.search.*
-import org.jetbrains.exposed.dao.with
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.with
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class ProfileService(
 	private val db: Database
@@ -47,3 +48,5 @@ class ProfileService(
 		}
 	}
 }
+
+

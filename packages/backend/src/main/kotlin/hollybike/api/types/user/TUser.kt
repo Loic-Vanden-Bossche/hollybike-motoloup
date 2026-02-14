@@ -6,7 +6,7 @@ package hollybike.api.types.user
 
 import hollybike.api.repository.User
 import hollybike.api.types.association.TAssociation
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -39,3 +39,6 @@ data class TUser(
 		role = entity.role
 	)
 }
+
+
+

@@ -5,11 +5,11 @@
 package hollybike.api.repository
 
 import hollybike.api.database.now
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object Tokens: IntIdTable("tokens", "id_token") {
 	val token = varchar("token", 128)
@@ -26,3 +26,6 @@ class Token(id: EntityID<Int>) : IntEntity(id) {
 
 	companion object: IntEntityClass<Token>(Tokens)
 }
+
+
+

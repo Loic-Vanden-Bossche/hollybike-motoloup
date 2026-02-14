@@ -42,3 +42,4 @@ class AssociationStore {
 		val new = 1000 to "New Association"
 	}
 }
+

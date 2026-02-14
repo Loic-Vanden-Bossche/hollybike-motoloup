@@ -20,3 +20,5 @@ class UserJourneys(val api: API = API()) {
 	@Resource("/user/{id}")
 	class User(val userJourneys: UserJourneys = UserJourneys(), val id: Int)
 }
+
+

@@ -71,3 +71,5 @@ fun HTML.linkMail(link: String, association: String) {
 		}
 	}
 }
+
+

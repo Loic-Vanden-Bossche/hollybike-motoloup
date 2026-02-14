@@ -5,7 +5,7 @@
 package hollybike.api.types.expense
 
 import hollybike.api.repository.Expense
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -28,3 +28,5 @@ data class TExpense(
 		entity.proof
 	)
 }
+
+

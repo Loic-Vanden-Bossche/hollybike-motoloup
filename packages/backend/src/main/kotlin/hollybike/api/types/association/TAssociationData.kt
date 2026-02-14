@@ -18,3 +18,6 @@ data class TAssociationData(
 	@SerialName("total_journey")
 	val totalJourney: Long
 )
+
+
+

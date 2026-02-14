@@ -779,3 +779,4 @@ class AssociationTest : IntegrationSpec({
 		}
 	}
 })
+

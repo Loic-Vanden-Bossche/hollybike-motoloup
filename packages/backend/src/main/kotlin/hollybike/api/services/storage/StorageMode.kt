@@ -9,3 +9,5 @@ enum class StorageMode {
 	S3,
 	FTP
 }
+
+

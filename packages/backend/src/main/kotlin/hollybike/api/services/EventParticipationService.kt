@@ -4,6 +4,7 @@
 */
 package hollybike.api.services
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.exceptions.AlreadyParticipatingToEventException
 import hollybike.api.exceptions.EventActionDeniedException
 import hollybike.api.exceptions.EventNotFoundException
@@ -17,13 +18,13 @@ import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.Sort
 import hollybike.api.utils.search.applyParam
 import io.ktor.server.application.*
-import kotlinx.datetime.Clock
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.dao.with
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlin.time.Clock
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.dao.with
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class EventParticipationService(
 	private val db: Database,
@@ -401,3 +402,7 @@ class EventParticipationService(
 			?: Result.failure(NotParticipatingToEventException("Vous ne participez pas à cet événement"))
 	}
 }
+
+
+
+

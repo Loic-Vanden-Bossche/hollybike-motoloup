@@ -6,12 +6,12 @@ package hollybike.api.repository
 
 import hollybike.api.database.now
 import hollybike.api.repository.Invitations.defaultExpression
-import kotlinx.datetime.Clock
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import kotlin.time.Clock
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object Positions: IntIdTable("positions", "id_position") {
 	val latitude = double("latitude")
@@ -40,3 +40,7 @@ class Position(id: EntityID<Int>) : IntEntity(id) {
 
 	companion object: IntEntityClass<Position>(Positions);
 }
+
+
+
+

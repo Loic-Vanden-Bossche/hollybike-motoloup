@@ -6,11 +6,11 @@ package hollybike.api.repository
 
 import hollybike.api.signatureService
 import hollybike.api.utils.search.Mapper
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object Journeys: IntIdTable("journeys", "id_journey") {
 	val file = varchar("file", 2_048).nullable().default(null)
@@ -54,3 +54,6 @@ val journeysMapper: Mapper = mapOf(
 	"journey_name" to Journeys.name,
 	"created_at" to Journeys.createdAt
 )
+
+
+

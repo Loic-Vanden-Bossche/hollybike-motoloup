@@ -10,3 +10,5 @@ import kotlinx.serialization.Serializable
 data class TCreateParticipations(
 	val userIds: List<Int>
 )
+
+

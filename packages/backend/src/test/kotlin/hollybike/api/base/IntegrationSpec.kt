@@ -214,10 +214,6 @@ abstract class IntegrationSpec(body: FunSpec.() -> Unit = {}) : FunSpec({
 				db = dbConf, security = securityConfig, smtp = null, storage = storageConfig
 			)
 
-			environment {
-				developmentMode = false
-			}
-
 			application {
 				loadCustomConfig(config)
 				checkEnvironment()
@@ -249,3 +245,5 @@ abstract class IntegrationSpec(body: FunSpec.() -> Unit = {}) : FunSpec({
 		) = testApp(BaseConfig(storageMode), block)
 	}
 }
+
+
