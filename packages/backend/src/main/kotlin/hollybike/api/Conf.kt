@@ -11,8 +11,11 @@ import java.io.File
 
 val confKey = AttributeKey<Conf>("hollybikeConf")
 val Attributes.conf get() = this[confKey]
+const val DEFAULT_JWT_EXPIRATION_MS: Long = 15L * 60 * 1000
+const val DEFAULT_REFRESH_TOKEN_INACTIVITY_MS: Long = 30L * 24 * 60 * 60 * 1000
 
 
+@Suppress("UnsafeOptInUsageError")
 @Serializable
 data class Conf(
 	val db: ConfDB,
@@ -22,6 +25,7 @@ data class Conf(
 	val mapBox: ConfMapBox = ConfMapBox(),
 )
 
+@Suppress("UnsafeOptInUsageError")
 @Serializable
 data class ConfDB(
 	val url: String,
@@ -29,16 +33,20 @@ data class ConfDB(
 	val password: String
 )
 
+@Suppress("UnsafeOptInUsageError")
 @Serializable
 data class ConfSecurity(
 	val audience: String,
 	val domain: String,
 	val realm: String,
 	val secret: String,
+	val jwtExpirationMs: Long = DEFAULT_JWT_EXPIRATION_MS,
+	val refreshTokenInactivityMs: Long = DEFAULT_REFRESH_TOKEN_INACTIVITY_MS,
 	val cfPrivateKeySecret: String? = null,
 	val cfKeyPairId: String? = null
 )
 
+@Suppress("UnsafeOptInUsageError")
 @Serializable
 data class ConfSMTP(
 	val url: String,
@@ -48,6 +56,7 @@ data class ConfSMTP(
 	val password: String? = null
 )
 
+@Suppress("UnsafeOptInUsageError")
 @Serializable
 data class ConfStorage(
 	val s3Url: String? = null,
@@ -62,6 +71,7 @@ data class ConfStorage(
 	val ftpDirectory: String? = null
 )
 
+@Suppress("UnsafeOptInUsageError")
 @Serializable
 data class ConfMapBox(
 	val publicAccessTokenSecret: String? = null,
@@ -96,12 +106,17 @@ private fun parseEnvConf() = Conf(
 		System.getenv("DB_PASSWORD")
 	),
 	ConfSecurity(
-		System.getenv("SECURITY_AUDIENCE"),
-		System.getenv("SECURITY_DOMAIN"),
-		System.getenv("SECURITY_REALM"),
-		System.getenv("SECURITY_SECRET"),
-		System.getenv("SECURITY_CF_PRIVATE_KEY"),
-		System.getenv("SECURITY_CF_KEY_PAIR_ID"),
+		audience = System.getenv("SECURITY_AUDIENCE"),
+		domain = System.getenv("SECURITY_DOMAIN"),
+		realm = System.getenv("SECURITY_REALM"),
+		secret = System.getenv("SECURITY_SECRET"),
+		jwtExpirationMs = System.getenv("SECURITY_JWT_EXPIRATION_MS")?.toLongOrNull()
+			?: DEFAULT_JWT_EXPIRATION_MS,
+		refreshTokenInactivityMs = System.getenv("SECURITY_REFRESH_TOKEN_INACTIVITY_MS")?.toLongOrNull()
+			?.takeIf { it > 0 }
+			?: DEFAULT_REFRESH_TOKEN_INACTIVITY_MS,
+		cfPrivateKeySecret = System.getenv("SECURITY_CF_PRIVATE_KEY"),
+		cfKeyPairId = System.getenv("SECURITY_CF_KEY_PAIR_ID"),
 	),
 	parseEnvSMTPConv(),
 	ConfStorage(

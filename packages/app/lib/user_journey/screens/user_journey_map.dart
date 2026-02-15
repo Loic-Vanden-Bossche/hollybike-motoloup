@@ -142,14 +142,22 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
                 fillExtrusionColor: 0xFF515E72,
                 fillExtrusionOpacity: 0.8,
                 fillExtrusionHeightExpression: [
-                  "interpolate", ["linear"], ["zoom"],
-                  15, 0,
-                  15.05, ["get", "height"]
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  15,
+                  0,
+                  15.05,
+                  ["get", "height"],
                 ],
                 fillExtrusionBaseExpression: [
-                  "interpolate", ["linear"], ["zoom"],
-                  15, 0,
-                  15.05, ["get", "min_height"]
+                  "interpolate",
+                  ["linear"],
+                  ["zoom"],
+                  15,
+                  0,
+                  15.05,
+                  ["get", "min_height"],
                 ],
               ),
               LayerPosition(above: 'tracks-layer'),

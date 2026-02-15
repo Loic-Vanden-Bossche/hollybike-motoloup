@@ -45,15 +45,15 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
 
     _checkImagesPermission()
         .then((granted) {
-      if (granted) {
-        return _loadImages();
-      }
-    })
+          if (granted) {
+            return _loadImages();
+          }
+        })
         .whenComplete(() {
-      setState(() {
-        _loadingImages = false;
-      });
-    });
+          setState(() {
+            _loadingImages = false;
+          });
+        });
   }
 
   @override
@@ -79,7 +79,7 @@ class _ImagePickerChoiceListState extends State<ImagePickerChoiceList> {
 
     return AnimatedCrossFade(
       crossFadeState:
-      isLoading ? CrossFadeState.showFirst : CrossFadeState.showSecond,
+          isLoading ? CrossFadeState.showFirst : CrossFadeState.showSecond,
       duration: const Duration(milliseconds: 200),
       firstChild: SizedBox(
         height: height,

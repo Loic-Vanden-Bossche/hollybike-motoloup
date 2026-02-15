@@ -53,7 +53,9 @@ class EventParticipationActionsMenu extends StatelessWidget {
     }
   }
 
-  List<PopupMenuItem<EventParticipationAction>> _buildActions(BuildContext context) {
+  List<PopupMenuItem<EventParticipationAction>> _buildActions(
+    BuildContext context,
+  ) {
     final actions = <PopupMenuItem<EventParticipationAction>>[];
 
     if (participation.role == EventRole.organizer) {

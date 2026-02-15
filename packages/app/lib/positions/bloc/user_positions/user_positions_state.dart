@@ -63,8 +63,7 @@ class UserPositionsUpdated extends UserPositionsState {
   UserPositionsUpdated(
     UserPositionsState state,
     List<WebsocketReceivePosition> userPositions,
-  )
-    : super.state(
+  ) : super.state(
         state.copyWith(
           status: UserPositionsStatus.success,
           userPositions: userPositions,
