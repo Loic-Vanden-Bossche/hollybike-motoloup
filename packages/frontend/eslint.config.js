@@ -4,6 +4,9 @@ import stylisticJsx from '@stylistic/eslint-plugin-jsx';
 import unusedImports from "eslint-plugin-unused-imports";
 
 export default [
+  {
+    ignores: ["dist/**", "node_modules/**"],
+  },
   ...tseslint.configs.recommended,
   {
     rules: {
@@ -51,7 +54,6 @@ export default [
       "@stylistic/js/key-spacing": ["error", {beforeColon: false, afterColon: true, mode: "strict",}],
       "@stylistic/js/keyword-spacing": ["error", {before: true, after: true}],
       "@stylistic/js/linebreak-style": ["error", "unix"],
-      "@stylistic/js/max-len": ["error", {code: 120, tabWidth: 2}],
       "@stylistic/js/no-extra-parens": ["error", "all"],
       "@stylistic/js/no-extra-semi": ["error"],
       "@stylistic/js/no-floating-decimal": ["error"],

@@ -44,14 +44,14 @@ export default function () {
 
 	return (
 		<div className={"w-full h-full flex justify-center items-center bg-mantle relative overflow-hidden"}>
-			{/* Background blobs */}
+			{ /* Background blobs */ }
 			<div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-mauve/10 blur-[120px] rounded-full pointer-events-none" />
 			<div className="absolute bottom-[0%] right-[-5%] w-[35%] h-[35%] bg-blue/10 blur-[120px] rounded-full pointer-events-none" />
 			<div className="absolute top-[20%] right-[10%] w-[25%] h-[25%] bg-pink/5 blur-[100px] rounded-full pointer-events-none" />
 
 			<form onSubmit={e => e.preventDefault()} className={"relative z-10 w-full max-w-md mx-4"}>
 				<Card className={"flex flex-col items-center gap-6 !p-10"}>
-					{/* Logo */}
+					{ /* Logo */ }
 					<div className={"w-full h-20 rounded-2xl overflow-hidden bg-logo flex items-center justify-center border border-surface-2/20 mb-2"}>
 						<img alt={"HOLLYBIKE"} src={"/icon.png"} />
 					</div>

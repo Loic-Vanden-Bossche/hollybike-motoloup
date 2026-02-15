@@ -102,7 +102,7 @@ export function List<T>(props: ListProps<T>) {
 
 	return (
 		<div className={"flex flex-col grow gap-6"}>
-			{/* Toolbar */}
+			{ /* Toolbar */ }
 			<div className={"flex justify-between items-center"}>
 				<Input
 					value={search} onInput={e => setSearch(e.currentTarget.value ?? "")}
@@ -111,13 +111,15 @@ export function List<T>(props: ListProps<T>) {
 				{ props.action }
 			</div>
 
-			{/* Glass Table Container */}
-			<div className={clsx(
-				"relative overflow-hidden",
-				"bg-surface-0/30 backdrop-blur-xl",
-				"border border-surface-2/30",
-				"rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)]",
-			)}>
+			{ /* Glass Table Container */ }
+			<div
+				className={clsx(
+					"relative overflow-hidden",
+					"bg-surface-0/30 backdrop-blur-xl",
+					"border border-surface-2/30",
+					"rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)]",
+				)}
+			>
 				<div className={"overflow-x-auto"}>
 					<table className={"table-fixed min-w-full"}>
 						<thead>
@@ -153,24 +155,24 @@ export function List<T>(props: ListProps<T>) {
 					</table>
 				</div>
 
-				{/* Pagination Footer */}
+				{ /* Pagination Footer */ }
 				<div className={"px-6 py-4 border-t border-surface-1/30 bg-surface-0/10 flex items-center justify-between"}>
 					<p className={"text-sm text-subtext-1"}>
-						Page{" "}
+						Page{ " " }
 						<input
 							className={"bg-surface-1/30 w-8 text-center text-text rounded-lg py-0.5 border border-surface-2/30 focus:outline-none focus:ring-2 focus:ring-blue/30"}
 							value={data.data?.total_page === 0 ? 0 : page + 1}
 							onInput={onPageChange}
 						/>
-						{" "}sur <span className={"text-text font-medium"}>{ data.data?.total_page }</span>
+						{ " " }sur <span className={"text-text font-medium"}>{ data.data?.total_page }</span>
 					</p>
 					<div className={"flex gap-2"}>
 						<button
 							className={clsx(
 								"px-4 py-1.5 rounded-lg text-sm transition-colors",
-								page === 0
-									? "border border-surface-2/30 text-subtext-0 opacity-50 cursor-not-allowed"
-									: "border border-surface-2/30 text-text hover:bg-surface-1/50",
+								page === 0 ?
+									"border border-surface-2/30 text-subtext-0 opacity-50 cursor-not-allowed" :
+									"border border-surface-2/30 text-text hover:bg-surface-1/50",
 							)}
 							onClick={() => setPage(prev => prev === 0 ? 0 : prev - 1)}
 							disabled={page === 0}
@@ -180,9 +182,9 @@ export function List<T>(props: ListProps<T>) {
 						<button
 							className={clsx(
 								"px-4 py-1.5 rounded-lg text-sm transition-colors",
-								page >= (data.data?.total_page ?? 1) - 1
-									? "border border-surface-2/30 text-subtext-0 opacity-50 cursor-not-allowed"
-									: "bg-surface-2/40 border border-surface-2/60 text-text hover:bg-surface-2/60",
+								page >= (data.data?.total_page ?? 1) - 1 ?
+									"border border-surface-2/30 text-subtext-0 opacity-50 cursor-not-allowed" :
+									"bg-surface-2/40 border border-surface-2/60 text-text hover:bg-surface-2/60",
 							)}
 							onClick={() => setPage(prev => prev >= (data.data?.total_page ?? 1) - 1 ? prev : prev + 1)}
 							disabled={page >= (data.data?.total_page ?? 1) - 1}

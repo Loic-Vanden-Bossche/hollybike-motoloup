@@ -57,7 +57,7 @@ export function DropDown({
 					className={clsx("transition-transform duration-200", visible && "rotate-180")}
 				/>
 			</button>
-			{visible && (
+			{ visible &&
 				<div
 					className={clsx(
 						"absolute top-full right-0 mt-2 min-w-[200px]",
@@ -69,8 +69,7 @@ export function DropDown({
 					)}
 				>
 					{ children }
-				</div>
-			)}
+				</div> }
 		</section>
 	);
 }

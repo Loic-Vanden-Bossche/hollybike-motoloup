@@ -26,9 +26,9 @@ export function Button(props: ButtonProps) {
 				clsx(
 					"flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold transition-all text-sm",
 					props.className,
-					disabled
-						? "cursor-default bg-surface-1/30 text-subtext-0 border border-surface-2/20"
-						: "cursor-pointer bg-blue text-crust shadow-lg shadow-blue/20 hover:brightness-110 active:scale-95",
+					disabled ?
+						"cursor-default bg-surface-1/30 text-subtext-0 border border-surface-2/20" :
+						"cursor-pointer bg-blue text-crust shadow-lg shadow-blue/20 hover:brightness-110 active:scale-95",
 				)
 			}
 		>

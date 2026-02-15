@@ -7,7 +7,7 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "lint": "bun run eslint"
+    "lint": "bun run eslint src"
   },
   "dependencies": {
     "@material-ui/icons": "^4.11.3",

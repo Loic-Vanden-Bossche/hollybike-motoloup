@@ -52,9 +52,9 @@ export function SideBar() {
 					"transition-transform duration-200",
 					visible ? "translate-x-0" : "-translate-x-[calc(100%+4rem)]",
 				)}
-				onClick={(e) => e.stopPropagation()}
+				onClick={e => e.stopPropagation()}
 			>
-				{/* Logo */}
+				{ /* Logo */ }
 				<Link className={"self-stretch"} to={"/"}>
 					<div
 						className={clsx(
@@ -67,7 +67,7 @@ export function SideBar() {
 					</div>
 				</Link>
 
-				{/* Close button (mobile) */}
+				{ /* Close button (mobile) */ }
 				<button
 					className={clsx(
 						"absolute top-4 right-4 md:hidden",
@@ -81,7 +81,7 @@ export function SideBar() {
 					<X size={16} />
 				</button>
 
-				{/* Navigation */}
+				{ /* Navigation */ }
 				<div className={clsx("h-full flex flex-col overflow-y-auto gap-1 mt-2")}>
 					{ content }
 				</div>
@@ -144,11 +144,7 @@ function rootMenu(association: TAssociation | undefined, onPremise: boolean) {
 		</SideBarMenu>,
 	];
 	if (association !== undefined) {
-		menu.push(
-			<p className={"text-[10px] font-bold uppercase tracking-[0.2em] text-subtext-1 px-4 mb-1 mt-3"}>
-				{association.name}
-			</p>,
-		);
+		menu.push(<p className={"text-[10px] font-bold uppercase tracking-[0.2em] text-subtext-1 px-4 mb-1 mt-3"}>{ association.name }</p>);
 		menu.push(...adminMenu(association, true, onPremise));
 	}
 	return menu;

@@ -23,9 +23,9 @@ export function SideBarMenu(props: SideBarMenuProps) {
 		<Link
 			className={clsx(
 				"flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm transition-all",
-				isActive
-					? "bg-surface-0/50 text-text border border-surface-2/20"
-					: "text-subtext-0 hover:bg-surface-0/40 hover:text-text",
+				isActive ?
+					"bg-surface-0/50 text-text border border-surface-2/20" :
+					"text-subtext-0 hover:bg-surface-0/40 hover:text-text",
 				props.indent === true && "ml-3",
 			)}
 			to={props.to}
