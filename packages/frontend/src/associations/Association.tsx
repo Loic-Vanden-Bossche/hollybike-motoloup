@@ -31,6 +31,7 @@ import { EUserScope } from "../types/EUserScope.ts";
 import {
 	EAssociationStatus, EAssociationStatusOptions,
 } from "../types/EAssociationStatus.ts";
+import { completeOnboardingStep } from "../home/onboardingActions.ts";
 
 export function Association() {
 	const { user } = useUser();
@@ -100,6 +101,9 @@ export function Association() {
 							}).then((res) => {
 								if (res.status === 200 && res.data) {
 									setAssociationData(res.data);
+									if (associationData.id === user?.association?.id) {
+										completeOnboardingStep("update_association");
+									}
 									if (file !== null) {
 										const fd = new FormData();
 										fd.append("file", file);

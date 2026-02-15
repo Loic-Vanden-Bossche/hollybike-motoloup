@@ -44,11 +44,7 @@ export function DropDown({
 			style={{ zIndex: 7_500 }}
 		>
 			<button
-				className={clsx(
-					"flex items-center gap-2 px-4 py-2 rounded-xl",
-					"bg-surface-0/40 backdrop-blur-md border border-surface-2/30",
-					"hover:bg-surface-0/60 transition-all text-sm",
-				)}
+				className={clsx("ui-trigger flex items-center gap-2 px-4 py-2")}
 				onClick={() => setVisible(prev => !prev)}
 			>
 				<span>{ text }</span>
@@ -61,9 +57,7 @@ export function DropDown({
 				<div
 					className={clsx(
 						"absolute top-full right-0 mt-2 min-w-[200px]",
-						"bg-surface-0/60 backdrop-blur-xl",
-						"border border-surface-2/30 rounded-2xl",
-						"shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]",
+						"ui-popover-panel",
 						"overflow-hidden",
 						"animate-[fadeIn_0.15s_ease-out]",
 					)}
@@ -85,10 +79,7 @@ export function DropDownElement({
 }: DropDownElementProps) {
 	return (
 		<button
-			className={clsx(
-				"w-full px-4 py-2.5 hover:bg-surface-0/40",
-				"transition-colors flex items-center gap-2 text-sm text-left",
-			)}
+			className={clsx("ui-menu-item")}
 			onClick={onClick}
 		>
 			{ children }

@@ -111,13 +111,12 @@ export function List<T>(props: ListProps<T>) {
 				{ props.action }
 			</div>
 
+
 			{ /* Glass Table Container */ }
 			<div
 				className={clsx(
 					"relative overflow-hidden",
-					"bg-surface-0/30 backdrop-blur-xl",
-					"border border-surface-2/30",
-					"rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)]",
+					"ui-glass-panel",
 				)}
 			>
 				<div className={"overflow-x-auto"}>
@@ -160,7 +159,7 @@ export function List<T>(props: ListProps<T>) {
 					<p className={"text-sm text-subtext-1"}>
 						Page{ " " }
 						<input
-							className={"bg-surface-1/30 w-8 text-center text-text rounded-lg py-0.5 border border-surface-2/30 focus:outline-none focus:ring-2 focus:ring-blue/30"}
+							className={"ui-control w-8 rounded-lg py-0.5 text-center"}
 							value={data.data?.total_page === 0 ? 0 : page + 1}
 							onInput={onPageChange}
 						/>
@@ -171,8 +170,8 @@ export function List<T>(props: ListProps<T>) {
 							className={clsx(
 								"px-4 py-1.5 rounded-lg text-sm transition-colors",
 								page === 0 ?
-									"border border-surface-2/30 text-subtext-0 opacity-50 cursor-not-allowed" :
-									"border border-surface-2/30 text-text hover:bg-surface-1/50",
+									"ui-control ui-control-disabled opacity-50" :
+									"ui-control hover:bg-surface-1/50",
 							)}
 							onClick={() => setPage(prev => prev === 0 ? 0 : prev - 1)}
 							disabled={page === 0}
@@ -182,8 +181,9 @@ export function List<T>(props: ListProps<T>) {
 						<button
 							className={clsx(
 								"px-4 py-1.5 rounded-lg text-sm transition-colors",
+
 								page >= (data.data?.total_page ?? 1) - 1 ?
-									"border border-surface-2/30 text-subtext-0 opacity-50 cursor-not-allowed" :
+									"ui-control ui-control-disabled opacity-50" :
 									"bg-surface-2/40 border border-surface-2/60 text-text hover:bg-surface-2/60",
 							)}
 							onClick={() => setPage(prev => prev >= (data.data?.total_page ?? 1) - 1 ? prev : prev + 1)}

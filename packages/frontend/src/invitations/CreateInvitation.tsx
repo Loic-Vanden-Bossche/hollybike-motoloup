@@ -25,6 +25,7 @@ import {
 	EUserScope, scopes, scopesName,
 } from "../types/EUserScope.ts";
 import { RedStar } from "../components/RedStar/RedStar.tsx";
+import { completeOnboardingStep } from "../home/onboardingActions.ts";
 
 const expirationOptions: Option[] = [
 	{
@@ -160,6 +161,12 @@ export function CreateInvitation() {
 							body: invitation,
 						}).then((res) => {
 							if (res.status === 200) {
+								if (
+									user?.association?.id !== undefined &&
+									(invitation.association === undefined || invitation.association === user.association.id)
+								) {
+									completeOnboardingStep("create_invitation");
+								}
 								navigate(-1);
 							} else if (res.status === 404) {
 								toast("L'association n'existe pas/plus", { type: "warning" });

@@ -32,6 +32,7 @@ import {
 import { useUser } from "../useUser.tsx";
 import { ListUserJourney } from "./ListUserJourney.tsx";
 import { ButtonDanger } from "../../components/Button/ButtonDanger.tsx";
+import { completeOnboardingStep } from "../../home/onboardingActions.ts";
 
 const emptyUser: TUser = {
 	id: -1,
@@ -142,6 +143,9 @@ export function UserDetail() {
 							}).then((res) => {
 								if (res.status === 200) {
 									doReload();
+									if (userData.id === self?.id) {
+										completeOnboardingStep("update_default_user");
+									}
 									toast("L'utilisateur à été mis à jour", { type: "success" });
 								} else if (res.status === 404) {
 									toast(res.message, { type: "warning" });

@@ -24,11 +24,12 @@ export function Button(props: ButtonProps) {
 			onClick={props.onClick}
 			className={
 				clsx(
-					"flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold transition-all text-sm",
+					"flex h-11 items-center justify-center gap-2 px-5 rounded-xl font-semibold text-sm border transition-all",
+					"focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue/30",
 					props.className,
 					disabled ?
-						"cursor-default bg-surface-1/30 text-subtext-0 border border-surface-2/20" :
-						"cursor-pointer bg-blue text-crust shadow-lg shadow-blue/20 hover:brightness-110 active:scale-95",
+						"cursor-default bg-surface-1/20 text-subtext-0 border-surface-2/20" :
+						"cursor-pointer bg-blue text-crust border-blue shadow-lg shadow-blue/20 hover:brightness-110 active:scale-95",
 				)
 			}
 		>
