@@ -92,3 +92,4 @@ class UserStore {
 		val new = 1000 to "new_account@hollybike.chbrx.com"
 	}
 }
+

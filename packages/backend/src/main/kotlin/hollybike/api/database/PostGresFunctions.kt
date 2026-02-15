@@ -4,12 +4,12 @@
 */
 package hollybike.api.database
 
-import kotlinx.datetime.Instant
-import org.jetbrains.exposed.sql.*
+import kotlin.time.Instant
+import org.jetbrains.exposed.v1.core.*
 import kotlin.time.Duration
 
 fun lower(string: String) = object: ExpressionWithColumnType<String>() {
-	override val columnType: IColumnType
+	override val columnType: IColumnType<String>
 		get() = VarCharColumnType()
 
 	override fun toQueryBuilder(queryBuilder: QueryBuilder) {
@@ -19,7 +19,7 @@ fun lower(string: String) = object: ExpressionWithColumnType<String>() {
 }
 
 fun lower(expr: Expression<String>) = object: ExpressionWithColumnType<String>() {
-	override val columnType: IColumnType
+	override val columnType: IColumnType<String>
 		get() = VarCharColumnType()
 
 	override fun toQueryBuilder(queryBuilder: QueryBuilder) {
@@ -28,7 +28,7 @@ fun lower(expr: Expression<String>) = object: ExpressionWithColumnType<String>()
 }
 
 fun unaccent(string: String) = object: ExpressionWithColumnType<String>() {
-	override val columnType: IColumnType
+	override val columnType: IColumnType<String>
 		get() = VarCharColumnType()
 
 	override fun toQueryBuilder(queryBuilder: QueryBuilder) {
@@ -37,7 +37,7 @@ fun unaccent(string: String) = object: ExpressionWithColumnType<String>() {
 }
 
 fun unaccent(expr: Expression<String>) = object: ExpressionWithColumnType<String>() {
-	override val columnType: IColumnType
+	override val columnType: IColumnType<String>
 		get() = VarCharColumnType()
 
 	override fun toQueryBuilder(queryBuilder: QueryBuilder) {
@@ -64,3 +64,6 @@ fun now() = object : Expression<Instant>() {
 		queryBuilder.append("NOW()")
 	}
 }
+
+
+

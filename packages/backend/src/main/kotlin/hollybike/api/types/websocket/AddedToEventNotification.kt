@@ -13,3 +13,5 @@ data class AddedToEventNotification(
 	val id: Int,
 	val name: String
 ): NotificationBody(0)
+
+

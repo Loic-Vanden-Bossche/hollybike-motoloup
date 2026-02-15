@@ -18,3 +18,6 @@ data class TUserUpdateSelf(
 	val oldPassword: String? =  null,
 	val role: String? = null
 )
+
+
+

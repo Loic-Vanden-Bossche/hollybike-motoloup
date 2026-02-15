@@ -5,7 +5,7 @@
 package hollybike.api.services.image
 
 import hollybike.api.types.event.image.TImageMetadata
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import org.apache.commons.imaging.Imaging
 import org.apache.commons.imaging.bytesource.ByteSource
 import org.apache.commons.imaging.common.RationalNumber
@@ -131,6 +131,65 @@ class ImageMetadataService {
 	}
 
 	fun getImageDimensions(data: ByteArray): Pair<Int, Int> {
-		Imaging.getImageSize(data).let { return Pair(it.width, it.height) }
+		parsePngDimensions(data)?.let { return it }
+		parseJpegDimensions(data)?.let { return it }
+
+		return Pair(0, 0)
+	}
+
+	private fun parsePngDimensions(data: ByteArray): Pair<Int, Int>? {
+		if (data.size < 24) return null
+		val pngHeader = byteArrayOf(
+			0x89.toByte(), 0x50, 0x4E, 0x47, 0x0D, 0x0A, 0x1A, 0x0A,
+		)
+		if (!data.copyOfRange(0, 8).contentEquals(pngHeader)) return null
+		val width = ((data[16].toInt() and 0xFF) shl 24) or
+			((data[17].toInt() and 0xFF) shl 16) or
+			((data[18].toInt() and 0xFF) shl 8) or
+			(data[19].toInt() and 0xFF)
+		val height = ((data[20].toInt() and 0xFF) shl 24) or
+			((data[21].toInt() and 0xFF) shl 16) or
+			((data[22].toInt() and 0xFF) shl 8) or
+			(data[23].toInt() and 0xFF)
+		return if (width > 0 && height > 0) Pair(width, height) else null
+	}
+
+	private fun parseJpegDimensions(data: ByteArray): Pair<Int, Int>? {
+		if (data.size < 4) return null
+		if ((data[0].toInt() and 0xFF) != 0xFF || (data[1].toInt() and 0xFF) != 0xD8) return null
+
+		var i = 2
+		while (i + 9 < data.size) {
+			if ((data[i].toInt() and 0xFF) != 0xFF) {
+				i++
+				continue
+			}
+			while (i < data.size && (data[i].toInt() and 0xFF) == 0xFF) i++
+			if (i >= data.size) break
+
+			val marker = data[i].toInt() and 0xFF
+			i++
+
+			if (marker == 0xD8 || marker == 0xD9 || (marker in 0xD0..0xD7)) continue
+			if (i + 1 >= data.size) break
+
+			val length = ((data[i].toInt() and 0xFF) shl 8) or (data[i + 1].toInt() and 0xFF)
+			if (length < 2 || i + length > data.size) break
+
+			val isSof = marker in setOf(
+				0xC0, 0xC1, 0xC2, 0xC3, 0xC5, 0xC6, 0xC7,
+				0xC9, 0xCA, 0xCB, 0xCD, 0xCE, 0xCF,
+			)
+			if (isSof && length >= 7) {
+				val height = ((data[i + 3].toInt() and 0xFF) shl 8) or (data[i + 4].toInt() and 0xFF)
+				val width = ((data[i + 5].toInt() and 0xFF) shl 8) or (data[i + 6].toInt() and 0xFF)
+				return if (width > 0 && height > 0) Pair(width, height) else null
+			}
+
+			i += length
+		}
+		return null
 	}
 }
+
+

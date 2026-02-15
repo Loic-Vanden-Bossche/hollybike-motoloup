@@ -7,13 +7,13 @@ package hollybike.api.repository
 import hollybike.api.signatureService
 import hollybike.api.types.event.EEventStatus
 import hollybike.api.utils.search.Mapper
-import kotlinx.datetime.Clock
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.alias
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import kotlin.time.Clock
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.core.alias
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object Events : IntIdTable("events", "id_event") {
 	val name = varchar("name", 1_000)
@@ -61,3 +61,7 @@ val eventMapper: Mapper = mapOf(
 	"update_date_time_event" to Events.updateDateTime,
 	"participant_id" to Users.alias("participant")[Users.id],
 )
+
+
+
+

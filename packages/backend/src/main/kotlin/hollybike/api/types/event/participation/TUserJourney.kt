@@ -5,7 +5,7 @@
 package hollybike.api.types.event.participation
 
 import hollybike.api.repository.UserJourney
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -55,3 +55,5 @@ data class TUserJourney(
 		isBetterThan
 	)
 }
+
+

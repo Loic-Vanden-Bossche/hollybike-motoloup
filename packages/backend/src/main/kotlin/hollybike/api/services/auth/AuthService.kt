@@ -21,12 +21,14 @@ import hollybike.api.utils.MailSender
 import hollybike.api.utils.isValidMail
 import hollybike.api.utils.validPassword
 import io.ktor.util.*
-import kotlinx.datetime.*
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.or
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.less
+import org.jetbrains.exposed.v1.core.or
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.SecureRandom
@@ -36,6 +38,8 @@ import javax.crypto.spec.SecretKeySpec
 import kotlin.concurrent.schedule
 import kotlin.io.encoding.Base64
 import kotlin.io.encoding.ExperimentalEncodingApi
+import kotlin.time.Clock
+import kotlin.time.Instant
 import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -58,7 +62,8 @@ class AuthService(
 	}
 
 	private fun scheduleClean() {
-		timer.schedule(Date.from((Clock.System.now() + refreshTokenInactivity).toJavaInstant())) {
+		val nextRun = Clock.System.now() + refreshTokenInactivity
+		timer.schedule(Date.from(java.time.Instant.ofEpochSecond(nextRun.epochSeconds, nextRun.nanosecondsOfSecond.toLong()))) {
 			cleanToken()
 			scheduleClean()
 		}
@@ -112,39 +117,54 @@ class AuthService(
 	}
 
 	fun login(login: TLogin): Result<TAuthInfo> {
-		val user = transaction(db) {
-			User.find { lower(Users.email) eq lower(login.email) }.singleOrNull()?.load(User::association)
-		}
-			?: return Result.failure(UserNotFoundException())
-		if (!verify(login.password, user.password.decodeBase64Bytes())) {
-			return Result.failure(UserWrongPassword())
-		}
-		if (user.status != EUserStatus.Enabled || user.association.status != EAssociationsStatus.Enabled) {
-			return Result.failure(UserDisabled())
-		}
-		val refresh = generateRefreshToken()
-		val refreshHash = hashRefreshToken(refresh)
-		val device = normalizeDeviceIdForSession(login.device)
-		transaction(db) {
-			Token.find { (Tokens.user eq user.id) and (Tokens.device eq device) }.firstOrNull()
+		return transaction(db) {
+			val userRow = Users.selectAll()
+				.where { lower(Users.email) eq lower(login.email) }
+				.singleOrNull()
+				?: return@transaction Result.failure(UserNotFoundException())
+
+			if (!verify(login.password, userRow[Users.password].decodeBase64Bytes())) {
+				return@transaction Result.failure(UserWrongPassword())
+			}
+
+			val userStatus = userRow[Users.status]
+			val associationId = userRow[Users.association].value
+			val associationStatus = Associations
+				.selectAll()
+				.where { Associations.id eq associationId }
+				.single()[Associations.status]
+
+			if (userStatus != EUserStatus.Enabled.value || associationStatus != EAssociationsStatus.Enabled.value) {
+				return@transaction Result.failure(UserDisabled())
+			}
+
+			val userId = userRow[Users.id]
+			val userScope = EUserScope[userRow[Users.scope]]
+			val userEmail = userRow[Users.email]
+			val refresh = generateRefreshToken()
+			val refreshHash = hashRefreshToken(refresh)
+			val device = normalizeDeviceIdForSession(login.device)
+
+			Token.find { (Tokens.user eq userId) and (Tokens.device eq device) }.firstOrNull()
 				?.apply {
 					token = refreshHash
 					lastUse = Clock.System.now()
 				}
 				?: Token.new {
-					this.user = user
+					this.user = User[userId]
 					this.device = device
 					this.token = refreshHash
 					this.lastUse = Clock.System.now()
 				}
-		}
-		return Result.success(
-			TAuthInfo(
-				generateJWT(user.email, user.scope),
-				refresh,
-				device
+
+			Result.success(
+				TAuthInfo(
+					generateJWT(userEmail, userScope),
+					refresh,
+					device
+				)
 			)
-		)
+		}
 	}
 
 	private fun normalizeDeviceIdForSession(deviceId: String?): String {
@@ -253,8 +273,9 @@ class AuthService(
 			return Result.failure(UserNotFoundException())
 		}
 		val expire = Clock.System.now() + 1.days
-		val token = encoder.encode(hmacSha256("$mail-${expire.epochSeconds}"))
-		val link = "${conf.domain}/change-password?user=$mail&expire=${expire.epochSeconds}&token=$token"
+		val expireSeconds = expire.epochSeconds
+		val token = encoder.encode(hmacSha256("$mail-$expireSeconds"))
+		val link = "${conf.domain}/change-password?user=$mail&expire=$expireSeconds&token=$token"
 		mailSender?.passwordMail(link, user.username, user.email) ?: run {
 			return Result.failure(NoMailSenderException())
 		}
@@ -286,3 +307,7 @@ class AuthService(
 		return Result.success(Unit)
 	}
 }
+
+
+
+

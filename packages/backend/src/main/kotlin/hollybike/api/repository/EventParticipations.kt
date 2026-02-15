@@ -6,12 +6,12 @@ package hollybike.api.repository
 
 import hollybike.api.types.event.participation.EEventRole
 import hollybike.api.utils.search.Mapper
-import kotlinx.datetime.Clock
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import kotlin.time.Clock
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 class EventParticipation(id: EntityID<Int>) : IntEntity(id) {
 	var user by User referencedOn EventParticipations.user
@@ -45,3 +45,8 @@ object EventParticipations : IntIdTable("event_participations", "id_participatio
 val eventParticipationMapper: Mapper = mapOf(
 	"joined_date_time" to EventParticipations.joinedDateTime,
 )
+
+
+
+
+

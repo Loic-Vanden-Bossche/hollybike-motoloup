@@ -11,54 +11,57 @@ import io.ktor.server.application.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
-import io.ktor.util.pipeline.*
+import io.ktor.server.routing.RoutingContext
 
-inline fun <reified R: Any> Route.get(scope: EUserScope, noinline body: suspend PipelineContext<Unit, ApplicationCall>.(R) -> Unit) {
-	get<R> {
+inline fun <reified R: Any> Route.get(scope: EUserScope, noinline body: suspend RoutingContext.(R) -> Unit) {
+	get<R> { resource ->
 		if(call.user.scope.value < scope.value) {
 			call.respond(HttpStatusCode.Forbidden, "You don't have sufficient permissions to access this resource")
 		} else {
-			this.body(it)
+			body(resource)
 		}
 	}
 }
 
-inline fun <reified R: Any> Route.post(scope: EUserScope, noinline body: suspend PipelineContext<Unit, ApplicationCall>.(R) -> Unit) {
-	post<R> {
+inline fun <reified R: Any> Route.post(scope: EUserScope, noinline body: suspend RoutingContext.(R) -> Unit) {
+	post<R> { resource ->
 		if(call.user.scope.value < scope.value) {
 			call.respond(HttpStatusCode.Forbidden, "You don't have sufficient permissions to access this resource")
 		} else {
-			this.body(it)
+			body(resource)
 		}
 	}
 }
 
-inline fun <reified R: Any> Route.patch(scope: EUserScope, noinline body: suspend PipelineContext<Unit, ApplicationCall>.(R) -> Unit) {
-	patch<R> {
+inline fun <reified R: Any> Route.patch(scope: EUserScope, noinline body: suspend RoutingContext.(R) -> Unit) {
+	patch<R> { resource ->
 		if(call.user.scope.value < scope.value) {
 			call.respond(HttpStatusCode.Forbidden, "You don't have sufficient permissions to access this resource")
 		} else {
-			this.body(it)
+			body(resource)
 		}
 	}
 }
 
-inline fun <reified R: Any> Route.put(scope: EUserScope, noinline body: suspend PipelineContext<Unit, ApplicationCall>.(R) -> Unit) {
-	put<R> {
+inline fun <reified R: Any> Route.put(scope: EUserScope, noinline body: suspend RoutingContext.(R) -> Unit) {
+	put<R> { resource ->
 		if(call.user.scope.value < scope.value) {
 			call.respond(HttpStatusCode.Forbidden, "You don't have sufficient permissions to access this resource")
 		} else {
-			this.body(it)
+			body(resource)
 		}
 	}
 }
 
-inline fun <reified R: Any> Route.delete(scope: EUserScope, noinline body: suspend PipelineContext<Unit, ApplicationCall>.(R) -> Unit) {
-	delete<R> {
+inline fun <reified R: Any> Route.delete(scope: EUserScope, noinline body: suspend RoutingContext.(R) -> Unit) {
+	delete<R> { resource ->
 		if(call.user.scope.value < scope.value) {
 			call.respond(HttpStatusCode.Forbidden, "You don't have sufficient permissions to access this resource")
 		} else {
-			this.body(it)
+			body(resource)
 		}
 	}
 }
+
+
+

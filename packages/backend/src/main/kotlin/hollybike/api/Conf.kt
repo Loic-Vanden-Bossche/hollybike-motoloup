@@ -152,3 +152,6 @@ private fun parseEnvSMTPConv(): ConfSMTP? = try {
 	println("SMTP Port not integer")
 	null
 }
+
+
+

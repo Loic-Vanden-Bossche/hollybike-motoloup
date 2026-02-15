@@ -10,3 +10,6 @@ data class TPositionRequest(
 	val altitude: Double? = null,
 	val scope: EPositionScope
 )
+
+
+

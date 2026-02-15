@@ -12,3 +12,5 @@ data class TOnPremise(
 	@SerialName("is_on_premise")
 	val isOnPremise: Boolean,
 )
+
+

@@ -11,3 +11,6 @@ data class TUpdateAssociation(
 	val name: String? = null,
 	val status: EAssociationsStatus? = null
 )
+
+
+

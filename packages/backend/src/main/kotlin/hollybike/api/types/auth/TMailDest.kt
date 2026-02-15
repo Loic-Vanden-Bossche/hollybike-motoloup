@@ -10,3 +10,6 @@ import kotlinx.serialization.Serializable
 data class TMailDest(
 	val dest: String
 )
+
+
+

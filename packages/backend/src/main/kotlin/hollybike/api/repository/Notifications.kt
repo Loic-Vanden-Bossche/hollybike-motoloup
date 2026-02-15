@@ -7,12 +7,12 @@ package hollybike.api.repository
 import hollybike.api.database.now
 import hollybike.api.repository.Invitations.defaultExpression
 import hollybike.api.utils.search.Mapper
-import kotlinx.datetime.Clock
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import kotlin.time.Clock
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object Notifications: IntIdTable("notifications", "id_notification") {
 	val user = reference("user", Users)
@@ -35,3 +35,7 @@ val notificationMapper: Mapper = mapOf(
 	"creation" to Notifications.creation,
 	"seen" to Notifications.seen,
 )
+
+
+
+

@@ -23,7 +23,7 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import java.io.File
 
 class UserTest : IntegrationSpec({
@@ -858,3 +858,4 @@ class UserTest : IntegrationSpec({
 		}
 	}
 })
+

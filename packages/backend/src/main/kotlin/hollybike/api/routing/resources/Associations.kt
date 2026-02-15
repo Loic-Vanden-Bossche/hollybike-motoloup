@@ -47,3 +47,5 @@ class Associations<T>(val parent: T) {
 	@Resource("meta-data")
 	class MetaData<T>(val associations: Associations<T>)
 }
+
+

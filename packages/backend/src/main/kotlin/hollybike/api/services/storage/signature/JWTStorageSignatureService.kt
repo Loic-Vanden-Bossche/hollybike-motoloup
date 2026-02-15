@@ -26,3 +26,5 @@ class JWTStorageSignatureService(
 
 	override val sign = { path: String -> getSignedPath(path) }
 }
+
+

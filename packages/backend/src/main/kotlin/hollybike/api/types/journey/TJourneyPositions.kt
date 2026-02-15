@@ -6,8 +6,8 @@ package hollybike.api.types.journey
 
 import hollybike.api.repository.Journey
 import hollybike.api.repository.Position
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
+import kotlin.time.Clock
+import kotlin.time.Instant
 
 data class TJourneyPositions(
 	val journey: Journey,
@@ -18,3 +18,8 @@ data class TJourneyPositions(
 	var destination: Position? = null,
 	val askedAt: Instant = Clock.System.now()
 )
+
+
+
+
+

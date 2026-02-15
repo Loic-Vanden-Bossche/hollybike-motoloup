@@ -5,9 +5,8 @@
 package hollybike.api.services.storage.signature
 
 import hollybike.api.ConfSecurity
-import kotlinx.datetime.Clock
-import kotlinx.datetime.Instant
-import kotlinx.datetime.toJavaInstant
+import kotlin.time.Clock
+import kotlin.time.Instant
 import software.amazon.awssdk.services.cloudfront.CloudFrontUtilities
 import software.amazon.awssdk.services.cloudfront.model.CannedSignerRequest
 import java.nio.file.Path
@@ -40,7 +39,7 @@ class CloudFrontStorageSignatureService(
 			.resourceUrl(resourceUrl)
 			.privateKey(privateKeyPath)
 			.keyPairId(keyPairId)
-			.expirationDate(expirationDate.toJavaInstant())
+			.expirationDate(java.time.Instant.ofEpochSecond(expirationDate.epochSeconds, expirationDate.nanosecondsOfSecond.toLong()))
 			.build()
 
 		val signedUrl = cloudFrontUtilities.getSignedUrlWithCannedPolicy(cannedRequest)
@@ -50,3 +49,7 @@ class CloudFrontStorageSignatureService(
 
 	override val sign = { path: String -> getSignedPath(path) }
 }
+
+
+
+

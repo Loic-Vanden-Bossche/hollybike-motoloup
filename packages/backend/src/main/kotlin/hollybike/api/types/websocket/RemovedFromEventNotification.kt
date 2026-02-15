@@ -13,3 +13,6 @@ data class RemovedFromEventNotification(
 	val id: Int,
 	val name: String
 ): NotificationBody(0)
+
+
+

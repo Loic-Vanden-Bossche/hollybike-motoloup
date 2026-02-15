@@ -4,8 +4,9 @@
 */
 package hollybike.api.utils.search
 
-import org.jetbrains.exposed.sql.Column
-import org.jetbrains.exposed.sql.SortOrder
+import org.jetbrains.exposed.v1.jdbc.*
+import org.jetbrains.exposed.v1.core.Column
+import org.jetbrains.exposed.v1.core.SortOrder
 
 data class SearchParam(
 	val query: String?,
@@ -45,3 +46,5 @@ enum class FilterMode(val mode: String) {
 }
 
 typealias Mapper = Map<String, Column<out Any?>>
+
+

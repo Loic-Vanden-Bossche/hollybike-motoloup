@@ -12,3 +12,6 @@ data class TConfDone(
 	@SerialName("conf_done")
 	val confDone: Boolean,
 )
+
+
+

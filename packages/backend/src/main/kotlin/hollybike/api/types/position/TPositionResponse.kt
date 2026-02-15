@@ -13,3 +13,5 @@ sealed class TPositionResult {
 	data class Success(override var topic: String, override var identifier: Int, val position: Position) : TPositionResult()
 	data class Error(override var topic: String, override var identifier: Int, val message: String) : TPositionResult()
 }
+
+

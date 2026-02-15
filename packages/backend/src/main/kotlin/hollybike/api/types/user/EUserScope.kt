@@ -20,3 +20,5 @@ enum class EUserScope(val value: Int) {
 
 	infix fun not(other: EUserScope): Boolean = this.value < other.value
 }
+
+

@@ -42,3 +42,4 @@ class TokenStore {
 
 	operator fun get(user: Pair<Int, String>): String = tokens[user.second] ?: error("Token not found")
 }
+

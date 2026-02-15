@@ -8,11 +8,11 @@ import hollybike.api.signatureService
 import hollybike.api.types.user.EUserScope
 import hollybike.api.types.user.EUserStatus
 import hollybike.api.utils.search.Mapper
-import org.jetbrains.exposed.dao.IntEntity
-import org.jetbrains.exposed.dao.IntEntityClass
-import org.jetbrains.exposed.dao.id.EntityID
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.jetbrains.exposed.sql.kotlin.datetime.timestamp
+import org.jetbrains.exposed.v1.dao.IntEntity
+import org.jetbrains.exposed.v1.dao.IntEntityClass
+import org.jetbrains.exposed.v1.core.dao.id.EntityID
+import org.jetbrains.exposed.v1.core.dao.id.IntIdTable
+import org.jetbrains.exposed.v1.datetime.timestamp
 
 object Users : IntIdTable("users", "id_user") {
 	val email = varchar("email", 1_000)
@@ -60,3 +60,5 @@ val profileMapper: Mapper = mapOf(
 	"profile_picture" to Users.profilePicture,
 	"role" to Users.role
 )
+
+

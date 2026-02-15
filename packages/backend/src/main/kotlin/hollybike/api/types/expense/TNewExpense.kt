@@ -4,7 +4,7 @@
 */
 package hollybike.api.types.expense
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -15,3 +15,6 @@ data class TNewExpense(
 	val amount: Int,
 	val event: Int
 )
+
+
+

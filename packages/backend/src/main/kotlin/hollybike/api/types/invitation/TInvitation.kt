@@ -7,7 +7,7 @@ package hollybike.api.types.invitation
 import hollybike.api.repository.Invitation
 import hollybike.api.types.association.TAssociation
 import hollybike.api.types.user.EUserScope
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -38,3 +38,5 @@ data class TInvitation(
 		link
 	)
 }
+
+

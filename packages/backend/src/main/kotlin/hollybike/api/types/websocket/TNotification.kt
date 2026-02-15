@@ -27,3 +27,5 @@ sealed class NotificationBody(
 	@SerialName("notification_id")
 	var notificationId: Int
 ): Body
+
+

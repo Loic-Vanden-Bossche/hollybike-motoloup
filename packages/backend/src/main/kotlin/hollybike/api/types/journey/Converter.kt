@@ -5,8 +5,7 @@
 package hollybike.api.types.journey
 
 import hollybike.api.logger
-import kotlinx.datetime.Instant
-import kotlinx.datetime.format.DateTimeComponents
+import kotlin.time.Instant
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
@@ -172,7 +171,7 @@ fun JsonElement.getStringOrNull(index: Int): String? = when (this) {
 
 fun JsonElement.getInstantOrNull(key: String): Instant? = getStringOrNull(key)?.let {
 	try {
-		Instant.parse(it, DateTimeComponents.Formats.ISO_DATE_TIME_OFFSET)
+		Instant.parse(it)
 	} catch (e: Exception) {
 		logger.debug(e.message, e)
 		null
@@ -181,9 +180,12 @@ fun JsonElement.getInstantOrNull(key: String): Instant? = getStringOrNull(key)?.
 
 fun JsonElement.getInstantOrNull(index: Int): Instant? = getStringOrNull(index)?.let {
 	try {
-		Instant.parse(it, DateTimeComponents.Formats.ISO_DATE_TIME_OFFSET)
+		Instant.parse(it)
 	} catch (e: Exception) {
 		logger.debug(e.message, e)
 		null
 	}
 }
+
+
+

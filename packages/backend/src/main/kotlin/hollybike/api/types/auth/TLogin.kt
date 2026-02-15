@@ -12,3 +12,5 @@ data class TLogin(
 	val password: String,
 	val device: String? = null
 )
+
+

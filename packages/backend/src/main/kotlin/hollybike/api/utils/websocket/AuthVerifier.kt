@@ -13,10 +13,11 @@ import hollybike.api.repository.Users
 import hollybike.api.types.association.EAssociationsStatus
 import hollybike.api.types.user.EUserStatus
 import io.ktor.util.logging.*
-import org.jetbrains.exposed.dao.with
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.with
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class AuthVerifier(conf: ConfSecurity, private val db: Database, private val logger: Logger) {
 	private val jwtSecret = conf.secret
@@ -56,3 +57,6 @@ class AuthVerifier(conf: ConfSecurity, private val db: Database, private val log
 		}
 	}
 }
+
+
+

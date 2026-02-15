@@ -17,3 +17,5 @@ class Auth(val api: API = API()) {
 	@Resource("/refresh")
 	class Refresh(val auth: Auth = Auth())
 }
+
+

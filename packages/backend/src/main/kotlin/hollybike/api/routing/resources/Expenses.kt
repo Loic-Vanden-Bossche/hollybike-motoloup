@@ -17,3 +17,5 @@ class Expenses(val api: API) {
 	@Resource("/meta-data")
 	class Metadata(val expenses: Expenses)
 }
+
+

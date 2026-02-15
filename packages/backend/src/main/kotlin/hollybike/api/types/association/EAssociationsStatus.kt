@@ -12,3 +12,5 @@ enum class EAssociationsStatus(val value: Int) {
 		operator fun get(value: Int) = entries.first { it.value == value }
 	}
 }
+
+

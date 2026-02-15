@@ -5,7 +5,7 @@
 package hollybike.api.types.event
 
 import hollybike.api.repository.Event
-import kotlinx.datetime.Clock
+import kotlin.time.Clock
 import kotlin.time.Duration.Companion.hours
 
 enum class EEventStatus(val value: Int) {
@@ -48,3 +48,7 @@ enum class EEventStatus(val value: Int) {
 		}
 	}
 }
+
+
+
+

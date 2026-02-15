@@ -11,3 +11,6 @@ data class TNewJourney(
 	val name: String,
 	val association: Int? = null
 )
+
+
+

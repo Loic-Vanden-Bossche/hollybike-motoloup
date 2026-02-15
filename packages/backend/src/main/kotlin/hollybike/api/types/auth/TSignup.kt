@@ -17,3 +17,6 @@ data class TSignup(
 	val role: EUserScope,
 	val invitation: Int
 )
+
+
+

@@ -37,7 +37,8 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
-import kotlinx.datetime.Clock
+import kotlinx.coroutines.coroutineScope
+import kotlin.time.Clock
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
@@ -294,13 +295,14 @@ class JourneyController(
 					waiters.add("journey-destination-position")
 				}
 
-				val requests = waiters.map {
-					async {
-						positionService.awaitResult(it, journey.id.value, 360)
+				val postions = coroutineScope {
+					val requests = waiters.map { topic ->
+						async {
+							positionService.awaitResult(topic, journey.id.value, 360)
+						}
 					}
+					awaitAll(*requests.toTypedArray())
 				}
-
-				val postions = awaitAll(*requests.toTypedArray())
 
 				postions.forEach {
 					if (it is TPositionResult.Success) {
@@ -378,3 +380,7 @@ class JourneyController(
 		}
 	}
 }
+
+
+
+

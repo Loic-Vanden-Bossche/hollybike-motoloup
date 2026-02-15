@@ -21,19 +21,14 @@ import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.datetime.*
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import java.io.File
 
 class EventTest : IntegrationSpec({
-	val workingCreateDate = Clock.System.now().plus(
-		DateTimePeriod(months = 1),
-		TimeZone.currentSystemDefault()
-	)
+	val workingCreateDate = Clock.System.now() + 40.days
 
-	val workingEndDate = workingCreateDate.plus(
-		DateTimePeriod(days = 1),
-		TimeZone.currentSystemDefault()
-	)
+	val workingEndDate = workingCreateDate + 1.days
 
 	context("Get all events") {
 		test("Should get all the events of the database as root user") {
@@ -415,10 +410,7 @@ class EventTest : IntegrationSpec({
 						TCreateEvent(
 							name = "New Event",
 							description = "New Event Description",
-							startDate = Clock.System.now().minus(
-								DateTimePeriod(days = 1),
-								TimeZone.currentSystemDefault()
-							),
+							startDate = Clock.System.now() - 1.days,
 							endDate = null
 						)
 					)
@@ -440,10 +432,7 @@ class EventTest : IntegrationSpec({
 							name = "New Event",
 							description = "New Event Description",
 							startDate = workingCreateDate,
-							endDate = workingCreateDate.minus(
-								DateTimePeriod(days = 1),
-								TimeZone.currentSystemDefault()
-							)
+							endDate = workingCreateDate - 1.days
 						)
 					)
 				}.apply {
@@ -584,10 +573,7 @@ class EventTest : IntegrationSpec({
 						TUpdateEvent(
 							name = "New Event",
 							description = "New Event Description",
-							startDate = Clock.System.now().minus(
-								DateTimePeriod(days = 1),
-								TimeZone.currentSystemDefault()
-							),
+							startDate = Clock.System.now() - 1.days,
 							endDate = null
 						)
 					)
@@ -607,10 +593,7 @@ class EventTest : IntegrationSpec({
 							name = "New Event",
 							description = "New Event Description",
 							startDate = workingCreateDate,
-							endDate = workingCreateDate.minus(
-								DateTimePeriod(days = 1),
-								TimeZone.currentSystemDefault()
-							)
+							endDate = workingCreateDate - 1.days
 						)
 					)
 				}.apply {
@@ -1351,3 +1334,6 @@ class EventTest : IntegrationSpec({
 		}
 	}
 })
+
+
+

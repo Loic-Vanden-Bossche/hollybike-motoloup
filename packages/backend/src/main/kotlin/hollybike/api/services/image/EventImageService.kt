@@ -4,6 +4,7 @@
 */
 package hollybike.api.services.image
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.exceptions.EventActionDeniedException
 import hollybike.api.exceptions.EventNotFoundException
 import hollybike.api.repository.*
@@ -20,12 +21,12 @@ import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.dao.with
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.dao.with
+import org.jetbrains.exposed.v1.core.*
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
 class EventImageService(
@@ -196,3 +197,5 @@ class EventImageService(
 		return Result.success(Unit)
 	}
 }
+
+

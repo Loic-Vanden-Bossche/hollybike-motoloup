@@ -4,6 +4,7 @@
 */
 package hollybike.api.services
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.exceptions.BadAmountException
 import hollybike.api.exceptions.CannotCreateExpenseException
 import hollybike.api.exceptions.EventNotFoundException
@@ -19,13 +20,14 @@ import hollybike.api.utils.search.FilterMode
 import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import io.ktor.http.*
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.dao.with
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SortOrder
-import org.jetbrains.exposed.sql.innerJoin
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.dao.with
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.innerJoin
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 
 class ExpenseService(
@@ -179,3 +181,5 @@ class ExpenseService(
 		return Result.success(expense)
 	}
 }
+
+

@@ -8,7 +8,7 @@ import hollybike.api.repository.Journey
 import hollybike.api.types.association.TPartialAssociation
 import hollybike.api.types.position.TPosition
 import hollybike.api.types.user.TUserPartial
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -53,3 +53,6 @@ data class TJourney(
 		journey.totalElevationLoss
 	)
 }
+
+
+

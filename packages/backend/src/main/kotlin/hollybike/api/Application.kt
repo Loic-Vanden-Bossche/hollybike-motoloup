@@ -36,7 +36,7 @@ fun main() {
 	}
 }
 
-fun run(isTestEnv: Boolean = false): ApplicationEngine {
+fun run(isTestEnv: Boolean = false): EmbeddedServer<*, *> {
 	return embeddedServer(
 		CIO,
 		port = System.getProperty("port")?.toInt() ?: 8080,
@@ -157,3 +157,6 @@ val Application.isCloud: Boolean get() = !isOnPremise
 
 private val onPremiseAttributeKey = AttributeKey<Boolean>("onPremise")
 private val isTestEnvAttributeKey = AttributeKey<Boolean>("isTestEnv")
+
+
+

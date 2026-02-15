@@ -16,3 +16,5 @@ data class TOnboardingUpdate(
 	@SerialName("create_invitation")
 	val createInvitation: Boolean? = null
 )
+
+

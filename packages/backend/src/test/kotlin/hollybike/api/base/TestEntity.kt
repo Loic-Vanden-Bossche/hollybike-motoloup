@@ -14,3 +14,4 @@ fun countWithCap(cap: Int, count: Int): Int {
 fun nbPages(nbItems: Int, pageSize: Int): Int {
 	return (nbItems + pageSize - 1) / pageSize
 }
+

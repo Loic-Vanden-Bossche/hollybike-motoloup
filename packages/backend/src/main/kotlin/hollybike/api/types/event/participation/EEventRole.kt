@@ -12,3 +12,5 @@ enum class EEventRole(val value: Int) {
 		operator fun get(value: Int) = EEventRole.entries.first { it.value == value }
 	}
 }
+
+

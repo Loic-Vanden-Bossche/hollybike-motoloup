@@ -11,3 +11,5 @@ class InvalidDateException(message: String? = null) : RuntimeException(message)
 class NotAllowedException(message: String? = null) : RuntimeException(message)
 
 class NoMailSenderException(message: String? = null) : RuntimeException(message)
+
+

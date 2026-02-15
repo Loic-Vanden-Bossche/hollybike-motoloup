@@ -11,3 +11,5 @@ import kotlinx.serialization.Serializable
 data class TUpdateImagesVisibility(
 	@SerialName("is_images_public") val isImagesPublic: Boolean
 )
+
+

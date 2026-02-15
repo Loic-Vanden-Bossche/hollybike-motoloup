@@ -18,3 +18,5 @@ fun checkContentType(image: PartData.FileItem): Result<ContentType> {
 
 	return Result.success(contentType)
 }
+
+

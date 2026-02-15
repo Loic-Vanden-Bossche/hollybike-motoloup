@@ -4,6 +4,7 @@
 */
 package hollybike.api.services
 
+import org.jetbrains.exposed.v1.jdbc.*
 import aws.smithy.kotlin.runtime.text.encoding.encodeBase64String
 import de.nycode.bcrypt.hash
 import de.nycode.bcrypt.verify
@@ -20,14 +21,15 @@ import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import hollybike.api.utils.validPassword
 import io.ktor.util.*
-import kotlinx.datetime.Clock
-import org.jetbrains.exposed.dao.load
-import org.jetbrains.exposed.dao.with
-import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import kotlin.time.Clock
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.dao.with
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.postgresql.util.PSQLException
 import java.sql.BatchUpdateException
 import java.util.*
@@ -248,3 +250,8 @@ class UserService(
 		return Result.success(Unit)
 	}
 }
+
+
+
+
+

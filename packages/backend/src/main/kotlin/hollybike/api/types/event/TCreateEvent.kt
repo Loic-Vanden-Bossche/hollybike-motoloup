@@ -4,7 +4,7 @@
 */
 package hollybike.api.types.event
 
-import kotlinx.datetime.Instant
+import kotlin.time.Instant
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
@@ -18,3 +18,6 @@ data class TCreateEvent(
 	val endDate: Instant? = null,
 	val association: Int? = null
 )
+
+
+

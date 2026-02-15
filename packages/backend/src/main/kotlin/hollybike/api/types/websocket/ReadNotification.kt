@@ -12,3 +12,6 @@ import kotlinx.serialization.Serializable
 data class ReadNotification(
 	val notification: Int
 ): Body
+
+
+

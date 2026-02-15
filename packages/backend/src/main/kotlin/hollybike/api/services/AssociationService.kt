@@ -4,6 +4,7 @@
 */
 package hollybike.api.services
 
+import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.exceptions.*
 import hollybike.api.repository.*
 import hollybike.api.services.storage.StorageService
@@ -13,13 +14,13 @@ import hollybike.api.types.user.EUserScope
 import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import io.ktor.http.*
-import org.jetbrains.exposed.exceptions.ExposedSQLException
-import org.jetbrains.exposed.sql.Database
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.isNotNull
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.selectAll
-import org.jetbrains.exposed.sql.transactions.transaction
+import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.core.isNotNull
+import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.jdbc.selectAll
+import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.postgresql.util.PSQLException
 import java.sql.BatchUpdateException
 
@@ -217,3 +218,5 @@ class AssociationService(
 		}
 	}
 }
+
+
