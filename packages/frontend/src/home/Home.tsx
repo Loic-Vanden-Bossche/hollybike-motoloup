@@ -42,12 +42,12 @@ export function Home() {
 	]);
 
 	return (
-		<div>
+		<div className={"flex flex-col gap-6"}>
 			{ onboarding.data &&
 				<Card>
-					<h1>Mon onboarding</h1>
-					<div>
-						<p className={"flex items-center gap-2"}>
+					<h2 className={"text-xl font-bold tracking-tight mb-6"}>Mon onboarding</h2>
+					<div className={"flex flex-col gap-4"}>
+						<div className={"flex items-center gap-3 p-3 rounded-xl hover:bg-surface-0/40 transition-colors"}>
 							<CheckBox
 								checked={localOnboarding?.update_default_user}
 								toggle={() => setLocalOnboarding((prev) => {
@@ -61,9 +61,9 @@ export function Home() {
 									}
 								})}
 							/>
-							<Link to={`/users/${ user.user?.id}`}>Mettre à jour l'utilisateur par défaut</Link>
-						</p>
-						<p className={"flex items-center gap-2"}>
+							<Link className={"text-sm hover:text-blue transition-colors"} to={`/users/${ user.user?.id}`}>Mettre à jour l'utilisateur par défaut</Link>
+						</div>
+						<div className={"flex items-center gap-3 p-3 rounded-xl hover:bg-surface-0/40 transition-colors"}>
 							<CheckBox
 								checked={localOnboarding?.update_association}
 								toggle={() => setLocalOnboarding((prev) => {
@@ -77,9 +77,9 @@ export function Home() {
 									}
 								})}
 							/>
-							<Link to={`/associations/${ user.user?.association?.id}`}><span>Personnaliser l'association</span></Link>
-						</p>
-						<p className={"flex items-center gap-2"}>
+							<Link className={"text-sm hover:text-blue transition-colors"} to={`/associations/${ user.user?.association?.id}`}><span>Personnaliser l'association</span></Link>
+						</div>
+						<div className={"flex items-center gap-3 p-3 rounded-xl hover:bg-surface-0/40 transition-colors"}>
 							<CheckBox
 								checked={localOnboarding?.create_invitation}
 								toggle={() => setLocalOnboarding((prev) => {
@@ -93,10 +93,10 @@ export function Home() {
 									}
 								})}
 							/>
-							<Link to={`associations/${ user.user?.association.id }/invitations/`}>
+							<Link className={"text-sm hover:text-blue transition-colors"} to={`associations/${ user.user?.association.id }/invitations/`}>
 								<span>Créer une invitation</span>
 							</Link>
-						</p>
+						</div>
 					</div>
 				</Card> }
 		</div>

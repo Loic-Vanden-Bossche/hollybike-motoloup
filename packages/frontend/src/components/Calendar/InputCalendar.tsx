@@ -10,7 +10,7 @@ import {
 	useCallback,
 	useEffect, useMemo, useState,
 } from "preact/hooks";
-import { CalendarTodayRounded } from "@material-ui/icons";
+import { CalendarDays } from "lucide-preact";
 import { Card } from "../Card/Card.tsx";
 import {
 	decInputCount, inputCount,
@@ -80,10 +80,10 @@ export function InputCalendar(props: CalendarProps) {
 			<Input
 				value={textValue}
 				onInput={e => setTextValue(e.currentTarget.value)}
-				rightIcon={<CalendarTodayRounded onClick={() => setView(prev => !prev)} />}
+				rightIcon={<CalendarDays size={18} onClick={() => setView(prev => !prev)} />}
 			/>
 			{ view &&
-                <Card className={"absolute"}>
+                <Card className={"absolute mt-2"}>
                 	<Calendar {...props} />
                 </Card> }
 		</div>
@@ -152,4 +152,3 @@ function frenchStringToDate(s: string, time: boolean, seconds: boolean): Date | 
 	}
 	return d;
 }
-

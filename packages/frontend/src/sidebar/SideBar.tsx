@@ -10,7 +10,7 @@ import { TAssociation } from "../types/TAssociation.ts";
 import { useApi } from "../utils/useApi.ts";
 import { TOnPremise } from "../types/TOnPremise.ts";
 import { clsx } from "clsx";
-import { CloseRounded } from "@material-ui/icons";
+import { X } from "lucide-preact";
 import { Link } from "react-router-dom";
 
 export function SideBar() {
@@ -33,15 +33,10 @@ export function SideBar() {
 			className={
 				clsx(
 					"fixed left-0 right-0 top-0 bottom-0 md:bg-transparent p-4",
-					"transition-backdrop-filter-bg duration-200",
-					"group/background",
+					"transition-all duration-200",
 					visible ?
-						clsx(
-							"bg-crust/40 backdrop-blur-sm pointer-events-auto cursor-pointer",
-							"[&:hover:not(:has(aside:hover))]:bg-crust/10 [&:hover:not(:has(aside:hover))]:backdrop-blur-[1px]",
-							"[&:has(aside>button:hover)]:bg-crust/10 [&:has(aside>button:hover)]:backdrop-blur-[1px]",
-						) :
-						"!bg-none backdrop-blur-0 pointer-events-none",
+						"bg-crust/40 backdrop-blur-sm pointer-events-auto cursor-pointer" :
+						"bg-transparent backdrop-blur-0 pointer-events-none",
 				)
 			}
 			style={{ zIndex: 8_000 }}
@@ -49,48 +44,45 @@ export function SideBar() {
 		>
 			<aside
 				className={clsx(
-					"relative w-48 min-w-48 bg-base h-full rounded-xl shadow-lg shadow-black/50 pointer-events-auto",
-					"flex-col flex md:translate-x-0 gap-2 p-2",
-					"transition-transform duration-200 cursor-auto",
+					"relative w-52 min-w-52 h-full pointer-events-auto cursor-auto",
+					"bg-surface-0/30 backdrop-blur-xl",
+					"border border-surface-2/30",
+					"rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)]",
+					"flex-col flex md:translate-x-0 gap-1 p-3",
+					"transition-transform duration-200",
 					visible ? "translate-x-0" : "-translate-x-[calc(100%+4rem)]",
 				)}
+				onClick={(e) => e.stopPropagation()}
 			>
+				{/* Logo */}
 				<Link className={"self-stretch"} to={"/"}>
-					<p
+					<div
 						className={clsx(
-							"text-white flex overflow-hidden h-24 rounded",
+							"flex overflow-hidden h-20 rounded-2xl",
 							"relative justify-center items-center bg-logo",
+							"border border-surface-2/20",
 						)}
 					>
 						<img alt={"HOLLYBIKE"} className={"text-black text-3xl italic"} src={"/icon.png"}/>
-					</p>
+					</div>
 				</Link>
+
+				{/* Close button (mobile) */}
 				<button
 					className={clsx(
-						"absolute bg-subtext-1 text-base fill-base rounded p-1",
-						"origin-top-left md:scale-0 md:-mb-10",
-						"transition-transform-w duration-200",
-						"flex gap-1 items-center w-8 hover:w-24 group-[&:hover:not(:has(:hover))]/background:w-24",
-						"outline outline-base outline-8",
-						"group/button overflow-clip",
+						"absolute top-4 right-4 md:hidden",
+						"p-2 rounded-xl",
+						"bg-surface-0/40 backdrop-blur-md border border-surface-2/30",
+						"text-subtext-1 hover:text-text hover:bg-surface-0/60",
+						"transition-all",
 					)}
 					onClick={() => setVisible(false)}
 				>
-					<CloseRounded/>
-					<p
-						className={clsx(
-							"translate-x-8 translate-y-8 opacity-0",
-							"transition-transform duration-200",
-							"group-hover/button:translate-x-0 group-hover/button:translate-y-0 group-hover/button:opacity-100",
-							"group-[&:hover:not(:has(:hover))]/background:translate-x-0",
-							"group-[&:hover:not(:has(:hover))]/background:translate-y-0",
-							"group-[&:hover:not(:has(:hover))]/background:opacity-100",
-						)}
-					>
-						Fermer
-					</p>
+					<X size={16} />
 				</button>
-				<div className={clsx("h-full flex flex-col overflow-y-auto")}>
+
+				{/* Navigation */}
+				<div className={clsx("h-full flex flex-col overflow-y-auto gap-1 mt-2")}>
 					{ content }
 				</div>
 			</aside>
@@ -120,13 +112,21 @@ function adminMenu(association: TAssociation | undefined, root: boolean, onPremi
 		menus.push(<SideBarMenu to={"/conf"}>Configuration</SideBarMenu>);
 	}
 	if (root) {
-		menus = [<div className={"w-3/5 bg-gray-600 h-0.5 my-1"}/>, ...menus];
+		menus = [
+			<div className={"mx-4 my-2"}>
+				<div className={"h-px bg-surface-2/30"} />
+			</div>,
+			...menus,
+		];
 	}
 	return menus;
 }
 
 function rootMenu(association: TAssociation | undefined, onPremise: boolean) {
 	const menu = [
+		<p className={"text-[10px] font-bold uppercase tracking-[0.2em] text-subtext-1 px-4 mb-1 mt-3"}>
+			Navigation
+		</p>,
 		<SideBarMenu to={"/associations"}>
 			Associations
 		</SideBarMenu>,
@@ -144,6 +144,11 @@ function rootMenu(association: TAssociation | undefined, onPremise: boolean) {
 		</SideBarMenu>,
 	];
 	if (association !== undefined) {
+		menu.push(
+			<p className={"text-[10px] font-bold uppercase tracking-[0.2em] text-subtext-1 px-4 mb-1 mt-3"}>
+				{association.name}
+			</p>,
+		);
 		menu.push(...adminMenu(association, true, onPremise));
 	}
 	return menu;

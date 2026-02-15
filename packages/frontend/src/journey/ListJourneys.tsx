@@ -20,9 +20,9 @@ import { timeToFrenchString } from "../components/Calendar/InputCalendar.tsx";
 import { TJourney } from "../types/TJourney.ts";
 import { Download } from "../icons/Download.tsx";
 import {
-	CloudUploadOutlined,
-	DeleteOutlined, VisibilityOutlined,
-} from "@material-ui/icons";
+	Upload,
+	Trash2, Eye,
+} from "lucide-preact";
 import { toast } from "react-toastify";
 import { useReload } from "../utils/useReload.ts";
 import { FileInput } from "../components/Input/FileInput.tsx";
@@ -120,8 +120,8 @@ export function ListJourneys() {
 							</Link>
 						</Cell> : null,
 					<Cell>
-						<CloudUploadOutlined
-							className={"cursor-pointer"}
+						<Upload
+							size={16} className={"cursor-pointer hover:text-blue transition-colors"}
 							onClick={() => {
 								setModal(true);
 								setJourneyId(j.id);
@@ -134,12 +134,12 @@ export function ListJourneys() {
 					<Cell>
 						{ j.file &&
 							<Link to={`/journeys/view/${ j.id}`}>
-								<VisibilityOutlined/>
+								<Eye size={16} className={"hover:text-blue transition-colors"} />
 							</Link> }
 					</Cell>,
 					<Cell>
-						<DeleteOutlined
-							className={"cursor-pointer"} onClick={() => {
+						<Trash2
+							size={16} className={"cursor-pointer text-red hover:text-red/80 transition-colors"} onClick={() => {
 								api(`/journeys/${j.id}`, { method: "DELETE" }).then((res) => {
 									if (res.status === 204) {
 										toast("Trajet supprimé", { type: "success" });

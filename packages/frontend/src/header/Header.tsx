@@ -11,8 +11,8 @@ import { useUser } from "../user/useUser.tsx";
 import { useAuth } from "../auth/context.tsx";
 import { useMemo } from "preact/hooks";
 import {
-	WbSunny, NightsStay, BrightnessAuto, Menu,
-} from "@material-ui/icons";
+	Sun, Moon, Monitor, Menu,
+} from "lucide-preact";
 import { ReactElement } from "react";
 import { useSideBar } from "../sidebar/useSideBar.tsx";
 import "./Header.css";
@@ -32,17 +32,17 @@ export function Header(props: HeaderProps) {
 		() => [
 			[
 				"light",
-				<WbSunny/>,
+				<Sun size={16} />,
 				"Clair",
 			],
 			[
 				"dark",
-				<NightsStay/>,
+				<Moon size={16} />,
 				"Sombre",
 			],
 			[
 				"os",
-				<BrightnessAuto/>,
+				<Monitor size={16} />,
 				"Système",
 			],
 		],
@@ -50,42 +50,31 @@ export function Header(props: HeaderProps) {
 	);
 
 	return (
-		<header className={"flex justify-between md:justify-end items-center gap-4"}>
+		<header className={"flex justify-between md:justify-end items-center gap-4 relative z-10"}>
 			<button
 				className={clsx(
-					"visible md:!hidden",
-					"bg-subtext-1 text-base fill-base rounded p-1",
-					"origin-top-left md:scale-0 md:-mb-10",
-					"transition-transform-w duration-200",
-					"flex gap-1 items-center h-8 w-8 hover:w-[7.5rem]",
-					"group overflow-clip",
+					"md:!hidden",
+					"flex items-center gap-2 px-4 py-2 rounded-xl",
+					"bg-surface-0/40 backdrop-blur-md border border-surface-2/30",
+					"text-text hover:bg-surface-0/60 transition-all",
 				)}
 				onClick={() => setVisible(true)}
 			>
-				<Menu/>
-				<p
-					className={clsx(
-						"translate-x-8 translate-y-8 opacity-0",
-						"transition-transform duration-200",
-						"group-hover:translate-x-0 group-hover:translate-y-0 group-hover:opacity-100",
-					)}
-				>
-					Navigation
-				</p>
+				<Menu size={18} />
+				<span className={"text-sm"}>Menu</span>
 			</button>
-			<div className={"flex items-center gap-2"}>
+			<div className={"flex items-center gap-3"}>
 				<DropDown text={"Theme"}>
 					{ dropdownOptions.map(([
 											  theme,
 											  icon,
 											  text,
-										  ], index) =>
+										  ]) =>
 						<DropDownElement
 							onClick={(e) => {
 								e.stopPropagation();
 								setTheme(theme);
 							}}
-							animationOrder={index}
 						>
 							{ icon }
 							{ text }

@@ -75,8 +75,8 @@ export function UserJourney() {
 	}, [data, mapRef]);
 
 	return (
-		<div className={"mx-2 flex flex-col gap-2 grow"}>
-			<Card className={"grid grid-cols-2"}>
+		<div className={"flex flex-col gap-6 grow"}>
+			<Card className={"grid grid-cols-2 gap-2"}>
 				<p>Distance totale</p>
 				<p>{ distanceToHumanReadable(journey.data?.total_distance) }</p>
 				<div className={"flex gap-4 col-span-2"}>

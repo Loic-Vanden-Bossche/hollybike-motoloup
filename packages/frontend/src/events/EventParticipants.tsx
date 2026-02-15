@@ -7,9 +7,8 @@ import { TEventParticipation } from "../types/TEventParticipation.ts";
 import { Cell } from "../components/List/Cell.tsx";
 import { dateTimeToFrenchString } from "../components/Calendar/InputCalendar.tsx";
 import {
-	ArrowDownwardOutlined,
-	ArrowUpwardOutlined, DeleteOutlined, OpenInNew, StarOutline,
-} from "@material-ui/icons";
+	ArrowDown, ArrowUp, Trash2, ExternalLink, Star,
+} from "lucide-preact";
 import { Button } from "../components/Button/Button.tsx";
 import { TEvent } from "../types/TEvent.ts";
 import { EEventRole } from "../types/EEventRole.ts";
@@ -87,19 +86,19 @@ export function EventParticipant(props: EventParticipantsProps) {
 				baseUrl={`/events/${props.event.id}/participations`}
 				line={(p: TEventParticipation) =>
 					[
-						<Cell>{ p.user.id === props.event.owner.id ? <StarOutline/> : undefined }</Cell>,
+						<Cell>{ p.user.id === props.event.owner.id ? <Star size={16} className={"text-yellow"} /> : undefined }</Cell>,
 						<Cell>{ p.user.username }</Cell>,
 						<Cell><EventRole role={p.role} eventId={props.event.id} userId={p.user.id} doReload={doReload}/></Cell>,
 						<Cell>{ dateTimeToFrenchString(p.joinedDateTime, false) }</Cell>,
 						<Cell>{ p.isImagePublic ? "Publiques" : "Privées" }</Cell>,
 						<Cell>
 							{ p.journey !== undefined ?
-								<Link to={`/user-journey/${p.journey.id}`}><OpenInNew/></Link> :
+								<Link to={`/user-journey/${p.journey.id}`}><ExternalLink size={16} /></Link> :
 								undefined }
 						</Cell>,
 						<Cell>
 							{ p.user.id !== props.event.owner.id ?
-								<DeleteOutlined className={"cursor-pointer"} onClick={() => removeParticipant(p.user.id)}/> :
+								<Trash2 size={16} className={"cursor-pointer text-red hover:text-red/80 transition-colors"} onClick={() => removeParticipant(p.user.id)}/> :
 								undefined }
 						</Cell>,
 					]}
@@ -151,16 +150,16 @@ function EventRole(props: EventRoleProps) {
 
 	if (props.role === EEventRole.Member) {
 		return (
-			<div className={"flex justify-center cursor-pointer"} onClick={promote}>
-				<p>Membre</p>
-				<ArrowUpwardOutlined/>
+			<div className={"flex items-center gap-1.5 cursor-pointer hover:text-blue transition-colors"} onClick={promote}>
+				<p className={"text-sm"}>Membre</p>
+				<ArrowUp size={14} />
 			</div>
 		);
 	} else {
 		return (
-			<div className={"flex justify-center cursor-pointer"} onClick={demote}>
-				<p>Organisateur</p>
-				<ArrowDownwardOutlined/>
+			<div className={"flex items-center gap-1.5 cursor-pointer hover:text-blue transition-colors"} onClick={demote}>
+				<p className={"text-sm"}>Organisateur</p>
+				<ArrowDown size={14} />
 			</div>
 		);
 	}

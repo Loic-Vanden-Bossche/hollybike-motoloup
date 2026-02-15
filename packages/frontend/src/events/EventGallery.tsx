@@ -52,8 +52,8 @@ export function EventGallery(props: EventGalleryProps) {
 	]);
 	return (
 		<Card className={"overflow-hidden flex flex-col min-h-96 2xl:max-w-[50%] grid-flow-row"}>
-			<div className={"flex justify-between gap-2 items-center"}>
-				<h2 className={"text-2xl"}>Galerie</h2>
+			<div className={"flex justify-between gap-4 items-center mb-4"}>
+				<h2 className={"text-xl font-bold tracking-tight"}>Galerie</h2>
 				<div className={"flex items-center gap-2"}>
 					<FileInput value={file} placeholder={"Ajouter une image"} setValue={setFile}/>
 					<Button
@@ -80,7 +80,7 @@ export function EventGallery(props: EventGalleryProps) {
 				</div>
 			</div>
 			<div
-				className={"overflow-y-auto grow grid grid-cols-2"} onScroll={(e) => {
+				className={"overflow-y-auto grow grid grid-cols-2 gap-2"} onScroll={(e) => {
 					const bottom = e.currentTarget.scrollHeight - e.currentTarget.scrollTop === e.currentTarget.clientHeight;
 					if (bottom && ! done) {
 						setPage(prev => prev + 1);
@@ -89,11 +89,11 @@ export function EventGallery(props: EventGalleryProps) {
 			>
 				<div>
 					{ Object.values(images).filter((_image, i) => i % 2 === 0).map(i =>
-						<img src={i.url}/>) }
+						<img className={"rounded-xl w-full"} src={i.url}/>) }
 				</div>
-				<div>
+				<div className={"flex flex-col gap-2"}>
 					{ Object.values(images).filter((_image, i) => i % 2 === 1).map(i =>
-						<img src={i.url}/>) }
+						<img className={"rounded-xl w-full"} src={i.url}/>) }
 				</div>
 
 			</div>

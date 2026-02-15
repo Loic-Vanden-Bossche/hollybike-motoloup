@@ -5,8 +5,8 @@
 import { ComponentChildren } from "preact";
 import { clsx } from "clsx";
 import {
-	ArrowDropDown, ArrowDropUp,
-} from "@material-ui/icons";
+	ChevronDown, ChevronUp,
+} from "lucide-preact";
 import { useCallback } from "preact/hooks";
 
 export interface Sort {
@@ -43,15 +43,20 @@ export function Head(props: HeadProps) {
 	return (
 		<th
 			className={clsx(
-				"text-center px-2 py-1",
+				"px-6 py-5 font-semibold text-left",
+				"text-xs uppercase tracking-widest text-subtext-1",
 				"whitespace-nowrap",
-				props.sortable && props.sort && props.setSortOrder && "cursor-pointer",
+				props.sortable && props.sort && props.setSortOrder && "cursor-pointer hover:text-text transition-colors",
 			)} onClick={onClick}
 			style={{ width: props.width ?? "auto" }}
 		>
-			{ props.children }
-			{ props.sortable &&
-				( props.sort?.order === "asc" ? <ArrowDropUp/> : props.sort?.order === "desc" && <ArrowDropDown/> ) }
+			<span className={"inline-flex items-center gap-1"}>
+				{ props.children }
+				{ props.sortable &&
+					( props.sort?.order === "asc" ?
+						<ChevronUp size={14} /> :
+						props.sort?.order === "desc" && <ChevronDown size={14} /> ) }
+			</span>
 		</th>
 	);
 }

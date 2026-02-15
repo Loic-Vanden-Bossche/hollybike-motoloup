@@ -93,16 +93,16 @@ export function NewJourney() {
 	]);
 
 	return (
-		<div className={"p-2 flex flex-col gap-2"}>
-			<h2 className={"text-xl"}>Créer un nouveau trajet</h2>
-			<Card className={"grid grid-cols-2 items-center gap-2"}>
-				<p>Nom</p>
+		<div className={"flex flex-col gap-6"}>
+			<h2 className={"text-xl font-bold tracking-tight"}>Créer un nouveau trajet</h2>
+			<Card className={"grid grid-cols-2 items-center gap-4"}>
+				<p className={"text-sm font-medium text-subtext-1"}>Nom</p>
 				<Input value={name} onInput={e => setName(e.currentTarget.value)} placeholder={"Nom"}/>
-				<p>Fichier</p>
+				<p className={"text-sm font-medium text-subtext-1"}>Fichier</p>
 				<FileInput placeholder={"Fichier"} accept={".geojson,.gpx"} value={journeyFile} setValue={setJourneyFile}/>
 				{ user?.scope === EUserScope.Root &&
 					<>
-						<p>Association</p>
+						<p className={"text-sm font-medium text-subtext-1"}>Association</p>
 						<Select
 							default={association}
 							options={options ?? []}

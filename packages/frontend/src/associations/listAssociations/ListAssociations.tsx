@@ -8,7 +8,7 @@ import { useNavigate } from "react-router-dom";
 import { TAssociation } from "../../types/TAssociation.ts";
 import { List } from "../../components/List/List.tsx";
 import { Cell } from "../../components/List/Cell.tsx";
-import { OpenInNew } from "@material-ui/icons";
+import { ExternalLink } from "lucide-preact";
 import { Button } from "../../components/Button/Button.tsx";
 import { useSideBar } from "../../sidebar/useSideBar.tsx";
 import { Card } from "../../components/Card/Card.tsx";
@@ -60,13 +60,13 @@ export function ListAssociations() {
 					<Cell>{ EAssociationStatusToString(d.status) }</Cell>,
 					<Cell>
 						{ d.picture !== undefined ?
-							<img className={"max-h-10"} src={d.picture} alt={`Image de l'association ${d.name}`}/> :
+							<img className={"max-h-10 rounded-lg"} src={d.picture} alt={`Image de l'association ${d.name}`}/> :
 							<p>Aucune image</p> }
 					</Cell>,
 					<Cell
 						className={"cursor-pointer"}
 						  onClick={() => navigate(`/associations/${d.id}`)}
-					><OpenInNew/>
+					><ExternalLink size={16} />
 					</Cell>,
 				]}
 			/>

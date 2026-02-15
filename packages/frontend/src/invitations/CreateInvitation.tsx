@@ -104,9 +104,9 @@ export function CreateInvitation() {
 		})), [user]);
 
 	return (
-		<div className={"mx-2"}>
-			<Card className={"grid grid-cols-2 gap-2 items-center"}>
-				<p>Label <RedStar/></p>
+		<div>
+			<Card className={"grid grid-cols-2 gap-4 items-center"}>
+				<p className={"text-sm font-medium text-subtext-1"}>Label <RedStar/></p>
 				<Input
 					value={invitation.label}
 					onInput={e => setInvitation(prev => ({
@@ -114,7 +114,7 @@ export function CreateInvitation() {
 						label: e.currentTarget.value,
 					}))}
 				/>
-				<p>Rôle <RedStar/></p>
+				<p className={"text-sm font-medium text-subtext-1"}>Rôle <RedStar/></p>
 				<Select
 					default={invitation.role}
 					value={invitation.role} onChange={v => setInvitation(prev => ({
@@ -123,13 +123,13 @@ export function CreateInvitation() {
 					}))}
 					options={scopeOptions}
 				/>
-				<p>Expiration</p>
+				<p className={"text-sm font-medium text-subtext-1"}>Expiration</p>
 				<Select
 					default={expire}
 					value={expire} onChange={v => setExpire(parseInt((v ?? "0").toString()))}
 					options={expirationOptions}
 				/>
-				<p>Utilisation max</p>
+				<p className={"text-sm font-medium text-subtext-1"}>Utilisation max</p>
 				<Input
 					placeholder={"Utilisations max"}
 					type={"number"}
@@ -140,7 +140,7 @@ export function CreateInvitation() {
 				/>
 				{ user?.scope === "Root" &&
 				<>
-					<p>Association <RedStar/></p>
+					<p className={"text-sm font-medium text-subtext-1"}>Association <RedStar/></p>
 					<Select
 						options={options ?? []}
 						searchable={(associations.data?.total_data ?? 0) > 5}

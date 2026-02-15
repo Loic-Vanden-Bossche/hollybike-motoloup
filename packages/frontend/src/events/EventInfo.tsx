@@ -37,15 +37,15 @@ export function EventInfo(props: EventInfoProps) {
 		setBudgetText(eventData.budget ? (eventData.budget / 100).toFixed(2) : "");
 	}, [eventData.budget]);
 	return (
-		<Card className={"grid grid-cols-2 gap-2 items-center 2xl:overflow-auto"}>
-			<p>Nom</p>
+		<Card className={"grid grid-cols-2 gap-4 items-center 2xl:overflow-auto"}>
+			<p className={"text-sm font-medium text-subtext-1"}>Nom</p>
 			<Input
 				value={eventData.name} onInput={e => setEventData(prev => ({
 					...prev,
 					name: e.currentTarget.value,
 				}))}
 			/>
-			<p>Description</p>
+			<p className={"text-sm font-medium text-subtext-1"}>Description</p>
 			<TextArea
 				value={eventData.description} onInput={e => setEventData(prev => (
 					{
@@ -54,7 +54,7 @@ export function EventInfo(props: EventInfoProps) {
 					}
 				))}
 			/>
-			<p>Date de début</p>
+			<p className={"text-sm font-medium text-subtext-1"}>Date de début</p>
 			<InputCalendar
 				value={eventData.start_date_time} setValue={(d) => {
 					if (d !== undefined) {
@@ -73,7 +73,7 @@ export function EventInfo(props: EventInfoProps) {
 				}}
 				time
 			/>
-			<p>Date de fin</p>
+			<p className={"text-sm font-medium text-subtext-1"}>Date de fin</p>
 			<InputCalendar
 				value={eventData.end_date_time} setValue={(d) => {
 					if (typeof d === "function") {
@@ -90,16 +90,16 @@ export function EventInfo(props: EventInfoProps) {
 				}}
 				time
 			/>
-			<p>Budget</p>
+			<p className={"text-sm font-medium text-subtext-1"}>Budget</p>
 			<Input
 				value={budgetText}
 				type={"number"}
 				onInput={e => setBudgetText(e.currentTarget.value)}
 			/>
-			<p>Statut</p>
+			<p className={"text-sm font-medium text-subtext-1"}>Statut</p>
 			<EventStatus status={eventData.status} id={eventData.id} doReload={props.doReload}/>
 			<Button
-				className={"justify-self-center"}
+				className={"justify-self-center col-span-2"}
 				onClick={() => {
 					api<TEvent>(`/events/${id}`, {
 						method: "PUT",
@@ -123,7 +123,7 @@ export function EventInfo(props: EventInfoProps) {
 				Sauvegarder
 			</Button>
 			<ButtonDanger
-				className={"justify-self-center"}
+				className={"justify-self-center col-span-2"}
 				onClick={() => {
 					if (confirm) {
 						api(`/events/${eventData.id}`, { method: "DELETE" }).then((res) => {
@@ -205,11 +205,11 @@ function EventStatus(props: EventStatusProps) {
 	}
 
 	if (props.status === EEventStatus.Now) {
-		return <p>En cours</p>;
+		return <span className={"inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green/10 text-green border border-green/20"}>En cours</span>;
 	}
 
 	if (props.status === EEventStatus.Finished) {
-		return <p>Terminé</p>;
+		return <span className={"inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-surface-1/40 text-subtext-0 border border-surface-2/20"}>Terminé</span>;
 	}
 
 	return null;

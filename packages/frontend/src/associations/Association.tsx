@@ -60,10 +60,10 @@ export function Association() {
 		}
 	}, [association, setAssociation]);
 	return (
-		<div className={"w-full grid grid-cols-2 gap-2"}>
+		<div className={"w-full grid grid-cols-2 gap-6"}>
 			<Card>
-				<form className={"grid grid-cols-2 gap-2 items-center"} onSubmit={e => e.preventDefault()}>
-					<p>Nom de l'association :</p>
+				<form className={"grid grid-cols-2 gap-4 items-center"} onSubmit={e => e.preventDefault()}>
+					<p className={"text-sm font-medium text-subtext-1"}>Nom de l'association</p>
 					<Input
 						value={associationData?.name} onInput={(e) => {
 							setAssociationData(prev => ({
@@ -72,7 +72,7 @@ export function Association() {
 							}));
 						}}
 					/>
-					<p>Statut :</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Statut</p>
 					<Select
 						disabled={user?.scope !== EUserScope.Root}
 						value={associationData?.status}
@@ -83,11 +83,11 @@ export function Association() {
 							status: v as EAssociationStatus,
 						}))}
 					/>
-					<p>Nouvelle image:</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Nouvelle image</p>
 					<FileInput value={file} setValue={setFile} placeholder={"Nouvelle image"}/>
-					<p>Image :</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Image</p>
 					{ associationData.picture ?
-						<img className={"max-h-40"} alt={"Logo de l'association"} src={association.data?.picture}/> :
+						<img className={"max-h-40 rounded-xl"} alt={"Logo de l'association"} src={association.data?.picture}/> :
 						"Aucune image" }
 					<Button
 						type={"submit"}
@@ -134,8 +134,8 @@ export function Association() {
 			<Report association={association.data ?? dummyAssociation}/>
 			<div/>
 			{ user?.scope === EUserScope.Root &&
-			<Card className={"border-red border-2 flex justify-between items-center"}>
-				<p className={"text-red"}>Zone de danger</p>
+			<Card className={"!border-red/30 flex justify-between items-center col-span-2"}>
+				<p className={"text-sm font-medium text-red"}>Zone de danger</p>
 				<ButtonDanger onClick={() => { setVisible(true); }}>
 					Supprimer
 				</ButtonDanger>

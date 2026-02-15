@@ -8,7 +8,8 @@ import { clsx } from "clsx";
 interface CardProps {
 	children: ComponentChildren,
 	className?: string,
-	onClick?: (e: MouseEvent) => void
+	onClick?: (e: MouseEvent) => void,
+	hover?: boolean
 }
 
 export function Card(props: CardProps) {
@@ -16,7 +17,12 @@ export function Card(props: CardProps) {
 		<div
 			onClick={props.onClick}
 			className={clsx(
-				"bg-base rounded-xl shadow-lg shadow-black/50 transition-shadow p-4",
+				"relative overflow-hidden",
+				"bg-surface-0/30 backdrop-blur-xl",
+				"border border-surface-2/30",
+				"rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)]",
+				"p-6 transition-all",
+				props.hover && "duration-500 hover:bg-surface-0/50 hover:border-surface-2/50 hover:-translate-y-1 hover:shadow-2xl",
 				props.className,
 			)}
 		>

@@ -40,11 +40,11 @@ export function Report(props: ReportProps) {
 		<>
 			<a className={"hidden"} ref={downloadLinkYear} title={titleYear}/>
 			<a className={"hidden"} ref={downloadLinkPeriod} title={titlePeriod}/>
-			<Card className={"grid grid-cols-2 gap-4"}>
-				<p className={"col-span-2 text-xl"}>Rapport sur la période</p>
-				<p>Début</p>
+			<Card className={"grid grid-cols-2 gap-4 items-center"}>
+				<h2 className={"col-span-2 text-xl font-bold tracking-tight"}>Rapport sur la période</h2>
+				<p className={"text-sm font-medium text-subtext-1"}>Début</p>
 				<InputCalendar value={start} setValue={setStart}/>
-				<p>Fin</p>
+				<p className={"text-sm font-medium text-subtext-1"}>Fin</p>
 				<InputCalendar value={end} setValue={setEnd}/>
 				<Button
 					className={"col-span-2 justify-self-center"}
@@ -66,8 +66,8 @@ export function Report(props: ReportProps) {
 			</Card>
 			<div/>
 			<Card className={"grid grid-cols-2 gap-4 items-center"}>
-				<h1 className={"text-xl col-span-2"}>Rapport CSV de l'année</h1>
-				<p>Année</p>
+				<h2 className={"text-xl font-bold tracking-tight col-span-2"}>Rapport CSV de l'année</h2>
+				<p className={"text-sm font-medium text-subtext-1"}>Année</p>
 				<Input
 					value={year.toString()} onInput={(e) => {
 						const y = parseInt(e.currentTarget.value);
