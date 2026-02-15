@@ -22,7 +22,7 @@ type AuthContext = {
 	loading: boolean;
 	login: (data: TLogin) => void;
 	disconnect: () => void
-}
+};
 
 const Auth = createContext<AuthContext>({
 	token: undefined,
@@ -38,7 +38,7 @@ export function useAuth() {
 	return useContext(Auth);
 }
 
-type Props = { children: ComponentChildren }
+type Props = { children: ComponentChildren };
 
 export const AuthContextProvider = ({ children }: Props) => {
 	const [loading, setLoading] = useState<boolean>(false);

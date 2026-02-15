@@ -13,9 +13,7 @@ import { TAssociation } from "../types/TAssociation.ts";
 import { useRef } from "react";
 import { Input } from "../components/Input/Input.tsx";
 
-interface ReportProps {
-	association: TAssociation
-}
+interface ReportProps { association: TAssociation }
 
 export function Report(props: ReportProps) {
 	const [start, setStart] = useState<Date | undefined>(new Date());

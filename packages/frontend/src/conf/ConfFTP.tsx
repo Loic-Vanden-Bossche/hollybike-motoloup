@@ -4,8 +4,10 @@
 */
 import { ConfProps } from "./Conf.tsx";
 import {
-	DeleteOutlined, Visibility, VisibilityOff,
-} from "@material-ui/icons";
+	Eye,
+	EyeOff,
+	Trash2,
+} from "lucide-preact";
 import { useState } from "preact/hooks";
 import { Card } from "../components/Card/Card.tsx";
 import { Input } from "../components/Input/Input.tsx";
@@ -21,8 +23,9 @@ export function ConfFTP(props: ConfProps) {
 		<Card>
 			<div className={"flex justify-between"}>
 				<h1 className={"text-xl pb-4"}>FTP</h1>
-				<DeleteOutlined
-					className={"cursor-pointer"}
+				<Trash2
+					size={18}
+					className={"cursor-pointer text-subtext-1 hover:text-red transition-colors"}
 					onClick={() => setConf(prev => ({
 						...prev,
 						storage: {
@@ -107,8 +110,8 @@ export function ConfFTP(props: ConfProps) {
 						}
 					}}
 					rightIcon={visiblePassword ?
-						<VisibilityOff className={"cursor-pointer"} onClick={() => setVisiblePassword(false)}/> :
-						<Visibility className={"cursor-pointer"} onClick={() => setVisiblePassword(true)}/>}
+						<EyeOff size={16} className={"cursor-pointer"} onClick={() => setVisiblePassword(false)}/> :
+						<Eye size={16} className={"cursor-pointer"} onClick={() => setVisiblePassword(true)}/>}
 				/>
 			</div>
 		</Card>

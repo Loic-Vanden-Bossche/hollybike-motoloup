@@ -22,7 +22,7 @@ export const EAssociationStatusOptions: Option[] = [
 
 export function EAssociationStatusToString(v: EAssociationStatus) {
 	switch (v) {
-	case EAssociationStatus.Enabled:return "Activé";
-	case EAssociationStatus.Disabled:return "Désactivé";
+		case EAssociationStatus.Enabled:return "Activé";
+		case EAssociationStatus.Disabled:return "Désactivé";
 	}
 }

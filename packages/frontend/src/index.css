@@ -2,9 +2,8 @@
   Hollybike Back-office web application
   Made by MacaronFR (Denis TURBIEZ) and enzoSoa (Enzo SOARES)
 */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+@config "../tailwind.config.js";
 
 :root {
 	color-scheme: light dark;
@@ -20,27 +19,74 @@
 
 @layer components {
 	.ui-glass-panel {
-		@apply bg-surface-0/30 backdrop-blur-xl border border-surface-2/30 rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)];
+		background-color: rgb(var(--color-surface-0) / 0.3);
+		backdrop-filter: blur(24px);
+		border: 1px solid rgb(var(--color-surface-2) / 0.3);
+		border-radius: 1.5rem;
+		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 	}
 
 	.ui-trigger {
-		@apply rounded-xl bg-surface-0/40 backdrop-blur-md border border-surface-2/30 text-sm text-text transition-all hover:bg-surface-0/60;
+		border-radius: 0.75rem;
+		background-color: rgb(var(--color-surface-0) / 0.4);
+		backdrop-filter: blur(12px);
+		border: 1px solid rgb(var(--color-surface-2) / 0.3);
+		font-size: 0.875rem;
+		color: rgb(var(--color-text));
+		transition: all 0.2s ease;
+	}
+
+	.ui-trigger:hover {
+		background-color: rgb(var(--color-surface-0) / 0.6);
 	}
 
 	.ui-popover-panel {
-		@apply bg-surface-0/60 backdrop-blur-xl border border-surface-2/30 rounded-2xl shadow-[0_8px_32px_0_rgba(0,0,0,0.2)];
+		background-color: rgb(var(--color-surface-0) / 0.6);
+		backdrop-filter: blur(24px);
+		border: 1px solid rgb(var(--color-surface-2) / 0.3);
+		border-radius: 1rem;
+		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
 	}
 
 	.ui-control {
-		@apply rounded-xl border border-surface-2/30 bg-surface-1/30 text-sm text-text transition-all placeholder:text-subtext-1/60 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-blue/30 focus-visible:border-blue/50;
+		border-radius: 0.75rem;
+		border: 1px solid rgb(var(--color-surface-2) / 0.3);
+		background-color: rgb(var(--color-surface-1) / 0.3);
+		font-size: 0.875rem;
+		color: rgb(var(--color-text));
+		transition: all 0.2s ease;
 	}
 
 	.ui-control-disabled {
-		@apply border-surface-2/20 bg-surface-1/20 text-subtext-0 cursor-not-allowed;
+		border-color: rgb(var(--color-surface-2) / 0.2);
+		background-color: rgb(var(--color-surface-1) / 0.2);
+		color: rgb(var(--color-subtext-0));
+		cursor: not-allowed;
 	}
 
 	.ui-menu-item {
-		@apply w-full px-4 py-2.5 text-sm text-left flex items-center gap-2 transition-colors hover:bg-surface-0/40;
+		width: 100%;
+		padding: 0.625rem 1rem;
+		font-size: 0.875rem;
+		text-align: left;
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		transition: background-color 0.2s ease;
+	}
+
+	.ui-menu-item:hover {
+		background-color: rgb(var(--color-surface-0) / 0.4);
+	}
+
+	.ui-control::placeholder {
+		color: rgb(var(--color-subtext-1) / 0.6);
+	}
+
+	.ui-control:focus-visible {
+		outline: none;
+		box-shadow: 0 0 0 2px rgb(var(--color-blue) / 0.3);
+		border-color: rgb(var(--color-blue) / 0.5);
 	}
 }
 

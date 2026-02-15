@@ -32,12 +32,12 @@ interface ListProps<T> {
 
 export function List<T>(props: ListProps<T>) {
 	const sortFilterColumns = useApi<TMetaData>(`${props.baseUrl}/meta-data`, [props.baseUrl], { if: props.if });
-	const [sort, setSort] = useState<{ [name: string]: Sort }>({});
+	const [sort, setSort] = useState<{[name: string]: Sort }>({});
 	const [search, setSearch] = useState("");
 	const [page, setPage] = useState(0);
 
 	useEffect(() => {
-		const sortMap: { [name: string]: Sort } = {};
+		const sortMap: {[name: string]: Sort } = {};
 		Object.keys(sortFilterColumns.data ?? []).forEach((c) => {
 			sortMap[c] = {
 				column: c,
@@ -205,6 +205,4 @@ interface Columns {
 	visible?: boolean
 }
 
-interface TMetaData {
-	[name: string]: string
-}
+interface TMetaData {[name: string]: string }

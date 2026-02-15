@@ -69,8 +69,8 @@ export function ListInvitations() {
 
 	const url = useMemo(
 		() =>
-			id !== undefined ? `/associations/${association?.id}/invitations` : "/invitation"
-		, [id, association],
+			id !== undefined ? `/associations/${association?.id}/invitations` : "/invitation",
+		[id, association],
 	);
 
 	const smtp = useApi("/smtp");

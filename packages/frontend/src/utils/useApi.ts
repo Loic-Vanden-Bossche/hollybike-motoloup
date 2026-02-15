@@ -81,7 +81,7 @@ export async function apiRaw<T>(url: string, type?: string, options?: ApiRawOpti
 	if (options?.if !== false) {
 		try {
 			response = await apiResponseRaw(url, type, options);
-		} catch (e) {
+		} catch {
 			return {
 				status: -1,
 				message: "Erreur inconnue",
@@ -161,7 +161,7 @@ export async function apiRaw<T>(url: string, type?: string, options?: ApiRawOpti
 				return value;
 			}),
 		};
-	} catch (e) {
+	} catch {
 		return {
 			status: response.status,
 			message: responseText,

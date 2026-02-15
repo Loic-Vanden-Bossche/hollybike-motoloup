@@ -194,7 +194,7 @@ export function ExpenseEditAddModal(props: ExpenseEditAddModalProps) {
 						}
 					}}
 				>
-				Ajouter
+					Ajouter
 				</Button>
 			</div>
 		</Modal>

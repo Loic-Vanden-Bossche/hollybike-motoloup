@@ -134,7 +134,9 @@ export function Select(props: SelectProps) {
                 		<p
                 			className={"ui-menu-item cursor-pointer"}
                 			onClick={(e) => {
-                				props.onChange && props.onChange(o.value);
+                				if (props.onChange) {
+                					props.onChange(o.value);
+                				}
                 				setVisible(false);
                 				setText(o.name);
                 				e.preventDefault();
@@ -144,10 +146,15 @@ export function Select(props: SelectProps) {
                 			{ o.name }
                 		</p>) }
                 </div> }
-			<select disabled={props.disabled} className={"hidden"} value={props.value}>
-				<option default={props.default === undefined}></option>
+			<select
+				disabled={props.disabled}
+				className={"hidden"}
+				value={props.value}
+				defaultValue={props.default?.toString()}
+			>
+				<option value={""}></option>
 				{ props.options.map((o, i) =>
-					<option default={props.default === o.value} key={i} value={o.value}>{ o.name }</option>) }
+					<option key={i} value={o.value}>{ o.name }</option>) }
 			</select>
 		</div>
 	);

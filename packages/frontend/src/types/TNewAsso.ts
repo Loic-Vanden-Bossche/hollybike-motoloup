@@ -2,8 +2,6 @@
   Hollybike Back-office web application
   Made by MacaronFR (Denis TURBIEZ) and enzoSoa (Enzo SOARES)
 */
-export interface TNewAsso {
-	name: string
-}
+export interface TNewAsso { name: string }
 
 export const dummyNewAsso: TNewAsso = { name: "" };

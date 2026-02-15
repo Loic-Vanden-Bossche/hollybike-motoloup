@@ -10,7 +10,7 @@ import {
 	useContext, useEffect, useState,
 } from "preact/hooks";
 
-export type Theme = "os" | "light" | "dark"
+export type Theme = "os" | "light" | "dark";
 
 interface ThemeContext {
 	theme: Theme,
@@ -26,9 +26,7 @@ export function useTheme() {
 	return useContext(Theme);
 }
 
-interface ThemeProps {
-	children: ComponentChildren
-}
+interface ThemeProps { children: ComponentChildren }
 
 export function ThemeContextProvider(props: ThemeProps) {
 	const [theme, setTheme] = useState<Theme>("os");

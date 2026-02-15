@@ -203,7 +203,7 @@ export function ListJourneys() {
 	);
 }
 
-function DownloadJourney(props: {journeyId: number}) {
+function DownloadJourney(props: { journeyId: number }) {
 	const downloadLink = useRef<HTMLAnchorElement>(null);
 	return (
 		<div>

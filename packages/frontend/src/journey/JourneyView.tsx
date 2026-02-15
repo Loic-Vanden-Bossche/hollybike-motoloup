@@ -3,8 +3,8 @@
   Made by MacaronFR (Denis TURBIEZ) and enzoSoa (Enzo SOARES)
 */
 import Map, {
-	Layer, LineLayer, LngLatBoundsLike, MapGeoJSONFeature, MapRef, Source,
-} from "react-map-gl";
+	Layer, LngLatBoundsLike, MapRef, Source,
+} from "react-map-gl/mapbox";
 import { useApi } from "../utils/useApi.ts";
 import {
 	useNavigate, useParams,
@@ -17,10 +17,11 @@ import {
 } from "preact/hooks";
 import { useRef } from "react";
 import { ArrowLeft } from "lucide-preact";
+import { ViewStateChangeEvent } from "@vis.gl/react-mapbox";
 
 const accessToken = import.meta.env.VITE_MAPBOX_KEY;
 
-const layerStyle: LineLayer = {
+const layerStyle = {
 	id: "point",
 	type: "line",
 	layout: {
@@ -32,18 +33,18 @@ const layerStyle: LineLayer = {
 		"line-width": 5,
 		"line-opacity": 1,
 	},
-};
+} as const;
 
 export function JourneyView() {
 	const { id } = useParams();
 	const journey = useApi<TJourney>(`/journeys/${id}`);
-	const [data, setData] = useState<MapGeoJSONFeature>();
+	const [data, setData] = useState<any>();
 	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (journey.data && journey.data.file) {
 			fetch(journey.data.file).then( async (res) => {
-				const data: MapGeoJSONFeature = await res.json();
+				const data: any = await res.json();
 				if (data.bbox?.length === 6) {
 					data.bbox = [
 						data.bbox[0],
@@ -73,7 +74,7 @@ export function JourneyView() {
 
 	const onLoad = useCallback(() => {
 		if (mapRef.current !== null) {
-			mapRef.current.getMap().getStyle().layers.filter(l => l.id.includes("label")).forEach((l) => {
+			mapRef.current.getMap().getStyle().layers.filter((l: { id: string }) => l.id.includes("label")).forEach((l: { id: string }) => {
 				mapRef.current?.getMap().setLayoutProperty(l.id, "text-field", ["get", "name_fr"]);
 			});
 		}
@@ -97,7 +98,7 @@ export function JourneyView() {
 					mapLib={import("mapbox-gl")}
 					mapStyle={"mapbox://styles/mapbox/navigation-night-v1"}
 					mapboxAccessToken={accessToken}
-					onMove={evt => setViewState(evt.viewState)}
+					onMove={(evt: ViewStateChangeEvent) => setViewState(evt.viewState)}
 					ref={mapRef}
 					onLoad={onLoad}
 				>
