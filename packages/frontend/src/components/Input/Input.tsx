@@ -27,10 +27,10 @@ interface InputProps {
 export const Input = forwardRef((props: InputProps, ref: ForwardedRef<HTMLDivElement>) =>
 	<div
 		ref={ref}
-		className={clsx("bg-mantle rounded flex items-stretch", props.className)}
+		className={clsx("flex items-stretch", props.className)}
 	>
 		{ props.leftIcon &&
-			<i className={"flex items-center border-2 border-surface-1 rounded-l p-1"}>
+			<i className={"ui-control flex items-center rounded-r-none border-r-0 px-2.5"}>
 				{ props.leftIcon }
 			</i> }
 		<input
@@ -38,17 +38,14 @@ export const Input = forwardRef((props: InputProps, ref: ForwardedRef<HTMLDivEle
 			onFocusIn={props.onFocusIn} onFocusOut={props.onFocusOut}
 			value={props.value} onInput={props.onInput} type={props.type} placeholder={props.placeholder}
 			className={clsx(
-				"w-full h-full py-2 px-2 bg-transparent rounded",
-				"focus-visible:outline-blue-500 border-surface-1",
-				"dark:focus-visible:outline-blue-700 outline-2 focus-visible:-outline-offset-1 focus-visible:outline",
-				"rounded border-2",
-				"disabled:text-subtext-0",
+				"ui-control w-full px-3 py-2.5",
+				"disabled:border-surface-2/20 disabled:bg-surface-1/20 disabled:text-subtext-0 disabled:cursor-not-allowed",
 				props.leftIcon && "border-l-0 rounded-l-none",
 				props.rightIcon && "border-r-0 rounded-r-none",
 			)}
 		/>
 		{ props.rightIcon &&
-			<i className={"flex items-center border-2 border-surface-1 rounded-r p-1"}>
+			<i className={"ui-control flex items-center rounded-l-none border-l-0 px-2.5"}>
 				{ props.rightIcon }
 			</i> }
 	</div>);

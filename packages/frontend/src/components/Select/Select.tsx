@@ -97,12 +97,12 @@ export function Select(props: SelectProps) {
 	return (
 		<div
 			className={clsx(
-				"rounded-xl flex items-center justify-between px-4 py-2.5 relative text-sm",
+				"ui-control flex items-center justify-between px-4 py-2.5 relative",
 				"transition-all",
 				visible && "rounded-b-none",
 				props.disabled === true ?
-					"border border-surface-2/20 bg-surface-1/20 text-subtext-0 cursor-default" :
-					"bg-surface-1/30 border border-surface-2/30 cursor-pointer hover:border-surface-2/50",
+					"ui-control-disabled" :
+					"cursor-pointer hover:border-surface-2/50",
 			)}
 			onClick={(e) => {
 				if (input.current?.contains(e.target as Node) !== true && props.disabled !== true) {
@@ -117,18 +117,14 @@ export function Select(props: SelectProps) {
                 <div
                 	className={clsx(
                 		"absolute top-full -left-px w-[calc(100%+2px)]",
-                		"bg-surface-0/60 backdrop-blur-xl",
-                		"border border-surface-2/30 border-t-0 rounded-b-xl",
+                		"ui-popover-panel border-t-0 rounded-b-xl rounded-t-none",
                 		"overflow-hidden",
-                		"shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]",
                 	)}
                 >
                 	{ props.searchable &&
                         <input
                         	className={clsx(
-                        		"bg-surface-1/30 m-2 p-2 text-sm",
-                        		"border border-surface-2/30 rounded-lg",
-                        		"focus:outline-none focus:ring-2 focus:ring-blue/30",
+                        		"ui-control m-2 p-2",
                         		"w-[calc(100%-1rem)]",
                         	)}
                         	ref={input} value={search}
@@ -136,7 +132,7 @@ export function Select(props: SelectProps) {
                         /> }
                 	{ filteredOptions.map(o =>
                 		<p
-                			className={"px-4 py-2.5 cursor-pointer hover:bg-surface-0/40 transition-colors"}
+                			className={"ui-menu-item cursor-pointer"}
                 			onClick={(e) => {
                 				props.onChange && props.onChange(o.value);
                 				setVisible(false);

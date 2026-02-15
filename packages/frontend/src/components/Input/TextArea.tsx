@@ -17,9 +17,7 @@ export function TextArea(props: TextAreaProps) {
 	return (
 		<textarea
 			className={
-				"rounded-xl border border-surface-2/30 bg-surface-1/30 p-4 text-sm " +
-				"focus:outline-none focus:ring-2 focus:ring-blue/30 focus:border-blue/50 " +
-				"transition-all placeholder:text-subtext-1/60"
+				"ui-control p-4"
 			}
 			value={props.value} onInput={props.onInput}
 			placeholder={props.placeHolder}

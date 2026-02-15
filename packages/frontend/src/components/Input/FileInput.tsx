@@ -48,9 +48,8 @@ export function FileInput(props: FileInputProps) {
 	return (
 		<label
 			className={clsx(
-				"rounded-xl cursor-pointer",
-				"bg-surface-1/30 border border-surface-2/30",
-				"px-4 py-2.5 flex items-center justify-start text-sm",
+				"ui-control rounded-xl cursor-pointer",
+				"px-4 py-2.5 flex items-center justify-start",
 				"hover:border-surface-2/50 transition-all",
 				textCss,
 			)}

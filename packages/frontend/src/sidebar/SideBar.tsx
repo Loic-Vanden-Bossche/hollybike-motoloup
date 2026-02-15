@@ -12,9 +12,11 @@ import { TOnPremise } from "../types/TOnPremise.ts";
 import { clsx } from "clsx";
 import { X } from "lucide-preact";
 import { Link } from "react-router-dom";
+import { useOnboardingMode } from "../home/OnboardingModeContext.tsx";
 
 export function SideBar() {
 	const { user } = useUser();
+	const { onboardingMode } = useOnboardingMode();
 	const {
 		association, visible, setVisible,
 	} = useSideBar();
@@ -22,11 +24,15 @@ export function SideBar() {
 
 	const content = useMemo(() => {
 		if (user?.scope === "Root") {
-			return rootMenu(association, onPremise.data?.is_on_premise ?? false);
+			return rootMenu(association, onPremise.data?.is_on_premise ?? false, onboardingMode);
 		} else {
-			return adminMenu(user?.association, false, onPremise.data?.is_on_premise ?? false);
+			return adminMenu(user?.association, false, onPremise.data?.is_on_premise ?? false, onboardingMode);
 		}
-	}, [user, association]);
+	}, [
+		user,
+		association,
+		onboardingMode,
+	]);
 
 	return (
 		<div
@@ -45,9 +51,7 @@ export function SideBar() {
 			<aside
 				className={clsx(
 					"relative w-52 min-w-52 h-full pointer-events-auto cursor-auto",
-					"bg-surface-0/30 backdrop-blur-xl",
-					"border border-surface-2/30",
-					"rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)]",
+					"ui-glass-panel",
 					"flex-col flex md:translate-x-0 gap-1 p-3",
 					"transition-transform duration-200",
 					visible ? "translate-x-0" : "-translate-x-[calc(100%+4rem)]",
@@ -72,7 +76,7 @@ export function SideBar() {
 					className={clsx(
 						"absolute top-4 right-4 md:hidden",
 						"p-2 rounded-xl",
-						"bg-surface-0/40 backdrop-blur-md border border-surface-2/30",
+						"ui-trigger",
 						"text-subtext-1 hover:text-text hover:bg-surface-0/60",
 						"transition-all",
 					)}
@@ -83,6 +87,15 @@ export function SideBar() {
 
 				{ /* Navigation */ }
 				<div className={clsx("h-full flex flex-col overflow-y-auto gap-1 mt-2")}>
+					{ onboardingMode &&
+						<div className={"mx-2 mb-2 px-3 py-2 rounded-xl border border-blue/30 bg-blue/10"}>
+							<p className={"text-[11px] uppercase tracking-[0.12em] text-blue font-bold"}>
+								Onboarding
+							</p>
+							<p className={"text-xs text-subtext-1 mt-1"}>
+								Completez les etapes avant d'utiliser le back-office.
+							</p>
+						</div> }
 					{ content }
 				</div>
 			</aside>
@@ -90,26 +103,31 @@ export function SideBar() {
 	);
 }
 
-function adminMenu(association: TAssociation | undefined, root: boolean, onPremise: boolean) {
+function adminMenu(
+	association: TAssociation | undefined,
+	root: boolean,
+	onPremise: boolean,
+	onboardingMode: boolean,
+) {
 	let menus = [
-		<SideBarMenu to={`/associations/${association?.id}`}>
+		<SideBarMenu disabled={onboardingMode} to={`/associations/${association?.id}`}>
 			{ root ? association?.name : "Mon association" }
 		</SideBarMenu>,
-		<SideBarMenu to={`/associations/${association?.id}/invitations`} indent={root}>
+		<SideBarMenu disabled={onboardingMode} to={`/associations/${association?.id}/invitations`} indent={root}>
 			{ root ? "Invitations" : "Mes invitations" }
 		</SideBarMenu>,
-		<SideBarMenu to={`/associations/${association?.id}/users`} indent={root}>
+		<SideBarMenu disabled={onboardingMode} to={`/associations/${association?.id}/users`} indent={root}>
 			{ root ? "Utilisateurs" : "Mes utilisateurs" }
 		</SideBarMenu>,
-		<SideBarMenu to={`/associations/${association?.id}/events`} indent={root}>
+		<SideBarMenu disabled={onboardingMode} to={`/associations/${association?.id}/events`} indent={root}>
 			{ root ? "Événements" : "Mes événements" }
 		</SideBarMenu>,
-		<SideBarMenu to={`/associations/${association?.id}/journeys`} indent={root}>
+		<SideBarMenu disabled={onboardingMode} to={`/associations/${association?.id}/journeys`} indent={root}>
 			{ root ? "Bibliothèque de trajet" : "Mes trajets" }
 		</SideBarMenu>,
 	];
 	if (onPremise) {
-		menus.push(<SideBarMenu to={"/conf"}>Configuration</SideBarMenu>);
+		menus.push(<SideBarMenu disabled={onboardingMode} to={"/conf"}>Configuration</SideBarMenu>);
 	}
 	if (root) {
 		menus = [
@@ -122,30 +140,30 @@ function adminMenu(association: TAssociation | undefined, root: boolean, onPremi
 	return menus;
 }
 
-function rootMenu(association: TAssociation | undefined, onPremise: boolean) {
+function rootMenu(association: TAssociation | undefined, onPremise: boolean, onboardingMode: boolean) {
 	const menu = [
 		<p className={"text-[10px] font-bold uppercase tracking-[0.2em] text-subtext-1 px-4 mb-1 mt-3"}>
 			Navigation
 		</p>,
-		<SideBarMenu to={"/associations"}>
+		<SideBarMenu disabled={onboardingMode} to={"/associations"}>
 			Associations
 		</SideBarMenu>,
-		<SideBarMenu to={"/invitations"}>
+		<SideBarMenu disabled={onboardingMode} to={"/invitations"}>
 			Invitations
 		</SideBarMenu>,
-		<SideBarMenu to={"/users"}>
+		<SideBarMenu disabled={onboardingMode} to={"/users"}>
 			Utilisateurs
 		</SideBarMenu>,
-		<SideBarMenu to={"/events"}>
+		<SideBarMenu disabled={onboardingMode} to={"/events"}>
 			Événements
 		</SideBarMenu>,
-		<SideBarMenu to={"/journeys"}>
+		<SideBarMenu disabled={onboardingMode} to={"/journeys"}>
 			Bibliothèque de trajet
 		</SideBarMenu>,
 	];
 	if (association !== undefined) {
 		menu.push(<p className={"text-[10px] font-bold uppercase tracking-[0.2em] text-subtext-1 px-4 mb-1 mt-3"}>{ association.name }</p>);
-		menu.push(...adminMenu(association, true, onPremise));
+		menu.push(...adminMenu(association, true, onPremise, onboardingMode));
 	}
 	return menu;
 }
