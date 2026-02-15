@@ -157,8 +157,8 @@ export function Root() {
 		>
 			<div
 				className={clsx(
-					"bg-mantle overflow-hidden min-h-full p-4 md:p-8",
-					"flex flex-col gap-6 md:pl-60",
+					"bg-mantle min-h-dvh overflow-x-hidden overflow-y-auto p-3 sm:p-4 md:p-6",
+					"flex flex-col gap-4 sm:gap-6 md:pl-64",
 					"transition-all duration-200 relative",
 				)}
 			>
@@ -169,7 +169,7 @@ export function Root() {
 
 				<Header setTheme={theme.set}/>
 				{ onboardingMode &&
-					<div className={"ui-glass-panel border-blue/30 bg-blue/10 px-5 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-3"}>
+					<div className={"ui-glass-panel border-blue/30 bg-blue/10 px-4 sm:px-5 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"}>
 						<div className={"min-w-0"}>
 							<h2 className={"text-base md:text-lg font-bold tracking-tight text-blue"}>
 								Mode onboarding actif
@@ -181,9 +181,9 @@ export function Root() {
 							</p>
 						</div>
 						{ activeStep &&
-							<div className={"flex items-center gap-2"}>
+							<div className={"flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-end"}>
 								<button
-									className={"ui-trigger px-4 py-2 font-semibold text-subtext-1 border-surface-2/40 hover:border-surface-2/60 whitespace-nowrap disabled:opacity-40 disabled:cursor-default"}
+									className={"ui-trigger px-4 py-2 font-semibold text-subtext-1 border-surface-2/40 hover:border-surface-2/60 whitespace-nowrap disabled:opacity-40 disabled:cursor-default w-full sm:w-auto"}
 									disabled={advancing || previousStep?.entryPath === undefined}
 									onClick={() => {
 										if (previousStep?.entryPath !== undefined) {
@@ -194,7 +194,7 @@ export function Root() {
 									Precedent
 								</button>
 								<button
-									className={"ui-trigger px-4 py-2 font-semibold text-blue border-blue/40 hover:border-blue/50 whitespace-nowrap disabled:opacity-60 disabled:cursor-default"}
+									className={"ui-trigger px-4 py-2 font-semibold text-blue border-blue/40 hover:border-blue/50 whitespace-nowrap disabled:opacity-60 disabled:cursor-default w-full sm:w-auto"}
 									disabled={advancing}
 									onClick={async () => {
 										if (onboarding === undefined || activeStep === undefined || advancing) {

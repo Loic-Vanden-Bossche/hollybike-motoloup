@@ -14,53 +14,59 @@
 	font-weight: 500;
 	scroll-behavior: smooth;
 	scrollbar-width: thin;
-	scrollbar-color: rgb(var(--color-overlay-0)) transparent;
+	scrollbar-color: rgba(var(--color-overlay-0), 1) transparent;
 }
 
 @layer components {
 	.ui-glass-panel {
-		background-color: rgb(var(--color-surface-0) / 0.3);
+		background-color: rgba(var(--color-surface-0), 0.3);
 		backdrop-filter: blur(24px);
-		border: 1px solid rgb(var(--color-surface-2) / 0.3);
+		border: 1px solid rgba(var(--color-surface-2), 0.3);
 		border-radius: 1.5rem;
 		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.15);
 	}
 
 	.ui-trigger {
 		border-radius: 0.75rem;
-		background-color: rgb(var(--color-surface-0) / 0.4);
+		background-color: rgba(var(--color-surface-0), 0.4);
 		backdrop-filter: blur(12px);
-		border: 1px solid rgb(var(--color-surface-2) / 0.3);
+		border: 1px solid rgba(var(--color-surface-2), 0.3);
 		font-size: 0.875rem;
-		color: rgb(var(--color-text));
-		transition: all 0.2s ease;
+		line-height: 1.25rem;
+		color: rgba(var(--color-text), 1);
+		transition-property: all;
+		transition-duration: 150ms;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.ui-trigger:hover {
-		background-color: rgb(var(--color-surface-0) / 0.6);
+		background-color: rgba(var(--color-surface-0), 0.6);
 	}
 
 	.ui-popover-panel {
-		background-color: rgb(var(--color-surface-0) / 0.6);
+		background-color: rgba(var(--color-surface-0), 0.6);
 		backdrop-filter: blur(24px);
-		border: 1px solid rgb(var(--color-surface-2) / 0.3);
+		border: 1px solid rgba(var(--color-surface-2), 0.3);
 		border-radius: 1rem;
 		box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
 	}
 
 	.ui-control {
 		border-radius: 0.75rem;
-		border: 1px solid rgb(var(--color-surface-2) / 0.3);
-		background-color: rgb(var(--color-surface-1) / 0.3);
+		border: 1px solid rgba(var(--color-surface-2), 0.3);
+		background-color: rgba(var(--color-surface-1), 0.3);
 		font-size: 0.875rem;
-		color: rgb(var(--color-text));
-		transition: all 0.2s ease;
+		line-height: 1.25rem;
+		color: rgba(var(--color-text), 1);
+		transition-property: all;
+		transition-duration: 150ms;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.ui-control-disabled {
-		border-color: rgb(var(--color-surface-2) / 0.2);
-		background-color: rgb(var(--color-surface-1) / 0.2);
-		color: rgb(var(--color-subtext-0));
+		border-color: rgba(var(--color-surface-2), 0.2);
+		background-color: rgba(var(--color-surface-1), 0.2);
+		color: rgba(var(--color-subtext-0), 1);
 		cursor: not-allowed;
 	}
 
@@ -68,25 +74,29 @@
 		width: 100%;
 		padding: 0.625rem 1rem;
 		font-size: 0.875rem;
+		line-height: 1.25rem;
 		text-align: left;
 		display: flex;
 		align-items: center;
 		gap: 0.5rem;
-		transition: background-color 0.2s ease;
+		transition-property: color, background-color, border-color, text-decoration-color, fill, stroke;
+		transition-duration: 150ms;
+		transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
 	}
 
 	.ui-menu-item:hover {
-		background-color: rgb(var(--color-surface-0) / 0.4);
+		background-color: rgba(var(--color-surface-0), 0.4);
 	}
 
 	.ui-control::placeholder {
-		color: rgb(var(--color-subtext-1) / 0.6);
+		color: rgba(var(--color-subtext-1), 0.6);
 	}
 
 	.ui-control:focus-visible {
-		outline: none;
-		box-shadow: 0 0 0 2px rgb(var(--color-blue) / 0.3);
-		border-color: rgb(var(--color-blue) / 0.5);
+		outline: 2px solid transparent;
+		outline-offset: 2px;
+		box-shadow: 0 0 0 2px rgba(var(--color-blue), 0.3);
+		border-color: rgba(var(--color-blue), 0.5);
 	}
 }
 

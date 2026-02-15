@@ -31,8 +31,8 @@ export function ChangePassword() {
 		}
 	}, []);
 	return (
-		<div className={"flex justify-center items-center h-full"}>
-			<Card className={"flex flex-col gap-2"}>
+		<div className={"flex justify-center items-center h-full px-3"}>
+			<Card className={"flex flex-col gap-2 w-full max-w-md"}>
 				<h1>Réinitialisation du mot de passe</h1>
 				<Input value={user!} disabled/>
 				<Input

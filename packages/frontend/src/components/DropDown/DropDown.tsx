@@ -44,10 +44,10 @@ export function DropDown({
 			style={{ zIndex: 7_500 }}
 		>
 			<button
-				className={clsx("ui-trigger flex items-center gap-2 px-4 py-2")}
+				className={clsx("ui-trigger flex items-center gap-2 px-3 sm:px-4 py-2")}
 				onClick={() => setVisible(prev => !prev)}
 			>
-				<span>{ text }</span>
+				<span className={"truncate max-w-[7rem] sm:max-w-none"}>{ text }</span>
 				<ChevronDown
 					size={16}
 					className={clsx("transition-transform duration-200", visible && "rotate-180")}
@@ -56,7 +56,7 @@ export function DropDown({
 			{ visible &&
 				<div
 					className={clsx(
-						"absolute top-full right-0 mt-2 min-w-[200px]",
+						"absolute top-full right-0 mt-2 min-w-[160px] sm:min-w-[200px] max-w-[85vw]",
 						"ui-popover-panel",
 						"overflow-hidden",
 						"animate-[fadeIn_0.15s_ease-out]",

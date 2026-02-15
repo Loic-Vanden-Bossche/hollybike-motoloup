@@ -19,7 +19,7 @@ export function Card(props: CardProps) {
 			className={clsx(
 				"relative overflow-hidden",
 				"ui-glass-panel",
-				"p-6 transition-all",
+				"p-4 sm:p-6 transition-all",
 				props.hover && "duration-500 hover:bg-surface-0/50 hover:border-surface-2/50 hover:-translate-y-1 hover:shadow-2xl",
 				props.className,
 			)}

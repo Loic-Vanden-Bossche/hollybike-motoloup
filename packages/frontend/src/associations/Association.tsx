@@ -61,9 +61,9 @@ export function Association() {
 		}
 	}, [association, setAssociation]);
 	return (
-		<div className={"w-full grid grid-cols-2 gap-6"}>
+		<div className={"w-full grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"}>
 			<Card>
-				<form className={"grid grid-cols-2 gap-4 items-center"} onSubmit={e => e.preventDefault()}>
+				<form className={"grid grid-cols-1 sm:grid-cols-2 gap-4 items-center"} onSubmit={e => e.preventDefault()}>
 					<p className={"text-sm font-medium text-subtext-1"}>Nom de l'association</p>
 					<Input
 						value={associationData?.name} onInput={(e) => {
@@ -92,7 +92,7 @@ export function Association() {
 						"Aucune image" }
 					<Button
 						type={"submit"}
-						className={"justify-self-center col-span-2"}
+						className={"justify-self-center col-span-1 sm:col-span-2 w-full sm:w-auto"}
 						onClick={() => {
 							const url = user?.scope !== EUserScope.Root ? "/associations/me" : `/associations/${associationData.id}`;
 							api<TAssociation>(url, {
@@ -136,11 +136,10 @@ export function Association() {
 			</Card>
 			<AssociationData association={association.data}/>
 			<Report association={association.data ?? dummyAssociation}/>
-			<div/>
 			{ user?.scope === EUserScope.Root &&
-			<Card className={"!border-red/30 flex justify-between items-center col-span-2"}>
+			<Card className={"!border-red/30 flex flex-col sm:flex-row justify-between items-stretch sm:items-center gap-3 lg:col-span-2"}>
 				<p className={"text-sm font-medium text-red"}>Zone de danger</p>
-				<ButtonDanger onClick={() => { setVisible(true); }}>
+				<ButtonDanger className={"w-full sm:w-auto"} onClick={() => { setVisible(true); }}>
 					Supprimer
 				</ButtonDanger>
 				<Modal
@@ -149,8 +148,9 @@ export function Association() {
 					setVisible={setVisible}
 					title={`Supprimer l'association ${association.data?.name}`}
 				>
-					<div className={"flex justify-around"}>
+					<div className={"flex flex-col sm:flex-row gap-3 sm:justify-around"}>
 						<ButtonDanger
+							className={"w-full sm:w-auto"}
 							onClick={() => {
 								api(`/associations/${association.data?.id}`, { method: "DELETE" }).then((res) => {
 									if (res.status === 200) {
@@ -164,7 +164,7 @@ export function Association() {
 						>
 							Oui, supprimer
 						</ButtonDanger>
-						<Button onClick={() => { setVisible(false); }}>
+						<Button className={"w-full sm:w-auto"} onClick={() => { setVisible(false); }}>
 							Annuler
 						</Button>
 					</div>

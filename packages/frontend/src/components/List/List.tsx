@@ -103,12 +103,14 @@ export function List<T>(props: ListProps<T>) {
 	return (
 		<div className={"flex flex-col grow gap-6"}>
 			{ /* Toolbar */ }
-			<div className={"flex justify-between items-center"}>
+			<div className={"flex flex-col sm:flex-row sm:items-center gap-3 justify-between"}>
 				<Input
 					value={search} onInput={e => setSearch(e.currentTarget.value ?? "")}
-					placeholder={"Rechercher..."} className={"self-start w-64"} leftIcon={<SearchIcon size={16} />}
+					placeholder={"Rechercher..."} className={"w-full sm:w-72"} leftIcon={<SearchIcon size={16} />}
 				/>
-				{ props.action }
+				<div className={"w-full sm:w-auto flex justify-end"}>
+					{ props.action }
+				</div>
 			</div>
 
 
@@ -120,7 +122,7 @@ export function List<T>(props: ListProps<T>) {
 				)}
 			>
 				<div className={"overflow-x-auto"}>
-					<table className={"table-fixed min-w-full"}>
+					<table className={"table-fixed min-w-[720px] md:min-w-full"}>
 						<thead>
 							<tr className={"border-b border-surface-1/20"}>
 								{ props.columns.map((c) => {
@@ -155,7 +157,7 @@ export function List<T>(props: ListProps<T>) {
 				</div>
 
 				{ /* Pagination Footer */ }
-				<div className={"px-6 py-4 border-t border-surface-1/30 bg-surface-0/10 flex items-center justify-between"}>
+				<div className={"px-4 sm:px-6 py-4 border-t border-surface-1/30 bg-surface-0/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3"}>
 					<p className={"text-sm text-subtext-1"}>
 						Page{ " " }
 						<input
@@ -165,10 +167,10 @@ export function List<T>(props: ListProps<T>) {
 						/>
 						{ " " }sur <span className={"text-text font-medium"}>{ data.data?.total_page }</span>
 					</p>
-					<div className={"flex gap-2"}>
+					<div className={"flex gap-2 w-full sm:w-auto"}>
 						<button
 							className={clsx(
-								"px-4 py-1.5 rounded-lg text-sm transition-colors",
+								"px-4 py-1.5 rounded-lg text-sm transition-colors flex-1 sm:flex-none",
 								page === 0 ?
 									"ui-control ui-control-disabled opacity-50" :
 									"ui-control hover:bg-surface-1/50",
@@ -180,7 +182,7 @@ export function List<T>(props: ListProps<T>) {
 						</button>
 						<button
 							className={clsx(
-								"px-4 py-1.5 rounded-lg text-sm transition-colors",
+								"px-4 py-1.5 rounded-lg text-sm transition-colors flex-1 sm:flex-none",
 
 								page >= (data.data?.total_page ?? 1) - 1 ?
 									"ui-control ui-control-disabled opacity-50" :
