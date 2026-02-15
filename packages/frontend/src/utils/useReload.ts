@@ -4,8 +4,8 @@
 */
 import { useState } from "preact/hooks";
 
-export type Reload = boolean
-export type DoReload = () => void
+export type Reload = boolean;
+export type DoReload = () => void;
 
 interface UseReload {
 	reload: Reload,

@@ -24,9 +24,7 @@ const ConfMode = createContext<ConfModeContext>({
 
 export const useConfMode = () => useContext(ConfMode);
 
-interface ConfModeProviderProps {
-	children: ComponentChildren
-}
+interface ConfModeProviderProps { children: ComponentChildren }
 
 export function ConfModeProvider(props: ConfModeProviderProps) {
 	const [confMode, setConfMode] = useState<boolean>();

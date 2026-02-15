@@ -8,16 +8,17 @@ import { Card } from "../components/Card/Card.tsx";
 import { distanceToHumanReadable } from "../utils/distanceToHumanReadable.ts";
 import { TUserJourney } from "../types/TUserJourney.ts";
 import Map, {
-	Layer, LineLayer, LngLatBoundsLike, MapGeoJSONFeature, MapRef, Source,
-} from "react-map-gl";
+	Layer, LngLatBoundsLike, MapRef, Source,
+} from "react-map-gl/mapbox";
 import {
 	useCallback, useEffect, useState,
 } from "preact/hooks";
 import { useRef } from "react";
+import { ViewStateChangeEvent } from "@vis.gl/react-mapbox";
 
 const accessToken = import.meta.env.VITE_MAPBOX_KEY;
 
-const layerStyle: LineLayer = {
+const layerStyle = {
 	id: "point",
 	type: "line",
 	layout: {
@@ -29,7 +30,7 @@ const layerStyle: LineLayer = {
 		"line-width": 5,
 		"line-opacity": 1,
 	},
-};
+} as const;
 
 export function UserJourney() {
 	const { id } = useParams();
@@ -40,12 +41,12 @@ export function UserJourney() {
 		latitude: 44.3392763,
 		zoom: 4,
 	});
-	const [data, setData] = useState<MapGeoJSONFeature>();
+	const [data, setData] = useState<any>();
 
 	useEffect(() => {
 		if (journey.data && journey.data.file) {
 			fetch(journey.data.file).then( async (res) => {
-				const data: MapGeoJSONFeature = await res.json();
+				const data: any = await res.json();
 				if (data.bbox?.length === 6) {
 					data.bbox = [
 						data.bbox[0],
@@ -62,7 +63,7 @@ export function UserJourney() {
 	const onLoad = useCallback(() => {
 		if (mapRef.current !== null) {
 			mapRef.current.resize();
-			mapRef.current.getMap().getStyle().layers.filter(l => l.id.includes("label")).forEach((l) => {
+			mapRef.current.getMap().getStyle().layers.filter((l: { id: string }) => l.id.includes("label")).forEach((l: { id: string }) => {
 				mapRef.current?.getMap().setLayoutProperty(l.id, "text-field", ["get", "name_fr"]);
 			});
 		}
@@ -95,7 +96,7 @@ export function UserJourney() {
 				<Map
 					ref={mapRef}
 					{...viewState}
-					onMove={evt => setViewState(evt.viewState)}
+					onMove={(evt: ViewStateChangeEvent) => setViewState(evt.viewState)}
 					style={{
 						flexGrow: "1",
 						width: "100%",

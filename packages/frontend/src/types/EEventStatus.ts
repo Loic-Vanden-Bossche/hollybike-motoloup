@@ -9,7 +9,7 @@ export enum EEventStatus {
 	Scheduled = "Scheduled",
 	Cancelled = "Cancelled",
 	Finished = "Finished",
-	Now = "Now"
+	Now = "Now",
 }
 
 export const eventStatus = [
@@ -45,10 +45,10 @@ export const eventStatusOptions: Option[] = [
 
 export function EEventStatusToString(v: EEventStatus) {
 	switch (v) {
-	case EEventStatus.Pending: return "En attente";
-	case EEventStatus.Scheduled: return "Prévu";
-	case EEventStatus.Cancelled: return "Annuler";
-	case EEventStatus.Finished: return "Terminer";
-	case EEventStatus.Now: return "En cours";
+		case EEventStatus.Pending: return "En attente";
+		case EEventStatus.Scheduled: return "Prévu";
+		case EEventStatus.Cancelled: return "Annuler";
+		case EEventStatus.Finished: return "Terminer";
+		case EEventStatus.Now: return "En cours";
 	}
 }

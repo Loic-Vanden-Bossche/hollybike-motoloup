@@ -24,9 +24,7 @@ import { ModalAddParticipants } from "./ModalAddParticipants.tsx";
 import { Link } from "react-router-dom";
 import { Card } from "../components/Card/Card.tsx";
 
-interface EventParticipantsProps {
-	event: TEvent
-}
+interface EventParticipantsProps { event: TEvent }
 
 export function EventParticipant(props: EventParticipantsProps) {
 	const {

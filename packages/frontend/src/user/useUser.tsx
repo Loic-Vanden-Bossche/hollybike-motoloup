@@ -31,9 +31,7 @@ const User = createContext<UserContext>({
 
 export const useUser = () => useContext(User);
 
-interface UserProviderProps {
-	children: ComponentChildren
-}
+interface UserProviderProps { children: ComponentChildren }
 
 export function UserProvider(props: UserProviderProps) {
 	const [user, setUser] = useState<TUser | null>(null);

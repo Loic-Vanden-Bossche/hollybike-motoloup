@@ -2,6 +2,4 @@
   Hollybike Back-office web application
   Made by MacaronFR (Denis TURBIEZ) and enzoSoa (Enzo SOARES)
 */
-export interface TUpdateUsername {
-	username: string
-}
+export interface TUpdateUsername { username: string }

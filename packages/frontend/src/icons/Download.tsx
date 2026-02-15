@@ -8,9 +8,9 @@ export function Download(props: IconProps) {
 	return (
 		<svg
 			{...props}
-			 xmlns="http://www.w3.org/2000/svg"
-			 height="24px" viewBox="0 -960 960 960"
-			 width="24px" fill="#e8eaed"
+			xmlns="http://www.w3.org/2000/svg"
+			height="24px" viewBox="0 -960 960 960"
+			width="24px" fill="#e8eaed"
 		>
 			<path
 				d="M480-320 280-520l56-58 104 104v-326h80v326l104-104 56 58-200

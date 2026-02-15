@@ -65,7 +65,7 @@ export function ListAssociations() {
 					</Cell>,
 					<Cell
 						className={"cursor-pointer"}
-						  onClick={() => navigate(`/associations/${d.id}`)}
+						onClick={() => navigate(`/associations/${d.id}`)}
 					><ExternalLink size={16} />
 					</Cell>,
 				]}

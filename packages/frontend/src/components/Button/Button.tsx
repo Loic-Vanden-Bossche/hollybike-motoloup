@@ -10,7 +10,7 @@ export interface ButtonProps {
 	onClick: (e: MouseEvent) => void,
 	children: ComponentChildren,
 	className?: string,
-	type?: string,
+	type?: "button" | "submit" | "reset",
 	loading?: boolean,
 	disabled?: boolean
 }

@@ -4,9 +4,7 @@
 */
 import { clsx } from "clsx";
 
-interface RedStarProps {
-	className?: string;
-}
+interface RedStarProps { className?: string; }
 
 export function RedStar(props: RedStarProps) {
 	return (

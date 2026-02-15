@@ -22,9 +22,7 @@ import {
 } from "react-router-dom";
 import { useOnboardingMode } from "../home/OnboardingModeContext.tsx";
 
-interface HeaderProps {
-	setTheme: (theme: Theme) => void
-}
+interface HeaderProps { setTheme: (theme: Theme) => void }
 
 export function Header(props: HeaderProps) {
 	const { setTheme } = props;
@@ -213,10 +211,10 @@ export function Header(props: HeaderProps) {
 					</span> }
 				<DropDown text={"Theme"}>
 					{ dropdownOptions.map(([
-											  theme,
-											  icon,
-											  text,
-										  ]) =>
+						theme,
+						icon,
+						text,
+					]) =>
 						<DropDownElement
 							onClick={(e) => {
 								e.stopPropagation();

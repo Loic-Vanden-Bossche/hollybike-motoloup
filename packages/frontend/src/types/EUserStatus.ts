@@ -6,7 +6,7 @@ import { Option } from "../components/Select/Select.tsx";
 
 export enum EUserStatus {
 	Enabled = "Enabled",
-	Disabled = "Disabled"
+	Disabled = "Disabled",
 }
 
 export const EUserStatusOptions: Option[] = [
@@ -22,7 +22,7 @@ export const EUserStatusOptions: Option[] = [
 
 export function EUserStatusToString(v: EUserStatus) {
 	switch (v) {
-	case EUserStatus.Enabled: return "Activé";
-	case EUserStatus.Disabled: return "Désactivé";
+		case EUserStatus.Enabled: return "Activé";
+		case EUserStatus.Disabled: return "Désactivé";
 	}
 }

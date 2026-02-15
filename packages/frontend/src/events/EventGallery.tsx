@@ -16,9 +16,7 @@ import { Button } from "../components/Button/Button.tsx";
 import { useReload } from "../utils/useReload.ts";
 import { toast } from "react-toastify";
 
-interface EventGalleryProps {
-	eventId: number
-}
+interface EventGalleryProps { eventId: number }
 
 export function EventGallery(props: EventGalleryProps) {
 	const {

@@ -6,7 +6,7 @@ import { Option } from "../components/Select/Select.tsx";
 
 export enum EEventRole {
 	Member = "Member",
-	Organizer = "Organizer"
+	Organizer = "Organizer",
 }
 
 export const EEventRoleOptions: Option[] = [

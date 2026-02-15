@@ -7,9 +7,7 @@ import { useApi } from "../utils/useApi.ts";
 import { TAssociation } from "../types/TAssociation.ts";
 import { TAssociationData } from "../types/TAssociationData.ts";
 
-interface AssociationDataProps {
-	association?: TAssociation
-}
+interface AssociationDataProps { association?: TAssociation }
 
 export function AssociationData(props: AssociationDataProps) {
 	const data = useApi<TAssociationData>(

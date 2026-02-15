@@ -28,9 +28,7 @@ export function useSideBar() {
 	return useContext(SideBar);
 }
 
-interface SideBarProviderProps {
-	children: ComponentChildren
-}
+interface SideBarProviderProps { children: ComponentChildren }
 
 export function SideBarProvider(props: SideBarProviderProps) {
 	const [association, setAssociation] = useState<TAssociation>();
