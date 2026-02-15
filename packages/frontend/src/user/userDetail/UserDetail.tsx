@@ -69,9 +69,9 @@ export function UserDetail() {
 	const navigate = useNavigate();
 
 	return (
-		<div className={"grid gap-6 grid-cols-2"}>
+		<div className={"grid gap-4 sm:gap-6 grid-cols-1 xl:grid-cols-2"}>
 			<Card>
-				<div className={"grid gap-4 grid-cols-2 items-center"}>
+				<div className={"grid gap-4 grid-cols-1 sm:grid-cols-2 items-center"}>
 					<p className={"text-sm font-medium text-subtext-1"}>Nom de l'utilisateur</p>
 					<Input
 						value={userData.username} onInput={e => setUserData(prev => ({
@@ -125,8 +125,9 @@ export function UserDetail() {
 						default={userData.status}
 					/>
 				</div>
-				<div className={"flex justify-between mt-4"}>
+				<div className={"flex flex-col sm:flex-row gap-3 sm:justify-between mt-4"}>
 					<Button
+						className={"w-full sm:w-auto"}
 						onClick={() => {
 							const data: TUserUpdate = {
 								username: userData.username,
@@ -158,6 +159,7 @@ export function UserDetail() {
 						Sauvegarder
 					</Button>
 					<ButtonDanger
+						className={"w-full sm:w-auto"}
 						onClick={() => {
 							if (confirm) {
 								api(`/users/${user.data?.id}`, {

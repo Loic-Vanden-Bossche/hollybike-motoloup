@@ -46,7 +46,6 @@ export function ListInvitations() {
 	} = useSideBar();
 
 	const { user } = useUser();
-
 	const { id } = useParams();
 
 	useEffect(() => {
@@ -66,21 +65,15 @@ export function ListInvitations() {
 	} = useReload();
 
 	const navigate = useNavigate();
-
 	const url = useMemo(
-		() =>
-			id !== undefined ? `/associations/${association?.id}/invitations` : "/invitation",
+		() => id !== undefined ? `/associations/${association?.id}/invitations` : "/invitation",
 		[id, association],
 	);
-
 	const smtp = useApi("/smtp");
 
 	const [qrCode, setQrCode] = useState("");
-
 	const [modalQrCode, setModalQrCode] = useState(false);
-
 	const [modalMail, setModalMail] = useState(false);
-
 	const [mail, setMail] = useState("");
 	const [invitation, setInvitation] = useState(-1);
 	const canvasRef = useRef<HTMLDivElement>(null);
@@ -98,14 +91,25 @@ export function ListInvitations() {
 		<>
 			<Card>
 				<List
-					reload={reload} filter={filter}
+					reload={reload}
+					filter={filter}
 					columns={[
+						{
+							name: "Lien",
+							id: "link",
+							width: "90px",
+						},
+						{
+							name: "Desactiver",
+							id: "",
+							width: "150px",
+						},
 						{
 							name: "Label",
 							id: "label",
 						},
 						{
-							name: "Rôle",
+							name: "Role",
 							id: "name",
 						},
 						{
@@ -125,18 +129,50 @@ export function ListInvitations() {
 							id: "association",
 							visible: user?.scope === EUserScope.Root,
 						},
-						{
-							name: "Lien",
-							id: "link",
-							width: "90px",
-						},
-						{
-							name: "Désactiver",
-							id: "",
-							width: "150px",
-						},
 					]}
-					baseUrl={url} line={(i: TInvitation) => [
+					baseUrl={url}
+					line={(i: TInvitation) => [
+						<Cell className={"flex"}>
+							{ i.link !== undefined &&
+								<div className={"flex gap-2"}>
+									<QRCodeScanner
+										className={"cursor-pointer"}
+										onClick={() => {
+											setModalQrCode(true);
+											setQrCode(i.link!);
+										}}
+									/>
+									<LinkCell link={i.link}/>
+									{ smtp.status === 200 &&
+										<Mail
+											size={16}
+											className={"cursor-pointer hover:text-blue transition-colors"}
+											onClick={() => {
+												setModalMail(true);
+												setInvitation(i.id);
+											}}
+										/> }
+								</div> }
+						</Cell>,
+						<Cell>
+							{ i.status === "Enabled" &&
+								<LinkIcon
+									size={16}
+									className={"cursor-pointer text-red hover:text-red/80 transition-colors"}
+									onClick={() => {
+										api(`/invitation/${i.id}/disable`, { method: "PATCH" }).then((res) => {
+											if (res.status === 200) {
+												toast("Invitation desactivee", { type: "success" });
+												doReload();
+											} else if (res.status === 404) {
+												toast(res.message, { type: "warning" });
+											} else {
+												toast(res.message, { type: "error" });
+											}
+										});
+									}}
+								/> }
+						</Cell>,
 						<Cell>
 							{ i.label }
 						</Cell>,
@@ -150,8 +186,9 @@ export function ListInvitations() {
 							{ i.max_uses !== null ? i.max_uses : "Infini" }
 						</Cell>,
 						<Cell>
-							{ i.expiration !== null ? `${dateToFrenchString(new Date(i.expiration))} ` +
-							`${timeToFrenchString(new Date(i.expiration), true)}` : "Jamais" }
+							{ i.expiration !== null ?
+								`${dateToFrenchString(new Date(i.expiration))} ${timeToFrenchString(new Date(i.expiration), true)}` :
+								"Jamais" }
 						</Cell>,
 						<>
 							{ user?.scope === EUserScope.Root &&
@@ -161,50 +198,15 @@ export function ListInvitations() {
 									</Link>
 								</Cell> }
 						</>,
-						<Cell className={"flex"}>
-							{ i.link !== undefined &&
-								<div className={"flex gap-2"}>
-									<QRCodeScanner
-										className={"cursor-pointer"}
-										onClick={() => {
-											setModalQrCode(true);
-											setQrCode(i.link!);
-										}}
-									/>
-									<LinkCell link={i.link}/>
-									{ smtp.status === 200 && <Mail
-										size={16} className={"cursor-pointer hover:text-blue transition-colors"} onClick={() => {
-											setModalMail(true);
-											setInvitation(i.id);
-										}}
-									/> }
-								</div> }
-						</Cell>,
-						<Cell>
-							{ i.status === "Enabled" &&
-								<LinkIcon
-									size={16} className={"cursor-pointer text-red hover:text-red/80 transition-colors"} onClick={() => {
-										api(`/invitation/${i.id}/disable`, { method: "PATCH" }).then((res) => {
-											if (res.status === 200) {
-												toast("Invitation désactivée", { type: "success" });
-												doReload();
-											} else if (res.status === 404) {
-												toast(res.message, { type: "warning" });
-											} else {
-												toast(res.message, { type: "error" });
-											}
-										});
-									}}
-								/> }
-						</Cell>,
 					]}
 					action={
 						<Button onClick={() => navigate("/invitations/new")}>
-							Créer une invitation
+							Creer une invitation
 						</Button>
 					}
 				/>
 			</Card>
+
 			<Modal title={"QR-Code d'invitation"} visible={modalQrCode} setVisible={setModalQrCode} width={"w-auto"}>
 				<div className={"flex flex-col items-center justify-center m-4 relative"} ref={canvasRef}>
 					<div className={"bg-[#cdd6f5] p-4 rounded"}>
@@ -224,11 +226,12 @@ export function ListInvitations() {
 						/>
 					</div>
 					<Download
-						className={"absolute right-0 top-0 fill-crust h-12 w-12 cursor-pointer"} onClick={() => {
+						className={"absolute right-0 top-0 fill-crust h-12 w-12 cursor-pointer"}
+						onClick={() => {
 							if (canvasRef.current) {
 								const canva = canvasRef.current.querySelector("canvas");
 								if (canva) {
-									const img = canva?.toDataURL("image/png").replace("image/png", "image/octet-stream");
+									const img = canva.toDataURL("image/png").replace("image/png", "image/octet-stream");
 									if (downLoadQrCode.current) {
 										downLoadQrCode.current.download = "qrcode.png";
 										downLoadQrCode.current.href = img;
@@ -256,6 +259,7 @@ export function ListInvitations() {
 					/>
 				</div>
 			</Modal>
+
 			<Modal title={"Envoyer un mail"} visible={modalMail} setVisible={setModalMail} width={"w-auto"}>
 				<form className={"flex flex-col items-center gap-2 p-4"} onSubmit={e => e.preventDefault()}>
 					<Input placeholder={"Email"} value={mail} onInput={e => setMail(e.currentTarget.value)}/>
@@ -266,7 +270,7 @@ export function ListInvitations() {
 								body: { dest: mail },
 							}).then((res) => {
 								if (res.status === 200) {
-									toast("Mail envoyé avec success", { type: "success" });
+									toast("Mail envoye avec succes", { type: "success" });
 									setMail("");
 									setModalMail(false);
 								} else {
@@ -286,8 +290,8 @@ export function ListInvitations() {
 
 function LinkCell(props: { link: string }) {
 	const input = useRef<HTMLInputElement>(null);
-
 	const [copied, setCopied] = useState(false);
+
 	return (
 		<>
 			{ copied ?
@@ -299,7 +303,7 @@ function LinkCell(props: { link: string }) {
 							input.current.select();
 							input.current.setSelectionRange(0, 999999);
 							navigator.clipboard.writeText(input.current.value).then(() => {
-								toast("Lien copié", { type: "success" });
+								toast("Lien copie", { type: "success" });
 								setCopied(true);
 								setTimeout(() => {
 									setCopied(false);

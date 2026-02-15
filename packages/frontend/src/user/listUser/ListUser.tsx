@@ -55,15 +55,19 @@ export function ListUser() {
 		<Card>
 			<List
 				line={(u: TUser) => [
+					<Cell><Link to={`/users/${u.id}`}><ExternalLink size={16} /></Link></Cell>,
 					<Cell>{ u.email }</Cell>,
 					<Cell>{ u.username }</Cell>,
 					<Cell>{ EUserScopeToString(u.scope) }</Cell>,
 					<Cell>{ EUserStatusToString(u.status) }</Cell>,
 					<Cell>{ new Date(u.last_login).toLocaleString() }</Cell>,
 					<Cell><Link to={`/associations/${u.association.id}`}>{ u.association.name }</Link></Cell>,
-					<Cell><Link to={`/users/${u.id}`}><ExternalLink size={16} /></Link></Cell>,
 				]}
 				columns={[
+					{
+						name: "",
+						id: "",
+					},
 					{
 						name: "Mail",
 						id: "email",
@@ -88,10 +92,6 @@ export function ListUser() {
 					{
 						name: "Association",
 						id: "associations",
-					},
-					{
-						name: "",
-						id: "",
 					},
 				]}
 				baseUrl={"/users"} filter={filter}

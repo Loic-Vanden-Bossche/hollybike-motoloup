@@ -101,6 +101,11 @@
 }
 
 @layer base {
+	html, body, #app {
+		height: 100%;
+		margin: 0;
+	}
+
 	main {
 		--color-rosewater: 220, 138, 120;
 		--color-flamingo: 221, 120, 120;

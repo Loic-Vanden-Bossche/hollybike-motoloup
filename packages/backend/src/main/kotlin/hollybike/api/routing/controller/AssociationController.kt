@@ -52,7 +52,9 @@ class AssociationController(
 				updateMyAssociationPicture()
 				getMyOnboarding()
 				updateMyOnboarding()
+				getMyAssociationInsights()
 				getById()
+				getAssociationInsights()
 				getAllInvitationsByAssociations()
 				getAllInvitationsByAssociationsMetadata()
 				getAssociationYearlyReport()
@@ -288,6 +290,16 @@ class AssociationController(
 		}
 	}
 
+	private fun Route.getMyAssociationInsights() {
+		get<Associations.Me.Insights<API>>(EUserScope.Admin) {
+			val insights = associationService.getAssociationInsights(call.user, call.user.association) ?: run {
+				call.respond(HttpStatusCode.Forbidden)
+				return@get
+			}
+			call.respond(insights)
+		}
+	}
+
 	private fun Route.updateMyOnboarding() {
 		patch<Associations.Me.Onboarding<API>>(EUserScope.Admin) {
 			val update = call.receive<TOnboardingUpdate>()
@@ -319,6 +331,20 @@ class AssociationController(
 				return@get
 			}
 			call.respond(TOnboarding(association))
+		}
+	}
+
+	private fun Route.getAssociationInsights() {
+		get<Associations.Id.Insights<API>>(EUserScope.Admin) {
+			val association = associationService.getById(call.user, it.id.id) ?: run {
+				call.respond(HttpStatusCode.NotFound, "Association inconnue")
+				return@get
+			}
+			val insights = associationService.getAssociationInsights(call.user, association) ?: run {
+				call.respond(HttpStatusCode.Forbidden)
+				return@get
+			}
+			call.respond(insights)
 		}
 	}
 

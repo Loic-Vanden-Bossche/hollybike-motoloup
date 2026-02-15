@@ -14,6 +14,7 @@
     "baseline-browser-mapping": "^2.9.19",
     "caniuse-lite": "^1.0.30001770",
     "clsx": "^2.1.1",
+    "echarts": "^6.0.0",
     "lucide-preact": "^0.564.0",
     "mapbox-gl": "^3.18.1",
     "preact": "^10.28.3",
