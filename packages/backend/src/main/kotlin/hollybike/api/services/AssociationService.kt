@@ -9,11 +9,21 @@ import hollybike.api.exceptions.*
 import hollybike.api.repository.*
 import hollybike.api.services.storage.StorageService
 import hollybike.api.types.association.EAssociationsStatus
+import hollybike.api.types.association.TAssociationInsights
+import hollybike.api.types.association.TEventMonthStatus
+import hollybike.api.types.association.TInsightBucket
+import hollybike.api.types.association.TInvitationFunnel
+import hollybike.api.types.association.TJourneyAdoption
 import hollybike.api.types.association.TOnboardingUpdate
+import hollybike.api.types.event.EEventStatus
+import hollybike.api.types.invitation.EInvitationStatus
 import hollybike.api.types.user.EUserScope
+import hollybike.api.types.user.EUserStatus
 import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import io.ktor.http.*
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.core.eq
@@ -23,6 +33,7 @@ import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.postgresql.util.PSQLException
 import java.sql.BatchUpdateException
+import kotlin.time.Clock
 
 class AssociationService(
 	private val db: Database,
@@ -216,6 +227,94 @@ class AssociationService(
 		} else {
 			Journey.count(Journeys.association eq association.id)
 		}
+	}
+
+	fun getAssociationInsights(caller: User, association: Association): TAssociationInsights? = transaction(db) {
+		if (!authorizeGet(caller, association)) {
+			return@transaction null
+		}
+
+		val now = Clock.System.now()
+
+		val events = Event.find { Events.association eq association.id }.toList()
+		val eventByMonth = events
+			.groupBy { event ->
+				val localDateTime = event.startDateTime.toLocalDateTime(TimeZone.UTC)
+				Pair(localDateTime.year, localDateTime.monthNumber)
+			}
+			.toList()
+			.sortedWith(compareBy({ it.first.first }, { it.first.second }))
+			.flatMap { entry ->
+				EEventStatus.entries.map { status ->
+					TEventMonthStatus(
+						year = entry.first.first,
+						month = entry.first.second,
+						status = status.name.lowercase(),
+						count = entry.second.count { EEventStatus.fromEvent(it) == status }.toLong()
+					)
+				}
+			}
+
+		val invitations = Invitation.find { Invitations.association eq association.id }.toList()
+		val invitationFunnel = TInvitationFunnel(
+			totalCreated = invitations.size.toLong(),
+			activeLinks = invitations.count { invitation ->
+				val isExpired = invitation.expiration?.let { it < now } == true
+				val isSaturated = invitation.maxUses != null && invitation.uses >= invitation.maxUses!!
+				invitation.status == EInvitationStatus.Enabled && !isExpired && !isSaturated
+			}.toLong(),
+			usedLinks = invitations.count { it.uses > 0 }.toLong(),
+			expiredLinks = invitations.count { invitation -> invitation.expiration?.let { it < now } == true }.toLong(),
+			disabledLinks = invitations.count { it.status == EInvitationStatus.Disabled }.toLong(),
+			saturatedLinks = invitations.count { invitation ->
+				invitation.maxUses != null && invitation.uses >= invitation.maxUses!!
+			}.toLong(),
+		)
+
+		val totalEvents = events.size.toLong()
+		val totalEventsWithJourney = events.count { it.journey != null }.toLong()
+		val totalJourneys = Journey.count(Journeys.association eq association.id)
+		val journeyAdoption = TJourneyAdoption(
+			totalEvents = totalEvents,
+			totalEventsWithJourney = totalEventsWithJourney,
+			totalJourneys = totalJourneys,
+			adoptionRatePercent = if (totalEvents == 0L) 0.0 else (totalEventsWithJourney * 100.0) / totalEvents
+		)
+
+		val users = User.find { Users.association eq association.id }.toList()
+		val usersByStatus = EUserStatus.entries.map { status ->
+			TInsightBucket(
+				key = status.name.lowercase(),
+				count = users.count { it.status == status }.toLong()
+			)
+		}
+
+		val userLastLoginBuckets = listOf(
+			"0_7_days" to 0L,
+			"8_30_days" to 0L,
+			"31_90_days" to 0L,
+			"91_plus_days" to 0L
+		).toMutableList()
+
+		users.forEach { user ->
+			val daysSinceLastLogin = (now - user.lastLogin).inWholeDays
+			val bucketIndex = when {
+				daysSinceLastLogin <= 7 -> 0
+				daysSinceLastLogin <= 30 -> 1
+				daysSinceLastLogin <= 90 -> 2
+				else -> 3
+			}
+			val current = userLastLoginBuckets[bucketIndex]
+			userLastLoginBuckets[bucketIndex] = current.copy(second = current.second + 1)
+		}
+
+		TAssociationInsights(
+			eventsByMonth = eventByMonth,
+			invitationFunnel = invitationFunnel,
+			journeyAdoption = journeyAdoption,
+			usersByStatus = usersByStatus,
+			userLastLoginBuckets = userLastLoginBuckets.map { TInsightBucket(it.first, it.second) }
+		)
 	}
 }
 
