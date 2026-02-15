@@ -6,7 +6,7 @@ import {
 	useCallback,
 	useEffect, useMemo, useState,
 } from "preact/hooks";
-import { ArrowDropDown } from "@material-ui/icons";
+import { ChevronDown } from "lucide-preact";
 import { clsx } from "clsx";
 import { useRef } from "react";
 import {
@@ -97,11 +97,12 @@ export function Select(props: SelectProps) {
 	return (
 		<div
 			className={clsx(
-				"rounded flex items-center justify-between border-2 px-2 py-2 h-9.5 relative",
+				"rounded-xl flex items-center justify-between px-4 py-2.5 relative text-sm",
+				"transition-all",
 				visible && "rounded-b-none",
 				props.disabled === true ?
-					"border-surface-1 bg-base text-surface-1 cursor-default" :
-					"bg-mantle border-surface-1 cursor-pointer",
+					"border border-surface-2/20 bg-surface-1/20 text-subtext-0 cursor-default" :
+					"bg-surface-1/30 border border-surface-2/30 cursor-pointer hover:border-surface-2/50",
 			)}
 			onClick={(e) => {
 				if (input.current?.contains(e.target as Node) !== true && props.disabled !== true) {
@@ -110,24 +111,32 @@ export function Select(props: SelectProps) {
 			}} ref={container}
 			style={`z-index: ${id}`}
 		>
-			<p>{ text }</p>
-			<ArrowDropDown className={clsx("transition", visible && "rotate-180")}/>
+			<p className={text === props.placeholder ? "text-subtext-1/60" : ""}>{ text }</p>
+			<ChevronDown size={16} className={clsx("transition-transform duration-200", visible && "rotate-180")}/>
 			{ visible &&
                 <div
                 	className={clsx(
-                		"absolute top-full -left-0.5 bg-mantle flex flex-col",
-                		"w-[calc(100%+4px)] border-2 border-surface-1 rounded-b",
+                		"absolute top-full -left-px w-[calc(100%+2px)]",
+                		"bg-surface-0/60 backdrop-blur-xl",
+                		"border border-surface-2/30 border-t-0 rounded-b-xl",
+                		"overflow-hidden",
+                		"shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]",
                 	)}
                 >
                 	{ props.searchable &&
                         <input
-                        	className={"bg-transparent m-1 p-1 border-2 border-lavender rounded focus:outline-none"}
+                        	className={clsx(
+                        		"bg-surface-1/30 m-2 p-2 text-sm",
+                        		"border border-surface-2/30 rounded-lg",
+                        		"focus:outline-none focus:ring-2 focus:ring-blue/30",
+                        		"w-[calc(100%-1rem)]",
+                        	)}
                         	ref={input} value={search}
                         	onInput={e => setSearch(e.currentTarget.value)}
                         /> }
                 	{ filteredOptions.map(o =>
                 		<p
-                			className={"p-2 cursor-pointer hover:bg-surface-0"}
+                			className={"px-4 py-2.5 cursor-pointer hover:bg-surface-0/40 transition-colors"}
                 			onClick={(e) => {
                 				props.onChange && props.onChange(o.value);
                 				setVisible(false);

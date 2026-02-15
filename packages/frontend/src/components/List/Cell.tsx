@@ -16,7 +16,7 @@ export function Cell(props: CellProps) {
 	return (
 		<td
 			onClick={props.onClick} className={clsx(
-				"text-center p-2 whitespace-nowrap",
+				"px-6 py-4 whitespace-nowrap text-sm",
 				props.className,
 			)}
 			key={props.key}

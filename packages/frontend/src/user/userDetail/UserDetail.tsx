@@ -18,8 +18,8 @@ import {
 import { dummyAssociation } from "../../types/TAssociation.ts";
 import { Button } from "../../components/Button/Button.tsx";
 import {
-	Visibility, VisibilityOff,
-} from "@material-ui/icons";
+	Eye, EyeOff,
+} from "lucide-preact";
 import { TUserUpdate } from "../../types/TUserUpdate.ts";
 import { Select } from "../../components/Select/Select.tsx";
 import { toast } from "react-toastify";
@@ -68,17 +68,17 @@ export function UserDetail() {
 	const navigate = useNavigate();
 
 	return (
-		<div className={"grid gap-2 grid-cols-2"}>
+		<div className={"grid gap-6 grid-cols-2"}>
 			<Card>
-				<div className={"grid gap-2 grid-cols-2"}>
-					<p>Nom de l'utilisateur</p>
+				<div className={"grid gap-4 grid-cols-2 items-center"}>
+					<p className={"text-sm font-medium text-subtext-1"}>Nom de l'utilisateur</p>
 					<Input
 						value={userData.username} onInput={e => setUserData(prev => ({
 							...prev!,
 							username: e.currentTarget.value,
 						}))}
 					/>
-					<p>Fonction</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Fonction</p>
 					<Input
 						placeholder={"Fonction"}
 						value={userData.role ?? ""}
@@ -87,23 +87,23 @@ export function UserDetail() {
 							role: e.currentTarget.value,
 						}))}
 					/>
-					<p>Email</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Email</p>
 					<Input
 						value={userData.email} onInput={e => setUserData(prev => ({
 							...prev!,
 							email: e.currentTarget.value,
 						}))}
 					/>
-					<p>Mot de passe</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Mot de passe</p>
 					<Input
 						placeholder={"·······"}
 						type={passwordVisible ? "text" : "password"}
 						value={password} onInput={e => setPassword(e.currentTarget.value) }
 						rightIcon={passwordVisible ?
-							<VisibilityOff className={"cursor-pointer"} onClick={() => setPasswordVisible(false)}/> :
-							<Visibility className={"cursor-pointer"} onClick={() => setPasswordVisible(true)}/>}
+							<EyeOff size={16} className={"cursor-pointer"} onClick={() => setPasswordVisible(false)}/> :
+							<Eye size={16} className={"cursor-pointer"} onClick={() => setPasswordVisible(true)}/>}
 					/>
-					<p>Rôle</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Rôle</p>
 					<Select
 						value={userData.scope}
 						onChange={v => setUserData(prev => ({
@@ -113,7 +113,7 @@ export function UserDetail() {
 						options={EUserScopeOptions.filter(o => self?.scope === EUserScope.Root || o.value !== EUserScope.Root)}
 						default={userData.scope}
 					/>
-					<p>Statut</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Statut</p>
 					<Select
 						value={userData.status}
 						onChange={v => setUserData(prev => ({
@@ -124,7 +124,7 @@ export function UserDetail() {
 						default={userData.status}
 					/>
 				</div>
-				<div className={"flex justify-between mt-2"}>
+				<div className={"flex justify-between mt-4"}>
 					<Button
 						onClick={() => {
 							const data: TUserUpdate = {

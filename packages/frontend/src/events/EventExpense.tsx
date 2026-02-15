@@ -13,9 +13,9 @@ import { dateToFrenchString } from "../components/Calendar/InputCalendar.tsx";
 
 import { DoReload } from "../utils/useReload.ts";
 import {
-	EditOutlined,
-	KeyboardArrowDown, VisibilityOutlined,
-} from "@material-ui/icons";
+	Pencil,
+	ChevronDown, Eye,
+} from "lucide-preact";
 import { clsx } from "clsx";
 import { ExpenseEditAddModal } from "./ExpenseEditAddModal.tsx";
 
@@ -34,8 +34,8 @@ export function EventExpense(props: EventExpenseProps) {
 	const [data, setData] = useState<TExpense>();
 	return (
 		<Card className={"grow-[1] overflow-hidden flex flex-col"}>
-			<div className={"flex justify-between items-center"}>
-				Dépense
+			<div className={"flex justify-between items-center mb-4"}>
+				<h2 className={"text-xl font-bold tracking-tight"}>Dépenses</h2>
 				<Button
 					onClick={() => {
 						setDisplay(true);
@@ -45,7 +45,7 @@ export function EventExpense(props: EventExpenseProps) {
 					Ajouter
 				</Button>
 			</div>
-			<div className={"overflow-auto"}>
+			<div className={"overflow-auto flex flex-col gap-1"}>
 				{ expenses.map((expense, index) =>
 					<Expense
 						expense={expense}
@@ -79,19 +79,21 @@ function Expense(props: ExpenseProps) {
 	const [visible, setVisible] = useState(false);
 	const [modal, setModal] = useState(false);
 	return (
-		<div className={"cursor-pointer overflow-hidden"} onClick={() => setVisible(!visible)}>
-			<div className={"flex justify-between"}>
-				<div className={"flex gap-2 items-center"}>
-					<p>{ props.expense.name }</p>
-					<p className={"text-sm text-subtext-0"}>{ (props.expense.amount / 100).toFixed(2) } €</p>
-					<p>{ dateToFrenchString(props.expense.date) }</p>
+		<div className={"cursor-pointer overflow-hidden p-3 rounded-xl hover:bg-surface-0/40 transition-all"} onClick={() => setVisible(!visible)}>
+			<div className={"flex justify-between items-center"}>
+				<div className={"flex gap-3 items-center"}>
+					<p className={"text-sm font-medium"}>{ props.expense.name }</p>
+					<span className={"text-xs font-semibold px-2 py-0.5 rounded-full bg-blue/10 text-blue border border-blue/20"}>{ (props.expense.amount / 100).toFixed(2) } €</span>
+					<p className={"text-xs text-subtext-0"}>{ dateToFrenchString(props.expense.date) }</p>
 				</div>
-				<KeyboardArrowDown className={clsx("!transition", visible && "rotate-180" || "rotate-0")}/>
+				<ChevronDown size={16} className={clsx("transition-transform", visible && "rotate-180")}/>
 			</div>
-			<div className={clsx("transition-all overflow-hidden flex justify-between", visible && "max-h-20" || "max-h-0")}>
-				<p>{ props.expense.description }</p>
-				<div className={"flex"}>
-					<EditOutlined
+			<div className={clsx("transition-all overflow-hidden flex justify-between items-center", visible && "max-h-20 mt-2" || "max-h-0")}>
+				<p className={"text-sm text-subtext-0"}>{ props.expense.description }</p>
+				<div className={"flex gap-2"}>
+					<Pencil
+						size={16}
+						className={"cursor-pointer text-subtext-1 hover:text-text transition-colors"}
 						onClick={(e: MouseEvent) => {
 							props.setEditModalVisibility(true);
 							props.setData(props.expense);
@@ -99,7 +101,9 @@ function Expense(props: ExpenseProps) {
 							e.stopPropagation();
 						}}
 					/>
-					{ props.expense.proof && <VisibilityOutlined
+					{ props.expense.proof && <Eye
+						size={16}
+						className={"cursor-pointer text-subtext-1 hover:text-text transition-colors"}
 						onClick={(e: MouseEvent) => {
 							setModal(true);
 							e.stopPropagation();
@@ -108,7 +112,7 @@ function Expense(props: ExpenseProps) {
 				</div>
 			</div>
 			<Modal visible={modal} setVisible={setModal}>
-				<img alt={"Preuve d'achat"} src={props.expense.proof}/>
+				<img className={"rounded-xl"} alt={"Preuve d'achat"} src={props.expense.proof}/>
 			</Modal>
 		</div>
 	);

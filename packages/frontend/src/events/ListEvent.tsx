@@ -9,7 +9,7 @@ import {
 import { Cell } from "../components/List/Cell.tsx";
 import { TEvent } from "../types/TEvent.ts";
 import { Button } from "../components/Button/Button.tsx";
-import { OpenInNew } from "@material-ui/icons";
+import { ExternalLink } from "lucide-preact";
 import { dateTimeToFrenchString } from "../components/Calendar/InputCalendar.tsx";
 import {
 	useEffect, useMemo,
@@ -127,7 +127,7 @@ export function ListEvent() {
                         </Cell> }
 					</>,
 					<Cell className={"cursor-pointer"} onClick={() => navigate(`/events/${e.id}`)}>
-						<OpenInNew/>
+						<ExternalLink size={16} />
 					</Cell>,
 				]}
 				action={

@@ -56,26 +56,26 @@ export function CreateEvent() {
 		}
 	}, [setStart]);
 	return (
-		<div className={"mx-2"}>
+		<div>
 			<Card>
-				<h2 className={"text-xl"}>Créer un événement</h2>
-				<form className={"grid grid-cols-2 items-center gap-2"} onSubmit={e => e.preventDefault()}>
-					<p>Nom de l'événement <RedStar/></p>
+				<h2 className={"text-xl font-bold tracking-tight mb-6"}>Créer un événement</h2>
+				<form className={"grid grid-cols-2 items-center gap-4"} onSubmit={e => e.preventDefault()}>
+					<p className={"text-sm font-medium text-subtext-1"}>Nom de l'événement <RedStar/></p>
 					<Input value={name} onInput={e => setName(e.currentTarget.value)} placeholder={"Nom"}/>
-					<p>Description</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Description</p>
 					<TextArea
 						placeHolder={"Description"}
 						value={description}
 						onInput={e => setDescription(e.currentTarget.value)}
 					>
 					</TextArea>
-					<p>Date de début <RedStar/></p>
+					<p className={"text-sm font-medium text-subtext-1"}>Date de début <RedStar/></p>
 					<InputCalendar value={start} setValue={setStart} time/>
-					<p>Date de fin</p>
+					<p className={"text-sm font-medium text-subtext-1"}>Date de fin</p>
 					<InputCalendar value={end} setValue={setEnd} time/>
 					{ user?.scope === EUserScope.Root &&
 						<>
-							<p>Association <RedStar/></p>
+							<p className={"text-sm font-medium text-subtext-1"}>Association <RedStar/></p>
 							<Select
 								value={association} onChange={value => setAssociation(value as number)}
 								searchable={total > 5}

@@ -4,8 +4,8 @@
 */
 import { ConfProps } from "./Conf.tsx";
 import {
-	DeleteOutlined, Visibility, VisibilityOff,
-} from "@material-ui/icons";
+	Trash2, Eye, EyeOff,
+} from "lucide-preact";
 import { Card } from "../components/Card/Card.tsx";
 import { Input } from "../components/Input/Input.tsx";
 import { useState } from "preact/hooks";
@@ -19,18 +19,18 @@ export function ConfSMTP(props: ConfProps) {
 
 	return (
 		<Card>
-			<div className={"flex justify-between"}>
-				<h1 className={"text-xl pb-4"}>SMTP</h1>
-				<DeleteOutlined
-					className={"cursor-pointer"}
+			<div className={"flex justify-between items-center mb-4"}>
+				<h2 className={"text-xl font-bold tracking-tight"}>SMTP</h2>
+				<Trash2
+					size={16} className={"cursor-pointer text-red hover:text-red/80 transition-colors"}
 					onClick={() => setConf(prev => ({
 						...prev,
 						smtp: undefined,
 					}))}
 				/>
 			</div>
-			<div className={"grid grid-cols-2 gap-2 items-center"}>
-				<p>URL:</p><Input
+			<div className={"grid grid-cols-2 gap-4 items-center"}>
+				<p className={"text-sm font-medium text-subtext-1"}>URL</p><Input
 					onInput={e => setConf(prev => ({
 						...prev,
 						smtp: {
@@ -39,7 +39,7 @@ export function ConfSMTP(props: ConfProps) {
 						},
 					}))} value={conf?.smtp?.url ?? ""}
 				/>
-				<p>Port:</p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Port</p><Input
 					type={"number"}
 					onInput={e => setConf(prev => ({
 						...prev,
@@ -49,7 +49,7 @@ export function ConfSMTP(props: ConfProps) {
 						},
 					}))} value={conf?.smtp?.port?.toString() ?? ""}
 				/>
-				<p>Envoyeur:</p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Envoyeur</p><Input
 					onInput={e => setConf(prev => ({
 						...prev,
 						smtp: {
@@ -58,7 +58,7 @@ export function ConfSMTP(props: ConfProps) {
 						},
 					}))} value={conf?.smtp?.sender ?? ""}
 				/>
-				<p>Utilisateur:</p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Utilisateur</p><Input
 					onInput={e => setConf(prev => ({
 						...prev,
 						smtp: {
@@ -67,7 +67,7 @@ export function ConfSMTP(props: ConfProps) {
 						},
 					}))} value={conf?.smtp?.username ?? ""}
 				/>
-				<p>Mot de passe:</p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Mot de passe</p><Input
 					type={visiblePassword ? "text" : "password"}
 					onInput={e => setConf(prev => ({
 						...prev,
@@ -103,8 +103,8 @@ export function ConfSMTP(props: ConfProps) {
 						}
 					}}
 					rightIcon={visiblePassword ?
-						<VisibilityOff className={"cursor-pointer"} onClick={() => setVisiblePassword(false)}/> :
-						<Visibility className={"cursor-pointer"} onClick={() => setVisiblePassword(true)}/>}
+						<EyeOff size={16} className={"cursor-pointer"} onClick={() => setVisiblePassword(false)}/> :
+						<Eye size={16} className={"cursor-pointer"} onClick={() => setVisiblePassword(true)}/>}
 				/>
 			</div>
 		</Card>

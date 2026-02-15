@@ -6,7 +6,7 @@ import { List } from "../../components/List/List.tsx";
 import { TUserJourney } from "../../types/TUserJourney.ts";
 import { useUser } from "../useUser.tsx";
 import { Cell } from "../../components/List/Cell.tsx";
-import { VisibilityOutlined } from "@material-ui/icons";
+import { Eye } from "lucide-preact";
 import { useNavigate } from "react-router-dom";
 import { Card } from "../../components/Card/Card.tsx";
 
@@ -43,8 +43,8 @@ export function ListUserJourney() {
 						{ uj.min_elevation }
 					</Cell>,
 					<Cell>
-						<VisibilityOutlined
-							className={"cursor-pointer"} onClick={() => {
+						<Eye
+							size={16} className={"cursor-pointer hover:text-blue transition-colors"} onClick={() => {
 								navigate(`/user-journey/${uj.id}`);
 							}}
 						/>

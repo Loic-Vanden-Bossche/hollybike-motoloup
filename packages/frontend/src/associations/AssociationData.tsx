@@ -19,10 +19,10 @@ export function AssociationData(props: AssociationDataProps) {
 	);
 	return (
 		<Card className={"self-start justify-self-start grid grid-cols-[1fr_auto] content-start gap-4"}>
-			<p>Nombre d'utilisateurs : </p><p>{ data.data?.total_user }</p>
-			<p>Nombre d'évènements : </p><p>{ data.data?.total_event }</p>
-			<p>Nombre de balades : </p><p>{ data.data?.total_event_with_journey }</p>
-			<p>Nombre de trajets : </p><p>{ data.data?.total_journey }</p>
+			<p className={"text-sm text-subtext-1"}>Nombre d'utilisateurs</p><p className={"text-sm font-semibold text-text"}>{ data.data?.total_user }</p>
+			<p className={"text-sm text-subtext-1"}>Nombre d'évènements</p><p className={"text-sm font-semibold text-text"}>{ data.data?.total_event }</p>
+			<p className={"text-sm text-subtext-1"}>Nombre de balades</p><p className={"text-sm font-semibold text-text"}>{ data.data?.total_event_with_journey }</p>
+			<p className={"text-sm text-subtext-1"}>Nombre de trajets</p><p className={"text-sm font-semibold text-text"}>{ data.data?.total_journey }</p>
 		</Card>
 	);
 }

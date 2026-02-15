@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc:*)",
+      "mcp__gemini-design-mcp__create_frontend",
+      "Bash(npm install:*)"
+    ]
+  }
+}

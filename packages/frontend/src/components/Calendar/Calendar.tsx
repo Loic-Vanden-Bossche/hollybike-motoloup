@@ -7,7 +7,7 @@ import {
 } from "use-lilius";
 import {
 	ChevronLeft, ChevronRight,
-} from "@material-ui/icons";
+} from "lucide-preact";
 import { clsx } from "clsx";
 import {
 	Dispatch, StateUpdater, useEffect,
@@ -39,23 +39,30 @@ export function Calendar(props: CalendarProps) {
 		<div className={"w-68"}>
 			{ calendar.map(m =>
 				<div>
-					<div className={"flex justify-between"}>
-						<button onClick={() => viewPreviousMonth()}>
-							<ChevronLeft/>
+					<div className={"flex justify-between items-center mb-3"}>
+						<button
+							className={"p-1.5 rounded-xl hover:bg-surface-0/40 text-subtext-1 hover:text-text transition-all"}
+							onClick={() => viewPreviousMonth()}
+						>
+							<ChevronLeft size={18} />
 						</button>
-						{ monthName[viewing.getMonth()] }
-						<button onClick={() => viewNextMonth()}>
-							<ChevronRight/>
+						<span className={"text-sm font-bold"}>{ monthName[viewing.getMonth()] }</span>
+						<button
+							className={"p-1.5 rounded-xl hover:bg-surface-0/40 text-subtext-1 hover:text-text transition-all"}
+							onClick={() => viewNextMonth()}
+						>
+							<ChevronRight size={18} />
 						</button>
 					</div>
 					{ m.map(w =>
-						<div className={"flex gap-2"}>
+						<div className={"flex gap-1"}>
 							{ w.map(d =>
 								<p
 									className={clsx(
-										"w-8 h-8 flex justify-center items-center cursor-pointer",
-										sameDay(d, today) && "border-2 border-blue rounded-full",
-										sameDay(d, props.value) && "border-2 border-green rounded-full",
+										"w-10 h-10 rounded-xl flex justify-center items-center text-sm",
+										"hover:bg-surface-0/40 transition-colors cursor-pointer",
+										sameDay(d, props.value) && "bg-blue text-crust",
+										!sameDay(d, props.value) && sameDay(d, today) && "border border-blue/30",
 									)}
 									onClick={() => {
 										if (props.setValue !== undefined) {
@@ -72,9 +79,9 @@ export function Calendar(props: CalendarProps) {
 								</p>) }
 						</div>) }
 					{ props.time === true &&
-						<div className={"flex justify-center"}>
+						<div className={"flex justify-center mt-3 gap-1 text-sm"}>
 							<input
-								className={"bg-transparent text-center w-6 focus:outline-none"}
+								className={"bg-surface-1/30 text-center w-8 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-blue/30 border border-surface-2/30"}
 								value={props.value?.getHours()}
 								onInput={(e) => {
 									if (validHour(trim0Start(e.currentTarget.value)) && props.setValue !== undefined) {
@@ -94,9 +101,9 @@ export function Calendar(props: CalendarProps) {
 									}
 								}}
 							/>
-							:
+							<span className={"text-subtext-1"}>:</span>
 							<input
-								className={"bg-transparent text-center w-6 focus:outline-none"}
+								className={"bg-surface-1/30 text-center w-8 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-blue/30 border border-surface-2/30"}
 								value={formatDateTimeComponent(props.value?.getMinutes())}
 								onInput={(e) => {
 									if (validMinSec(trim0Start(e.currentTarget.value)) && props.setValue) {
@@ -118,9 +125,9 @@ export function Calendar(props: CalendarProps) {
 							/>
 							{ props.seconds === true &&
 								<>
-									:
+									<span className={"text-subtext-1"}>:</span>
 									<input
-										className={"bg-transparent text-center w-6 focus:outline-none"}
+										className={"bg-surface-1/30 text-center w-8 rounded-lg py-1 focus:outline-none focus:ring-2 focus:ring-blue/30 border border-surface-2/30"}
 										value={formatDateTimeComponent(props.value?.getSeconds())}
 										onInput={(e) => {
 											if (validMinSec(trim0Start(e.currentTarget.value)) && props.setValue) {

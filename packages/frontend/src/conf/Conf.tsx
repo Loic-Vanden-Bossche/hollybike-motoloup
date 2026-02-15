@@ -50,13 +50,13 @@ export function Conf() {
 	}, [setConf, confAPI]);
 
 	return (
-		<div className={"flex p-2 gap-2 flex-col items-start"}>
-			<div className={"flex gap-2"}>
+		<div className={"flex gap-6 flex-col items-start"}>
+			<div className={"flex gap-6 flex-wrap"}>
 				<ConfDB conf={conf} setConf={setConf} baseConf={confAPI.data}/>
 				<ConfSecurity conf={conf} setConf={setConf} baseConf={confAPI.data}/>
 				<ConfSMTP conf={conf} setConf={setConf} baseConf={confAPI.data}/>
 			</div>
-			<div className={"flex gap-2"}>
+			<div className={"flex gap-6 flex-wrap"}>
 				<ConfS3 conf={conf} setConf={setConf} baseConf={confAPI.data}/>
 				<ConfFTP conf={conf} setConf={setConf} baseConf={confAPI.data}/>
 				<ConfLocal conf={conf} setConf={setConf} baseConf={confAPI.data}/>

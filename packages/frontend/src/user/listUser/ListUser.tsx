@@ -14,7 +14,7 @@ import { TAssociation } from "../../types/TAssociation.ts";
 import {
 	useEffect, useMemo,
 } from "preact/hooks";
-import { OpenInNew } from "@material-ui/icons";
+import { ExternalLink } from "lucide-preact";
 import { equals } from "../../utils/equals.ts";
 import { Card } from "../../components/Card/Card.tsx";
 import { EUserStatusToString } from "../../types/EUserStatus.ts";
@@ -61,7 +61,7 @@ export function ListUser() {
 					<Cell>{ EUserStatusToString(u.status) }</Cell>,
 					<Cell>{ new Date(u.last_login).toLocaleString() }</Cell>,
 					<Cell><Link to={`/associations/${u.association.id}`}>{ u.association.name }</Link></Cell>,
-					<Cell><Link to={`/users/${u.id}`}><OpenInNew/></Link></Cell>,
+					<Cell><Link to={`/users/${u.id}`}><ExternalLink size={16} /></Link></Cell>,
 				]}
 				columns={[
 					{

@@ -21,18 +21,20 @@ export function Button(props: ButtonProps) {
 		<button
 			disabled={disabled}
 			type={props.type}
-			onClick={props.onClick} className={
+			onClick={props.onClick}
+			className={
 				clsx(
-					"px-2 py-1 rounded-full transition-transform bg-text flex items-center gap-4",
+					"flex items-center gap-2 px-6 py-2.5 rounded-2xl font-bold transition-all text-sm",
 					props.className,
-					disabled ? "cursor-default bg-surface-2 text-surface-0" :
-						"cursor-pointer hover:scale-105 text-crust"
-					,
+					disabled ?
+						"cursor-default bg-surface-1/30 text-subtext-0 border border-surface-2/20" :
+						"cursor-pointer bg-blue text-crust shadow-lg shadow-blue/20 hover:brightness-110 active:scale-95",
 				)
 			}
 		>
 			{ props.children }
-			{ props.loading === true && <div className={"border-2 rounded-full h-4 w-4 animate-spin border-b-transparent"}/> }
+			{ props.loading === true &&
+				<div className={"border-2 rounded-full h-4 w-4 animate-spin border-current border-b-transparent"}/> }
 		</button>
 	);
 }

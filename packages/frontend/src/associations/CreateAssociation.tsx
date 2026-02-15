@@ -20,8 +20,8 @@ export function CreateAssociation() {
 	const [newAsso, setNewAsso] = useState<TNewAsso>(dummyNewAsso);
 	return (
 		<div>
-			<Card className={"grid grid-cols-2 gap-2"}>
-				<p>Nom de l'association <RedStar/></p>
+			<Card className={"grid grid-cols-2 gap-4 items-center"}>
+				<p className={"text-sm font-medium text-subtext-1"}>Nom de l'association <RedStar/></p>
 				<Input
 					value={newAsso.name} onInput={e => setNewAsso(prev => ({
 						...prev,

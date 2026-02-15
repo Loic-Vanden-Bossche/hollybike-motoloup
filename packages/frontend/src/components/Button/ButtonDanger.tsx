@@ -9,7 +9,13 @@ import { clsx } from "clsx";
 
 export function ButtonDanger(props: ButtonProps) {
 	return (
-		<Button {...props} className={clsx("!bg-red", props.className)}>
+		<Button
+			{...props}
+			className={clsx(
+				"!bg-red/10 !text-red !border !border-red/20 !shadow-none hover:!bg-red/20",
+				props.className,
+			)}
+		>
 			{ props.children }
 		</Button>
 	);

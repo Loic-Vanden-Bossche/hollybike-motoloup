@@ -16,7 +16,7 @@ import {
 	useEffect, useState,
 } from "preact/hooks";
 import { useRef } from "react";
-import { ArrowBack } from "@material-ui/icons";
+import { ArrowLeft } from "lucide-preact";
 
 const accessToken = import.meta.env.VITE_MAPBOX_KEY;
 
@@ -80,11 +80,17 @@ export function JourneyView() {
 	}, [mapRef, mapRef.current]);
 
 	return (
-		<div className={"grow flex flex-col gap-2 p-2 overflow-hidden h-full"}>
+		<div className={"grow flex flex-col gap-4 overflow-hidden h-full"}>
 			<div>
-				<ArrowBack className={"cursor-pointer"} onClick={() => navigate(-1)}/>
+				<button
+					className={"flex items-center gap-2 px-4 py-2 rounded-xl bg-surface-0/40 border border-surface-2/30 text-sm hover:bg-surface-0/60 transition-all"}
+					onClick={() => navigate(-1)}
+				>
+					<ArrowLeft size={16} />
+					Retour
+				</button>
 			</div>
-			<div className={"grow rounded overflow-hidden flex flex-col"}>
+			<div className={"grow rounded-2xl overflow-hidden flex flex-col"}>
 				<Map
 					{...viewState}
 					style={{ flexGrow: "1" }}

@@ -33,9 +33,9 @@ export function FileInput(props: FileInputProps) {
 
 	const textCss = useMemo(() => {
 		if (text === props.placeholder) {
-			return "text-gray-400";
+			return "text-subtext-1/60";
 		} else {
-			return "";
+			return "text-text";
 		}
 	}, [props.placeholder, text]);
 
@@ -48,8 +48,10 @@ export function FileInput(props: FileInputProps) {
 	return (
 		<label
 			className={clsx(
-				"border-2 rounded cursor-pointer bg-mantle",
-				"border-surface-1 p-2 h-9.5 flex items-center justify-start",
+				"rounded-xl cursor-pointer",
+				"bg-surface-1/30 border border-surface-2/30",
+				"px-4 py-2.5 flex items-center justify-start text-sm",
+				"hover:border-surface-2/50 transition-all",
 				textCss,
 			)}
 			for={id}
@@ -57,7 +59,7 @@ export function FileInput(props: FileInputProps) {
 			{ text }
 			<input
 				value={v}
-				className={"hidden text-gray-600"}
+				className={"hidden"}
 				id={id}
 				type={"file"}
 				placeholder={props.placeholder}

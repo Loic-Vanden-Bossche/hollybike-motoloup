@@ -7,9 +7,9 @@ import { Card } from "../components/Card/Card.tsx";
 import { ConfProps } from "./Conf.tsx";
 import { useState } from "preact/hooks";
 import {
-	DeleteOutlined,
-	Visibility, VisibilityOff,
-} from "@material-ui/icons";
+	Trash2,
+	Eye, EyeOff,
+} from "lucide-preact";
 import { RedStar } from "../components/RedStar/RedStar.tsx";
 
 export function ConfDB(props: ConfProps) {
@@ -21,18 +21,18 @@ export function ConfDB(props: ConfProps) {
 
 	return (
 		<Card>
-			<div className={"flex justify-between"}>
-				<h1 className={"text-xl pb-4"}>Base de données (obligatoire)</h1>
-				<DeleteOutlined
-					className={"cursor-pointer"}
+			<div className={"flex justify-between items-center mb-4"}>
+				<h2 className={"text-xl font-bold tracking-tight"}>Base de données (obligatoire)</h2>
+				<Trash2
+					size={16} className={"cursor-pointer text-red hover:text-red/80 transition-colors"}
 					onClick={() => setConf(prev => ({
 						...prev,
 						db: {},
 					}))}
 				/>
 			</div>
-			<div className={"grid grid-cols-2 gap-2 items-center"}>
-				<p>URL: <RedStar/></p><Input
+			<div className={"grid grid-cols-2 gap-4 items-center"}>
+				<p className={"text-sm font-medium text-subtext-1"}>URL <RedStar/></p><Input
 					onInput={e => setConf(prev => (
 						{
 							...prev,
@@ -44,7 +44,7 @@ export function ConfDB(props: ConfProps) {
 					))}
 					value={conf?.db?.url ?? ""}
 				/>
-				<p>Nom d'utilisateur: <RedStar/></p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Nom d'utilisateur <RedStar/></p><Input
 					onInput={e => setConf(prev => (
 						{
 							...prev,
@@ -56,7 +56,7 @@ export function ConfDB(props: ConfProps) {
 					))}
 					value={conf?.db?.username ?? ""}
 				/>
-				<p>Mot de passe: <RedStar/></p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Mot de passe <RedStar/></p><Input
 					type={visiblePassword ? "text" : "password"}
 					onInput={e => setConf(prev => (
 						{
@@ -95,8 +95,8 @@ export function ConfDB(props: ConfProps) {
 					}}
 					value={conf?.db?.password ?? ""}
 					rightIcon={visiblePassword ?
-						<VisibilityOff className={"cursor-pointer"} onClick={() => setVisiblePassword(false)}/> :
-						<Visibility className={"cursor-pointer"} onClick={() => setVisiblePassword(true)}/>}
+						<EyeOff size={16} className={"cursor-pointer"} onClick={() => setVisiblePassword(false)}/> :
+						<Eye size={16} className={"cursor-pointer"} onClick={() => setVisiblePassword(true)}/>}
 				/>
 			</div>
 		</Card>

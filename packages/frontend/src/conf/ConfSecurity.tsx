@@ -4,8 +4,8 @@
 */
 import { ConfProps } from "./Conf.tsx";
 import {
-	DeleteOutlined, Visibility, VisibilityOff,
-} from "@material-ui/icons";
+	Trash2, Eye, EyeOff,
+} from "lucide-preact";
 import { Card } from "../components/Card/Card.tsx";
 import { useState } from "preact/hooks";
 import { Input } from "../components/Input/Input.tsx";
@@ -20,18 +20,18 @@ export function ConfSecurity(props: ConfProps) {
 
 	return (
 		<Card>
-			<div className={"flex justify-between"}>
-				<h1 className={"text-xl pb-4"}>Sécurité (obligatoire)</h1>
-				<DeleteOutlined
-					className={"cursor-pointer"}
+			<div className={"flex justify-between items-center mb-4"}>
+				<h2 className={"text-xl font-bold tracking-tight"}>Sécurité (obligatoire)</h2>
+				<Trash2
+					size={16} className={"cursor-pointer text-red hover:text-red/80 transition-colors"}
 					onClick={() => setConf(prev => ({
 						...prev,
 						security: {},
 					}))}
 				/>
 			</div>
-			<div className={"grid grid-cols-2 gap-2 items-center"}>
-				<p>Audience: <RedStar/></p><Input
+			<div className={"grid grid-cols-2 gap-4 items-center"}>
+				<p className={"text-sm font-medium text-subtext-1"}>Audience <RedStar/></p><Input
 					onInput={e => setConf(prev => ({
 						...prev,
 						security: {
@@ -40,7 +40,7 @@ export function ConfSecurity(props: ConfProps) {
 						},
 					}))} value={conf?.security?.audience ?? ""}
 				/>
-				<p>Domaine: <RedStar/></p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Domaine <RedStar/></p><Input
 					onInput={e => setConf(prev => ({
 						...prev,
 						security: {
@@ -49,7 +49,7 @@ export function ConfSecurity(props: ConfProps) {
 						},
 					}))} value={conf?.security?.domain ?? ""}
 				/>
-				<p>Realm: <RedStar/></p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Realm <RedStar/></p><Input
 					onInput={e => setConf(prev => ({
 						...prev,
 						security: {
@@ -58,7 +58,7 @@ export function ConfSecurity(props: ConfProps) {
 						},
 					}))} value={conf?.security?.realm ?? ""}
 				/>
-				<p>Secret: <RedStar/></p><Input
+				<p className={"text-sm font-medium text-subtext-1"}>Secret <RedStar/></p><Input
 					type={visiblePassword ? "text" : "password"}
 					onInput={e => setConf(prev => (
 						{
@@ -97,8 +97,8 @@ export function ConfSecurity(props: ConfProps) {
 					}}
 					value={conf?.security?.secret ?? ""}
 					rightIcon={visiblePassword ?
-						<VisibilityOff className={"cursor-pointer"} onClick={() => setVisiblePassword(false)}/> :
-						<Visibility className={"cursor-pointer"} onClick={() => setVisiblePassword(true)}/>}
+						<EyeOff size={16} className={"cursor-pointer"} onClick={() => setVisiblePassword(false)}/> :
+						<Eye size={16} className={"cursor-pointer"} onClick={() => setVisiblePassword(true)}/>}
 				/>
 			</div>
 		</Card>

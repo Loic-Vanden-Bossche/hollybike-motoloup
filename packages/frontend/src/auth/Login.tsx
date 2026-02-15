@@ -43,40 +43,74 @@ export default function () {
 	}, [auth.isLoggedIn]);
 
 	return (
-		<div className={" w-full h-full flex justify-center items-center"}>
-			<form onSubmit={e => e.preventDefault()}>
-				<Card className={"flex flex-col items-center gap-4"}>
-					<p className={"text-2xl"}>Bienvenue sur l'interface de gestion d'Hollybike</p>
-					<Input
-						type={"email"}
-						placeholder="Email"
-						value={email}
-						onInput={e => setEmail(e.currentTarget.value)}
-					/>
-					<Input
-						type={"password"}
-						placeholder="Mot de passe" value={password}
-						onInput={e => setPassword(e.currentTarget.value)}
-					/>
+		<div className={"w-full h-full flex justify-center items-center bg-mantle relative overflow-hidden"}>
+			{ /* Background blobs */ }
+			<div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-mauve/10 blur-[120px] rounded-full pointer-events-none" />
+			<div className="absolute bottom-[0%] right-[-5%] w-[35%] h-[35%] bg-blue/10 blur-[120px] rounded-full pointer-events-none" />
+			<div className="absolute top-[20%] right-[10%] w-[25%] h-[25%] bg-pink/5 blur-[100px] rounded-full pointer-events-none" />
+
+			<form onSubmit={e => e.preventDefault()} className={"relative z-10 w-full max-w-md mx-4"}>
+				<Card className={"flex flex-col items-center gap-6 !p-10"}>
+					{ /* Logo */ }
+					<div className={"w-full h-20 rounded-2xl overflow-hidden bg-logo flex items-center justify-center border border-surface-2/20 mb-2"}>
+						<img alt={"HOLLYBIKE"} src={"/icon.png"} />
+					</div>
+
+					<div className={"text-center"}>
+						<h1 className={"text-2xl font-bold tracking-tight"}>Bienvenue</h1>
+						<p className={"text-subtext-0 text-sm mt-1"}>Connectez-vous à votre espace de gestion</p>
+					</div>
+
+					<div className={"flex flex-col gap-4 w-full"}>
+						<div className={"flex flex-col gap-1.5"}>
+							<label className={"text-sm font-medium text-subtext-1"}>Email</label>
+							<Input
+								type={"email"}
+								placeholder="votre@email.fr"
+								value={email}
+								onInput={e => setEmail(e.currentTarget.value)}
+							/>
+						</div>
+						<div className={"flex flex-col gap-1.5"}>
+							<label className={"text-sm font-medium text-subtext-1"}>Mot de passe</label>
+							<Input
+								type={"password"}
+								placeholder="Votre mot de passe"
+								value={password}
+								onInput={e => setPassword(e.currentTarget.value)}
+							/>
+						</div>
+					</div>
+
 					<Button
+						className={"w-full justify-center"}
 						onClick={() => {
 							login();
 						}}
 					>
-						Valider
+						Se connecter
 					</Button>
+
 					<button
-						className={"hover:scale-105 hover:bg-crust p-2 rounded-full transition"}
+						className={"text-sm text-subtext-0 hover:text-blue transition-colors"}
 						onClick={() => setVisible(true)}
 					>
-						Mot de passe oublié
+						Mot de passe oublié ?
 					</button>
 				</Card>
 			</form>
+
 			<Modal visible={visible} setVisible={setVisible} title={"Mot de passe oublié"}>
-				<div className={"flex flex-col items-center gap-4"}>
-					<Input value={forgotMail} onInput={e => setForgotMail(e.currentTarget.value)} placeholder={"Email"}/>
+				<div className={"flex flex-col gap-6"}>
+					<p className={"text-sm text-subtext-0"}>
+						Entrez votre adresse email pour recevoir un lien de réinitialisation.
+					</p>
+					<div className={"flex flex-col gap-1.5"}>
+						<label className={"text-sm font-medium text-subtext-1"}>Email</label>
+						<Input value={forgotMail} onInput={e => setForgotMail(e.currentTarget.value)} placeholder={"votre@email.fr"}/>
+					</div>
 					<Button
+						className={"w-full justify-center"}
 						onClick={
 							() => api(`/users/password/${forgotMail}/send`, { method: "POST" }).then((res) => {
 								if (res.status === 200) {

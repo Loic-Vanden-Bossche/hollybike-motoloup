@@ -10,14 +10,14 @@ import {
 	useCallback,
 	useEffect, useMemo, useState,
 } from "preact/hooks";
-import { Search } from "@material-ui/icons";
+import { Search as SearchIcon } from "lucide-preact";
 import { Input } from "../Input/Input.tsx";
 import {
 	ComponentChildren, JSX,
 } from "preact";
 import { TList } from "../../types/TList.ts";
-import { Button } from "../Button/Button.tsx";
 import { Reload } from "../../utils/useReload.ts";
+import { clsx } from "clsx";
 
 interface ListProps<T> {
 	columns: (Columns | null)[],
@@ -101,66 +101,98 @@ export function List<T>(props: ListProps<T>) {
 	}, [setPage, data.data?.total_page]);
 
 	return (
-		<div className={"flex flex-col grow gap-4"}>
-			<div className={"flex justify-between align-bottom"}>
+		<div className={"flex flex-col grow gap-6"}>
+			{ /* Toolbar */ }
+			<div className={"flex justify-between items-center"}>
 				<Input
 					value={search} onInput={e => setSearch(e.currentTarget.value ?? "")}
-					placeholder={"Recherche"} className={"self-start"} leftIcon={<Search/>}
+					placeholder={"Rechercher..."} className={"self-start w-64"} leftIcon={<SearchIcon size={16} />}
 				/>
 				{ props.action }
 			</div>
-			<div className={"overflow-x-auto rounded"}>
-				<table className={"bg-mantle table-fixed min-w-full"}>
-					<thead>
-						<tr className={"border-b-2 border-surface-2"}>
-							{ props.columns.map((c) => {
-								if (c === null) {
-									return null;
-								}
-								const sortColumn = sort[c.id];
-								if (c.visible !== false) {
-									return (
-										<Head
-											sortable={sortColumn !== undefined}
-											sort={sortColumn}
-											setSortOrder={setOrder(c.id)}
-											width={c.width}
-										>
-											{ c.name }
-										</Head>
-									);
-								} else {
-									return null;
-								}
-							}) }
-						</tr>
-					</thead>
-					<tbody>
-						{ data.data?.data?.map(d =>
-							<tr className={"[&:nth-of-type(odd)]:bg-crust"}>
-								{ props.line(d).filter((_, i) => props.columns[i]?.visible !== false) }
-							</tr>) }
-					</tbody>
-				</table>
-			</div>
-			<div className={"flex items-center gap-4"}>
-				<Button onClick={() => setPage(prev => prev === 0 ? 0 : prev - 1)}>
-					Page Précédente
-				</Button>
-				<p className={"flex gap-1"}>
-					<input
-						className={"bg-transparent w-6 text-right"}
-						value={data.data?.total_page === 0 ? 0 : page + 1}
-						onInput={onPageChange}
-					/>
-					/
-					<span className={"w-6 block"}>{ data.data?.total_page }</span>
-				</p>
-				<Button
-					onClick={() => setPage(prev => prev >= (data.data?.total_page ?? 1) - 1 ? prev : prev + 1)}
-				>
-					Page Suivante
-				</Button>
+
+			{ /* Glass Table Container */ }
+			<div
+				className={clsx(
+					"relative overflow-hidden",
+					"bg-surface-0/30 backdrop-blur-xl",
+					"border border-surface-2/30",
+					"rounded-3xl shadow-[0_8px_32px_0_rgba(0,0,0,0.15)]",
+				)}
+			>
+				<div className={"overflow-x-auto"}>
+					<table className={"table-fixed min-w-full"}>
+						<thead>
+							<tr className={"border-b border-surface-1/20"}>
+								{ props.columns.map((c) => {
+									if (c === null) {
+										return null;
+									}
+									const sortColumn = sort[c.id];
+									if (c.visible !== false) {
+										return (
+											<Head
+												sortable={sortColumn !== undefined}
+												sort={sortColumn}
+												setSortOrder={setOrder(c.id)}
+												width={c.width}
+											>
+												{ c.name }
+											</Head>
+										);
+									} else {
+										return null;
+									}
+								}) }
+							</tr>
+						</thead>
+						<tbody className={"divide-y divide-surface-1/10"}>
+							{ data.data?.data?.map(d =>
+								<tr className={"group transition-colors hover:bg-surface-0/20"}>
+									{ props.line(d).filter((_, i) => props.columns[i]?.visible !== false) }
+								</tr>) }
+						</tbody>
+					</table>
+				</div>
+
+				{ /* Pagination Footer */ }
+				<div className={"px-6 py-4 border-t border-surface-1/30 bg-surface-0/10 flex items-center justify-between"}>
+					<p className={"text-sm text-subtext-1"}>
+						Page{ " " }
+						<input
+							className={"bg-surface-1/30 w-8 text-center text-text rounded-lg py-0.5 border border-surface-2/30 focus:outline-none focus:ring-2 focus:ring-blue/30"}
+							value={data.data?.total_page === 0 ? 0 : page + 1}
+							onInput={onPageChange}
+						/>
+						{ " " }sur <span className={"text-text font-medium"}>{ data.data?.total_page }</span>
+					</p>
+					<div className={"flex gap-2"}>
+						<button
+							className={clsx(
+								"px-4 py-1.5 rounded-lg text-sm transition-colors",
+								page === 0 ?
+									"border border-surface-2/30 text-subtext-0 opacity-50 cursor-not-allowed" :
+									"border border-surface-2/30 text-text hover:bg-surface-1/50",
+							)}
+							onClick={() => setPage(prev => prev === 0 ? 0 : prev - 1)}
+							disabled={page === 0}
+						>
+							Précédent
+						</button>
+						<button
+							className={clsx(
+								"px-4 py-1.5 rounded-lg text-sm transition-colors",
+								page >= (data.data?.total_page ?? 1) - 1 ?
+									"border border-surface-2/30 text-subtext-0 opacity-50 cursor-not-allowed" :
+									"bg-surface-2/40 border border-surface-2/60 text-text hover:bg-surface-2/60",
+							)}
+							onClick={() => setPage(prev => prev >= (data.data?.total_page ?? 1) - 1 ? prev : prev + 1)}
+							disabled={page >= (data.data?.total_page ?? 1) - 1}
+						>
+							Suivant
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

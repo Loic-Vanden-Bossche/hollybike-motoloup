@@ -11,8 +11,8 @@ import {
 	Link, useNavigate, useParams,
 } from "react-router-dom";
 import {
-	CheckCircleOutlineRounded, LinkOff, MailOutlineRounded,
-} from "@material-ui/icons";
+	CheckCircle, LinkIcon, Mail,
+} from "lucide-preact";
 import {
 	api, useApi,
 } from "../utils/useApi.ts";
@@ -172,8 +172,8 @@ export function ListInvitations() {
 										}}
 									/>
 									<LinkCell link={i.link}/>
-									{ smtp.status === 200 && <MailOutlineRounded
-										className={"cursor-pointer"} onClick={() => {
+									{ smtp.status === 200 && <Mail
+										size={16} className={"cursor-pointer hover:text-blue transition-colors"} onClick={() => {
 											setModalMail(true);
 											setInvitation(i.id);
 										}}
@@ -182,8 +182,8 @@ export function ListInvitations() {
 						</Cell>,
 						<Cell>
 							{ i.status === "Enabled" &&
-								<LinkOff
-									className={"cursor-pointer"} onClick={() => {
+								<LinkIcon
+									size={16} className={"cursor-pointer text-red hover:text-red/80 transition-colors"} onClick={() => {
 										api(`/invitation/${i.id}/disable`, { method: "PATCH" }).then((res) => {
 											if (res.status === 200) {
 												toast("Invitation désactivée", { type: "success" });
@@ -291,7 +291,7 @@ function LinkCell(props: { link: string }) {
 	return (
 		<>
 			{ copied ?
-				<CheckCircleOutlineRounded className={"cursor-pointer text-green"}/> :
+				<CheckCircle size={16} className={"cursor-pointer text-green"}/> :
 				<ContentCopy
 					className={"cursor-pointer"}
 					onClick={() => {

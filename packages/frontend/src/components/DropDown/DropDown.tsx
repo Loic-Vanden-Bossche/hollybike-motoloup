@@ -7,8 +7,8 @@ import {
 	useEffect, useState,
 } from "preact/hooks";
 import { useRef } from "react";
-import style from "./DropDown.module.css";
-import { KeyboardArrowDown } from "@material-ui/icons";
+import { ChevronDown } from "lucide-preact";
+import { clsx } from "clsx";
 
 interface DropDownProps {
 	children: ComponentChildren,
@@ -19,25 +19,15 @@ export function DropDown({
 	text, children,
 }: DropDownProps) {
 	const [visible, setVisible] = useState(false);
-	const [isClosing, setIsClosing] = useState(false);
 	const dropdown = useRef<HTMLDivElement>(null);
-
-	const close = () => {
-		setIsClosing(true);
-		setTimeout(() => {
-			setVisible(false);
-			setIsClosing(false);
-		}, 300);
-	};
 
 	useEffect(() => {
 		const handleOut = (e: MouseEvent) => {
 			if (
 				dropdown.current &&
-				!dropdown.current.contains(e.target as Node) &&
-				dropdown.current
+				!dropdown.current.contains(e.target as Node)
 			) {
-				close();
+				setVisible(false);
 			}
 		};
 
@@ -50,19 +40,36 @@ export function DropDown({
 	return (
 		<section
 			ref={dropdown}
-			className={style.dropdown}
+			className={"relative"}
 			style={{ zIndex: 7_500 }}
-			onClick={() => visible ? close() : setVisible(true)}
 		>
-			<header className={style.button}>
-				<p>{ text }</p>
-				<KeyboardArrowDown/>
-			</header>
-			<section
-				className={`${style.itemsList} ${isClosing && visible ? style.closing : ""} ${!visible ? style.closed : ""}`}
+			<button
+				className={clsx(
+					"flex items-center gap-2 px-4 py-2 rounded-xl",
+					"bg-surface-0/40 backdrop-blur-md border border-surface-2/30",
+					"hover:bg-surface-0/60 transition-all text-sm",
+				)}
+				onClick={() => setVisible(prev => !prev)}
 			>
-				{ children }
-			</section>
+				<span>{ text }</span>
+				<ChevronDown
+					size={16}
+					className={clsx("transition-transform duration-200", visible && "rotate-180")}
+				/>
+			</button>
+			{ visible &&
+				<div
+					className={clsx(
+						"absolute top-full right-0 mt-2 min-w-[200px]",
+						"bg-surface-0/60 backdrop-blur-xl",
+						"border border-surface-2/30 rounded-2xl",
+						"shadow-[0_8px_32px_0_rgba(0,0,0,0.2)]",
+						"overflow-hidden",
+						"animate-[fadeIn_0.15s_ease-out]",
+					)}
+				>
+					{ children }
+				</div> }
 		</section>
 	);
 }
@@ -74,15 +81,17 @@ interface DropDownElementProps {
 }
 
 export function DropDownElement({
-	onClick, children, animationOrder,
+	onClick, children,
 }: DropDownElementProps) {
 	return (
-		<section
-			class={style.item}
-			style={`transition-delay: ${(animationOrder ?? 0) * 0.1 + 0.2}s;`}
+		<button
+			className={clsx(
+				"w-full px-4 py-2.5 hover:bg-surface-0/40",
+				"transition-colors flex items-center gap-2 text-sm text-left",
+			)}
 			onClick={onClick}
 		>
 			{ children }
-		</section>
+		</button>
 	);
 }

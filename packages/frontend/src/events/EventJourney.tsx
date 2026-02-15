@@ -128,12 +128,12 @@ export function EventJourney(props: EventJourneyProps) {
 
 	return (
 		<Card className={"grid grid-cols-[1fr_3fr] gap-4 items-center 2xl:overflow-y-auto"}>
-			<p className={"col-span-2 text-center"}>Trajet: { props.eventDetail?.journey?.name ?? "Aucun trajet" }</p>
-			<p>Nom</p>
+			<h2 className={"col-span-2 text-xl font-bold tracking-tight"}>Trajet: <span className={"text-subtext-0"}>{ props.eventDetail?.journey?.name ?? "Aucun trajet" }</span></h2>
+			<p className={"text-sm font-medium text-subtext-1"}>Nom</p>
 			<Input placeholder={"Nom"} value={name} onInput={e => setName(e.currentTarget.value)}/>
-			<p>Fichier</p>
+			<p className={"text-sm font-medium text-subtext-1"}>Fichier</p>
 			<FileInput value={file} setValue={setFile} placeholder={"Fichier"} accept={".geojson,.gpx"}/>
-			<p>Depuis la bibliothèque</p>
+			<p className={"text-sm font-medium text-subtext-1"}>Depuis la bibliothèque</p>
 			<Select
 				options={journeys.data?.data?.map(j => ({
 					name: j.name,
