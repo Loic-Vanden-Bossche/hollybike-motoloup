@@ -27,6 +27,7 @@ class ImagePickerGalleryButton extends StatelessWidget {
     return ImagePickerButtonContainer(
       onTap: _onGalleryTap,
       icon: const Icon(Icons.photo),
+      label: "Galerie",
     );
   }
 

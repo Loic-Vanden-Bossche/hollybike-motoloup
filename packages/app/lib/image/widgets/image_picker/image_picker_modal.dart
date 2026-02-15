@@ -50,7 +50,7 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
       ),
       child: Padding(
         padding: const EdgeInsets.only(
-          top: 16,
+          top: 8,
           left: 16,
           right: 16,
           bottom: 16,
@@ -59,19 +59,35 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              _buildDragHandle(context),
+              const SizedBox(height: 8),
               ImagePickerModalHeader(
                 onClose: widget.onClose,
                 onSubmit: _onSubmit,
                 canSubmit: _selectedImages.isNotEmpty && !widget.isLoading,
+                selectedCount: _selectedImages.length,
               ),
               const SizedBox(height: 16),
-              _buildSelectedImageList(),
-              ImagePickerChoiceList(
-                entityIdSelectedList: _getSelectedEntityIds(),
-                mode: widget.mode,
-                onImagesSelected: _onImagesSelected,
-                isLoading: widget.isLoading,
-              ),
+              if (widget.isLoading) _buildLoadingState(context),
+              if (!widget.isLoading) ...[
+                _buildSelectedImageList(),
+                if (_selectedImages.isEmpty)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 8),
+                    child: Text(
+                      "Choisissez vos photos",
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: Theme.of(
+                          context,
+                        ).colorScheme.onPrimary.withValues(alpha: 0.6),
+                      ),
+                    ),
+                  ),
+                ImagePickerChoiceList(
+                  mode: widget.mode,
+                  onImagesSelected: _onImagesSelected,
+                ),
+              ],
             ],
           ),
         ),
@@ -79,23 +95,87 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
     );
   }
 
-  Widget _buildSelectedImageList() {
-    if (widget.isLoading || _selectedImages.isEmpty) {
-      return const SizedBox.shrink();
-    }
-
-    return ImagePickerSelectedImagesList(
-      selectedImages: _selectedImages,
-      onDeleteIndex: _onImageIndexDeleted,
+  Widget _buildDragHandle(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 36,
+        height: 4,
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
+          borderRadius: BorderRadius.circular(2),
+        ),
+      ),
     );
   }
 
-  List<String> _getSelectedEntityIds() {
-    return _selectedImages
-        .map((img) => img.entityId)
-        .where((element) => element != null)
-        .toList()
-        .cast<String>();
+  Widget _buildLoadingState(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Column(
+      children: [
+        ClipRRect(
+          borderRadius: BorderRadius.circular(2),
+          child: LinearProgressIndicator(
+            minHeight: 3,
+            backgroundColor: colorScheme.onPrimary.withValues(alpha: 0.1),
+            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
+          ),
+        ),
+        const SizedBox(height: 16),
+        if (_selectedImages.isNotEmpty) ...[
+          IgnorePointer(
+            child: Opacity(
+              opacity: 0.5,
+              child: ImagePickerSelectedImagesList(
+                selectedImages: _selectedImages,
+                onDeleteIndex: (_) {},
+              ),
+            ),
+          ),
+        ],
+        SizedBox(
+          height: 100,
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                SizedBox(
+                  width: 24,
+                  height: 24,
+                  child: CircularProgressIndicator(
+                    strokeWidth: 2.5,
+                    color: colorScheme.onPrimary,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  _selectedImages.length > 1
+                      ? "Envoi de ${_selectedImages.length} photos..."
+                      : "Envoi en cours...",
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onPrimary.withValues(alpha: 0.7),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSelectedImageList() {
+    return AnimatedSize(
+      duration: const Duration(milliseconds: 200),
+      curve: Curves.easeInOut,
+      alignment: Alignment.topCenter,
+      child: _selectedImages.isEmpty
+          ? const SizedBox.shrink()
+          : ImagePickerSelectedImagesList(
+              selectedImages: _selectedImages,
+              onDeleteIndex: _onImageIndexDeleted,
+            ),
+    );
   }
 
   void _onSubmit() async {
@@ -115,34 +195,7 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
         _selectedImages.clear();
       }
 
-      final entityIdsToDelete = _filterEntityIdsToDelete(images);
-
-      _selectedImages.removeWhere(
-        (img) => entityIdsToDelete.contains(img.entityId),
-      );
-
-      final filesToAdd =
-          images
-              .where(
-                (img) => entityIdsToDelete.every(
-                  (entityId) => img.entityId != entityId,
-                ),
-              )
-              .toList();
-
-      _selectedImages.addAll(filesToAdd);
+      _selectedImages.addAll(images);
     });
-  }
-
-  List<String> _filterEntityIdsToDelete(List<Img> images) {
-    return images
-        .map((img) => img.entityId)
-        .where(
-          (entityId) => _selectedImages.any(
-            (img) => img.entityId != null && img.entityId == entityId,
-          ),
-        )
-        .toList()
-        .cast<String>();
   }
 }

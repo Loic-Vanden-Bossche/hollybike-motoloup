@@ -23,6 +23,7 @@ class ImagePickerCameraButton extends StatelessWidget {
     return ImagePickerButtonContainer(
       onTap: _onCameraTap,
       icon: const Icon(Icons.camera_alt),
+      label: "Prendre une photo",
     );
   }
 
