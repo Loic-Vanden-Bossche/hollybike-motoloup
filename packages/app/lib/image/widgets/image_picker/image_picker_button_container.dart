@@ -6,30 +6,62 @@ import 'package:flutter/material.dart';
 
 class ImagePickerButtonContainer extends StatelessWidget {
   final Icon icon;
+  final String? label;
   final void Function()? onTap;
 
-  const ImagePickerButtonContainer({super.key, required this.icon, this.onTap});
+  const ImagePickerButtonContainer({
+    super.key,
+    required this.icon,
+    this.label,
+    this.onTap,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
     return Stack(
       children: <Widget>[
-        ClipRRect(
-          borderRadius: BorderRadius.circular(8.0),
-          child: Container(
-            height: double.infinity,
-            width: double.infinity,
+        Container(
+          height: double.infinity,
+          width: double.infinity,
+          decoration: BoxDecoration(
             color: Theme.of(context).primaryColor,
-            child: Center(child: icon),
+            borderRadius: BorderRadius.circular(12.0),
+            border: Border.all(
+              color: colorScheme.onPrimary.withValues(alpha: 0.15),
+              width: 1,
+            ),
+          ),
+          child: Center(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconTheme(
+                  data: IconThemeData(
+                    size: 28,
+                    color: colorScheme.onPrimary,
+                  ),
+                  child: icon,
+                ),
+                if (label != null) ...[
+                  const SizedBox(height: 6),
+                  Text(
+                    label!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: colorScheme.onPrimary.withValues(alpha: 0.8),
+                    ),
+                  ),
+                ],
+              ],
+            ),
           ),
         ),
         Positioned.fill(
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              customBorder: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8.0),
-              ),
+              borderRadius: BorderRadius.circular(12.0),
               onTap: onTap,
             ),
           ),
