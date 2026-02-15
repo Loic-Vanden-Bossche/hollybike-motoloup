@@ -7,15 +7,20 @@ import com.google.devtools.ksp.processing.*
 import com.google.devtools.ksp.symbol.KSAnnotated
 import com.google.devtools.ksp.symbol.KSClassDeclaration
 import com.google.devtools.ksp.symbol.KSDeclaration
+import java.io.File
 import java.util.*
 
 class Processor(
 	val codeGenerator: CodeGenerator,
 	val logger: KSPLogger
 ) : SymbolProcessor {
+	private val exposedIntEntityNames = setOf(
+		"org.jetbrains.exposed.v1.dao.IntEntity",
+		"org.jetbrains.exposed.dao.IntEntity",
+	)
+
 	override fun process(resolver: Resolver): List<KSAnnotated> {
-		val sampleRaw = this::class.java.getResource("/reflect-config-sample.json")?.readText() ?: ""
-		val sample = sampleRaw.trim().trim('[', ']')
+		val sample = loadSampleConfig().trim().trim('[', ']')
 		val ser = processSerializable(resolver)
 		val ent = processEntity(resolver)
 		val outStream = try {
@@ -25,12 +30,38 @@ class Processor(
 			return ent.first + ser.first
 		}
 		val jsons = ser.second + ent.second
-		if(jsons.isEmpty()) {
-			outStream.write("[$sample]".toByteArray())
-		} else {
-			outStream.write("[$sample,\n${jsons.joinToString(",\n")}]".toByteArray())
+		val entries = mutableListOf<String>()
+		if (sample.isNotBlank()) {
+			entries.add(sample)
 		}
+		entries.addAll(jsons.filter { it.isNotBlank() })
+		outStream.write("[${entries.joinToString(",\n")}]".toByteArray())
 		return ent.first + ser.first
+	}
+
+	private fun loadSampleConfig(): String {
+		val fileCandidates = listOf(
+			"processor/src/main/resources/reflect-config-sample.json",
+			"src/main/resources/reflect-config-sample.json",
+		)
+		fileCandidates.forEach { path ->
+			val content = runCatching {
+				val file = File(path)
+				if (file.exists()) file.readText() else null
+			}.onFailure {
+				logger.warn("Unable to read sample file $path: ${it.message}")
+			}.getOrNull()
+			if (!content.isNullOrBlank()) {
+				return content
+			}
+		}
+
+		val resource = "/reflect-config-sample.json"
+		return runCatching {
+			this::class.java.getResource(resource)?.readText()
+		}.onFailure {
+			logger.warn("Unable to read $resource: ${it.message}")
+		}.getOrNull().orEmpty()
 	}
 
 	private fun processSerializable(resolver: Resolver): Pair<List<KSAnnotated>, List<String>> {
@@ -67,19 +98,24 @@ class Processor(
 			var entity = false
 			var ref = false
 			d.superTypes.forEach { superType ->
-				val parent = superType.resolve().declaration as KSClassDeclaration
-				if(parent.qualifiedName?.asString() == "org.jetbrains.exposed.dao.IntEntity") {
+				val parent = superType.resolve().declaration as? KSClassDeclaration
+				if (parent?.qualifiedName?.asString() in exposedIntEntityNames) {
 					entity = true
 				}
 			}
 			val json = if(entity) {
 				finalSymbols.add(d)
 				val json = mutableListOf("\"name\":\"${d.qualifiedName?.asString()}\"")
-				val methods = mutableListOf("{\"name\":\"<init>\",\"parameterTypes\":[\"org.jetbrains.exposed.dao.id.EntityID\"]}")
+				val methods = mutableListOf("{\"name\":\"<init>\",\"parameterTypes\":[\"org.jetbrains.exposed.v1.core.dao.id.EntityID\"]}")
 				val fields = mutableListOf<String>()
 				d.getAllProperties().forEach { prop ->
 					val propDecl = prop.type.resolve().declaration
-					if(propDecl is KSClassDeclaration && propDecl.superTypes.any { (it.resolve().declaration as KSClassDeclaration).qualifiedName?.asString() == "org.jetbrains.exposed.dao.IntEntity" }) {
+					if (
+						propDecl is KSClassDeclaration &&
+						propDecl.superTypes.any {
+							(it.resolve().declaration as? KSClassDeclaration)?.qualifiedName?.asString() in exposedIntEntityNames
+						}
+					) {
 						ref = true
 						val capitalizedName = prop.simpleName.asString().replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale.getDefault()) else it.toString() }
 						methods.add("{\"name\":\"get$capitalizedName\",\"parameterTypes\":[] }, {\"name\":\"set$capitalizedName\",\"parameterTypes\":[\"${propDecl.qualifiedName?.asString()}\"] }")

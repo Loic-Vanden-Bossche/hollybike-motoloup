@@ -169,6 +169,154 @@ tasks.test {
 	useJUnitPlatform()
 }
 
+tasks.register<JavaExec>("runNativeAgent") {
+	group = "application"
+	description = "Run the backend with GraalVM native-image agent enabled."
+	dependsOn("classes")
+	mainClass.set("hollybike.api.AgentMainKt")
+	classpath = sourceSets["main"].runtimeClasspath
+	val outputDir = (project.findProperty("nativeImageAgentOutputDir") as String?) ?: "native-image/run"
+	doFirst {
+		file(outputDir).mkdirs()
+	}
+	jvmArgs("-agentlib:native-image-agent=config-merge-dir=$outputDir,config-write-period-secs=10")
+}
+
+tasks.register<Test>("testNativeAgent") {
+	group = "verification"
+	description = "Run tests with GraalVM native-image agent and collect metadata."
+	dependsOn("testClasses")
+	testClassesDirs = sourceSets["test"].output.classesDirs
+	classpath = sourceSets["test"].runtimeClasspath
+	useJUnitPlatform()
+	maxParallelForks = 1
+	val outputDir = (project.findProperty("nativeImageAgentOutputDir") as String?) ?: "native-image/test"
+	doFirst {
+		file(outputDir).mkdirs()
+	}
+	jvmArgs("-agentlib:native-image-agent=config-merge-dir=$outputDir")
+}
+
+tasks.register("mergeNativeAgentConfigs") {
+	group = "verification"
+	description = "Merge all native-image agent outputs into a single configuration directory."
+	doLast {
+		val inputRoots = ((project.findProperty("nativeImageAgentInputDirs") as String?)
+			?: "native-image/test,native-image/run")
+			.split(",")
+			.map { file(it.trim()) }
+			.filter { it.path.isNotBlank() }
+		val outputDir = file((project.findProperty("nativeImageAgentMergedDir") as String?) ?: "native-image/merged")
+		outputDir.mkdirs()
+
+		val existingRoots = inputRoots.filter { it.exists() }
+		if (existingRoots.isEmpty()) {
+			throw GradleException("No input directories found. Checked: ${inputRoots.joinToString { it.path }}")
+		}
+		existingRoots.forEach { root ->
+			val lockFile = file("${root.path}/.lock")
+			if (lockFile.exists()) {
+				val pid = lockFile.readText().trim().toLongOrNull()
+				val isRunning = pid?.let { ProcessHandle.of(it).isPresent } ?: false
+				if (!isRunning) {
+					lockFile.delete()
+					println("Removed stale agent lock: ${lockFile.path}")
+				}
+			}
+		}
+		val unlockedRoots = existingRoots.filter { !file("${it.path}/.lock").exists() }
+		if (unlockedRoots.isEmpty()) {
+			throw GradleException("All input directories are locked by native-image-agent: ${existingRoots.joinToString { it.path }}")
+		}
+		existingRoots.filter { file("${it.path}/.lock").exists() }.forEach {
+			println("Skipping locked agent directory: ${it.path}")
+		}
+
+		val inputDirs = mutableListOf<File>()
+		unlockedRoots.forEach { inputRoot ->
+			if (file("${inputRoot.path}/reflect-config.json").exists()) {
+				inputDirs.add(inputRoot)
+			}
+			inputRoot.listFiles()
+				?.filter { it.isDirectory && it.name.startsWith("agent-pid") && file("${it.path}/reflect-config.json").exists() }
+				?.sortedBy { it.name }
+				?.let { inputDirs.addAll(it) }
+		}
+
+		if (inputDirs.isEmpty()) {
+			throw GradleException("No agent config directories found under: ${unlockedRoots.joinToString { it.path }}")
+		}
+
+		val isWindows = System.getProperty("os.name").lowercase().contains("windows")
+		val exeName = if (isWindows) "native-image-configure.cmd" else "native-image-configure"
+		fun candidateFromJavaHome(javaHome: String?): String? {
+			if (javaHome.isNullOrBlank()) return null
+			val candidate = file("$javaHome/bin/$exeName")
+			return if (candidate.exists()) candidate.absolutePath else null
+		}
+
+		val explicitPath = (project.findProperty("nativeImageConfigurePath") as String?)?.takeIf { it.isNotBlank() }
+		val resolvedNativeImageConfigure = explicitPath
+			?: candidateFromJavaHome(System.getenv("JAVA_HOME"))
+			?: candidateFromJavaHome(System.getProperty("java.home"))
+			?: run {
+				val userHome = System.getProperty("user.home")
+				val jdksDir = file("$userHome/.jdks")
+				if (jdksDir.exists()) {
+					jdksDir.listFiles()
+						?.filter { it.isDirectory && it.name.contains("graalvm", ignoreCase = true) }
+						?.sortedByDescending { it.lastModified() }
+						?.mapNotNull { candidateFromJavaHome(it.absolutePath) }
+						?.firstOrNull()
+				} else {
+					null
+				}
+			}
+			?: "native-image-configure"
+
+		val argsFile = file("${layout.buildDirectory.get().asFile.path}/tmp/merge-native-agent-args.txt")
+		argsFile.parentFile.mkdirs()
+		argsFile.writeText(
+			buildString {
+				appendLine("generate")
+				inputDirs.forEach { appendLine("--input-dir=${it.absolutePath}") }
+				appendLine("--output-dir=${outputDir.absolutePath}")
+			},
+		)
+
+		try {
+			exec {
+				commandLine(resolvedNativeImageConfigure, "command-file", argsFile.absolutePath)
+			}
+		} catch (e: Exception) {
+			throw GradleException(
+				"Unable to execute native-image-configure. " +
+					"Set JAVA_HOME to GraalVM or pass -PnativeImageConfigurePath=\"C:/path/to/$exeName\"",
+				e,
+			)
+		}
+
+		val copyTargets = mapOf(
+			"reflect-config.json" to file("processor/src/main/resources/reflect-config-sample.json"),
+			"jni-config.json" to file("src/main/resources/jni-config.json"),
+			"proxy-config.json" to file("src/main/resources/proxy-config.json"),
+			"resource-config.json" to file("src/main/resources/resource-config.json"),
+		)
+		copyTargets.forEach { (sourceName, targetFile) ->
+			val sourceFile = file("${outputDir.path}/$sourceName")
+			if (!sourceFile.exists()) {
+				throw GradleException("Merged config file not found: ${sourceFile.path}")
+			}
+			targetFile.parentFile.mkdirs()
+			targetFile.writeText(sourceFile.readText())
+			println("Updated ${targetFile.path} from ${sourceFile.path}")
+		}
+
+		println("Merged ${inputDirs.size} agent directories into ${outputDir.path}")
+		println("Final reflect config: ${outputDir.path}/reflect-config.json")
+	}
+}
+
 graalvmNative {
 	agent {
 		defaultMode.set("standard")
