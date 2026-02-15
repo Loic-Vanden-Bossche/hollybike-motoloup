@@ -182,7 +182,7 @@ export function App() {
 
 	return (
 		<main
-			className={clsx(themeDark && "dark", "absolute top-0 bottom-0 left-0 right-0 w-full h-screen text-text")}
+			className={clsx(themeDark && "dark", "fixed inset-0 w-full min-h-dvh overflow-x-hidden text-text")}
 		>
 			<RouterProvider router={ router } />
 			<ToastContainer

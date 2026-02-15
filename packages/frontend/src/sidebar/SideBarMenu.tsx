@@ -8,6 +8,7 @@ import {
 } from "react-router-dom";
 import { ComponentChildren } from "preact";
 import { clsx } from "clsx";
+import { useSideBar } from "./useSideBar.tsx";
 
 interface SideBarMenuProps {
 	to: string,
@@ -17,6 +18,7 @@ interface SideBarMenuProps {
 }
 
 export function SideBarMenu(props: SideBarMenuProps) {
+	const { setVisible } = useSideBar();
 	const location = useLocation();
 	const isActive = location.pathname === props.to;
 	const className = clsx(
@@ -41,9 +43,9 @@ export function SideBarMenu(props: SideBarMenuProps) {
 
 	return (
 		<Link
-
 			className={className}
 			to={props.to}
+			onClick={() => setVisible(false)}
 		>
 			{ props.children }
 		</Link>

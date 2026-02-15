@@ -21,7 +21,7 @@ export function Modal(props: ModalProps) {
 			onClick={() => props.setVisible(false)}
 			className={
 				clsx(
-					"fixed inset-0 flex items-center justify-center",
+					"fixed inset-0 flex items-end sm:items-center justify-center",
 					"transition-all duration-200 cursor-pointer",
 					props.visible ?
 						"bg-crust/40 backdrop-blur-sm pointer-events-auto" :
@@ -32,8 +32,8 @@ export function Modal(props: ModalProps) {
 		>
 			<Card
 				className={clsx(
-					props.width ?? "max-w-lg w-full mx-4",
-					"!p-8 cursor-auto",
+					props.width ?? "max-w-lg w-full mx-2 sm:mx-4",
+					"!p-4 sm:!p-8 cursor-auto max-h-[85dvh] overflow-y-auto",
 					"transition-all duration-200",
 					props.visible ?
 						"translate-y-0 opacity-100 scale-100 pointer-events-auto" :

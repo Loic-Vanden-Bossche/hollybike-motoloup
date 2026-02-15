@@ -181,8 +181,8 @@ export function Header(props: HeaderProps) {
 	);
 
 	return (
-		<header className={"flex justify-between items-center gap-4 relative z-10"}>
-			<div className={"flex items-center gap-3 min-w-0"}>
+		<header className={"flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 relative z-10"}>
+			<div className={"flex items-center gap-3 min-w-0 w-full sm:w-auto"}>
 				<button
 					className={clsx(
 						"md:!hidden",
@@ -199,14 +199,14 @@ export function Header(props: HeaderProps) {
 					<h1 className={"text-lg md:text-2xl font-bold tracking-tight leading-tight truncate"}>
 						{ pageMeta.title }
 					</h1>
-					<p className={"hidden md:block text-sm text-subtext-1 truncate"}>
+					<p className={"hidden sm:block text-sm text-subtext-1 truncate"}>
 						{ pageMeta.subtitle }
 					</p>
 				</div>
 			</div>
-			<div className={"flex items-center gap-3"}>
+			<div className={"flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end"}>
 				{ onboardingMode &&
-					<span className={"hidden md:inline-flex text-xs px-3 py-2 rounded-xl border border-blue/30 bg-blue/10 text-blue font-semibold"}>
+					<span className={"inline-flex text-xs px-2.5 sm:px-3 py-2 rounded-xl border border-blue/30 bg-blue/10 text-blue font-semibold whitespace-nowrap"}>
 						Onboarding requis
 					</span> }
 				<DropDown text={"Theme"}>

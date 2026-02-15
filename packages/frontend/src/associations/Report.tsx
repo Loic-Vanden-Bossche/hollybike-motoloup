@@ -38,14 +38,14 @@ export function Report(props: ReportProps) {
 		<>
 			<a className={"hidden"} ref={downloadLinkYear} title={titleYear}/>
 			<a className={"hidden"} ref={downloadLinkPeriod} title={titlePeriod}/>
-			<Card className={"grid grid-cols-2 gap-4 items-center"}>
-				<h2 className={"col-span-2 text-xl font-bold tracking-tight"}>Rapport sur la période</h2>
+			<Card className={"grid grid-cols-1 sm:grid-cols-2 gap-4 items-center"}>
+				<h2 className={"col-span-1 sm:col-span-2 text-xl font-bold tracking-tight"}>Rapport sur la période</h2>
 				<p className={"text-sm font-medium text-subtext-1"}>Début</p>
 				<InputCalendar value={start} setValue={setStart}/>
 				<p className={"text-sm font-medium text-subtext-1"}>Fin</p>
 				<InputCalendar value={end} setValue={setEnd}/>
 				<Button
-					className={"col-span-2 justify-self-center"}
+					className={"col-span-1 sm:col-span-2 justify-self-center w-full sm:w-auto"}
 					onClick={async () => {
 						const resp = await apiResponseRaw(
 							`/associations/${props.association.id}/expenses?start=${start?.toISOString()}&end=${end?.toISOString()}`,
@@ -62,9 +62,8 @@ export function Report(props: ReportProps) {
 				>Télécharger
 				</Button>
 			</Card>
-			<div/>
-			<Card className={"grid grid-cols-2 gap-4 items-center"}>
-				<h2 className={"text-xl font-bold tracking-tight col-span-2"}>Rapport CSV de l'année</h2>
+			<Card className={"grid grid-cols-1 sm:grid-cols-2 gap-4 items-center"}>
+				<h2 className={"text-xl font-bold tracking-tight col-span-1 sm:col-span-2"}>Rapport CSV de l'année</h2>
 				<p className={"text-sm font-medium text-subtext-1"}>Année</p>
 				<Input
 					value={year.toString()} onInput={(e) => {
@@ -75,7 +74,7 @@ export function Report(props: ReportProps) {
 					}}
 				/>
 				<Button
-					className={"col-span-2 justify-self-center"}
+					className={"col-span-1 sm:col-span-2 justify-self-center w-full sm:w-auto"}
 					onClick={async () => {
 						const resp = await apiResponseRaw(
 							`/associations/${props.association.id}/expenses/year/${year}`,

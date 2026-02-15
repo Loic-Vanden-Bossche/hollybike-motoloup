@@ -36,21 +36,21 @@ export function SideBar() {
 
 	return (
 		<div
-			className={
-				clsx(
-					"fixed left-0 right-0 top-0 bottom-0 md:bg-transparent p-4",
-					"transition-all duration-200",
-					visible ?
-						"bg-crust/40 backdrop-blur-sm pointer-events-auto cursor-pointer" :
-						"bg-transparent backdrop-blur-0 pointer-events-none",
-				)
-			}
+			className={"fixed inset-0 p-3 sm:p-4 md:p-6 pointer-events-none"}
 			style={{ zIndex: 8_000 }}
-			onClick={() => setVisible(false)}
 		>
+			<div
+				className={clsx(
+					"absolute inset-0 md:hidden transition-all duration-200 cursor-pointer",
+					visible ?
+						"bg-crust/40 backdrop-blur-sm pointer-events-auto" :
+						"bg-transparent backdrop-blur-0 pointer-events-none",
+				)}
+				onClick={() => setVisible(false)}
+			/>
 			<aside
 				className={clsx(
-					"relative w-52 min-w-52 h-full pointer-events-auto cursor-auto",
+					"relative w-[min(84vw,17rem)] md:w-52 md:min-w-52 h-full pointer-events-auto cursor-auto",
 					"ui-glass-panel",
 					"flex-col flex md:translate-x-0 gap-1 p-3",
 					"transition-transform duration-200",
@@ -86,7 +86,7 @@ export function SideBar() {
 				</button>
 
 				{ /* Navigation */ }
-				<div className={clsx("h-full flex flex-col overflow-y-auto gap-1 mt-2")}>
+				<div className={clsx("h-full flex flex-col overflow-y-auto gap-1 mt-2 pr-1")}>
 					{ onboardingMode &&
 						<div className={"mx-2 mb-2 px-3 py-2 rounded-xl border border-blue/30 bg-blue/10"}>
 							<p className={"text-[11px] uppercase tracking-[0.12em] text-blue font-bold"}>
