@@ -227,25 +227,28 @@ export function Home() {
 				type: "category",
 				data: months,
 				axisLabel: { color: chartColors.text },
-				axisLine: { lineStyle: { color: chartColors.axisLine } },
+				axisLine: { lineStyle: { color: chartColors.axisLine }},
 			},
 			yAxis: {
 				type: "value",
 				axisLabel: { color: chartColors.text },
-				axisLine: { lineStyle: { color: chartColors.axisLine } },
-				splitLine: { lineStyle: { color: chartColors.splitLine } },
+				axisLine: { lineStyle: { color: chartColors.axisLine }},
+				splitLine: { lineStyle: { color: chartColors.splitLine }},
 			},
 			series: statuses.map(status => ({
 				name: status.label,
 				type: "bar",
 				stack: "events",
 				barMaxWidth: 30,
-				itemStyle: { color: status.color, borderRadius: [
-					4,
-					4,
-					0,
-					0,
-				] },
+				itemStyle: {
+					color: status.color,
+					borderRadius: [
+						4,
+						4,
+						0,
+						0,
+					],
+				},
 				data: months.map(month => countByMonthAndStatus.get(`${month}-${status.key}`) ?? 0),
 			})),
 		};
@@ -299,14 +302,14 @@ export function Home() {
 			xAxis: {
 				type: "value",
 				axisLabel: { color: chartColors.text },
-				axisLine: { lineStyle: { color: chartColors.axisLine } },
-				splitLine: { lineStyle: { color: chartColors.splitLine } },
+				axisLine: { lineStyle: { color: chartColors.axisLine }},
+				splitLine: { lineStyle: { color: chartColors.splitLine }},
 			},
 			yAxis: {
 				type: "category",
 				data: labels,
 				axisLabel: { color: chartColors.text },
-				axisLine: { lineStyle: { color: chartColors.axisLine } },
+				axisLine: { lineStyle: { color: chartColors.axisLine }},
 			},
 			series: [
 				{
@@ -367,10 +370,7 @@ export function Home() {
 			series: [
 				{
 					type: "pie",
-					radius: [
-						"52%",
-						"72%",
-					],
+					radius: ["52%", "72%"],
 					avoidLabelOverlap: true,
 					label: { show: false },
 					data: [
@@ -421,16 +421,11 @@ export function Home() {
 				{
 					type: "pie",
 					radius: "68%",
-					center: [
-						"50%",
-						"45%",
-					],
+					center: ["50%", "45%"],
 					data: insightsData.users_by_status.map(bucket => ({
 						value: bucket.count,
 						name: labelByKey[bucket.key] ?? bucket.key,
-						itemStyle: {
-							color: bucket.key === "enabled" ? chartColors.blue : chartColors.red,
-						},
+						itemStyle: { color: bucket.key === "enabled" ? chartColors.blue : chartColors.red },
 					})),
 					label: {
 						color: chartColors.textStrong,
@@ -478,13 +473,13 @@ export function Home() {
 				type: "category",
 				data: insightsData.user_last_login_buckets.map(bucket => labelByKey[bucket.key] ?? bucket.key),
 				axisLabel: { color: chartColors.text },
-				axisLine: { lineStyle: { color: chartColors.axisLine } },
+				axisLine: { lineStyle: { color: chartColors.axisLine }},
 			},
 			yAxis: {
 				type: "value",
 				axisLabel: { color: chartColors.text },
-				axisLine: { lineStyle: { color: chartColors.axisLine } },
-				splitLine: { lineStyle: { color: chartColors.splitLine } },
+				axisLine: { lineStyle: { color: chartColors.axisLine }},
+				splitLine: { lineStyle: { color: chartColors.splitLine }},
 			},
 			series: [
 				{
