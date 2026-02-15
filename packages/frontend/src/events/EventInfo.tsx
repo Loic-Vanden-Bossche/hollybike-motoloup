@@ -37,7 +37,7 @@ export function EventInfo(props: EventInfoProps) {
 		setBudgetText(eventData.budget ? (eventData.budget / 100).toFixed(2) : "");
 	}, [eventData.budget]);
 	return (
-		<Card className={"grid grid-cols-2 gap-4 items-center 2xl:overflow-auto"}>
+		<Card className={"grid grid-cols-1 sm:grid-cols-2 gap-4 items-center 2xl:overflow-auto"}>
 			<p className={"text-sm font-medium text-subtext-1"}>Nom</p>
 			<Input
 				value={eventData.name} onInput={e => setEventData(prev => ({
@@ -99,7 +99,7 @@ export function EventInfo(props: EventInfoProps) {
 			<p className={"text-sm font-medium text-subtext-1"}>Statut</p>
 			<EventStatus status={eventData.status} id={eventData.id} doReload={props.doReload}/>
 			<Button
-				className={"justify-self-center col-span-2"}
+				className={"w-full sm:w-auto justify-self-stretch sm:justify-self-start"}
 				onClick={() => {
 					api<TEvent>(`/events/${id}`, {
 						method: "PUT",
@@ -123,7 +123,7 @@ export function EventInfo(props: EventInfoProps) {
 				Sauvegarder
 			</Button>
 			<ButtonDanger
-				className={"justify-self-center col-span-2"}
+				className={"w-full sm:w-auto justify-self-stretch sm:justify-self-end"}
 				onClick={() => {
 					if (confirm) {
 						api(`/events/${eventData.id}`, { method: "DELETE" }).then((res) => {

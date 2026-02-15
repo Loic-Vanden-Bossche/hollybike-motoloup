@@ -157,7 +157,7 @@ export function Root() {
 		>
 			<div
 				className={clsx(
-					"bg-mantle min-h-dvh overflow-x-hidden overflow-y-auto p-3 sm:p-4 md:p-6",
+					"bg-mantle box-border h-dvh overflow-hidden p-3 sm:p-4 md:p-6",
 					"flex flex-col gap-4 sm:gap-6 md:pl-64",
 					"transition-all duration-200 relative",
 				)}
@@ -168,56 +168,61 @@ export function Root() {
 				<div className="fixed top-[20%] right-[10%] w-[25%] h-[25%] bg-pink/5 blur-[100px] rounded-full pointer-events-none" />
 
 				<Header setTheme={theme.set}/>
-				{ onboardingMode &&
-					<div className={"ui-glass-panel border-blue/30 bg-blue/10 px-4 sm:px-5 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"}>
-						<div className={"min-w-0"}>
-							<h2 className={"text-base md:text-lg font-bold tracking-tight text-blue"}>
-								Mode onboarding actif
-							</h2>
-							<p className={"text-sm text-subtext-1"}>
-								{ activeStep?.title !== undefined && activeStep?.description !== undefined ?
-									`Etape en cours: ${activeStep.title}. ${activeStep.description} Quand c'est valide, cliquez sur Continuer pour passer a l'etape suivante.` :
-									"Suivez les etapes d'onboarding pour finaliser la configuration." }
-							</p>
-						</div>
-						{ activeStep &&
-							<div className={"flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-end"}>
-								<button
-									className={"ui-trigger px-4 py-2 font-semibold text-subtext-1 border-surface-2/40 hover:border-surface-2/60 whitespace-nowrap disabled:opacity-40 disabled:cursor-default w-full sm:w-auto"}
-									disabled={advancing || previousStep?.entryPath === undefined}
-									onClick={() => {
-										if (previousStep?.entryPath !== undefined) {
-											navigate(previousStep.entryPath);
-										}
-									}}
-								>
-									Precedent
-								</button>
-								<button
-									className={"ui-trigger px-4 py-2 font-semibold text-blue border-blue/40 hover:border-blue/50 whitespace-nowrap disabled:opacity-60 disabled:cursor-default w-full sm:w-auto"}
-									disabled={advancing}
-									onClick={async () => {
-										if (onboarding === undefined || activeStep === undefined || advancing) {
-											return;
-										}
-										setAdvancing(true);
-										if (onboarding[activeStep.key] === false) {
-											await completeOnboardingStep(activeStep.key);
-										}
+				<div className={"flex-1 min-h-0 overflow-hidden"}>
+					<div className={"h-full overflow-y-auto overflow-x-hidden pr-1 flex flex-col gap-4 sm:gap-6"}>
+						{ onboardingMode &&
+							<div className={"ui-glass-panel border-blue/30 bg-blue/10 px-4 sm:px-5 py-4 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3"}>
+								<div className={"min-w-0"}>
+									<h2 className={"text-base md:text-lg font-bold tracking-tight text-blue"}>
+										Mode onboarding actif
+									</h2>
+									<p className={"text-sm text-subtext-1"}>
+										{ activeStep?.title !== undefined && activeStep?.description !== undefined ?
+											`Etape en cours: ${activeStep.title}. ${activeStep.description} Quand c'est valide, cliquez sur Continuer pour passer a l'etape suivante.` :
+											"Suivez les etapes d'onboarding pour finaliser la configuration." }
+									</p>
+								</div>
+								{ activeStep &&
+									<div className={"flex flex-col sm:flex-row sm:items-center gap-2 sm:justify-end"}>
+										<button
+											className={"ui-trigger px-4 py-2 font-semibold text-subtext-1 border-surface-2/40 hover:border-surface-2/60 whitespace-nowrap disabled:opacity-40 disabled:cursor-default w-full sm:w-auto"}
+											disabled={advancing || previousStep?.entryPath === undefined}
+											onClick={() => {
+												if (previousStep?.entryPath !== undefined) {
+													navigate(previousStep.entryPath);
+												}
+											}}
+										>
+											Precedent
+										</button>
+										<button
+											className={"ui-trigger px-4 py-2 font-semibold text-blue border-blue/40 hover:border-blue/50 whitespace-nowrap disabled:opacity-60 disabled:cursor-default w-full sm:w-auto"}
+											disabled={advancing}
+											onClick={async () => {
+												if (onboarding === undefined || activeStep === undefined || advancing) {
+													return;
+												}
+												setAdvancing(true);
+												if (onboarding[activeStep.key] === false) {
+													await completeOnboardingStep(activeStep.key);
+												}
 
-										if (followingStep?.entryPath !== undefined) {
-											navigate(followingStep.entryPath);
-										} else {
-											navigate("/");
-										}
-										setAdvancing(false);
-									}}
-								>
-									{ followingStep === undefined ? "Terminer" : `Continuer: ${followingStep.title}` }
-								</button>
+												if (followingStep?.entryPath !== undefined) {
+													navigate(followingStep.entryPath);
+												} else {
+													sessionStorage.setItem("show_onboarding_summary", "1");
+													navigate("/");
+												}
+												setAdvancing(false);
+											}}
+										>
+											{ followingStep === undefined ? "Terminer" : `Continuer: ${followingStep.title}` }
+										</button>
+									</div> }
 							</div> }
-					</div> }
-				<Outlet/>
+						<Outlet/>
+					</div>
+				</div>
 			</div>
 			<SideBar/>
 		</OnboardingModeContext.Provider>

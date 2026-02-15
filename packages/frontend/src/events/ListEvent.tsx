@@ -57,6 +57,10 @@ export function ListEvent() {
 			<List
 				columns={[
 					{
+						name: "",
+						id: "",
+					},
+					{
 						name: "Nom",
 						id: "name",
 					},
@@ -89,12 +93,11 @@ export function ListEvent() {
 						id: "association",
 						visible: user?.scope === EUserScope.Root,
 					},
-					{
-						name: "",
-						id: "",
-					},
 				]} filter={filter}
 				baseUrl={"/events"} line={(e: TEvent) => [
+					<Cell className={"cursor-pointer"} onClick={() => navigate(`/events/${e.id}`)}>
+						<ExternalLink size={16} />
+					</Cell>,
 					<Cell>
 						{ e.name }
 					</Cell>,
@@ -126,9 +129,6 @@ export function ListEvent() {
                         	</Link>
                         </Cell> }
 					</>,
-					<Cell className={"cursor-pointer"} onClick={() => navigate(`/events/${e.id}`)}>
-						<ExternalLink size={16} />
-					</Cell>,
 				]}
 				action={
 					<Button onClick={() => navigate("/events/new")}>

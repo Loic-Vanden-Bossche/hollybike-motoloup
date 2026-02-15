@@ -148,7 +148,7 @@ export function Association() {
 					setVisible={setVisible}
 					title={`Supprimer l'association ${association.data?.name}`}
 				>
-					<div className={"flex flex-col sm:flex-row gap-3 sm:justify-around"}>
+					<div className={"flex flex-col sm:flex-row gap-3 sm:justify-between"}>
 						<ButtonDanger
 							className={"w-full sm:w-auto"}
 							onClick={() => {
