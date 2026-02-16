@@ -168,15 +168,13 @@ class JourneyService(
 
 			try {
 				journey.previewImage?.let {
-					runBlocking { storageService.delete(it) }
+					storageService.delete(it)
 				}
 			} catch (e: Exception) {
 				e.printStackTrace()
 			}
 
-			runBlocking {
-				storageService.store(imageBytes, path, "image/png")
-			}
+			storageService.store(imageBytes, path, "image/png")
 
 			transaction(db) {
 				journey.previewImage = path

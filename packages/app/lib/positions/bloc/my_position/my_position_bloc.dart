@@ -15,12 +15,10 @@ import 'my_position_event.dart';
 import 'dart:async';
 
 class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
-  static const double _maxAcceptedAccuracy = 20.0;
-
   final EventRepository eventRepository;
   final BackgroundLocationFacade locationFacade;
   final AuthPersistence authPersistence;
-  StreamSubscription<double>? _positionSubscription;
+  StreamSubscription<void>? _positionSubscription;
 
   int posCount = 0;
 
@@ -61,18 +59,12 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
 
     posCount = 0;
 
-    // Listen to background position ticks from headless isolate via MethodChannel.
     await _positionSubscription?.cancel();
     _positionSubscription = locationFacade.backgroundService
         .getPositionStream()
-        .listen((accuracy) {
-          if (accuracy > _maxAcceptedAccuracy) {
-            return;
-          }
-
+        .listen((_) {
           posCount++;
           if (posCount >= 2 && (eventId != null)) {
-            // Keep your existing UX hook (after a couple samples)
             eventRepository.onUserPositionSent(eventId);
           }
         });
