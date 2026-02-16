@@ -4,7 +4,6 @@
 */
 package hollybike.api.services
 
-import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.exceptions.BadRequestException
 import hollybike.api.json
 import hollybike.api.repository.*
@@ -12,24 +11,29 @@ import hollybike.api.services.storage.StorageService
 import hollybike.api.types.journey.*
 import hollybike.api.types.user.EUserScope
 import hollybike.api.types.websocket.*
-import hollybike.api.types.websocket.UserReceivePosition
-import hollybike.api.types.websocket.UserSendPosition
+import hollybike.api.utils.AccelPreprocess
+import hollybike.api.utils.EkfJourney
+import hollybike.api.utils.PositionSample
 import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
-import kotlin.time.Instant
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
-import org.jetbrains.exposed.v1.dao.load
 import org.jetbrains.exposed.v1.core.*
-import org.jetbrains.exposed.v1.core.eq
+import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.jdbc.Database
+import org.jetbrains.exposed.v1.jdbc.deleteWhere
+import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
-import kotlin.math.sqrt
+import kotlin.math.abs
+import kotlin.math.hypot
+import kotlin.math.max
+import kotlin.math.min
+import kotlin.time.Instant
 
 class UserEventPositionService(
 	private val db: Database,
@@ -67,7 +71,7 @@ class UserEventPositionService(
 		)
 	}
 
-	suspend fun getReceiveChannel(eventId: Int, userId: Int): Channel<Body> {
+	fun getReceiveChannel(eventId: Int, userId: Int): Channel<Body> {
 		println("Get user channel")
 		return receiveChannels[eventId to userId] ?: run {
 			println("Create")
@@ -251,92 +255,123 @@ class UserEventPositionService(
 		hasBest
 	}
 
-	private fun calculateTotalAcceleration(
-		accelerationX: Double,
-		accelerationY: Double,
-		accelerationZ: Double
-	): Double = sqrt(accelerationX * accelerationX + accelerationY * accelerationY + accelerationZ * accelerationZ)
-
-	private fun convertToGForce(acceleration: Double): Double = acceleration / 9.81
-
 	suspend fun terminateUserJourney(user: User, event: Event): UserJourney {
-		val coord = mutableListOf<GeoJsonCoordinates>()
-		val times = mutableListOf<JsonPrimitive>()
-		val speed = mutableListOf<JsonPrimitive>()
-		var elevationGain = 0.0
-		var elevationLoss = 0.0
-		var minElevation = Double.POSITIVE_INFINITY
-		var maxElevation = Double.NEGATIVE_INFINITY
-		var prevAltitude: Double? = null
-		var maxSpeed = Double.NEGATIVE_INFINITY
-		var totalSpeed = 0.0
-		var totalCount = 0
-		var maxAcceleration = Double.NEGATIVE_INFINITY
-		var totalAcceleration = 0.0
+		val raw = mutableListOf<PositionSample>()
 
 		transaction(db) {
 			UserEventPosition.find {
 				(UsersEventsPositions.user eq user.id) and
-					(UsersEventsPositions.event eq event.id) and
-					(UsersEventsPositions.accuracy lessEq 20.0)
-			}.orderBy(UsersEventsPositions.time to SortOrder.ASC).forEach { pos ->
-				coord.add(listOf(pos.longitude, pos.latitude, pos.altitude))
-				times.add(JsonPrimitive(pos.time.toString()))
-				speed.add(JsonPrimitive(pos.speed))
-
-				if (pos.altitude < (prevAltitude ?: pos.altitude)) {
-					elevationLoss += (prevAltitude ?: pos.altitude) - pos.altitude
-				} else {
-					elevationGain += pos.altitude - (prevAltitude ?: pos.altitude)
-				}
-				prevAltitude = pos.altitude
-
-				if (pos.altitude < minElevation) {
-					minElevation = pos.altitude
-				}
-				if (pos.altitude > maxElevation) {
-					maxElevation = pos.altitude
-				}
-
-				if (pos.speed > maxSpeed) {
-					maxSpeed = pos.speed
-				}
-				totalSpeed += pos.speed
-
-				val acceleration = calculateTotalAcceleration(pos.accelerationX, pos.accelerationY, pos.accelerationZ)
-
-				if (acceleration > maxAcceleration) {
-					maxAcceleration = acceleration
-				}
-				totalAcceleration += acceleration
-
-				totalCount++
+					(UsersEventsPositions.event eq event.id)
 			}
+				.orderBy(UsersEventsPositions.time to SortOrder.ASC)
+				.forEach { pos ->
+					raw += PositionSample(
+						timeMillis = pos.time.toEpochMilliseconds(), // adapt if needed
+						lat = pos.latitude,
+						lon = pos.longitude,
+						alt = pos.altitude,
+						accuracyM = pos.accuracy,
+						speedMps = pos.speed,
+						ax = pos.accelerationX,
+						ay = pos.accelerationY,
+						az = pos.accelerationZ
+					)
+				}
 
 			UsersEventsPositions.deleteWhere {
 				(UsersEventsPositions.user eq user.id) and (UsersEventsPositions.event eq event.id)
 			}
 		}
 
-		if (totalCount == 0 || coord.isEmpty() || times.isEmpty()) {
+		if (raw.size < 2) {
 			throw BadRequestException("Aucune position exploitable pour terminer le trajet")
 		}
 
-		val avgSpeed = totalSpeed / totalCount
-		val avgGForce = convertToGForce(totalAcceleration / totalCount)
-		val maxGForce = convertToGForce(maxAcceleration)
+		val (smoothedStates, origin) = EkfJourney.smoothTrajectory(raw)
+
+		val accelMetrics = AccelPreprocess.computeLinearAccelMetrics(
+			samples = raw,
+			gravityTauSeconds = 0.8,
+			linLowPassTauSeconds = 0.15,
+			spikeClampMS2 = 35.0
+		)
+
+		val coord = mutableListOf<GeoJsonCoordinates>()
+		val times = mutableListOf<JsonPrimitive>()
+		val speedArr = mutableListOf<JsonPrimitive>()
+
+		var elevationGain = 0.0
+		var elevationLoss = 0.0
+		var minElevation = Double.POSITIVE_INFINITY
+		var maxElevation = Double.NEGATIVE_INFINITY
+		var prevAltitude: Double? = null
+
+		var maxSpeed = Double.NEGATIVE_INFINITY
+		var totalSpeed = 0.0
+		var speedCount = 0
+
+		var maxGForce = Double.NEGATIVE_INFINITY
+		var totalGForce = 0.0
+		var gCount = 0
+
+		var maxJerk = Double.NEGATIVE_INFINITY
+
+		for (i in raw.indices) {
+			val s = raw[i]
+			val st = smoothedStates[i]
+
+			val (latS, lonS) = EkfJourney.xyToLatLon(origin, st.x, st.y)
+
+			coord.add(listOf(lonS, latS, s.alt))
+
+			times.add(JsonPrimitive(Instant.fromEpochMilliseconds(s.timeMillis).toString()))
+
+			val v = (s.speedMps?.takeIf { it.isFinite() && it >= 0.0 }) ?: hypot(st.vx, st.vy)
+			speedArr.add(JsonPrimitive(v))
+
+			if (prevAltitude != null) {
+				val dh = s.alt - prevAltitude!!
+				if (dh >= 0) elevationGain += dh else elevationLoss += -dh
+			}
+			prevAltitude = s.alt
+			minElevation = min(minElevation, s.alt)
+			maxElevation = max(maxElevation, s.alt)
+
+			maxSpeed = max(maxSpeed, v)
+			totalSpeed += v
+			speedCount++
+
+			val am = accelMetrics[i]
+			if (am != null) {
+				val g = am.gForce
+				maxGForce = max(maxGForce, g)
+				totalGForce += g
+				gCount++
+
+				val jerkAbs = abs(am.jerk)
+				maxJerk = max(maxJerk, jerkAbs)
+			}
+		}
+
+		if (coord.isEmpty() || times.isEmpty()) {
+			throw BadRequestException("Aucune position exploitable pour terminer le trajet")
+		}
+
+		val avgSpeed = if (speedCount > 0) totalSpeed / speedCount else 0.0
+		val avgGForce = if (gCount > 0) totalGForce / gCount else 0.0
+		val maxGForceSafe = if (maxGForce.isFinite()) maxGForce else 0.0
+
 		val totalTime = (Instant.parse(times.last().content) - Instant.parse(times.first().content)).inWholeSeconds
+
 		val geoJson = Feature(
 			geometry = LineString(coord),
 			properties = JsonObject(
 				mapOf(
 					"coordTimes" to JsonArray(times),
-					"speed" to JsonArray(speed)
+					"speed" to JsonArray(speedArr)
 				)
 			)
-		)
-
-		geoJson.apply {
+		).apply {
 			bbox = getBoundingBox()
 		}
 
@@ -346,24 +381,28 @@ class UserEventPositionService(
 			val participation = EventParticipation.find {
 				(EventParticipations.user eq user.id) and (EventParticipations.event eq event.id)
 			}.first()
+
 			UserJourney.new {
 				this.journey = file
 				this.avgSpeed = avgSpeed
 				this.totalElevationGain = elevationGain
 				this.totalElevationLoss = elevationLoss
-				this.totalDistance = calculateDistance(coord)
+				this.totalDistance = calculateDistance(coord) // uses smoothed geometry now
 				this.minElevation = minElevation
 				this.maxElevation = maxElevation
 				this.totalTime = totalTime
 				this.maxSpeed = maxSpeed
+
 				this.avgGForce = avgGForce
-				this.maxGForce = maxGForce
+				this.maxGForce = maxGForceSafe
+
 				this.user = user
 			}.apply {
 				participation.journey = this
 			}
 		}
 	}
+
 
 	private suspend fun uploadUserJourney(geoJson: GeoJson, eventId: Int, userId: Int): String {
 		val json = json.encodeToString(geoJson).toByteArray()

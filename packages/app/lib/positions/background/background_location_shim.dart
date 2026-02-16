@@ -6,5 +6,5 @@ class BackgroundServiceShim {
 
   Future<bool> isTrackingRunning() => _owner.isTrackingRunning();
 
-  Stream<double> getPositionStream() => _owner.getPositionStream();
+  Stream<void> getPositionStream() => _owner.getPositionStream();
 }
