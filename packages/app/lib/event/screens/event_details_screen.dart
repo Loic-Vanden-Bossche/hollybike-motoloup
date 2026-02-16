@@ -314,7 +314,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             scrollController: _scrollController,
             eventId: eventDetails.event.id,
             isParticipating: eventDetails.isParticipating,
-            onAddPhotos: _onAddPhotoFromAllPhotos,
+            onAddPhotos: () => _onAddPhotoFromAllPhotos(context),
           );
         },
       ),
@@ -393,16 +393,24 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
             final eventDetails = state.eventDetails!;
 
-            return FloatingActionButton.extended(
-              onPressed:
-                  () => showEventImagesPicker(context, eventDetails.event.id),
-              label: Text(
-                "Ajouter des photos",
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              icon: const Icon(Icons.add_a_photo),
+            return Builder(
+              builder: (providerContext) {
+                return FloatingActionButton.extended(
+                  onPressed:
+                      () => showEventImagesPicker(
+                        providerContext,
+                        eventDetails.event.id,
+                        bloc: providerContext.read<EventMyImagesBloc>(),
+                      ),
+                  label: Text(
+                    "Ajouter des photos",
+                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
+                  icon: const Icon(Icons.add_a_photo),
+                );
+              },
             );
           },
         );
@@ -411,12 +419,13 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     }
   }
 
-  void _onAddPhotoFromAllPhotos() {
+  void _onAddPhotoFromAllPhotos(BuildContext providerContext) {
+    final eventMyImagesBloc = providerContext.read<EventMyImagesBloc>();
     _tabController.animateTo(2);
 
     Future.delayed(const Duration(milliseconds: 500), () {
       if (!mounted) return;
-      showEventImagesPicker(context, widget.event.id);
+      showEventImagesPicker(context, widget.event.id, bloc: eventMyImagesBloc);
     });
   }
 
