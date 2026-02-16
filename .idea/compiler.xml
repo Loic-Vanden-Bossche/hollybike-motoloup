@@ -15,6 +15,7 @@
       <module name="api.hollybike" target="19" />
       <module name="com.example.hollybike.main" target="19" />
       <module name="com.example.hollybike.test" target="19" />
+      <module name="com.fluttercandies.photo_manager.android.photo_manager" target="17" />
       <module name="hollybike.api.hollybike" target="19" />
     </bytecodeTargetLevel>
   </component>
