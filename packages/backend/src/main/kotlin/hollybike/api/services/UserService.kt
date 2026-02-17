@@ -68,6 +68,21 @@ class UserService(
 		EUserScope.User -> false
 	}
 
+	private suspend fun cleanupAndDeleteUser(user: User) {
+		user.profilePicture?.let { storageService.delete(it) }
+		transaction(db) {
+			EventImage.find { EventImages.owner eq user.id }.toList()
+		}.forEach {
+			storageService.delete(it.path)
+		}
+		transaction(db) {
+			UserJourney.find { UsersJourneys.user eq user.id }.toList()
+		}.forEach {
+			storageService.delete(it.journey)
+		}
+		transaction(db) { user.delete() }
+	}
+
 	fun getUser(caller: User, id: Int): User? = transaction(db) {
 		User.find { Users.id eq id }.with(User::association).singleOrNull() getIfAllowed caller
 	}
@@ -235,18 +250,13 @@ class UserService(
 		if(!authorizeDelete(caller, user)) {
 			return Result.failure(NotAllowedException())
 		}
-		user.profilePicture?.let { storageService.delete(it) }
-		transaction(db) {
-			EventImage.find { EventImages.owner eq user.id }.toList()
-		}.forEach {
-			storageService.delete(it.path)
-		}
-		transaction(db) {
-			UserJourney.find { UsersJourneys.user eq user.id }.toList()
-		}.forEach {
-			storageService.delete(it.journey)
-		}
-		transaction(db) { user.delete() }
+
+		cleanupAndDeleteUser(user)
+		return Result.success(Unit)
+	}
+
+	suspend fun deleteMe(user: User): Result<Unit> {
+		cleanupAndDeleteUser(user)
 		return Result.success(Unit)
 	}
 }

@@ -18,7 +18,7 @@ import { useSideBar } from "../sidebar/useSideBar.tsx";
 import "./Header.css";
 import { clsx } from "clsx";
 import {
-	matchPath, useLocation,
+	matchPath, useLocation, useNavigate,
 } from "react-router-dom";
 import { useOnboardingMode } from "../home/OnboardingModeContext.tsx";
 
@@ -31,6 +31,7 @@ export function Header(props: HeaderProps) {
 	const { setVisible } = useSideBar();
 	const { onboardingMode } = useOnboardingMode();
 	const location = useLocation();
+	const navigate = useNavigate();
 
 	const pageMeta = useMemo(() => {
 		const { pathname } = location;
@@ -140,6 +141,12 @@ export function Header(props: HeaderProps) {
 				title: "Configuration",
 				subtitle: "Paramètres techniques de l'application",
 			},
+
+			{
+				pattern: "/account/delete",
+				title: "Suppression du compte",
+				subtitle: "Supprimez votre compte de maniere definitive",
+			},
 		];
 
 		const match = rules.find(rule => matchPath({
@@ -226,6 +233,7 @@ export function Header(props: HeaderProps) {
 						</DropDownElement>) }
 				</DropDown>
 				<DropDown text={user?.username}>
+					<DropDownElement onClick={() => navigate("/account/delete")}>Supprimer mon compte</DropDownElement>
 					<DropDownElement onClick={disconnect}>Se déconnecter</DropDownElement>
 				</DropDown>
 			</div>

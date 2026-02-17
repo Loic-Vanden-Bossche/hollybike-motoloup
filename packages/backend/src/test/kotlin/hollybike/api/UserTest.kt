@@ -462,6 +462,24 @@ class UserTest : IntegrationSpec({
 		}
 	}
 
+	context("Delete myself") {
+		mapOf(
+			UserStore.user1 to EUserScope.User,
+			UserStore.admin1 to EUserScope.Admin,
+			UserStore.root to EUserScope.Root,
+		).forEach { (user, scope) ->
+			test("Should delete myself for role $scope") {
+				onPremiseTestApp {
+					it.delete("/api/users/me") {
+						auth(user)
+					}.apply {
+						status shouldBe HttpStatusCode.NoContent
+					}
+				}
+			}
+		}
+	}
+
 	context("Upload my profile picture") {
 		listOf(
 			"image/jpeg",

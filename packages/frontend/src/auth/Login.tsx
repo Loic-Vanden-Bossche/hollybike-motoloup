@@ -6,7 +6,10 @@ import {
 	useCallback, useEffect, useState,
 } from "preact/hooks";
 import { useAuth } from "./context.tsx";
-import { useNavigate } from "react-router-dom";
+import {
+	Link,
+	useNavigate,
+} from "react-router-dom";
 import { Input } from "../components/Input/Input.tsx";
 import { Button } from "../components/Button/Button.tsx";
 import { Card } from "../components/Card/Card.tsx";
@@ -97,6 +100,12 @@ export default function () {
 					>
 						Mot de passe oublié ?
 					</button>
+					<Link
+						className={"text-[11px] text-subtext-1/80 hover:text-subtext-0 transition-colors"}
+						to={"/privacy-policy"}
+					>
+						CGU et confidentialite
+					</Link>
 				</Card>
 			</form>
 
