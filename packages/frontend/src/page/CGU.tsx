@@ -4,7 +4,7 @@
   Made by MacaronFR (Denis TURBIEZ) and enzoSoa (Enzo SOARES)
 */
 import {
-	useEffect, useMemo, useState,
+	useEffect, useMemo, useState, useRef,
 } from "preact/hooks";
 import { Card } from "../components/Card/Card.tsx";
 import {
@@ -17,7 +17,6 @@ import {
 	ShieldCheck,
 	ArrowUp, Search, X,
 } from "lucide-preact";
-import { useRef } from "react";
 
 interface PolicySection {
 	id: string;
@@ -353,7 +352,7 @@ export function CGU() {
 
 	return (
 		<section
-			ref={node => containerRef.current = node}
+			ref={containerRef}
 			className="relative bg-mantle w-full h-full overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8"
 		>
 			{ /* Progress bar (top) */ }
