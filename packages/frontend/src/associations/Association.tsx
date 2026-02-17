@@ -13,7 +13,7 @@ import {
 } from "../types/TAssociation.ts";
 import { useSideBar } from "../sidebar/useSideBar.tsx";
 import {
-	useEffect, useState,
+	useEffect, useMemo, useState,
 } from "preact/hooks";
 import { Card } from "../components/Card/Card.tsx";
 import { Input } from "../components/Input/Input.tsx";
@@ -37,12 +37,13 @@ export function Association() {
 	const { user } = useUser();
 
 	const { id } = useParams();
+	const isAssociationIdValid = useMemo(() => id !== undefined && /^[0-9]+$/.test(id), [id]);
 
 	const {
 		reload, doReload,
 	} = useReload();
 
-	const association = useApi<TAssociation>(`/associations/${id}`, [reload]);
+	const association = useApi<TAssociation>(`/associations/${id}`, [reload], { if: isAssociationIdValid });
 
 	const [associationData, setAssociationData] = useState(dummyAssociation);
 
@@ -60,6 +61,23 @@ export function Association() {
 			setAssociationData(association.data);
 		}
 	}, [association, setAssociation]);
+
+	useEffect(() => {
+		if (!isAssociationIdValid) {
+			navigate("/not-found", { replace: true });
+		}
+	}, [isAssociationIdValid, navigate]);
+
+	useEffect(() => {
+		if (association.status === 404 || association.status === 400) {
+			navigate("/not-found", { replace: true });
+		}
+	}, [association.status, navigate]);
+
+	if (!isAssociationIdValid || association.status === 404 || association.status === 400) {
+		return null;
+	}
+
 	return (
 		<div className={"w-full grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"}>
 			<Card>

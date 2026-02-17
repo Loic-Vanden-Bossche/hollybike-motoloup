@@ -13,7 +13,7 @@ import {
 import { TJourney } from "../types/TJourney.ts";
 import {
 	useCallback,
-	useEffect, useState,
+	useEffect, useMemo, useState,
 } from "preact/hooks";
 import { useRef } from "react";
 import { ArrowLeft } from "lucide-preact";
@@ -37,7 +37,8 @@ const layerStyle = {
 
 export function JourneyView() {
 	const { id } = useParams();
-	const journey = useApi<TJourney>(`/journeys/${id}`);
+	const isJourneyIdValid = useMemo(() => id !== undefined && /^[0-9]+$/.test(id), [id]);
+	const journey = useApi<TJourney>(`/journeys/${id}`, undefined, { if: isJourneyIdValid });
 	const [data, setData] = useState<any>();
 	const navigate = useNavigate();
 
@@ -57,6 +58,22 @@ export function JourneyView() {
 			});
 		}
 	}, [journey, setData]);
+
+	useEffect(() => {
+		if (!isJourneyIdValid) {
+			navigate("/not-found", { replace: true });
+		}
+	}, [isJourneyIdValid, navigate]);
+
+	useEffect(() => {
+		if (journey.status === 404 || journey.status === 400) {
+			navigate("/not-found", { replace: true });
+		}
+	}, [journey.status, navigate]);
+
+	if (!isJourneyIdValid || journey.status === 404 || journey.status === 400) {
+		return null;
+	}
 
 	const mapRef = useRef<MapRef>(null);
 

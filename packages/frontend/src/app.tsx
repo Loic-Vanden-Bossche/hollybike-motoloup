@@ -3,6 +3,7 @@
   Made by MacaronFR (Denis TURBIEZ) and enzoSoa (Enzo SOARES)
 */
 import {
+	matchPath,
 	RouterProvider, createBrowserRouter,
 } from "react-router-dom";
 import Login from "./auth/Login.tsx";
@@ -36,12 +37,21 @@ import { CGU } from "./page/CGU.tsx";
 import { Invite } from "./page/Invite.tsx";
 import { UserJourney } from "./events/UserJourney.tsx";
 import { ChangePassword } from "./changePassword/ChangePassword.tsx";
+import { NotFound } from "./page/NotFound.tsx";
 
 export function App() {
 	const [loaded, setLoaded] = useState(false);
 	const auth = useAuth();
 	const theme = useTheme();
 	const systemDark = useSystemDarkMode();
+	const publicRoute = useMemo(() => [
+		"/login",
+		"/conf-mode",
+		"/privacy-policy",
+		"/invite",
+		"/change-password",
+		"/forbidden",
+	], []);
 	const protectedRoute = useMemo(() => [
 		{
 			path: "/",
@@ -123,6 +133,14 @@ export function App() {
 			path: "conf",
 			element: <Conf/>,
 		},
+		{
+			path: "not-found",
+			element: <NotFound/>,
+		},
+		{
+			path: "*",
+			element: <NotFound/>,
+		},
 	], []);
 	const router = createBrowserRouter([
 		{
@@ -168,14 +186,23 @@ export function App() {
 		if (loaded) {
 			if (confMode === false) {
 				router.navigate("/conf-mode");
-			} else if (!auth.isLoggedIn && protectedRoute.find(r => r.path == router.state.location.pathname) !== undefined) {
-				router.navigate("/login");
+			} else if (!auth.isLoggedIn) {
+				const { pathname } = router.state.location;
+				const isPublicRoute = publicRoute.some(path => matchPath({
+					path,
+					end: true,
+				}, pathname) !== null);
+
+				if (!isPublicRoute) {
+					router.navigate("/login");
+				}
 			}
 		}
 	}, [
 		confMode,
 		auth.isLoggedIn,
 		loaded,
+		publicRoute,
 	]);
 
 	const themeDark = useMemo(() => theme.theme === "dark" || theme.theme === "os" && systemDark, [theme.theme]);

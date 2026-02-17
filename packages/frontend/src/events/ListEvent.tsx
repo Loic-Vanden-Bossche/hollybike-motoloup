@@ -29,12 +29,20 @@ export function ListEvent() {
 	} = useSideBar();
 	const navigate = useNavigate();
 	const { user } = useUser();
+	const isAssociationIdValid = useMemo(() => id === undefined || /^[0-9]+$/.test(id), [id]);
 
 	useEffect(() => {
-		if (id && !association) {
+		if (!isAssociationIdValid) {
+			navigate("/not-found", { replace: true });
+			return;
+		}
+
+		if (id && (association === undefined || association.id.toString() !== id)) {
 			api<TAssociation>(`/associations/${id}`).then((res) => {
 				if (res.status === 200 && res.data !== undefined) {
 					setAssociation(res.data);
+				} else if (res.status === 404 || res.status === 400) {
+					navigate("/not-found", { replace: true });
 				}
 			});
 		}
@@ -42,15 +50,21 @@ export function ListEvent() {
 		id,
 		setAssociation,
 		association,
+		isAssociationIdValid,
+		navigate,
 	]);
 
 	const filter = useMemo(() => {
 		if (id === undefined) {
 			return "";
 		} else {
-			return `id_association=eq:${association?.id}`;
+			return `id_association=eq:${association?.id ?? id}`;
 		}
-	}, [association]);
+	}, [association, id]);
+
+	if (!isAssociationIdValid) {
+		return null;
+	}
 
 	return (
 		<Card>

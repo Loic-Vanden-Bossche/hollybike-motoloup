@@ -2,13 +2,15 @@
   Hollybike Back-office web application
   Made by MacaronFR (Denis TURBIEZ) and enzoSoa (Enzo SOARES)
 */
-import { useParams } from "react-router-dom";
+import {
+	useNavigate, useParams,
+} from "react-router-dom";
 import { useApi } from "../utils/useApi.ts";
 import {
 	dummyEvent, TEvent,
 } from "../types/TEvent.ts";
 import {
-	useEffect, useState,
+	useEffect, useMemo, useState,
 } from "preact/hooks";
 import { EventInfo } from "./EventInfo.tsx";
 import { EventJourney } from "./EventJourney.tsx";
@@ -24,13 +26,36 @@ export function EventDetail() {
 		reload, doReload,
 	} = useReload();
 	const { id } = useParams();
-	const event = useApi<TEvent>(`/events/${id}`, [reload]);
+	const isEventIdValid = useMemo(() => id !== undefined && /^[0-9]+$/.test(id), [id]);
+	const event = useApi<TEvent>(`/events/${id}`, [reload], { if: isEventIdValid });
 	const [eventData, setEventData] = useState<TEvent>(dummyEvent);
-	const eventDetail = useApi<TEventDetail>(`/events/${id}/details`, [reload], { if: id !== undefined });
+	const eventDetail = useApi<TEventDetail>(`/events/${id}/details`, [reload], { if: isEventIdValid });
+	const navigate = useNavigate();
 
 	useEffect(() => {
 		if (event.status === 200 && event.data !== undefined) { setEventData(event.data); }
 	}, [event, setEventData]);
+
+	useEffect(() => {
+		if (!isEventIdValid) {
+			navigate("/not-found", { replace: true });
+		}
+	}, [isEventIdValid, navigate]);
+
+	useEffect(() => {
+		if (event.status === 404 || event.status === 400 || eventDetail.status === 404 || eventDetail.status === 400) {
+			navigate("/not-found", { replace: true });
+		}
+	}, [
+		event.status,
+		eventDetail.status,
+		navigate,
+	]);
+
+	if (!isEventIdValid || event.status === 404 || event.status === 400 || eventDetail.status === 404 || eventDetail.status === 400) {
+		return null;
+	}
+
 	return (
 		<div
 			className={clsx(

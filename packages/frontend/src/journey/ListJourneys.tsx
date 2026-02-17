@@ -4,10 +4,10 @@
 */
 import { Button } from "../components/Button/Button.tsx";
 import {
-	Link, useParams,
+	Link, useNavigate, useParams,
 } from "react-router-dom";
 import {
-	useEffect, useState,
+	useEffect, useMemo, useState,
 } from "preact/hooks";
 import { useSideBar } from "../sidebar/useSideBar.tsx";
 import {
@@ -32,6 +32,8 @@ import { useRef } from "react";
 
 export function ListJourneys() {
 	const { id } = useParams();
+	const navigate = useNavigate();
+	const isAssociationIdValid = useMemo(() => id === undefined || /^[0-9]+$/.test(id), [id]);
 	const {
 		reload, doReload,
 	} = useReload();
@@ -41,10 +43,17 @@ export function ListJourneys() {
 	} = useSideBar();
 
 	useEffect(() => {
-		if (id !== undefined && parseInt(id) !== association?.id) {
-			api<TAssociation>(`/associations/${id}`, { if: !isNaN(parseInt(id)) }).then((res) => {
+		if (!isAssociationIdValid) {
+			navigate("/not-found", { replace: true });
+			return;
+		}
+
+		if (id !== undefined && (association === undefined || association.id.toString() !== id)) {
+			api<TAssociation>(`/associations/${id}`).then((res) => {
 				if (res.status === 200 && res.data !== undefined) {
 					setAssociation(res.data);
+				} else if (res.status === 404 || res.status === 400) {
+					navigate("/not-found", { replace: true });
 				}
 			});
 		}
@@ -52,11 +61,17 @@ export function ListJourneys() {
 		id,
 		setAssociation,
 		association,
+		isAssociationIdValid,
+		navigate,
 	]);
 
 	const [modal, setModal] = useState(false);
 	const [uploadFile, setUploadFile] = useState<File | null>(null);
 	const [journeyId, setJourneyId] = useState(-1);
+
+	if (!isAssociationIdValid) {
+		return null;
+	}
 
 	return (
 		<Card>
