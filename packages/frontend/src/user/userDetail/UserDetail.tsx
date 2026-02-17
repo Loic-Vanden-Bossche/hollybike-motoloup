@@ -13,7 +13,7 @@ import { Card } from "../../components/Card/Card.tsx";
 import { useReload } from "../../utils/useReload.ts";
 import { Input } from "../../components/Input/Input.tsx";
 import {
-	useEffect, useState,
+	useEffect, useMemo, useState,
 } from "preact/hooks";
 import { dummyAssociation } from "../../types/TAssociation.ts";
 import { Button } from "../../components/Button/Button.tsx";
@@ -46,6 +46,7 @@ const emptyUser: TUser = {
 
 export function UserDetail() {
 	const { id } = useParams();
+	const isUserIdValid = useMemo(() => id !== undefined && /^[0-9]+$/.test(id), [id]);
 
 	const {
 		reload, doReload,
@@ -53,7 +54,7 @@ export function UserDetail() {
 
 	const { user: self } = useUser();
 
-	const user = useApi<TUser>(`/users/${ id}`, [reload]);
+	const user = useApi<TUser>(`/users/${ id}`, [reload], { if: isUserIdValid });
 
 	const [userData, setUserData] = useState<TUser>(emptyUser);
 
@@ -67,6 +68,22 @@ export function UserDetail() {
 	}, [user]);
 
 	const navigate = useNavigate();
+
+	useEffect(() => {
+		if (!isUserIdValid) {
+			navigate("/not-found", { replace: true });
+		}
+	}, [isUserIdValid, navigate]);
+
+	useEffect(() => {
+		if (user.status === 404 || user.status === 400) {
+			navigate("/not-found", { replace: true });
+		}
+	}, [user.status, navigate]);
+
+	if (!isUserIdValid || user.status === 404 || user.status === 400) {
+		return null;
+	}
 
 	return (
 		<div className={"grid gap-4 sm:gap-6 grid-cols-1 xl:grid-cols-2"}>

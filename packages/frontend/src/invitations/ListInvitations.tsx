@@ -47,26 +47,39 @@ export function ListInvitations() {
 
 	const { user } = useUser();
 	const { id } = useParams();
+	const isAssociationIdValid = useMemo(() => id === undefined || /^[0-9]+$/.test(id), [id]);
+	const navigate = useNavigate();
 
 	useEffect(() => {
+		if (!isAssociationIdValid) {
+			navigate("/not-found", { replace: true });
+			return;
+		}
+
 		if (id) {
 			api<TAssociation>(`/associations/${id}`).then((res) => {
 				if (res.status === 200 && res.data !== null && res.data !== undefined) {
 					setAssociation(res.data);
+				} else if (res.status === 404 || res.status === 400) {
+					navigate("/not-found", { replace: true });
 				}
 			});
 		} else {
 			setAssociation(undefined);
 		}
-	}, [id, setAssociation]);
+	}, [
+		id,
+		setAssociation,
+		isAssociationIdValid,
+		navigate,
+	]);
 
 	const {
 		reload, doReload,
 	} = useReload();
 
-	const navigate = useNavigate();
 	const url = useMemo(
-		() => id !== undefined ? `/associations/${association?.id}/invitations` : "/invitation",
+		() => id !== undefined ? `/associations/${association?.id ?? id}/invitations` : "/invitation",
 		[id, association],
 	);
 	const smtp = useApi("/smtp");
@@ -86,6 +99,10 @@ export function ListInvitations() {
 			return "status=neq:-1";
 		}
 	}, [id]);
+
+	if (!isAssociationIdValid) {
+		return null;
+	}
 
 	return (
 		<>

@@ -1,232 +1,646 @@
+
 /*
   Hollybike Back-office web application
   Made by MacaronFR (Denis TURBIEZ) and enzoSoa (Enzo SOARES)
 */
+import {
+	useEffect, useMemo, useState,
+} from "preact/hooks";
+import { Card } from "../components/Card/Card.tsx";
+import {
+	Building2,
+	ChevronDown,
+	Copy,
+	FileText,
+	Mail,
+	Scale,
+	ShieldCheck,
+	ArrowUp, Search, X,
+} from "lucide-preact";
+import { useRef } from "react";
+
+interface PolicySection {
+	id: string;
+	title: string;
+	paragraphs: string[];
+}
+
+const LAST_UPDATE = "17/02/2026";
+
+const sections: PolicySection[] = [
+	{
+		id: "introduction",
+		title: "1. Objet",
+		paragraphs: ["La présente page décrit (i) les conditions générales d’utilisation de HollyBike et (ii) la politique de confidentialité applicable au site https://hollybike.chbrx.com et à l’application mobile HollyBike.", "En utilisant HollyBike, vous acceptez les présentes conditions. Si vous n’acceptez pas tout ou partie de ces conditions, vous devez cesser d’utiliser le service."],
+	},
+	{
+		id: "responsable-traitement",
+		title: "2. Responsable du traitement et contact",
+		paragraphs: ["Le responsable du traitement des données personnelles est Loïc Vanden Bossche (personne physique), domicilié à Paris (75012), France.", "Contact (exercice des droits / questions) : vandenbosscheloic4@gmail.com."],
+	},
+	{
+		id: "services",
+		title: "3. Services proposés",
+		paragraphs: ["HollyBike permet notamment : la création de compte, l’enregistrement de trajets, la visualisation de trajets, la participation à des événements, et le partage (optionnel) de position avec d’autres utilisateurs.", "Certaines fonctionnalités peuvent nécessiter l’activation de permissions (ex. localisation, caméra/photos, calendrier)."],
+	},
+	{
+		id: "donnees-collectees",
+		title: "4. Données collectées",
+		paragraphs: [
+			"Données de compte : email, mot de passe (stocké de manière chiffrée), pseudonyme.",
+			"Données de trajet : points GPS, vitesse, altitude, horodatages, distance, durée. Ces données permettent de reconstituer et afficher le trajet (ex. type Strava).",
+			"Données techniques : adresse IP et logs techniques, utilisés pour la sécurité et le bon fonctionnement du service.",
+			"HollyBike n’utilise pas d’analytics publicitaires ni de profilage à des fins marketing.",
+		],
+	},
+	{
+		id: "localisation",
+		title: "5. Localisation (y compris en arrière-plan) — Information importante",
+		paragraphs: [
+			"HollyBike peut accéder à votre localisation précise (ACCESS_FINE_LOCATION) et, si vous l’autorisez, à votre localisation en arrière-plan (ACCESS_BACKGROUND_LOCATION).",
+			"La localisation est optionnelle : vous pouvez utiliser HollyBike sans activer la fonctionnalité de suivi/enregistrement de trajet.",
+			"La localisation en arrière-plan est utilisée uniquement lorsque vous déclenchez explicitement un enregistrement de trajet et pendant la durée de cet enregistrement. Elle n’est jamais collectée en arrière-plan sans action volontaire de votre part.",
+			"Finalités : enregistrer un trajet, afficher votre progression, et (si vous l’activez) partager votre position en temps réel avec des amis / participants à un événement.",
+			"Vous pouvez désactiver à tout moment la collecte : en arrêtant l’enregistrement de trajet et/ou en retirant la permission de localisation dans les paramètres Android.",
+		],
+	},
+	{
+		id: "partage-visibilite",
+		title: "6. Partage et visibilité des trajets / position",
+		paragraphs: ["Les trajets et la position sont liés à votre compte. Vous choisissez la visibilité (public / privé) selon les options disponibles dans l’application.", "Si vous activez le partage (ex. événement), votre position et/ou vos trajets peuvent être visibles par d’autres utilisateurs. Vous pouvez modifier vos choix et désactiver le partage à tout moment."],
+	},
+	{
+		id: "permissions-optionnelles",
+		title: "7. Permissions optionnelles",
+		paragraphs: ["Caméra / Photos : permet d’ajouter des images aux trajets. Permission facultative.", "Calendrier : permet d’ajouter des événements à votre calendrier. Permission facultative."],
+	},
+	{
+		id: "base-legale",
+		title: "8. Bases légales (RGPD)",
+		paragraphs: [
+			"Exécution du contrat : fourniture du service (création de compte, enregistrement et affichage des trajets, gestion des événements).",
+			"Consentement : utilisation de la localisation (notamment en arrière-plan) et partage volontaire avec d’autres utilisateurs ; vous pouvez retirer votre consentement à tout moment via les paramètres de l’application/du système.",
+			"Intérêt légitime : sécurité, prévention des abus, maintien en conditions opérationnelles, et protection du service (logs techniques).",
+		],
+	},
+	{
+		id: "tiers",
+		title: "9. Prestataires et services tiers",
+		paragraphs: [
+			"Mapbox : utilisé pour l’affichage des cartes (SDK Android et appels HTTP). Mapbox peut traiter des données techniques (ex. IP) et, selon l’usage, des données de localisation nécessaires au rendu cartographique.",
+			"Nominatim (OpenStreetMap) : utilisé côté serveur pour le reverse geocoding (conversion coordonnées → adresse).",
+			"En dehors de ces prestataires, HollyBike ne vend pas vos données et ne les partage pas à des fins publicitaires.",
+		],
+	},
+	{
+		id: "hebergement",
+		title: "10. Hébergement et transferts",
+		paragraphs: ["Les données sont hébergées sur un serveur situé en France.", "Si un prestataire tiers traite certaines données (ex. Mapbox), il peut appliquer ses propres politiques de traitement. HollyBike limite ces usages aux besoins strictement nécessaires aux fonctionnalités (cartographie)."],
+	},
+	{
+		id: "conservation",
+		title: "11. Durée de conservation",
+		paragraphs: [
+			"Compte utilisateur : conservé jusqu’à suppression du compte par l’utilisateur.",
+			"Trajets : conservés tant que l’utilisateur souhaite les garder dans sa bibliothèque ; suppression possible à tout moment.",
+			"Conversion / points GPS : les données de position collectées pendant un trajet sont converties en fichier GPX. Les trajets peuvent être supprimés à tout moment par l’utilisateur.",
+			"Suppression de compte : suppression immédiate des données actives. Les sauvegardes (backups) sont purgées sous 30 jours maximum.",
+		],
+	},
+	{
+		id: "securite",
+		title: "12. Sécurité",
+		paragraphs: [
+			"Les échanges sont protégés via HTTPS.",
+			"L’accès aux serveurs est restreint et protégé (mesures techniques et organisationnelles).",
+			"Aucun système n’étant infaillible, HollyBike met en œuvre des mesures raisonnables pour protéger les données contre l’accès non autorisé, l’altération ou la destruction.",
+		],
+	},
+	{
+		id: "droits",
+		title: "13. Vos droits (RGPD)",
+		paragraphs: [
+			"Vous disposez des droits : accès, rectification, suppression, limitation, opposition, et portabilité.",
+			"Vous pouvez exporter vos données depuis les fonctionnalités disponibles et/ou faire une demande par email.",
+			"Vous pouvez supprimer vos trajets et votre compte à tout moment. Pour toute demande : vandenbosscheloic4@gmail.com.",
+			"Vous pouvez retirer votre consentement (ex. localisation) à tout moment via les paramètres Android et/ou l’application.",
+		],
+	},
+	{
+		id: "mineurs",
+		title: "14. Mineurs",
+		paragraphs: ["HollyBike est destiné aux utilisateurs âgés d’au moins 16 ans. Les mineurs de moins de 16 ans ne doivent pas utiliser le service."],
+	},
+	{
+		id: "cgu",
+		title: "15. Conditions générales d’utilisation (CGU) — Règles essentielles",
+		paragraphs: [
+			"Vous êtes responsable de la confidentialité de vos identifiants. Toute activité réalisée depuis votre compte est réputée effectuée par vous.",
+			"Vous vous engagez à utiliser HollyBike de manière licite et à ne pas publier/partager de contenu illicite ou portant atteinte aux droits de tiers.",
+			"En cas d’abus ou de non-respect des présentes conditions, un administrateur peut intervenir (modération, suppression de contenu, suspension de compte).",
+		],
+	},
+	{
+		id: "responsabilite",
+		title: "16. Responsabilité",
+		paragraphs: [
+			"HollyBike fournit un service d’enregistrement et d’affichage de trajets. Les informations sont fournies à titre indicatif.",
+			"Vous êtes seul responsable de votre conduite, de votre sécurité et du respect du code de la route. HollyBike ne saurait être tenu responsable d’accidents, dommages, ou infractions commises lors de l’utilisation du service.",
+			"Le service peut être interrompu pour maintenance, mise à jour ou raisons techniques. HollyBike ne garantit pas une disponibilité continue.",
+		],
+	},
+	{
+		id: "droit-applicable",
+		title: "17. Droit applicable",
+		paragraphs: ["Les présentes conditions sont soumises au droit français. En cas de litige et à défaut de résolution amiable, les juridictions françaises sont compétentes."],
+	},
+];
+function cn(...classes: Array<string | false | null | undefined>) {
+	return classes.filter(Boolean).join(" ");
+}
+
+function escapeRegExp(input: string) {
+	return input.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function highlightText(text: string, query: string) {
+	const q = query.trim();
+	if (!q) { return text; }
+
+	const re = new RegExp(`(${escapeRegExp(q)})`, "ig");
+	const parts = text.split(re);
+	// If no split happened, return plain text
+	if (parts.length === 1) { return text; }
+
+	return parts.map((part, i) => {
+		// Matched chunk (case-insensitive)
+		if (re.test(part)) {
+			// reset regex state for safety
+			re.lastIndex = 0;
+			return (
+				<mark
+					key={i}
+					className="rounded-[6px] px-1 py-0.5 bg-blue/15 border border-blue/20 text-text"
+				>
+					{ part }
+				</mark>
+			);
+		}
+		return <span key={i}>{ part }</span>;
+	});
+}
+
+function useReducedMotion() {
+	const [reduced, setReduced] = useState(false);
+	useEffect(() => {
+		const mq = window.matchMedia?.("(prefers-reduced-motion: reduce)");
+		if (!mq) { return; }
+		const onChange = () => setReduced(!!mq.matches);
+		onChange();
+		mq.addEventListener?.("change", onChange);
+		return () => mq.removeEventListener?.("change", onChange);
+	}, []);
+	return reduced;
+}
+
 export function CGU() {
+	const reducedMotion = useReducedMotion();
+
+	// Scroll container (ton <section> est scrollable)
+	const containerRef = useRef<HTMLElement | null>(null);
+
+	const [activeId, setActiveId] = useState<string>(sections?.[0]?.id ?? "");
+	const [showTop, setShowTop] = useState(false);
+	const [showProgressBar, setShowProgressBar] = useState(false);
+	const [mobileTocOpen, setMobileTocOpen] = useState(false);
+	const [copiedId, setCopiedId] = useState<string | null>(null);
+
+	// Progress + Search
+	const [progress, setProgress] = useState(0); // 0..1
+	const [query, setQuery] = useState("");
+
+	const tocItems = useMemo(
+		() =>
+			sections.map(s => ({
+				id: s.id,
+				title: s.title,
+			})),
+		[],
+	);
+
+	// Search index: compute which sections match query
+	const matchedSectionIds = useMemo(() => {
+		const q = query.trim().toLowerCase();
+		if (!q) { return null; } // no filtering
+		const ids = new Set<string>();
+
+		for (const s of sections) {
+			const inTitle = s.title.toLowerCase().includes(q);
+			const inBody = s.paragraphs.some(p => p.toLowerCase().includes(q));
+			if (inTitle || inBody) { ids.add(s.id); }
+		}
+		return ids;
+	}, [query]);
+
+	const filteredToc = useMemo(() => {
+		if (!matchedSectionIds) { return tocItems; }
+		return tocItems.filter(t => matchedSectionIds.has(t.id));
+	}, [matchedSectionIds, tocItems]);
+
+	const filteredSections = useMemo(() => {
+		if (!matchedSectionIds) { return sections; }
+		return sections.filter(s => matchedSectionIds.has(s.id));
+	}, [matchedSectionIds]);
+
+	// Scroll handler for progress + back-to-top (based on container scroll)
+	useEffect(() => {
+		const el = containerRef.current;
+		if (!el) { return; }
+
+		const onScroll = () => {
+			const max = Math.max(1, el.scrollHeight - el.clientHeight);
+			const p = Math.min(1, Math.max(0, el.scrollTop / max));
+			setProgress(p);
+			setShowProgressBar(el.scrollTop > 40);
+			setShowTop(el.scrollTop > 600);
+		};
+
+		el.addEventListener("scroll", onScroll, { passive: true });
+		onScroll();
+		return () => el.removeEventListener("scroll", onScroll);
+	}, []);
+
+	// Active section observer (root = scroll container)
+	useEffect(() => {
+		const root = containerRef.current;
+		const ids = new Set(sections.map(s => s.id));
+		const headings = Array.from(document.querySelectorAll<HTMLElement>("[data-policy-section]")).filter(el => ids.has(el.id));
+
+		if (!root || !("IntersectionObserver" in window) || headings.length === 0) { return; }
+
+		const obs = new IntersectionObserver(
+			(entries) => {
+				const [visible] = entries
+					.filter(e => e.isIntersecting)
+					.sort((a, b) => (b.intersectionRatio ?? 0) - (a.intersectionRatio ?? 0));
+				if (visible?.target?.id) { setActiveId(visible.target.id); }
+			},
+			{
+				root,
+				rootMargin: "-20% 0px -70% 0px",
+				threshold: [
+					0.05,
+					0.1,
+					0.2,
+					0.35,
+					0.5,
+				],
+			},
+		);
+
+		headings.forEach(h => obs.observe(h));
+		return () => obs.disconnect();
+	}, []);
+
+	const scrollToId = (id: string) => {
+		const el = document.getElementById(id);
+		if (!el) { return; }
+
+		setMobileTocOpen(false);
+
+		el.scrollIntoView({
+			behavior: reducedMotion ? "auto" : "smooth",
+			block: "start",
+		});
+
+		try {
+			history.replaceState(null, "", `#${id}`);
+		} catch {
+			// ignore
+		}
+	};
+
+	const copyLink = async (id: string) => {
+		const url = `${window.location.origin}${window.location.pathname}#${id}`;
+		try {
+			await navigator.clipboard.writeText(url);
+			setCopiedId(id);
+			window.setTimeout(() => setCopiedId(cur => cur === id ? null : cur), 1200);
+		} catch {
+			try {
+				const ta = document.createElement("textarea");
+				ta.value = url;
+				document.body.appendChild(ta);
+				ta.select();
+				document.execCommand("copy");
+				document.body.removeChild(ta);
+				setCopiedId(id);
+				window.setTimeout(() => setCopiedId(cur => cur === id ? null : cur), 1200);
+			} catch {
+				// ignore
+			}
+		}
+	};
+
+	const scrollToTop = () => {
+		const el = containerRef.current;
+		if (!el) { return; }
+		el.scrollTo({
+			top: 0,
+			behavior: reducedMotion ? "auto" : "smooth",
+		});
+	};
+
 	return (
-		<div className={"p-4 overflow-x-hidden w-9/10 h-full"}>
-			<style>
-				{ "p {font-weight: normal;}" }
-			</style>
-			<h1 className={"text-4xl text-center"}>Conditions générales d'utilisation</h1>
-			<p className={"text-center text-xl"}>En vigueur au 26/06/2024</p>
-			<p>Les présentes conditions générales d'utilisation (dites « <strong>CGU</strong> »)
-				ont pour objet l'encadrement juridique des
-				modalités de mise à disposition du site et des services par _______________ et de définir les conditions
-				d’accès et d’utilisation des services par « <strong>l'Utilisateur</strong> ».
-			</p>
+		<section
+			ref={node => containerRef.current = node}
+			className="relative bg-mantle w-full h-full overflow-y-auto overflow-x-hidden p-4 sm:p-6 md:p-8"
+		>
+			{ /* Progress bar (top) */ }
+			<div
+				className={cn(
+					"sticky top-0 z-30 -mx-4 sm:-mx-6 md:-mx-8 transition-all duration-300",
+					showProgressBar ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-2 pointer-events-none",
+				)}
+			>
+				<div className="h-0.75 w-full bg-surface-0/30 backdrop-blur">
+					<div
+						className="h-0.75 bg-blue/60 transition-[width] duration-150 ease-out"
+						style={{ width: `${progress * 100}%` }}
+						aria-hidden="true"
+					/>
+				</div>
+			</div>
 
-			<p>Les présentes CGU sont accessibles sur le site à la rubrique «<strong>CGU</strong>».</p>
+			{ /* Background blobs */ }
+			<div className="absolute top-[-12%] left-[-8%] w-[38%] h-[38%] bg-mauve/10 blur-[120px] rounded-full pointer-events-none" />
+			<div className="absolute bottom-[-8%] right-[-6%] w-[34%] h-[34%] bg-blue/10 blur-[120px] rounded-full pointer-events-none" />
+			<div className="absolute top-[24%] right-[14%] w-[22%] h-[22%] bg-pink/5 blur-[100px] rounded-full pointer-events-none" />
 
-			<p>Toute inscription ou utilisation du site implique l'acceptation sans aucune réserve ni restriction des
-				présentes CGU par l’utilisateur. Lors de l'inscription sur le site via le Formulaire d’inscription,
-				chaque
-				utilisateur accepte expressément les présentes CGU en cochant la case précédant le texte suivant : « Je
-				reconnais avoir lu et compris les CGU et je les accepte ».
-				En cas de non-acceptation des CGU stipulées dans le présent contrat, l'Utilisateur se doit de renoncer à
-				l'accès des services proposés par le site.
-				https://hollybike.chbrx.com se réserve le droit de modifier unilatéralement et à tout moment le contenu des
-				présentes CGU.
-			</p>
+			<div className="relative z-10 max-w-6xl mx-auto flex flex-col gap-4 sm:gap-6">
+				{ /* HERO */ }
+				<Card className="p-6 sm:p-8">
+					<div className="flex flex-col gap-4">
+						<div className="flex flex-wrap items-center justify-between gap-3">
+							<div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-blue/10 border border-blue/20 text-blue text-[10px] font-bold uppercase tracking-[0.2em]">
+								<ShieldCheck size={12} />
+								Politique de confidentialité & CGU
+							</div>
 
-			<h2 className={"text-2xl pt-8 pb-4"}>Article 1 : Les mentions légales</h2>
+							<div className="inline-flex items-center gap-2 rounded-xl border border-surface-2/30 bg-surface-0/30 px-3 py-2 text-xs text-subtext-1">
+								<FileText size={14} />
+								Dernière mise à jour : { LAST_UPDATE }
+							</div>
+						</div>
 
-			<p>L’édition et la direction de la publication du site https://hollybike.chbrx.com est assurée par Loïc Vanden
-				Bossche, domicilié 242 rue du faubourg saint antoine 75012 Paris.
-				Numéro de téléphone est _______________
-				Adresse e-mail vandenbosscheloic4@gmail.com.
-			</p>
+						<div className="space-y-2">
+							<h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
+								Politique de confidentialité et Conditions générales d’utilisation
+							</h1>
+							<p className="text-subtext-0 max-w-3xl">
+								Retrouvez ici les règles d’utilisation de HollyBike et la description transparente des traitements de données personnelles
+								(dont la localisation en arrière-plan sur demande).
+							</p>
+						</div>
 
-			<p>L'hébergeur du site https://hollybike.chbrx.com est la société AMAZON WEB SERVICES EMEA SARL, dont le siège
-				social
-				est situé au 38 AV JOHN F KENNEDY L 1855, LUXEMBOURG LUXEMBOURG, avec le numéro de téléphone :
-				_______________.
-			</p>
+						{ /* Quick actions */ }
+						<div className="flex flex-wrap gap-2">
+							<button
+								type="button"
+								onClick={() => scrollToId((filteredToc[0] ?? tocItems[0])?.id)}
+								className={cn(
+									"px-4 py-2 rounded-2xl bg-blue text-crust font-semibold shadow-lg shadow-blue/20",
+									"transition-all hover:brightness-110 active:scale-95",
+									"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40",
+								)}
+								aria-label="Aller au début du document"
+							>
+								Commencer la lecture
+							</button>
 
-			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 2 : Accès au site</h2>
+							<button
+								type="button"
+								onClick={() => setMobileTocOpen(v => !v)}
+								className={cn(
+									"ui-trigger px-3 py-2 text-sm font-medium xl:hidden",
+									"border-surface-2/40 hover:border-surface-2/60",
+									"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40",
+									"inline-flex items-center gap-2",
+								)}
+								aria-expanded={mobileTocOpen}
+								aria-controls="toc-mobile"
+							>
+								Sommaire
+								<ChevronDown size={16} className={cn("transition-transform", mobileTocOpen && "rotate-180")} />
+							</button>
+						</div>
 
-			<p>Le site https://hollybike.chbrx.com permet à l'Utilisateur un accès gratuit aux services suivants :
-				Le site internet propose les services suivants :
-				Création d'un compte utilisateur
-				Suivi de position de l'utilisateur sur demande
-				Visualisation des trajets des utilisateurs
-				Création / Participation à des événements
-				Enregistrement de trajet
-				Le site est accessible gratuitement en tout lieu à tout Utilisateur ayant un accès à Internet. Tous les
-				frais supportés par l'Utilisateur pour accéder au service (matériel informatique, logiciels, connexion
-				Internet, etc.) sont à sa charge.
-			</p>
+						{ /* Mobile TOC */ }
+						<div
+							id="toc-mobile"
+							className={cn(
+								"xl:hidden overflow-hidden rounded-2xl border border-surface-2/30 bg-surface-0/30",
+								mobileTocOpen ? "max-h-130" : "max-h-0",
+							)}
+						>
+							<div className="p-3 grid grid-cols-1 gap-1">
+								{ filteredToc.map(item =>
+									<button
+										key={item.id}
+										type="button"
+										onClick={() => scrollToId(item.id)}
+										className={cn(
+											"text-left px-3 py-2 rounded-xl text-subtext-0 border border-transparent transition-all",
+											"hover:bg-surface-0/40 hover:text-text",
+											"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40",
+											activeId === item.id && "border-surface-2/30 bg-surface-0/50 text-text",
+										)}
+									>
+										<span className="text-sm font-medium">{ item.title }</span>
+									</button>) }
+								{ matchedSectionIds && filteredToc.length === 0 &&
+									<div className="px-3 py-2 text-sm text-subtext-1">
+										Aucun résultat.
+									</div> }
+							</div>
+						</div>
+					</div>
+				</Card>
 
-			<p>L’Utilisateur non membre n'a pas accès aux services réservés. Pour cela, il doit s’inscrire en
-				remplissant
-				le formulaire. En acceptant de s’inscrire aux services réservés, l’Utilisateur membre s’engage à fournir
-				des
-				informations sincères et exactes concernant son état civil et ses coordonnées, notamment son adresse
-				email.
-				Pour accéder aux services, l’Utilisateur doit ensuite s'identifier à l'aide de son identifiant et de son
-				mot
-				de passe qui lui seront communiqués après son inscription.
-				Tout Utilisateur membre régulièrement inscrit pourra également solliciter sa désinscription en se
-				rendant à
-				la page dédiée sur son espace personnel. Celle-ci sera effective dans un délai raisonnable.
-				Tout événement dû à un cas de force majeure ayant pour conséquence un dysfonctionnement du site ou
-				serveur
-				et sous réserve de toute interruption ou modification en cas de maintenance, n'engage pas la
-				responsabilité
-				de https://hollybike.chbrx.com. Dans ces cas, l’Utilisateur accepte ainsi ne pas tenir rigueur à l’éditeur de
-				toute
-				interruption ou suspension de service, même sans préavis.
-				L'Utilisateur a la possibilité de contacter le site par messagerie électronique à l’adresse email de
-				l’éditeur communiqué à l’ARTICLE 1.
-			</p>
+				{ /* Layout: aside sticky TOC + content */ }
+				<div className="grid grid-cols-1 xl:grid-cols-[320px_1fr] gap-4 sm:gap-6">
+					{ /* Sticky TOC (desktop) */ }
+					<aside className="hidden xl:block">
+						<Card className="p-5 sm:p-6 sticky top-6">
+							<h2 className="text-xl font-bold tracking-tight text-text mb-3">Table des matières</h2>
+							<div className="flex flex-col gap-1">
+								{ filteredToc.map(item =>
+									<button
+										key={item.id}
+										type="button"
+										onClick={() => scrollToId(item.id)}
+										className={cn(
+											"text-left px-3 py-2 rounded-xl text-subtext-0 border border-transparent transition-all",
+											"hover:bg-surface-0/40 hover:text-text",
+											"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40",
+											activeId === item.id && "border-surface-2/30 bg-surface-0/50 text-text",
+										)}
+										aria-current={activeId === item.id ? "true" : "false"}
+									>
+										<span className="text-sm font-medium">{ item.title }</span>
+									</button>) }
+								{ matchedSectionIds && filteredToc.length === 0 &&
+									<div className="px-3 py-2 text-sm text-subtext-1">
+										Aucun résultat.
+									</div> }
+							</div>
 
-			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 3 : Collecte des données</h2>
+							<div className="mt-5 pt-5 border-t border-surface-2/30">
+								<h3 className="text-sm font-semibold text-text mb-3">Informations légales</h3>
+								<div className="space-y-3 text-sm">
+									<div className="flex items-start gap-3">
+										<Scale size={16} className="text-mauve mt-0.5" />
+										<p className="text-subtext-0">Juridiction compétente : France</p>
+									</div>
+									<div className="flex items-start gap-3">
+										<Mail size={16} className="text-blue mt-0.5" />
+										<p className="text-subtext-0">Contact : vandenbosscheloic4@gmail.com</p>
+									</div>
+									<div className="flex items-start gap-3">
+										<Building2 size={16} className="text-teal mt-0.5" />
+										<p className="text-subtext-0">Hébergement : Serveur situé en France</p>
+									</div>
+								</div>
+							</div>
+						</Card>
+					</aside>
 
-			<p>Le site assure à l'Utilisateur une collecte et un traitement d'informations personnelles dans le respect
-				de
-				la vie privée conformément à la loi n°78-17 du 6 janvier 1978 relative à l'informatique, aux fichiers et
-				aux
-				libertés.
-			</p>
+					{ /* Content */ }
+					<div className="flex flex-col gap-4 sm:gap-5 pb-4">
+						{ /* Sticky search */ }
+						<div className="sticky top-3 z-20">
+							<Card className="p-4 sm:p-5">
+								<div className="flex flex-col gap-3">
+									<div className="flex items-center gap-3">
+										<div className="inline-flex items-center gap-2 text-sm font-semibold text-text">
+											<Search size={16} className="text-blue" />
+											Rechercher dans la page
+										</div>
 
-			<p>En vertu de la loi Informatique et Libertés, en date du 6 janvier 1978, l'Utilisateur dispose d'un droit
-				d'accès, de rectification, de suppression et d'opposition de ses données personnelles. L'Utilisateur
-				exerce
-				ce droit :
-				· par mail à l'adresse email vandenbosscheloic4@gmail.com﻿
-				· via son espace personnel ;
-			</p>
+										<div className="ml-auto text-xs text-subtext-1">
+											{ matchedSectionIds ?
+												`${filteredSections.length} section(s) trouvée(s)` :
+												`${sections.length} section(s)` }
+										</div>
+									</div>
 
-			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 4 : Propriété intellectuelle</h2>
+									<div className="relative">
+										<input
+											value={query}
+											onInput={e => setQuery((e.currentTarget as HTMLInputElement).value)}
+											placeholder="Ex. localisation, Mapbox, suppression, mineurs…"
+											className={cn(
+												"ui-control w-full rounded-2xl",
+												"px-4 py-3 pr-10 placeholder:text-subtext-1",
+												"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40",
+											)}
+											aria-label="Rechercher dans la page"
+										/>
+										{ query.trim() ?
+											<button
+												type="button"
+												onClick={() => setQuery("")}
+												className={cn(
+													"absolute right-2 top-1/2 -translate-y-1/2",
+													"p-2 rounded-xl border border-transparent",
+													"hover:bg-surface-0/40 hover:text-text",
+													"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40",
+												)}
+												aria-label="Effacer la recherche"
+												title="Effacer"
+											>
+												<X size={16} />
+											</button> :
+											null }
+									</div>
 
-			<p>Les marques, logos, signes ainsi que tous les contenus du site (textes, images, son…) font l'objet d'une
-				protection par le Code de la propriété intellectuelle et plus particulièrement par le droit d'auteur.
-			</p>
+									{ matchedSectionIds && filteredSections.length === 0 &&
+										<div className="text-sm text-subtext-1">
+											Aucun résultat. Essayez un autre mot-clé.
+										</div> }
+								</div>
+							</Card>
+						</div>
 
-			<p>L'Utilisateur doit solliciter l'autorisation préalable du site pour toute reproduction, publication,
-				copie
-				des différents contenus. Il s'engage à une utilisation des contenus du site dans un cadre strictement
-				privé,
-				toute utilisation à des fins commerciales et publicitaires est strictement interdite.
-			</p>
+						{ filteredSections.map(section =>
+							<div
+								id={section.id}
+								key={section.id}
+								data-policy-section
+								className="scroll-mt-28"
+							>
+								<Card className="p-5 sm:p-6">
+									<div className="flex items-start justify-between gap-3">
+										<h3 className="text-xl font-bold tracking-tight text-text">
+											{ highlightText(section.title, query) }
+										</h3>
 
-			<p>Toute représentation totale ou partielle de ce site par quelque procédé que ce soit, sans l’autorisation
-				expresse de l’exploitant du site Internet constituerait une contrefaçon sanctionnée par l’article L
-				335-2 et
-				suivants du Code de la propriété intellectuelle.
-			</p>
+										<div className="flex items-center gap-2 shrink-0">
+											<button
+												type="button"
+												onClick={() => copyLink(section.id)}
+												className={cn(
+													"ui-trigger px-2.5 py-2 text-sm font-medium",
+													"border-surface-2/40 hover:border-surface-2/60",
+													"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40",
+													"inline-flex items-center gap-2",
+												)}
+												aria-label={`Copier le lien vers ${section.title}`}
+												title="Copier le lien"
+											>
+												<Copy size={16} />
+												<span className="hidden sm:inline">
+													{ copiedId === section.id ? "Copié" : "Copier le lien" }
+												</span>
+											</button>
+										</div>
+									</div>
 
-			<p>Il est rappelé conformément à l’article L122-5 du Code de propriété intellectuelle que l’Utilisateur qui
-				reproduit, copie ou publie le contenu protégé doit citer l’auteur et sa source.
-			</p>
+									<div className="mt-3 flex flex-col gap-3">
+										{ section.paragraphs.map((paragraph, idx) =>
+											<p
+												key={`${section.id}-${idx}`}
+												className="text-sm sm:text-[15px] leading-relaxed text-subtext-0 max-w-[72ch]"
+											>
+												{ highlightText(paragraph, query) }
+											</p>) }
+									</div>
+								</Card>
+							</div>) }
+					</div>
+				</div>
+			</div>
 
-			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 5 : Responsabilité</h2>
-
-			<p>Les sources des informations diffusées sur le site https://hollybike.chbrx.com sont réputées fiables mais le
-				site
-				ne garantit pas qu’il soit exempt de défauts, d’erreurs ou d’omissions.
-			</p>
-
-			<p>Les informations communiquées sont présentées à titre indicatif et général sans valeur contractuelle.
-				Malgré
-				des mises à jour régulières, le site https://hollybike.chbrx.com ne peut être tenu responsable de la
-				modification
-				des dispositions administratives et juridiques survenant après la publication. De même, le site ne peut
-				être
-				tenue responsable de l’utilisation et de l’interprétation de l’information contenue dans ce site.
-				L'Utilisateur s'assure de garder son mot de passe secret. Toute divulgation du mot de passe, quelle que
-				soit
-				sa forme, est interdite. Il assume les risques liés à l'utilisation de son identifiant et mot de passe.
-				Le
-				site décline toute responsabilité.
-				Le site https://hollybike.chbrx.com ne peut être tenu pour responsable d’éventuels virus qui pourraient
-				infecter
-				l’ordinateur ou tout matériel informatique de l’Internaute, suite à une utilisation, à l’accès, ou au
-				téléchargement provenant de ce site.
-			</p>
-
-			<p>La responsabilité du site ne peut être engagée en cas de force majeure ou du fait imprévisible et
-				insurmontable d'un tiers.
-			</p>
-
-			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 6 : Liens hypertextes</h2>
-
-			<p>Des liens hypertextes peuvent être présents sur le site. L’Utilisateur est informé qu’en cliquant sur ces
-				liens, il sortira du site https://hollybike.chbrx.com. Ce dernier n’a pas de contrôle sur les pages web sur
-				lesquelles aboutissent ces liens et ne saurait, en aucun cas, être responsable de leur contenu.
-			</p>
-
-			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 7 : Cookies</h2>
-
-			<p>L’Utilisateur est informé que lors de ses visites sur le site, un cookie peut s’installer automatiquement
-				sur son logiciel de navigation.
-			</p>
-
-			<p>Les cookies sont de petits fichiers stockés temporairement sur le disque dur de l’ordinateur de
-				l’Utilisateur par votre navigateur et qui sont nécessaires à l’utilisation du site https://hollybike.chbrx.com.
-				Les
-				cookies ne contiennent pas d’information personnelle et ne peuvent pas être utilisés pour identifier
-				quelqu’un. Un cookie contient un identifiant unique, généré aléatoirement et donc anonyme. Certains
-				cookies
-				expirent à la fin de la visite de l’Utilisateur, d’autres restent.
-			</p>
-
-			<p>L’information contenue dans les cookies est utilisée pour améliorer le site https://hollybike.chbrx.com.</p>
-
-			<p>En naviguant sur le site, L’Utilisateur les accepte.
-				L’Utilisateur pourra désactiver ces cookies par l’intermédiaire des paramètres figurant au sein de son
-				logiciel de navigation.
-			</p>
-
-			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 8 : Publication par l’Utilisateur</h2>
-
-			<p>Le site permet aux membres de publier les contenus suivants :
-				Trajets, images.
-			</p>
-
-			<p>Dans ses publications, le membre s’engage à respecter les règles de la Netiquette (règles de bonne
-				conduite
-				de l’internet) et les règles de droit en vigueur.
-			</p>
-
-			<p>Le site peut exercer une modération sur les publications et se réserve le droit de refuser leur mise en
-				ligne, sans avoir à s’en justifier auprès du membre.
-			</p>
-
-			<p>Le membre reste titulaire de l’intégralité de ses droits de propriété intellectuelle. Mais en publiant
-				une
-				publication sur le site, il cède à la société éditrice le droit non exclusif et gratuit de représenter,
-				reproduire, adapter, modifier, diffuser et distribuer sa publication, directement ou par un tiers
-				autorisé,
-				dans le monde entier, sur tout support (numérique ou physique), pour la durée de la propriété
-				intellectuelle. Le Membre cède notamment le droit d'utiliser sa publication sur internet et sur les
-				réseaux
-				de téléphonie mobile.
-			</p>
-
-			<p>La société éditrice s'engage à faire figurer le nom du membre à proximité de chaque utilisation de sa
-				publication.
-			</p>
-
-			<p>Tout contenu mis en ligne par l'Utilisateur est de sa seule responsabilité. L'Utilisateur s'engage à ne
-				pas
-				mettre en ligne de contenus pouvant porter atteinte aux intérêts de tierces personnes. Tout recours en
-				justice engagé par un tiers lésé contre le site sera pris en charge par l'Utilisateur.
-			</p>
-
-			<p>Le contenu de l'Utilisateur peut être à tout moment et pour n'importe quelle raison supprimé ou modifié
-				par
-				le site, sans préavis.
-			</p>
-
-			<h2 className={"text-2xl pt-8 pb-4"}>ARTICLE 9 : Droit applicable et juridiction compétente</h2>
-
-			<p>La législation française s'applique au présent contrat. En cas d'absence de résolution amiable d'un
-				litige
-				né entre les parties, les tribunaux français seront seuls compétents pour en connaître.
-				Pour toute question relative à l’application des présentes CGU, vous pouvez joindre l’éditeur aux
-				coordonnées inscrites à l’ARTICLE 1.
-			</p>
-		</div>
+			{ /* Back to top */ }
+			<button
+				type="button"
+				onClick={scrollToTop}
+				className={cn(
+					"fixed bottom-5 right-5 z-30",
+					"ui-trigger rounded-2xl border-surface-2/40",
+					"shadow-lg px-3 py-2 text-sm font-semibold",
+					"hover:border-surface-2/60 hover:bg-surface-0/60",
+					"focus:outline-none focus-visible:ring-2 focus-visible:ring-blue/40",
+					"transition-all",
+					showTop ? "opacity-100 translate-y-0" : "opacity-0 translate-y-2 pointer-events-none",
+				)}
+				aria-label="Retour en haut"
+			>
+				<span className="inline-flex items-center gap-2">
+					<ArrowUp size={16} />
+					Haut
+				</span>
+			</button>
+		</section>
 	);
 }
