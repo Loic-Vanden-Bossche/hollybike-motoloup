@@ -394,6 +394,9 @@ export function CGU() {
 						</div>
 
 						<div className="space-y-2">
+							<div className="inline-flex h-14 w-14 items-center justify-center rounded-2xl border border-surface-2/30 bg-logo p-2">
+								<img alt="HollyBike logo" src="/icon.png" className="h-full w-full object-contain" />
+							</div>
 							<h1 className="text-3xl sm:text-4xl font-bold tracking-tight text-text">
 								Politique de confidentialité et Conditions générales d’utilisation
 							</h1>

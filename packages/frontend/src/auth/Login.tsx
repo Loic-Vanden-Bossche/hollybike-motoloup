@@ -8,6 +8,7 @@ import {
 import { useAuth } from "./context.tsx";
 import {
 	Link,
+	useLocation,
 	useNavigate,
 } from "react-router-dom";
 import { Input } from "../components/Input/Input.tsx";
@@ -25,6 +26,7 @@ export default function () {
 	const [forgotMail, setForgotMail] = useState("");
 
 	const auth = useAuth();
+	const location = useLocation();
 
 	const login = useCallback(() => {
 		auth.login({
@@ -38,12 +40,26 @@ export default function () {
 	]);
 
 	const navigate = useNavigate();
+	const redirectPath = useCallback(() => {
+		const params = new URLSearchParams(location.search);
+		const redirect = params.get("redirect");
+
+		if (redirect === null || !redirect.startsWith("/")) {
+			return "/";
+		}
+
+		return redirect;
+	}, [location.search]);
 
 	useEffect(() => {
 		if (auth.isLoggedIn) {
-			navigate("/");
+			navigate(redirectPath(), { replace: true });
 		}
-	}, [auth.isLoggedIn]);
+	}, [
+		auth.isLoggedIn,
+		navigate,
+		redirectPath,
+	]);
 
 	return (
 		<div className={"w-full h-full flex justify-center items-center bg-mantle relative overflow-hidden"}>

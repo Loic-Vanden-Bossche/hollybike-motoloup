@@ -4,6 +4,7 @@
 */
 import {
 	matchPath,
+	Navigate,
 	RouterProvider, createBrowserRouter,
 } from "react-router-dom";
 import Login from "./auth/Login.tsx";
@@ -39,12 +40,17 @@ import { UserJourney } from "./events/UserJourney.tsx";
 import { ChangePassword } from "./changePassword/ChangePassword.tsx";
 import { NotFound } from "./page/NotFound.tsx";
 import { DeleteAccount } from "./account/DeleteAccount.tsx";
+import { Account } from "./account/Account.tsx";
+import { useUser } from "./user/useUser.tsx";
+import { EUserScope } from "./types/EUserScope.ts";
 
 export function App() {
 	const [loaded, setLoaded] = useState(false);
 	const auth = useAuth();
+	const { user } = useUser();
 	const theme = useTheme();
 	const systemDark = useSystemDarkMode();
+	const isRegularUser = user?.scope === EUserScope.User;
 	const publicRoute = useMemo(() => [
 		"/login",
 		"/conf-mode",
@@ -53,100 +59,127 @@ export function App() {
 		"/change-password",
 		"/forbidden",
 	], []);
-	const protectedRoute = useMemo(() => [
-		{
-			path: "/",
-			element: <Home/>,
-		},
-		{
-			path: "associations",
-			element: <ListAssociations/>,
-		},
-		{
-			path: "associations/new",
-			element: <CreateAssociation/>,
-		},
-		{
-			path: "associations/:id",
-			element: <Association/>,
-		},
-		{
-			path: "users",
-			element: <ListUser/>,
-		},
-		{
-			path: "users/:id",
-			element: <UserDetail/>,
-		},
-		{
-			path: "associations/:id/invitations",
-			element: <ListInvitations/>,
-		},
-		{
-			path: "associations/:id/users",
-			element: <ListUser/>,
-		},
-		{
-			path: "associations/:id/events",
-			element: <ListEvent/>,
-		},
-		{
-			path: "associations/:id/journeys",
-			element: <ListJourneys/>,
-		},
-		{
-			path: "invitations",
-			element: <ListInvitations/>,
-		},
-		{
-			path: "invitations/new",
-			element: <CreateInvitation/>,
-		},
-		{
-			path: "events",
-			element: <ListEvent/>,
-		},
-		{
-			path: "events/new",
-			element: <CreateEvent/>,
-		},
-		{
-			path: "events/:id",
-			element: <EventDetail/>,
-		},
-		{
-			path: "user-journey/:id",
-			element: <UserJourney/>,
-		},
-		{
-			path: "journeys",
-			element: <ListJourneys/>,
-		},
-		{
-			path: "journeys/view/:id",
-			element: <JourneyView/>,
-		},
-		{
-			path: "journeys/new",
-			element: <NewJourney/>,
-		},
-		{
-			path: "conf",
-			element: <Conf/>,
-		},
-		{
-			path: "account/delete",
-			element: <DeleteAccount/>,
-		},
-		{
-			path: "not-found",
-			element: <NotFound/>,
-		},
-		{
-			path: "*",
-			element: <NotFound/>,
-		},
-	], []);
+	const protectedRoute = useMemo(() => {
+		if (isRegularUser) {
+			return [
+				{
+					path: "/",
+					element: <Navigate to={"/account"} replace={true}/>,
+				},
+				{
+					path: "account",
+					element: <Account/>,
+				},
+				{
+					path: "account/delete",
+					element: <DeleteAccount/>,
+				},
+				{
+					path: "*",
+					element: <Navigate to={"/account"} replace={true}/>,
+				},
+			];
+		}
+
+		return [
+			{
+				path: "/",
+				element: <Home/>,
+			},
+			{
+				path: "associations",
+				element: <ListAssociations/>,
+			},
+			{
+				path: "associations/new",
+				element: <CreateAssociation/>,
+			},
+			{
+				path: "associations/:id",
+				element: <Association/>,
+			},
+			{
+				path: "users",
+				element: <ListUser/>,
+			},
+			{
+				path: "users/:id",
+				element: <UserDetail/>,
+			},
+			{
+				path: "associations/:id/invitations",
+				element: <ListInvitations/>,
+			},
+			{
+				path: "associations/:id/users",
+				element: <ListUser/>,
+			},
+			{
+				path: "associations/:id/events",
+				element: <ListEvent/>,
+			},
+			{
+				path: "associations/:id/journeys",
+				element: <ListJourneys/>,
+			},
+			{
+				path: "invitations",
+				element: <ListInvitations/>,
+			},
+			{
+				path: "invitations/new",
+				element: <CreateInvitation/>,
+			},
+			{
+				path: "events",
+				element: <ListEvent/>,
+			},
+			{
+				path: "events/new",
+				element: <CreateEvent/>,
+			},
+			{
+				path: "events/:id",
+				element: <EventDetail/>,
+			},
+			{
+				path: "user-journey/:id",
+				element: <UserJourney/>,
+			},
+			{
+				path: "journeys",
+				element: <ListJourneys/>,
+			},
+			{
+				path: "journeys/view/:id",
+				element: <JourneyView/>,
+			},
+			{
+				path: "journeys/new",
+				element: <NewJourney/>,
+			},
+			{
+				path: "conf",
+				element: <Conf/>,
+			},
+			{
+				path: "account",
+				element: <Account/>,
+			},
+			{
+				path: "account/delete",
+				element: <DeleteAccount/>,
+			},
+			{
+				path: "not-found",
+				element: <NotFound/>,
+			},
+			{
+				path: "*",
+				element: <NotFound/>,
+			},
+		];
+	}, [isRegularUser]);
 	const router = createBrowserRouter([
 		{
 			path: "/",
@@ -192,14 +225,19 @@ export function App() {
 			if (confMode === false) {
 				router.navigate("/conf-mode");
 			} else if (!auth.isLoggedIn) {
-				const { pathname } = router.state.location;
+				const {
+					pathname,
+					search,
+					hash,
+				} = router.state.location;
 				const isPublicRoute = publicRoute.some(path => matchPath({
 					path,
 					end: true,
 				}, pathname) !== null);
 
 				if (!isPublicRoute) {
-					router.navigate("/login");
+					const redirect = `${pathname}${search}${hash}`;
+					router.navigate(`/login?redirect=${encodeURIComponent(redirect)}`);
 				}
 			}
 		}
