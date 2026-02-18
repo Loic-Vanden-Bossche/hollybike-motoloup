@@ -143,6 +143,11 @@ export function Header(props: HeaderProps) {
 			},
 
 			{
+				pattern: "/account",
+				title: "Mon compte",
+				subtitle: "Consultez et gerez votre compte",
+			},
+			{
 				pattern: "/account/delete",
 				title: "Suppression du compte",
 				subtitle: "Supprimez votre compte de maniere definitive",
@@ -233,7 +238,7 @@ export function Header(props: HeaderProps) {
 						</DropDownElement>) }
 				</DropDown>
 				<DropDown text={user?.username}>
-					<DropDownElement onClick={() => navigate("/account/delete")}>Supprimer mon compte</DropDownElement>
+					<DropDownElement onClick={() => navigate("/account")}>Mon compte</DropDownElement>
 					<DropDownElement onClick={disconnect}>Se déconnecter</DropDownElement>
 				</DropDown>
 			</div>

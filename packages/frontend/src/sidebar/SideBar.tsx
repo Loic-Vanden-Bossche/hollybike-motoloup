@@ -13,6 +13,7 @@ import { clsx } from "clsx";
 import { X } from "lucide-preact";
 import { Link } from "react-router-dom";
 import { useOnboardingMode } from "../home/OnboardingModeContext.tsx";
+import { EUserScope } from "../types/EUserScope.ts";
 
 export function SideBar() {
 	const { user } = useUser();
@@ -23,10 +24,12 @@ export function SideBar() {
 	const onPremise = useApi<TOnPremise>("/on-premise");
 
 	const content = useMemo(() => {
-		if (user?.scope === "Root") {
+		if (user?.scope === EUserScope.Root) {
 			return rootMenu(association, onPremise.data?.is_on_premise ?? false, onboardingMode);
-		} else {
+		} else if (user?.scope === EUserScope.Admin) {
 			return adminMenu(user?.association, false, onPremise.data?.is_on_premise ?? false, onboardingMode);
+		} else {
+			return userMenu(onboardingMode);
 		}
 	}, [
 		user,
@@ -176,4 +179,12 @@ function rootMenu(association: TAssociation | undefined, onPremise: boolean, onb
 		menu.push(...adminMenu(association, true, onPremise, onboardingMode));
 	}
 	return menu;
+}
+
+function userMenu(onboardingMode: boolean) {
+	return [
+		<SideBarMenu disabled={onboardingMode} to={"/account"}>
+			Mon compte
+		</SideBarMenu>,
+	];
 }
