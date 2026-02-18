@@ -6,6 +6,7 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:geolocator/geolocator.dart';
+import 'package:hollybike/auth/services/auth_persistence.dart';
 import 'package:hollybike/shared/websocket/recieve/websocket_subscribed.dart';
 import 'package:hollybike/shared/utils/exponential_backoff.dart';
 import 'package:hollybike/shared/websocket/websocket_client.dart';
@@ -24,6 +25,7 @@ class MyPositionServiceRepository {
     return _instance;
   }
 
+  final AuthPersistence _authPersistence = AuthPersistence();
   WebsocketClient? _client;
   String _channel = '';
   bool _shouldRun = false;
@@ -35,6 +37,8 @@ class MyPositionServiceRepository {
   );
 
   String _accessToken = '';
+  String _refreshToken = '';
+  String _deviceId = '';
   String _host = '';
   int _eventId = -1;
 
@@ -45,13 +49,26 @@ class MyPositionServiceRepository {
   final _locationBuffer = <Position>[];
   StreamSubscription<UserAccelerometerEvent>? _accelerometerSubscription;
 
-  Future<void> init(String token, String host, String eventId) async {
+  Future<void> init(
+    String token,
+    String host,
+    String eventId, {
+    String refreshToken = '',
+    String deviceId = '',
+  }) async {
     _shouldRun = true;
     _connectionGeneration += 1;
     _reconnectBackoff.reset();
     final generation = _connectionGeneration;
 
-    await initParams(token, host, int.tryParse(eventId), generation).catchError(
+    await initParams(
+      token,
+      host,
+      int.tryParse(eventId),
+      generation,
+      refreshToken: refreshToken,
+      deviceId: deviceId,
+    ).catchError(
       (e) {
         log('Error while init callback: $e', stackTrace: StackTrace.current);
       },
@@ -69,13 +86,18 @@ class MyPositionServiceRepository {
     String? token,
     String? host,
     int? eventId,
-    int generation,
+    int generation, {
+    String refreshToken = '',
+    String deviceId = '',
+    }
   ) async {
     if (token == null || host == null || eventId == null) {
       return Future.error('Missing parameters');
     }
 
     _accessToken = token;
+    _refreshToken = refreshToken;
+    _deviceId = deviceId;
     _host = host;
     _eventId = eventId;
 
@@ -123,9 +145,10 @@ class MyPositionServiceRepository {
           session: AuthSession(
             token: _accessToken,
             host: _host,
-            deviceId: '',
-            refreshToken: '',
+            deviceId: _deviceId,
+            refreshToken: _refreshToken,
           ),
+          authPersistence: _authPersistence,
         ).connect();
 
     ws.onDisconnect(() {
@@ -153,7 +176,7 @@ class MyPositionServiceRepository {
       }
     });
 
-    ws.subscribe(_channel);
+    await ws.subscribe(_channel);
   }
 
   Future<void> dispose() async {

@@ -31,6 +31,8 @@ class RealtimeNotificationsFacade {
     await _fgsChannel.invokeMethod('startRealtime', {
       'token': session.token,
       'host': session.host,
+      'refreshToken': session.refreshToken,
+      'deviceId': session.deviceId,
     });
   }
 
