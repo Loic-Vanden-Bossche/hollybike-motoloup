@@ -77,7 +77,13 @@ Read first:
 - `packages/backend/src/main/resources/liquibase-changelog.sql`
 
 Key commands:
-Do not any commands for backend.
+- Do not run the entire backend test suite.
+- Run only targeted backend test suites with Gradle filters.
+- For granular runs, filter by class, `context`, and `test` names.
+- Example:
+  - `cd packages/backend && ./gradlew test --tests "hollybike.api.EventTest"`
+  - `cd packages/backend && ./gradlew test --tests "hollybike.api.EventTest" --tests "*Get all events*"`
+  - `cd packages/backend && ./gradlew test --tests "hollybike.api.EventTest" --tests "*Should create an event*"`
 
 DB convention reminders:
 - Liquibase changelog is SQL only: `packages/backend/src/main/resources/liquibase-changelog.sql`

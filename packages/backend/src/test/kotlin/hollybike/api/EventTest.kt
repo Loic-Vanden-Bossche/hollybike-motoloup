@@ -1,6 +1,6 @@
-/*
+﻿/*
   Hollybike API Kotlin KTor Graalvm application
-  Made by MacaronFR (Denis TURBIEZ) and Loïc Vanden Bossche
+  Made by MacaronFR (Denis TURBIEZ) and LoÃ¯c Vanden Bossche
 */
 package hollybike.api
 
@@ -313,6 +313,33 @@ class EventTest : IntegrationSpec({
 				}
 			}
 		}
+
+		test("Should move finished in progress event to archived and remove it from future") {
+			onPremiseTestApp {
+				it.patch("/api/events/${EventStore.event2Asso1User1.id}/finish") {
+					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+				}
+
+				it.get("/api/events/future?page=0&per_page=50") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+
+					body<TLists<TEventPartial>>().data.map { event -> event.id } shouldNotContain EventStore.event2Asso1User1.id
+				}
+
+				it.get("/api/events/archived?page=0&per_page=50") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+
+					body<TLists<TEventPartial>>().data.map { event -> event.id } shouldContain EventStore.event2Asso1User1.id
+				}
+			}
+		}
 	}
 
 	context("Get event by id") {
@@ -401,7 +428,7 @@ class EventTest : IntegrationSpec({
 			}
 		}
 
-		test("Should not create an event because the start date is in the past") {
+		test("Should create an event because the start date is in the past") {
 			onPremiseTestApp {
 				it.post("/api/events") {
 					auth(UserStore.user1)
@@ -415,9 +442,7 @@ class EventTest : IntegrationSpec({
 						)
 					)
 				}.apply {
-					status shouldBe HttpStatusCode.BadRequest
-
-					bodyAsText() shouldBe "La date de début doit être dans le futur"
+					status shouldBe HttpStatusCode.Created
 				}
 			}
 		}
@@ -820,11 +845,92 @@ class EventTest : IntegrationSpec({
 	context("Cancel event") {
 		test("Should cancel the scheduled event") {
 			onPremiseTestApp {
+				it.patch("/api/events/${EventStore.event6Asso1User2.id}/cancel") {
+					auth(UserStore.user2)
+					contentType(ContentType.Application.Json)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+				}
+			}
+		}
+
+		test("Should not update event dates if the event is in progress") {
+			onPremiseTestApp {
+				it.put("/api/events/${EventStore.event2Asso1User1.id}") {
+					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+					setBody(
+						TUpdateEvent(
+							name = "New Event",
+							description = "New Event Description",
+							startDate = workingCreateDate,
+							endDate = workingEndDate
+						)
+					)
+				}.apply {
+					status shouldBe HttpStatusCode.BadRequest
+
+					bodyAsText() shouldBe "Impossible de modifier les dates d'un événement en cours"
+				}
+			}
+		}
+
+		test("Should not update finished event dates to past dates") {
+			onPremiseTestApp {
+				it.put("/api/events/${EventStore.event4Asso1User1.id}") {
+					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+					setBody(
+						TUpdateEvent(
+							name = "New Event",
+							description = "New Event Description",
+							startDate = Clock.System.now() - 3.days,
+							endDate = Clock.System.now() - 2.days
+						)
+					)
+				}.apply {
+					status shouldBe HttpStatusCode.BadRequest
+
+					bodyAsText() shouldBe "Pour un événement terminé, les dates modifiées ne peuvent pas être dans le passé"
+				}
+			}
+		}
+
+		test("Should update a finished event when dates are unchanged") {
+			onPremiseTestApp {
+				val currentEvent = it.get("/api/events/${EventStore.event4Asso1User1.id}") {
+					auth(UserStore.user1)
+				}.body<TEvent>()
+
+				it.put("/api/events/${EventStore.event4Asso1User1.id}") {
+					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+					setBody(
+						TUpdateEvent(
+							name = "Updated finished event",
+							description = currentEvent.description,
+							startDate = currentEvent.startDateTime,
+							endDate = currentEvent.endDateTime,
+							budget = currentEvent.budget
+						)
+					)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+
+					body<TEvent>().name shouldBe "Updated finished event"
+				}
+			}
+		}
+
+		test("Should not cancel the in progress event") {
+			onPremiseTestApp {
 				it.patch("/api/events/${EventStore.event2Asso1User1.id}/cancel") {
 					auth(UserStore.user1)
 					contentType(ContentType.Application.Json)
 				}.apply {
-					status shouldBe HttpStatusCode.OK
+					status shouldBe HttpStatusCode.Forbidden
+
+					bodyAsText() shouldBe "Impossible d'annuler un événement en cours"
 				}
 			}
 		}
@@ -1000,10 +1106,21 @@ class EventTest : IntegrationSpec({
 	}
 
 	context("Finish event") {
-		test("Should finish the scheduled event") {
+		test("Should finish the in progress event") {
 			onPremiseTestApp {
 				it.patch("/api/events/${EventStore.event2Asso1User1.id}/finish") {
 					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+				}
+			}
+		}
+
+		test("Should finish the scheduled event") {
+			onPremiseTestApp {
+				it.patch("/api/events/${EventStore.event6Asso1User2.id}/finish") {
+					auth(UserStore.user2)
 					contentType(ContentType.Application.Json)
 				}.apply {
 					status shouldBe HttpStatusCode.OK
@@ -1032,7 +1149,7 @@ class EventTest : IntegrationSpec({
 				}.apply {
 					status shouldBe HttpStatusCode.Forbidden
 
-					bodyAsText() shouldBe "Seul un événement planifié peut être terminé"
+					bodyAsText() shouldBe "Seul un événement planifié ou en cours peut être terminé"
 				}
 			}
 		}
@@ -1045,7 +1162,7 @@ class EventTest : IntegrationSpec({
 				}.apply {
 					status shouldBe HttpStatusCode.Forbidden
 
-					bodyAsText() shouldBe "Seul un événement planifié peut être terminé"
+					bodyAsText() shouldBe "Seul un événement planifié ou en cours peut être terminé"
 				}
 			}
 		}
@@ -1307,6 +1424,19 @@ class EventTest : IntegrationSpec({
 			}
 		}
 
+		test("Should not delete an event in progress") {
+			onPremiseTestApp {
+				it.delete("/api/events/${EventStore.event2Asso1User1.id}") {
+					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+				}.apply {
+					status shouldBe HttpStatusCode.Forbidden
+
+					bodyAsText() shouldBe "Impossible de supprimer un événement en cours"
+				}
+			}
+		}
+
 		test("Should not delete the event because im not the owner") {
 			onPremiseTestApp {
 				it.delete("/api/events/${EventStore.event6Asso1User2.id}") {
@@ -1334,6 +1464,10 @@ class EventTest : IntegrationSpec({
 		}
 	}
 })
+
+
+
+
 
 
 
