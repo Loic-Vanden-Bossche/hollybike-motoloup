@@ -57,6 +57,7 @@ class UserController(
 				uploadUserProfilePicture()
 				getAll()
 				getMetadata()
+				deleteMe()
 				deleteUser()
 			}
 			sendResetPassword()
@@ -272,6 +273,16 @@ class UserController(
 					is NotAllowedException -> call.respond(HttpStatusCode.Forbidden)
 					else -> call.respond(HttpStatusCode.InternalServerError)
 				}
+			}
+		}
+	}
+
+	private fun Route.deleteMe() {
+		delete<Users.Me> {
+			userService.deleteMe(call.user).onSuccess {
+				call.respond(HttpStatusCode.NoContent)
+			}.onFailure {
+				call.respond(HttpStatusCode.InternalServerError)
 			}
 		}
 	}

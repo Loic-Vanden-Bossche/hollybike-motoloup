@@ -8,11 +8,13 @@ import {
 import { clsx } from "clsx";
 
 export function ButtonDanger(props: ButtonProps) {
+	const isDisabled = props.disabled === true || props.loading === true;
+
 	return (
 		<Button
 			{...props}
 			className={clsx(
-				"!bg-red/10 !text-red !border !border-red/20 !shadow-none hover:!bg-red/20",
+				!isDisabled && "!bg-red/10 !text-red !border !border-red/20 !shadow-none hover:!bg-red/20",
 				props.className,
 			)}
 		>

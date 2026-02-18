@@ -86,7 +86,7 @@ export function SideBar() {
 				</button>
 
 				{ /* Navigation */ }
-				<div className={clsx("h-full flex flex-col overflow-y-auto gap-1 mt-2 pr-1")}>
+				<div className={clsx("flex-1 min-h-0 flex flex-col overflow-y-auto gap-1 mt-2 pr-1")}>
 					{ onboardingMode &&
 						<div className={"mx-2 mb-2 px-3 py-2 rounded-xl border border-blue/30 bg-blue/10"}>
 							<p className={"text-[11px] uppercase tracking-[0.12em] text-blue font-bold"}>
@@ -97,6 +97,15 @@ export function SideBar() {
 							</p>
 						</div> }
 					{ content }
+				</div>
+				<div className={"mt-3 pt-3 border-t border-surface-2/30 px-2"}>
+					<Link
+						className={"block text-[11px] text-subtext-1 hover:text-subtext-0 transition-colors truncate"}
+						to={"/privacy-policy"}
+						onClick={() => setVisible(false)}
+					>
+						CGU et confidentialite
+					</Link>
 				</div>
 			</aside>
 		</div>
@@ -161,6 +170,7 @@ function rootMenu(association: TAssociation | undefined, onPremise: boolean, onb
 			Bibliothèque de trajet
 		</SideBarMenu>,
 	];
+
 	if (association !== undefined) {
 		menu.push(<p className={"text-[10px] font-bold uppercase tracking-[0.2em] text-subtext-1 px-4 mb-1 mt-3"}>{ association.name }</p>);
 		menu.push(...adminMenu(association, true, onPremise, onboardingMode));

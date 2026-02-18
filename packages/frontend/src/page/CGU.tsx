@@ -17,6 +17,7 @@ import {
 	ShieldCheck,
 	ArrowUp, Search, X,
 } from "lucide-preact";
+import { Link } from "react-router-dom";
 
 interface PolicySection {
 	id: string;
@@ -612,6 +613,17 @@ export function CGU() {
 												className="text-sm sm:text-[15px] leading-relaxed text-subtext-0 max-w-[72ch]"
 											>
 												{ highlightText(paragraph, query) }
+												{ section.id === "droits" && paragraph.includes("supprimer vos trajets et votre compte") &&
+													<>
+														{ " " }
+														<Link
+															to="/account/delete"
+															className="text-blue font-semibold underline underline-offset-2 hover:text-sky"
+														>
+															Supprimer mon compte
+														</Link>
+														.
+													</> }
 											</p>) }
 									</div>
 								</Card>

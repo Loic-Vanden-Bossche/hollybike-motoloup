@@ -38,6 +38,7 @@ import { Invite } from "./page/Invite.tsx";
 import { UserJourney } from "./events/UserJourney.tsx";
 import { ChangePassword } from "./changePassword/ChangePassword.tsx";
 import { NotFound } from "./page/NotFound.tsx";
+import { DeleteAccount } from "./account/DeleteAccount.tsx";
 
 export function App() {
 	const [loaded, setLoaded] = useState(false);
@@ -132,6 +133,10 @@ export function App() {
 		{
 			path: "conf",
 			element: <Conf/>,
+		},
+		{
+			path: "account/delete",
+			element: <DeleteAccount/>,
 		},
 		{
 			path: "not-found",
