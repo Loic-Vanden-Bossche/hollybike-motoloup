@@ -34,7 +34,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.greaterEq
 import org.jetbrains.exposed.v1.core.less
 import org.jetbrains.exposed.v1.core.neq
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import java.util.*
 import kotlin.time.Duration.Companion.hours
@@ -66,13 +66,8 @@ class EventService(
 
 	private fun checkEventInputDates(
 		startDate: Instant,
-		endDate: Instant? = null,
-		create: Boolean = true
+		endDate: Instant? = null
 	): Result<Unit> {
-		if (startDate < Clock.System.now() && create) {
-			return Result.failure(InvalidDateException("La date de début doit être dans le futur"))
-		}
-
 		if (endDate == null) {
 			return Result.success(Unit)
 		}
@@ -218,9 +213,13 @@ class EventService(
 	}
 
 	private fun futureEventsCondition(): Op<Boolean> {
-		return (Events.startDateTime greaterEq now()) or
-			((Events.endDateTime neq null) and (Events.endDateTime greaterEq now())) or
-			((Events.endDateTime eq null) and (addtime(Events.startDateTime, 4.hours) greaterEq now()))
+		return (
+			((Events.startDateTime greaterEq now()) or
+				((Events.endDateTime neq null) and (Events.endDateTime greaterEq now())) or
+				((Events.endDateTime eq null) and (addtime(Events.startDateTime, 4.hours) greaterEq now())))
+			and
+				(Events.status neq EEventStatus.Finished.value)
+		)
 	}
 
 	fun getFutureEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
@@ -234,9 +233,10 @@ class EventService(
 	}
 
 	private fun archivedEventsCondition(): Op<Boolean> {
-		return (Events.startDateTime less now()) and
-			(((Events.endDateTime neq null) and (Events.endDateTime less now())) or
-				((Events.endDateTime eq null) and (addtime(Events.startDateTime, 4.hours) less now())))
+		return (Events.status eq EEventStatus.Finished.value) or
+			((Events.startDateTime less now()) and
+				(((Events.endDateTime neq null) and (Events.endDateTime less now())) or
+					((Events.endDateTime eq null) and (addtime(Events.startDateTime, 4.hours) less now()))))
 	}
 
 	fun getArchivedEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
@@ -355,12 +355,36 @@ class EventService(
 		endDate: Instant?,
 		budget: Int?
 	): Result<Event> {
-		checkEventInputDates(startDate, endDate, false).onFailure { return Result.failure(it) }
+		checkEventInputDates(startDate, endDate).onFailure { return Result.failure(it) }
 		checkEventTextFields(name, description).onFailure { return Result.failure(it) }
 
 		return transaction(db) {
 			findEventIfOrganizer(eventId, caller).onFailure { return@transaction Result.failure(it) }
 				.onSuccess { event ->
+					val hasDateChanges = event.startDateTime != startDate || event.endDateTime != endDate
+					if (hasDateChanges) {
+						val now = Clock.System.now()
+						val computedStatus = EEventStatus.fromEvent(event)
+						val isInProgress = computedStatus == EEventStatus.Now
+						val isTerminated = event.status == EEventStatus.Cancelled || computedStatus == EEventStatus.Finished
+
+						if (isInProgress) {
+							return@transaction Result.failure(
+								InvalidDateException("Impossible de modifier les dates d'un événement en cours")
+							)
+						}
+
+						if (isTerminated) {
+							val startDateInPast = startDate < now
+							val endDateInPast = endDate?.let { it < now } == true
+							if (startDateInPast || endDateInPast) {
+								return@transaction Result.failure(
+									InvalidDateException("Pour un événement terminé, les dates modifiées ne peuvent pas être dans le passé")
+								)
+							}
+						}
+					}
+
 					event.apply {
 						this.name = name
 						this.description = description
@@ -384,22 +408,23 @@ class EventService(
 		}
 	}
 
-	suspend fun updateEventStatus(caller: User, eventId: Int, status: EEventStatus): Result<Unit> = newSuspendedTransaction(db = db) {
+	suspend fun updateEventStatus(caller: User, eventId: Int, status: EEventStatus): Result<Unit> = suspendTransaction(db = db) {
 		val event = Event.find {
 			Events.id eq eventId and eventUserCondition(caller)
-		}.firstOrNull() ?: return@newSuspendedTransaction Result.failure(EventNotFoundException("Event $eventId introuvable"))
+		}.firstOrNull() ?: return@suspendTransaction Result.failure(EventNotFoundException("Event $eventId introuvable"))
+		val currentStatus = EEventStatus.fromEvent(event)
 
 		val participation = EventParticipation.find {
 			(EventParticipations.user eq caller.id) and (EventParticipations.event eq eventId)
 		}.firstOrNull()
-			?: return@newSuspendedTransaction Result.failure(EventActionDeniedException("Vous ne participez pas à cet événement"))
+			?: return@suspendTransaction Result.failure(EventActionDeniedException("Vous ne participez pas à cet événement"))
 
 		if (participation.role != EEventRole.Organizer) {
-			return@newSuspendedTransaction Result.failure(EventActionDeniedException("Seul l'organisateur peut modifier le statut de l'événement"))
+			return@suspendTransaction Result.failure(EventActionDeniedException("Seul l'organisateur peut modifier le statut de l'événement"))
 		}
 
 		if (status == event.status) {
-			return@newSuspendedTransaction Result.failure(EventActionDeniedException("Event déjà ${status.name.lowercase()}"))
+			return@suspendTransaction Result.failure(EventActionDeniedException("Event déjà ${status.name.lowercase()}"))
 		}
 
 		val oldStatus = event.status
@@ -407,19 +432,23 @@ class EventService(
 		when (status) {
 			EEventStatus.Pending -> {
 				if (event.owner.id != caller.id) {
-					return@newSuspendedTransaction Result.failure(EventActionDeniedException("Seul le propriétaire peut mettre l'événement en attente"))
+					return@suspendTransaction Result.failure(EventActionDeniedException("Seul le propriétaire peut mettre l'événement en attente"))
 				}
 			}
 
 			EEventStatus.Cancelled -> {
-				if (event.status != EEventStatus.Scheduled) {
-					return@newSuspendedTransaction Result.failure(EventActionDeniedException("Seul un événement planifié peut être annulé"))
+				if (currentStatus == EEventStatus.Now) {
+					return@suspendTransaction Result.failure(EventActionDeniedException("Impossible d'annuler un événement en cours"))
+				}
+
+				if (currentStatus != EEventStatus.Scheduled) {
+					return@suspendTransaction Result.failure(EventActionDeniedException("Seul un événement planifié peut être annulé"))
 				}
 			}
 
 			EEventStatus.Finished -> {
-				if (event.status != EEventStatus.Scheduled) {
-					return@newSuspendedTransaction Result.failure(EventActionDeniedException("Seul un événement planifié peut être terminé"))
+				if (currentStatus != EEventStatus.Scheduled && currentStatus != EEventStatus.Now) {
+					return@suspendTransaction Result.failure(EventActionDeniedException("Seul un événement planifié ou en cours peut être terminé"))
 				}
 			}
 
@@ -462,13 +491,17 @@ class EventService(
 			}
 		}
 
-	suspend fun deleteEvent(caller: User, eventId: Int): Result<Unit> = newSuspendedTransaction(db = db) {
+	suspend fun deleteEvent(caller: User, eventId: Int): Result<Unit> = suspendTransaction(db = db) {
 		val event = Event.find {
 			Events.id eq eventId and eventUserCondition(caller)
-		}.firstOrNull() ?: return@newSuspendedTransaction Result.failure(EventNotFoundException("Event $eventId introuvable"))
+		}.firstOrNull() ?: return@suspendTransaction Result.failure(EventNotFoundException("Event $eventId introuvable"))
+		val currentStatus = EEventStatus.fromEvent(event)
 
 		if (event.owner.id != caller.id) {
-			return@newSuspendedTransaction Result.failure(EventActionDeniedException("Seul le propriétaire peut supprimer l'événement"))
+			return@suspendTransaction Result.failure(EventActionDeniedException("Seul le propriétaire peut supprimer l'événement"))
+		}
+		if (currentStatus == EEventStatus.Now) {
+			return@suspendTransaction Result.failure(EventActionDeniedException("Impossible de supprimer un événement en cours"))
 		}
 
 		if(event.status == EEventStatus.Pending) {
@@ -492,6 +525,7 @@ class EventService(
 		Result.success(event.delete())
 	}
 }
+
 
 
 

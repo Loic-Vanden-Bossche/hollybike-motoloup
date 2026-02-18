@@ -13,6 +13,7 @@ class EventFormModal extends StatefulWidget {
   final String submitButtonText;
   final EventFormData? initialData;
   final bool canEditDates;
+  final bool enforceNoPastDates;
 
   const EventFormModal({
     super.key,
@@ -20,6 +21,7 @@ class EventFormModal extends StatefulWidget {
     required this.submitButtonText,
     this.initialData,
     this.canEditDates = true,
+    this.enforceNoPastDates = false,
   });
 
   @override
@@ -70,6 +72,7 @@ class _EventFormModalState extends State<EventFormModal> {
                 constraints: const BoxConstraints(maxHeight: 335),
                 child: EventForm(
                   canEditDates: widget.canEditDates,
+                  enforceNoPastDates: widget.enforceNoPastDates,
                   submitButtonText: widget.submitButtonText,
                   initialData: widget.initialData,
                   onClose: () {

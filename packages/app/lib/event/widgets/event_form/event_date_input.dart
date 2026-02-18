@@ -66,7 +66,7 @@ class EventDateInput extends StatelessWidget {
                   showDatePicker(
                     context: context,
                     initialDate: date,
-                    firstDate: DateTime.now(),
+                    firstDate: DateTime(1900),
                     lastDate: DateTime(2100),
                   ).then(_onDateChanged);
                 });

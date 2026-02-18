@@ -387,6 +387,58 @@ class EventRepository {
     }
   }
 
+  Future<void> finishEvent(int eventId) async {
+    await eventApi.finishEvent(eventId);
+
+    final details = _eventDetailsStreamMapper.get(eventId);
+
+    if (details == null) {
+      return;
+    }
+
+    _eventDetailsStreamMapper.add(
+      eventId,
+      details.copyWith(
+        event: details.event.copyWith(status: EventStatusState.finished),
+      ),
+    );
+
+    for (var counter
+        in [
+              _futureEventsStreamCounter,
+              _archivedEventsStreamCounter,
+              _searchEventsStreamCounter,
+            ] +
+            _userStreamMapper.counters) {
+      counter.add(
+        counter.value
+            .map(
+              (e) =>
+                  e.id == eventId
+                      ? e.copyWith(status: EventStatusState.finished)
+                      : e,
+            )
+            .toList(),
+      );
+    }
+
+    for (final userId in _userStreamMapper.keys) {
+      await refreshEvents("future", userId: userId);
+    }
+
+    if (_futureEventsStreamCounter.isListening) {
+      await refreshEvents("future");
+    }
+
+    if (_archivedEventsStreamCounter.isListening) {
+      await refreshEvents("archived");
+    }
+
+    if (_searchEventsStreamCounter.isListening) {
+      await refreshEvents(null, query: _lastQuery);
+    }
+  }
+
   void onParticipantRemoved(int userId, int eventId) {
     final details = _eventDetailsStreamMapper.get(eventId);
 

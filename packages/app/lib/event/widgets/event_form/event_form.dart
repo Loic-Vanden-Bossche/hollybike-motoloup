@@ -24,6 +24,7 @@ class EventForm extends StatefulWidget {
 
   final String submitButtonText;
   final bool canEditDates;
+  final bool enforceNoPastDates;
   final EventFormData? initialData;
 
   const EventForm({
@@ -33,6 +34,7 @@ class EventForm extends StatefulWidget {
     required this.onClose,
     required this.submitButtonText,
     required this.canEditDates,
+    this.enforceNoPastDates = false,
     this.initialData,
   });
 
@@ -168,16 +170,13 @@ class _EventFormState extends State<EventForm> {
   }
 
   void _initDefaultValues() {
-    if (DateTime.now().hour >= 22) {
-      _date = DateTime.now().add(const Duration(days: 1));
-      _startTime = const TimeOfDay(hour: 8, minute: 30);
-    } else {
-      _startTime = _startTime.replacing(hour: DateTime.now().hour + 1);
-    }
+    final now = DateTime.now();
+    final oneHourLater = now.add(const Duration(hours: 1));
 
-    _dateRange = DateTimeRange(start: _date, end: _date);
-
-    _endTime = _startTime.replacing(hour: _startTime.hour + 1);
+    _date = now;
+    _startTime = TimeOfDay.fromDateTime(now);
+    _endTime = TimeOfDay.fromDateTime(oneHourLater);
+    _dateRange = DateTimeRange(start: now, end: oneHourLater);
   }
 
   void _onTouch() {
@@ -282,14 +281,6 @@ class _EventFormState extends State<EventForm> {
           minute: _startTime.minute,
         );
 
-        if (startDate.isBefore(DateTime.now())) {
-          showEventDateWarningDialog(
-            context,
-            "La date de début doit être dans le futur.",
-          );
-          return;
-        }
-
         final endDate =
             _selectEndDate
                 ? _dateRange.end.copyWith(
@@ -297,6 +288,18 @@ class _EventFormState extends State<EventForm> {
                   minute: _endTime.minute,
                 )
                 : null;
+
+        if (widget.enforceNoPastDates) {
+          final now = DateTime.now();
+          if (startDate.isBefore(now) ||
+              (endDate != null && endDate.isBefore(now))) {
+            showEventDateWarningDialog(
+              context,
+              "Pour un événement terminé, les dates modifiées ne peuvent pas être dans le passé.",
+            );
+            return;
+          }
+        }
 
         if (endDate != null && endDate.isBefore(startDate)) {
           showEventDateWarningDialog(

@@ -47,9 +47,10 @@ class EventEditFloatingButton extends StatelessWidget {
         isScrollControlled: true,
         builder: (BuildContext context) {
           return EventFormModal(
-            canEditDates:
-                event.status == EventStatusState.pending ||
-                event.status == EventStatusState.scheduled,
+            canEditDates: event.status != EventStatusState.now,
+            enforceNoPastDates:
+                event.status == EventStatusState.finished ||
+                event.status == EventStatusState.canceled,
             initialData: EventFormData(
               name: event.name,
               description: event.description,

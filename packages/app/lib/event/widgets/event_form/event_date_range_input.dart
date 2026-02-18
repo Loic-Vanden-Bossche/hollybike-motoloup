@@ -74,7 +74,7 @@ class EventDateRangeInput extends StatelessWidget {
                   showDateRangePicker(
                     context: context,
                     initialDateRange: dateRange,
-                    firstDate: DateTime.now(),
+                    firstDate: DateTime(1900),
                     lastDate: DateTime(2100),
                   ).then(_onDateRangeChanged);
                 });

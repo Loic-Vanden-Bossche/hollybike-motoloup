@@ -12,7 +12,7 @@ import 'package:hollybike/positions/bloc/my_position/my_position_event.dart';
 import '../../bloc/event_details_bloc/event_details_bloc.dart';
 import '../../bloc/event_details_bloc/event_details_event.dart';
 
-enum EventDetailsAction { leave, delete, cancel, uploadImage }
+enum EventDetailsAction { leave, delete, cancel, finish, uploadImage }
 
 class EventDetailsActionsMenu extends StatelessWidget {
   final int eventId;
@@ -95,7 +95,22 @@ class EventDetailsActionsMenu extends StatelessWidget {
       );
     }
 
-    if (isOwner) {
+    if (isOrganizer && status == EventStatusState.now) {
+      actions.add(
+        const PopupMenuItem(
+          value: EventDetailsAction.finish,
+          child: Row(
+            children: [
+              Icon(Icons.flag),
+              SizedBox(width: 10),
+              Text("Terminer l'événement"),
+            ],
+          ),
+        ),
+      );
+    }
+
+    if (isOwner && status != EventStatusState.now) {
       actions.add(
         const PopupMenuItem(
           value: EventDetailsAction.delete,
@@ -124,9 +139,41 @@ class EventDetailsActionsMenu extends StatelessWidget {
       case EventDetailsAction.cancel:
         _onCancel(context);
         break;
+      case EventDetailsAction.finish:
+        _onFinish(context);
+        break;
       case EventDetailsAction.uploadImage:
         _onUploadImage(context);
     }
+  }
+
+  void _onFinish(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (modalContext) {
+        return AlertDialog(
+          title: const Text("Terminer l'événement"),
+          content: const Text(
+            "Êtes-vous sûr de vouloir terminer cet événement ?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(modalContext).pop();
+              },
+              child: const Text("Annuler"),
+            ),
+            TextButton(
+              onPressed: () {
+                context.read<EventDetailsBloc>().add(FinishEvent());
+                Navigator.of(modalContext).pop();
+              },
+              child: const Text("Terminer"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   void _onCancel(BuildContext context) {
@@ -160,6 +207,15 @@ class EventDetailsActionsMenu extends StatelessWidget {
   }
 
   void _onDelete(BuildContext context) {
+    if (status == EventStatusState.now) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Impossible de supprimer un événement en cours."),
+        ),
+      );
+      return;
+    }
+
     showDialog(
       context: context,
       builder: (modalContext) {

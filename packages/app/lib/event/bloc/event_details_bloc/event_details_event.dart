@@ -39,6 +39,10 @@ class CancelEvent extends EventDetailsEvent {
   CancelEvent();
 }
 
+class FinishEvent extends EventDetailsEvent {
+  FinishEvent();
+}
+
 class DeleteEvent extends EventDetailsEvent {
   DeleteEvent();
 }

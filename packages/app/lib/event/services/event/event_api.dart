@@ -97,6 +97,10 @@ class EventApi {
     await client.dio.patch('/events/$eventId/cancel');
   }
 
+  Future<void> finishEvent(int eventId) async {
+    await client.dio.patch('/events/$eventId/finish');
+  }
+
   Future<void> addJourneyToEvent(int eventId, int journeyId) async {
     await client.dio.post(
       '/events/$eventId/journey',

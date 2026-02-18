@@ -33,6 +33,7 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     on<EditEvent>(_onEditEvent);
     on<DeleteEvent>(_onDeleteEvent);
     on<CancelEvent>(_onCancelEvent);
+    on<FinishEvent>(_onFinishEvent);
     on<TerminateUserJourney>(_onTerminateUserJourney);
     on<ResetUserJourney>(_onResetUserJourney);
     on<EventStarted>(_onEventStarted);
@@ -209,6 +210,27 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
         EventOperationFailure(
           state,
           errorMessage: 'Impossible d\'annuler l\'évènement',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onFinishEvent(
+    FinishEvent event,
+    Emitter<EventDetailsState> emit,
+  ) async {
+    emit(EventOperationInProgress(state));
+
+    try {
+      await _eventRepository.finishEvent(eventId);
+
+      emit(EventOperationSuccess(state, successMessage: 'Évènement terminé'));
+    } catch (e) {
+      log('Error while finishing event', error: e);
+      emit(
+        EventOperationFailure(
+          state,
+          errorMessage: 'Impossible de terminer l\'évènement',
         ),
       );
     }
