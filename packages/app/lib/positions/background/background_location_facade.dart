@@ -43,6 +43,8 @@ class BackgroundLocationFacade {
     await _fgsControl.invokeMethod('startLocation', {
       'token': session.token,
       'host': session.host,
+      'refreshToken': session.refreshToken,
+      'deviceId': session.deviceId,
       'eventId': eventId,
     });
 

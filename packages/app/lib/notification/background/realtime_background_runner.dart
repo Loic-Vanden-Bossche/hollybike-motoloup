@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
+import '../../auth/services/auth_persistence.dart';
 import '../../auth/types/auth_session.dart';
 import '../../event/types/event_status_state.dart';
 import '../../shared/utils/dates.dart';
@@ -25,6 +26,7 @@ class RealtimeBackgroundRunner {
   final MethodChannel _serviceChannel = const MethodChannel(
     _serviceChannelName,
   );
+  final AuthPersistence _authPersistence = AuthPersistence();
 
   WebsocketClient? _ws;
   bool _shouldRun = false;
@@ -40,7 +42,12 @@ class RealtimeBackgroundRunner {
       switch (call.method) {
         case _methodStart:
           final args = _parseStartArgs(call.arguments);
-          await _start(args.token, args.host);
+          await _start(
+            token: args.token,
+            host: args.host,
+            refreshToken: args.refreshToken,
+            deviceId: args.deviceId,
+          );
           return;
         case _methodStop:
           await _stop();
@@ -51,19 +58,32 @@ class RealtimeBackgroundRunner {
     });
   }
 
-  Future<void> _start(String token, String host) async {
+  Future<void> _start({
+    required String token,
+    required String host,
+    required String refreshToken,
+    required String deviceId,
+  }) async {
     _shouldRun = true;
     _connectionGeneration += 1;
     _reconnectBackoff.reset();
     final generation = _connectionGeneration;
 
     await AppNotifications.init();
-    await _attemptConnect(token: token, host: host, generation: generation);
+    await _attemptConnect(
+      token: token,
+      host: host,
+      refreshToken: refreshToken,
+      deviceId: deviceId,
+      generation: generation,
+    );
   }
 
   Future<void> _attemptConnect({
     required String token,
     required String host,
+    required String refreshToken,
+    required String deviceId,
     required int generation,
   }) async {
     if (!_shouldRun || generation != _connectionGeneration) {
@@ -71,11 +91,23 @@ class RealtimeBackgroundRunner {
     }
 
     try {
-      await _connect(token: token, host: host, generation: generation);
+      await _connect(
+        token: token,
+        host: host,
+        refreshToken: refreshToken,
+        deviceId: deviceId,
+        generation: generation,
+      );
     } catch (_) {
       if (_shouldRun && generation == _connectionGeneration) {
         unawaited(
-          _scheduleReconnect(token: token, host: host, generation: generation),
+          _scheduleReconnect(
+            token: token,
+            host: host,
+            refreshToken: refreshToken,
+            deviceId: deviceId,
+            generation: generation,
+          ),
         );
       }
     }
@@ -84,6 +116,8 @@ class RealtimeBackgroundRunner {
   Future<void> _connect({
     required String token,
     required String host,
+    required String refreshToken,
+    required String deviceId,
     required int generation,
   }) async {
     if (!_shouldRun || generation != _connectionGeneration) {
@@ -95,16 +129,17 @@ class RealtimeBackgroundRunner {
       session: AuthSession(
         token: token,
         host: host,
-        refreshToken: '',
-        deviceId: '',
+        refreshToken: refreshToken,
+        deviceId: deviceId,
       ),
+      authPersistence: _authPersistence,
     );
 
     _ws = client;
     await client.connect();
     _reconnectBackoff.reset();
     client.pingInterval(10);
-    client.subscribe(_notificationChannelName);
+    await client.subscribe(_notificationChannelName);
 
     client.listen(_onMessage);
     client.onDisconnect(() {
@@ -113,7 +148,13 @@ class RealtimeBackgroundRunner {
       }
 
       unawaited(
-        _scheduleReconnect(token: token, host: host, generation: generation),
+        _scheduleReconnect(
+          token: token,
+          host: host,
+          refreshToken: refreshToken,
+          deviceId: deviceId,
+          generation: generation,
+        ),
       );
     });
   }
@@ -121,6 +162,8 @@ class RealtimeBackgroundRunner {
   Future<void> _scheduleReconnect({
     required String token,
     required String host,
+    required String refreshToken,
+    required String deviceId,
     required int generation,
   }) async {
     final delay = _reconnectBackoff.nextDelay();
@@ -129,7 +172,13 @@ class RealtimeBackgroundRunner {
       return;
     }
 
-    await _attemptConnect(token: token, host: host, generation: generation);
+    await _attemptConnect(
+      token: token,
+      host: host,
+      refreshToken: refreshToken,
+      deviceId: deviceId,
+      generation: generation,
+    );
   }
 
   Future<void> _onMessage(WebsocketMessage message) async {
@@ -221,22 +270,36 @@ class RealtimeBackgroundRunner {
 
     final token = arguments['token']?.toString();
     final host = arguments['host']?.toString();
+    final refreshToken = arguments['refreshToken']?.toString() ?? '';
+    final deviceId = arguments['deviceId']?.toString() ?? '';
 
     if (_isBlank(token) || _isBlank(host)) {
       throw ArgumentError('Missing token/host');
     }
 
-    return _StartArgs(token: token!, host: host!);
+    return _StartArgs(
+      token: token!,
+      host: host!,
+      refreshToken: refreshToken,
+      deviceId: deviceId,
+    );
   }
 
   bool _isBlank(String? value) => value == null || value.trim().isEmpty;
 }
 
 class _StartArgs {
-  const _StartArgs({required this.token, required this.host});
+  const _StartArgs({
+    required this.token,
+    required this.host,
+    required this.refreshToken,
+    required this.deviceId,
+  });
 
   final String token;
   final String host;
+  final String refreshToken;
+  final String deviceId;
 }
 
 class _NotificationPayload {

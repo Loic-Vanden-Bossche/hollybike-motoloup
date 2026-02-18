@@ -79,11 +79,7 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
       return;
     }
 
-    final stream = await _listenAndSubscribe(
-      currentSession.host,
-      currentSession.token,
-      event.eventId,
-    );
+    final stream = await _listenAndSubscribe(currentSession, event.eventId);
 
     await emit.forEach(
       stream,
@@ -122,25 +118,20 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
   }
 
   Future<Stream<WebsocketMessage>> _listenAndSubscribe(
-    String host,
-    String accessToken,
+    AuthSession session,
     int eventId,
   ) async {
     final ws =
         await WebsocketClient(
-          session: AuthSession(
-            token: accessToken,
-            host: host,
-            deviceId: '',
-            refreshToken: '',
-          ),
+          session: session,
+          authPersistence: authPersistence,
         ).connect();
 
     ws.onDisconnect(() {
       log('Websocket Disconnected');
     });
 
-    ws.subscribe('event/$eventId');
+    await ws.subscribe('event/$eventId');
 
     final stream = ws.stream;
 

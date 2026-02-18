@@ -32,6 +32,8 @@ class LocationBackgroundRunner {
             token: args.token,
             host: args.host,
             eventId: args.eventId,
+            refreshToken: args.refreshToken,
+            deviceId: args.deviceId,
           );
           return;
         case _methodStop:
@@ -47,6 +49,8 @@ class LocationBackgroundRunner {
     required String token,
     required String host,
     required String eventId,
+    required String refreshToken,
+    required String deviceId,
   }) async {
     await AppNotifications.init();
 
@@ -57,7 +61,13 @@ class LocationBackgroundRunner {
     );
 
     await _positionSubscription?.cancel();
-    await _positionRepository.init(token, host, eventId);
+    await _positionRepository.init(
+      token,
+      host,
+      eventId,
+      refreshToken: refreshToken,
+      deviceId: deviceId,
+    );
 
     _positionSubscription = Geolocator.getPositionStream(
       locationSettings: settings,
@@ -97,12 +107,20 @@ class LocationBackgroundRunner {
     final token = map['token']?.toString();
     final host = map['host']?.toString();
     final eventId = map['eventId']?.toString();
+    final refreshToken = map['refreshToken']?.toString() ?? '';
+    final deviceId = map['deviceId']?.toString() ?? '';
 
     if (_isBlank(token) || _isBlank(host) || _isBlank(eventId)) {
       throw ArgumentError('Missing token/host/eventId');
     }
 
-    return _StartArgs(token: token!, host: host!, eventId: eventId!);
+    return _StartArgs(
+      token: token!,
+      host: host!,
+      eventId: eventId!,
+      refreshToken: refreshToken,
+      deviceId: deviceId,
+    );
   }
 
   bool _isBlank(String? value) => value == null || value.trim().isEmpty;
@@ -113,9 +131,13 @@ class _StartArgs {
     required this.token,
     required this.host,
     required this.eventId,
+    required this.refreshToken,
+    required this.deviceId,
   });
 
   final String token;
   final String host;
   final String eventId;
+  final String refreshToken;
+  final String deviceId;
 }
