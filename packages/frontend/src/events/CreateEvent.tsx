@@ -48,11 +48,7 @@ export function CreateEvent() {
 
 	useEffect(() => {
 		if (start === undefined) {
-			const now = new Date();
-			now.setMinutes(0);
-			now.setSeconds(0);
-			now.setHours(now.getHours() + 1);
-			setStart(now);
+			setStart(new Date());
 		}
 	}, [setStart]);
 	return (

@@ -11,7 +11,7 @@ import { TEvent } from "../types/TEvent.ts";
 import { toast } from "react-toastify";
 import { Card } from "../components/Card/Card.tsx";
 import {
-	Dispatch, StateUpdater, useEffect, useState,
+	Dispatch, StateUpdater, useEffect, useRef, useState,
 } from "preact/hooks";
 import { ButtonDanger } from "../components/Button/ButtonDanger.tsx";
 import { useNavigate } from "react-router-dom";
@@ -33,9 +33,22 @@ export function EventInfo(props: EventInfoProps) {
 		eventData, setEventData, id,
 	} = props;
 	const [budgetText, setBudgetText] = useState("");
+	const initialDates = useRef<{
+		start: number,
+		end: number | null
+	}>({
+		start: eventData.start_date_time.getTime(),
+		end: eventData.end_date_time?.getTime() ?? null,
+	});
 	useEffect(() => {
 		setBudgetText(eventData.budget ? (eventData.budget / 100).toFixed(2) : "");
 	}, [eventData.budget]);
+	useEffect(() => {
+		initialDates.current = {
+			start: eventData.start_date_time.getTime(),
+			end: eventData.end_date_time?.getTime() ?? null,
+		};
+	}, [eventData.id, eventData.update_date_time]);
 	return (
 		<Card className={"grid grid-cols-1 sm:grid-cols-2 gap-4 items-center 2xl:overflow-auto"}>
 			<p className={"text-sm font-medium text-subtext-1"}>Nom</p>
@@ -101,6 +114,21 @@ export function EventInfo(props: EventInfoProps) {
 			<Button
 				className={"w-full sm:w-auto justify-self-stretch sm:justify-self-start"}
 				onClick={() => {
+					const start = eventData.start_date_time.getTime();
+					const end = eventData.end_date_time?.getTime() ?? null;
+					const hasDateChanges = start !== initialDates.current.start || end !== initialDates.current.end;
+					const isTerminated = eventData.status === EEventStatus.Finished || eventData.status === EEventStatus.Cancelled;
+					if (hasDateChanges && eventData.status === EEventStatus.Now) {
+						toast("Impossible de modifier les dates d'un événement en cours.", { type: "warning" });
+						return;
+					}
+					if (hasDateChanges && isTerminated) {
+						const now = Date.now();
+						if (start < now || end !== null && end < now) {
+							toast("Pour un événement terminé, les dates modifiées ne peuvent pas être dans le passé.", { type: "warning" });
+							return;
+						}
+					}
 					api<TEvent>(`/events/${id}`, {
 						method: "PUT",
 						body: {
@@ -113,6 +141,10 @@ export function EventInfo(props: EventInfoProps) {
 					}).then((res) => {
 						if (res.status === 200 && res.data !== undefined) {
 							setEventData(res.data);
+							initialDates.current = {
+								start: res.data.start_date_time.getTime(),
+								end: res.data.end_date_time?.getTime() ?? null,
+							};
 							toast("Évènement mis à jour", { type: "success" });
 						} else if (res.status === 404 || res.status === 400) {
 							toast(res.message, { type: "warning" });
@@ -125,6 +157,10 @@ export function EventInfo(props: EventInfoProps) {
 			<ButtonDanger
 				className={"w-full sm:w-auto justify-self-stretch sm:justify-self-end"}
 				onClick={() => {
+					if (eventData.status === EEventStatus.Now) {
+						toast("Impossible de supprimer un événement en cours.", { type: "warning" });
+						return;
+					}
 					if (confirm) {
 						api(`/events/${eventData.id}`, { method: "DELETE" }).then((res) => {
 							if (res.status === 200) {
@@ -205,7 +241,20 @@ function EventStatus(props: EventStatusProps) {
 	}
 
 	if (props.status === EEventStatus.Now) {
-		return <span className={"inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-green/10 text-green border border-green/20"}>En cours</span>;
+		return (
+			<ButtonDanger
+				onClick={async () => {
+					const resp = await api(`/events/${props.id}/finish`, { method: "PATCH" });
+					if (resp.status === 200) {
+						toast("Évènement terminé", { type: "success" });
+						props.doReload();
+					} else {
+						toast(resp.message, { type: "error" });
+					}
+				}}
+			>Terminer
+			</ButtonDanger>
+		);
 	}
 
 	if (props.status === EEventStatus.Finished) {
