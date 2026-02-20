@@ -159,7 +159,31 @@ class WebsocketClient {
     _send(jsonString);
   }
 
+  Future<AuthSession?> renewSessionIfPossible() async {
+    await _hydrateSessionFromPersistence();
+
+    if (!_hasRefreshCredentials) {
+      log(
+        'Skipping websocket session renewal: missing refresh credentials',
+        name: 'WebsocketClient.renewSessionIfPossible',
+      );
+      return null;
+    }
+
+    try {
+      return await _renewSessionIfNeeded(session);
+    } catch (e) {
+      log(
+        'Failed to renew websocket session: $e',
+        name: 'WebsocketClient.renewSessionIfPossible',
+      );
+      return null;
+    }
+  }
+
   Future<String> _tokenForSubscription() async {
+    await _hydrateSessionFromPersistence();
+
     if (!_hasRefreshCredentials) {
       return session.token;
     }
@@ -179,6 +203,22 @@ class WebsocketClient {
 
   bool get _hasRefreshCredentials =>
       session.refreshToken.isNotEmpty && session.deviceId.isNotEmpty;
+
+  Future<void> _hydrateSessionFromPersistence() async {
+    final persistence = authPersistence;
+    if (persistence == null) {
+      return;
+    }
+
+    final persistedSession = await _findBestPersistedSession(
+      persistence,
+      session,
+    );
+
+    if (persistedSession != null) {
+      _applySessionUpdate(persistedSession);
+    }
+  }
 
   bool _isJwtExpiredOrNearExpiry(
     String token, {
@@ -212,21 +252,22 @@ class WebsocketClient {
     if (persistence == null) {
       final refreshed = await _renewSession(oldSession);
       _applySessionUpdate(refreshed);
+
       return refreshed;
     }
 
-    final persistedSession = await persistence.getSessionByHostAndDevice(
-      oldSession.host,
-      oldSession.deviceId,
+    final persistedSession = await _findBestPersistedSession(
+      persistence,
+      oldSession,
     );
     final sessionToRefresh = persistedSession ?? oldSession;
     final refreshLockKey = persistence.refreshLockKey(sessionToRefresh);
 
     if (persistence.isRefreshing(refreshLockKey)) {
       await persistence.waitIfRefreshing(refreshLockKey);
-      final refreshedFromStore = await persistence.getSessionByHostAndDevice(
-        oldSession.host,
-        oldSession.deviceId,
+      final refreshedFromStore = await _findBestPersistedSession(
+        persistence,
+        oldSession,
       );
       if (refreshedFromStore != null) {
         _applySessionUpdate(refreshedFromStore);
@@ -241,8 +282,19 @@ class WebsocketClient {
 
       if (persistedSession != null) {
         await persistence.replaceSession(persistedSession, refreshed);
+      } else {
+        final currentSession = await persistence.currentSession;
+        if (currentSession != null &&
+            currentSession.host == sessionToRefresh.host &&
+            (sessionToRefresh.deviceId.isEmpty ||
+                currentSession.deviceId == sessionToRefresh.deviceId)) {
+          await persistence.replaceSession(currentSession, refreshed);
+        } else {
+          persistence.currentSession = refreshed;
+        }
       }
 
+      persistence.currentSession = refreshed;
       _applySessionUpdate(refreshed);
       return refreshed;
     } on DioException catch (e) {
@@ -253,6 +305,31 @@ class WebsocketClient {
     } finally {
       persistence.markRefreshDone(refreshLockKey);
     }
+  }
+
+  Future<AuthSession?> _findBestPersistedSession(
+    AuthPersistence persistence,
+    AuthSession lookupSession,
+  ) async {
+    AuthSession? persistedSession;
+
+    if (lookupSession.deviceId.isNotEmpty) {
+      persistedSession = await persistence.getSessionByHostAndDevice(
+        lookupSession.host,
+        lookupSession.deviceId,
+      );
+    }
+
+    persistedSession ??= await persistence.getSessionByToken(lookupSession.token);
+
+    final currentSession = await persistence.currentSession;
+    if (persistedSession == null &&
+        currentSession != null &&
+        currentSession.host == lookupSession.host) {
+      persistedSession = currentSession;
+    }
+
+    return persistedSession;
   }
 
   Future<void> _onSessionExpired(

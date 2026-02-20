@@ -3,6 +3,7 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'dart:developer' as developer;
+import 'dart:developer';
 
 import 'package:dio/dio.dart';
 import 'package:flutter/foundation.dart';
@@ -78,15 +79,26 @@ class AuthInterceptor extends Interceptor {
       return reject();
     }
 
-    final requestSession = await authPersistence.getSessionByToken(token);
+    var requestSession = await authPersistence.getSessionByToken(token);
+
+    // Token can be stale when another flow (e.g. background websocket) has
+    // already rotated credentials. Fall back to current persisted session.
+    if (requestSession == null) {
+      final currentSession = await authPersistence.currentSession;
+      if (currentSession != null &&
+          _sameHost(currentSession.host, err.requestOptions)) {
+        requestSession = currentSession;
+      }
+    }
 
     if (requestSession == null) {
       return reject();
     }
+    final resolvedSession = requestSession;
 
     AuthSession? newSession;
 
-    final refreshLockKey = authPersistence.refreshLockKey(requestSession);
+    final refreshLockKey = authPersistence.refreshLockKey(resolvedSession);
 
     try {
       if (authPersistence.isRefreshing(refreshLockKey)) {
@@ -95,22 +107,25 @@ class AuthInterceptor extends Interceptor {
         );
         await authPersistence.waitIfRefreshing(refreshLockKey);
         newSession = await authPersistence.getSessionByHostAndDevice(
-          requestSession.host,
-          requestSession.deviceId,
+          resolvedSession.host,
+          resolvedSession.deviceId,
         );
       } else {
         authPersistence.markRefreshing(refreshLockKey);
         _debugLog(
-          "Requesting new JWT for ${requestSession.host}/${requestSession.deviceId}.",
+          "Requesting new JWT for ${resolvedSession.host}/${resolvedSession.deviceId}.",
         );
-        newSession = await _renewSession(requestSession)
+        newSession = await _renewSession(resolvedSession)
             .then((value) {
               _debugLog(
-                "New JWT received for ${requestSession.host}/${requestSession.deviceId}. Updating session store.",
+                "New JWT received for ${resolvedSession.host}/${resolvedSession.deviceId}. Updating session store.",
               );
-              return authPersistence
-                  .replaceSession(requestSession, value)
-                  .then((_) => value);
+              return authPersistence.replaceSession(resolvedSession, value).then((
+                _,
+              ) {
+                authPersistence.currentSession = value;
+                return value;
+              });
             })
             .whenComplete(() {
               authPersistence.markRefreshDone(refreshLockKey);
@@ -142,7 +157,7 @@ class AuthInterceptor extends Interceptor {
         return handler.resolve(response);
       } on DioException catch (e) {
         if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
-          await onSessionExpired(requestSession);
+          await onSessionExpired(resolvedSession);
         }
 
         return handler.reject(
@@ -152,12 +167,24 @@ class AuthInterceptor extends Interceptor {
     } on DioException catch (e) {
       // Expire only on explicit auth failures; transient network failures should not disconnect user.
       if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
-        await onSessionExpired(requestSession);
+        await onSessionExpired(resolvedSession);
       }
 
       return handler.reject(
         DioException(requestOptions: e.requestOptions, error: e.response),
       );
+    }
+  }
+
+  bool _sameHost(String host, RequestOptions requestOptions) {
+    if (requestOptions.baseUrl.isEmpty) {
+      return false;
+    }
+
+    try {
+      return Uri.parse(host).origin == Uri.parse(requestOptions.baseUrl).origin;
+    } catch (_) {
+      return false;
     }
   }
 

@@ -7,7 +7,6 @@ import 'dart:convert';
 
 import 'package:hollybike/auth/types/auth_session.dart';
 import 'package:hollybike/shared/utils/apply_on_future_or.dart';
-import 'package:hollybike/shared/utils/calculate_future_or_list.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,16 +26,16 @@ class AuthPersistence {
   }
 
   FutureOr<List<AuthSession>> get sessions async {
-    final cache = _cachedSessions;
-    if (cache != null) {
-      return cache;
-    }
-
     final secureValue = await _secureStorage.read(key: key);
     if (secureValue != null) {
       final decoded = _decodeSessions(secureValue);
       _cachedSessions = decoded;
       return decoded;
+    }
+
+    final cache = _cachedSessions;
+    if (cache != null) {
+      return cache;
     }
 
     // One-time migration from SharedPreferences to secure storage.
@@ -120,23 +119,37 @@ class AuthPersistence {
     currentSessionExpired = false;
     final resolvedSession = session as AuthSession;
     final current = _cachedSessions ?? <AuthSession>[];
-    final updatedSessions = [
-      resolvedSession,
-      ...current.where((savedSession) => savedSession != resolvedSession),
-    ];
+    final updatedSessions =
+        current
+            .where((savedSession) => !_isSameSessionSlot(savedSession, resolvedSession))
+            .toList();
+    updatedSessions.insert(0, resolvedSession);
     _cachedSessions = updatedSessions;
     unawaited(_persistSessions(updatedSessions));
   }
 
   Future<void> removeSession(AuthSession session) async {
-    sessions = sessions - session;
+    final loadedSessions = List<AuthSession>.from(await sessions);
+    loadedSessions.removeWhere(
+      (savedSession) =>
+          savedSession == session || _isSameSessionSlot(savedSession, session),
+    );
+    sessions = loadedSessions;
   }
 
   Future<void> replaceSession(
     AuthSession oldSession,
     AuthSession newSession,
   ) async {
-    sessions = (sessions - oldSession).add(newSession);
+    final loadedSessions = List<AuthSession>.from(await sessions);
+    loadedSessions.removeWhere(
+      (savedSession) =>
+          savedSession == oldSession ||
+          _isSameSessionSlot(savedSession, oldSession) ||
+          _isSameSessionSlot(savedSession, newSession),
+    );
+    loadedSessions.insert(0, newSession);
+    sessions = loadedSessions;
   }
 
   Future<AuthSession?> getSessionByToken(String token) async {
@@ -190,5 +203,17 @@ class AuthPersistence {
     } catch (e) {
       return;
     }
+  }
+
+  bool _isSameSessionSlot(AuthSession left, AuthSession right) {
+    if (left.host != right.host) {
+      return false;
+    }
+
+    if (left.deviceId.isNotEmpty && right.deviceId.isNotEmpty) {
+      return left.deviceId == right.deviceId;
+    }
+
+    return left.token == right.token;
   }
 }

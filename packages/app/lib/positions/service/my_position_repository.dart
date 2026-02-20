@@ -222,7 +222,9 @@ class MyPositionServiceRepository {
 
           if (_isAuthWebsocketError(errorMessage)) {
             log('Websocket auth error received: $errorMessage');
+            await ws.renewSessionIfPossible();
             await _syncCredentialsFromPersistence();
+            _syncCredentialsFromSession(ws.session);
           }
 
           ws.close();
@@ -320,10 +322,7 @@ class MyPositionServiceRepository {
   }
 
   bool _isAuthWebsocketError(String message) {
-    final lower = message.toLowerCase();
-    return lower.contains('invalid websocket jwt') ||
-        lower.contains('token has expired') ||
-        lower.contains('jwt');
+    return message == "Unauthorized websocket subscription";
   }
 
   void _stopRealtime() {

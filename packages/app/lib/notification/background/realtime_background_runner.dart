@@ -151,6 +151,10 @@ class RealtimeBackgroundRunner {
             return;
           }
 
+          await client.renewSessionIfPossible();
+          await _syncCredentialsFromPersistence();
+          _syncCredentialsFromSession(client.session);
+
           if (!subscriptionReady.isCompleted) {
             subscriptionReady.completeError(Exception('Error: Not subscribed'));
           }
@@ -163,7 +167,9 @@ class RealtimeBackgroundRunner {
           }
 
           if (_isAuthWebsocketError(errorMessage)) {
+            await client.renewSessionIfPossible();
             await _syncCredentialsFromPersistence();
+            _syncCredentialsFromSession(client.session);
           }
 
           client.close();
