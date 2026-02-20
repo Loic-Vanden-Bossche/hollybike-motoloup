@@ -173,9 +173,18 @@ class MyPositionServiceRepository {
         ).connect();
 
     final subscriptionReady = Completer<void>();
+    var subscribedSuccessfully = false;
 
     ws.onDisconnect(() {
       if (!_shouldRun || generation != _connectionGeneration) {
+        return;
+      }
+
+      // Connection failures before subscription are handled by _attemptConnect catch.
+      // Only schedule reconnect here after a successful subscription.
+      if (!subscribedSuccessfully) {
+        _client = null;
+        log('Websocket Disconnected');
         return;
       }
 
@@ -190,6 +199,7 @@ class MyPositionServiceRepository {
           final subscribed = message.data as WebsocketSubscribed;
 
           if (subscribed.subscribed) {
+            subscribedSuccessfully = true;
             _client = ws;
             _reconnectBackoff.reset();
             _syncCredentialsFromSession(ws.session);

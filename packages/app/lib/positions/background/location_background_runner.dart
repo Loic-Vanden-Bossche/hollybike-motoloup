@@ -56,7 +56,7 @@ class LocationBackgroundRunner {
 
     final settings = AndroidSettings(
       accuracy: LocationAccuracy.best,
-      distanceFilter: 10,
+      distanceFilter: 0,
       intervalDuration: Duration(seconds: 5),
     );
 
