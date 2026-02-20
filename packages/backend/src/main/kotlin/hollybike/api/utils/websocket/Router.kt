@@ -44,6 +44,10 @@ class WebSocketCall(
 		session.send(data)
 	}
 
+	suspend fun close(code: CloseReason.Codes, message: String) {
+		session.close(CloseReason(code, message))
+	}
+
 	suspend fun onSubscribe(call: suspend WebSocketCall.(user: User) -> Unit) {
 		if(body is Subscribe) {
 			authVerifier.verify(this.body.token)?.apply {
@@ -51,6 +55,8 @@ class WebSocketCall(
 				call(this)
 			} ?: run {
 				respond(Subscribed(false))
+				respond(Error("Unauthorized websocket subscription"))
+				close(CloseReason.Codes.VIOLATED_POLICY, "Unauthorized websocket subscription")
 				null
 			}
 		}
@@ -58,7 +64,7 @@ class WebSocketCall(
 
 	suspend fun onUnsubscribe(call: suspend WebSocketCall.() -> Unit = {}) {
 		if(body is Unsubscribe) {
-			respond(Unsubscribed(false))
+			respond(Unsubscribed(true))
 			call()
 		}
 	}

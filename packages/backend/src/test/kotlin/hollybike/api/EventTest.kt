@@ -11,11 +11,13 @@ import hollybike.api.stores.EventStore
 import hollybike.api.stores.UserStore
 import hollybike.api.types.association.TAssociation
 import hollybike.api.types.event.*
+import hollybike.api.types.expense.TNewExpense
 import hollybike.api.types.lists.TLists
 import io.kotest.matchers.collections.shouldContain
 import io.kotest.matchers.collections.shouldNotContain
 import io.kotest.matchers.equality.shouldBeEqualToIgnoringFields
 import io.kotest.matchers.shouldBe
+import io.kotest.matchers.string.shouldContain
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.client.request.forms.*
@@ -387,6 +389,71 @@ class EventTest : IntegrationSpec({
 					status shouldBe HttpStatusCode.NotFound
 
 					bodyAsText() shouldBe "L'évènement n'a pas été trouvé"
+				}
+			}
+		}
+	}
+
+	context("Get event details") {
+		test("Should get event details by id") {
+			onPremiseTestApp {
+				it.get("/api/events/${EventStore.event2Asso1User1.id}/details") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+
+					body<TEventDetails>().event.name shouldBe EventStore.event2Asso1User1.value
+				}
+			}
+		}
+
+		test("Should not get event details for unknown event") {
+			onPremiseTestApp {
+				it.get("/api/events/${EventStore.unknown.id}/details") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.NotFound
+				}
+			}
+		}
+	}
+
+	context("Get event expense report") {
+		test("Should return a CSV report with event expenses") {
+			onPremiseTestApp {
+				it.post("/api/expenses") {
+					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+					setBody(
+						TNewExpense(
+							name = "Fuel",
+							description = "Shared fuel expense",
+							date = Clock.System.now(),
+							amount = 42,
+							event = EventStore.event2Asso1User1.id
+						)
+					)
+				}.apply {
+					status shouldBe HttpStatusCode.Created
+				}
+
+				it.get("/api/events/${EventStore.event2Asso1User1.id}/expenses/report") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+					contentType() shouldBe ContentType.Text.CSV
+					bodyAsText() shouldContain "name,description,amount,date"
+					bodyAsText() shouldContain "Fuel"
+				}
+			}
+		}
+
+		test("Should not get expense report for unknown event") {
+			onPremiseTestApp {
+				it.get("/api/events/${EventStore.unknown.id}/expenses/report") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.NotFound
 				}
 			}
 		}
@@ -772,6 +839,32 @@ class EventTest : IntegrationSpec({
 					status shouldBe HttpStatusCode.NotFound
 
 					bodyAsText() shouldBe "Event ${EventStore.unknown.id} introuvable"
+				}
+			}
+		}
+	}
+
+	context("Event journey") {
+		test("Should not add journey to event if journey does not exist") {
+			onPremiseTestApp {
+				it.post("/api/events/${EventStore.event2Asso1User1.id}/journey") {
+					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+					setBody(TAddJourneyToEvent(journeyId = 999))
+				}.apply {
+					status shouldBe HttpStatusCode.NotFound
+					bodyAsText() shouldBe "Trajet 999 introuvable"
+				}
+			}
+		}
+
+		test("Should remove journey from event") {
+			onPremiseTestApp {
+				it.delete("/api/events/${EventStore.event2Asso1User1.id}/journey") {
+					auth(UserStore.user1)
+					contentType(ContentType.Application.Json)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
 				}
 			}
 		}
@@ -1407,6 +1500,60 @@ class EventTest : IntegrationSpec({
 					status shouldBe HttpStatusCode.NotFound
 
 					bodyAsText() shouldBe "Event ${EventStore.unknown.id} introuvable"
+				}
+			}
+		}
+	}
+
+	context("Event meta-data") {
+		test("Should get event meta-data as admin") {
+			onPremiseTestApp {
+				it.get("/api/events/meta-data") {
+					auth(UserStore.admin1)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+				}
+			}
+		}
+
+		test("Should not get event meta-data as non-admin") {
+			onPremiseTestApp {
+				it.get("/api/events/meta-data") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.Forbidden
+				}
+			}
+		}
+	}
+
+	context("Event participation journey") {
+		test("Should not terminate journey for unknown event") {
+			onPremiseTestApp {
+				it.post("/api/events/${EventStore.unknown.id}/participations/me/journey/terminate") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.NotFound
+				}
+			}
+		}
+
+		test("Should not reset journey for unknown event") {
+			onPremiseTestApp {
+				it.patch("/api/events/${EventStore.unknown.id}/participations/me/journey/reset") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.NotFound
+				}
+			}
+		}
+
+		test("Should not get participant journey for unknown event") {
+			onPremiseTestApp {
+				it.get("/api/events/${EventStore.unknown.id}/participations/${UserStore.user1.id}/journey") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.NotFound
 				}
 			}
 		}

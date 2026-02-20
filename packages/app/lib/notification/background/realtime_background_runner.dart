@@ -7,12 +7,14 @@ import '../../auth/types/auth_session.dart';
 import '../../event/types/event_status_state.dart';
 import '../../shared/utils/dates.dart';
 import '../../shared/utils/exponential_backoff.dart';
+import '../../shared/websocket/recieve/websocket_error.dart';
 import '../../shared/websocket/recieve/websocket_added_to_event.dart';
 import '../../shared/websocket/recieve/websocket_event_deleted.dart';
 import '../../shared/websocket/recieve/websocket_event_published.dart';
 import '../../shared/websocket/recieve/websocket_event_status_updated.dart';
 import '../../shared/websocket/recieve/websocket_event_updated.dart';
 import '../../shared/websocket/recieve/websocket_removed_from_event.dart';
+import '../../shared/websocket/recieve/websocket_subscribed.dart';
 import '../../shared/websocket/websocket_client.dart';
 import '../../shared/websocket/websocket_message.dart';
 import 'app_notifications.dart';
@@ -28,7 +30,13 @@ class RealtimeBackgroundRunner {
   );
   final AuthPersistence _authPersistence = AuthPersistence();
 
+  String _token = '';
+  String _host = '';
+  String _refreshToken = '';
+  String _deviceId = '';
+
   WebsocketClient? _ws;
+  StreamSubscription<AuthSession>? _sessionExpiredSubscription;
   bool _shouldRun = false;
   int _connectionGeneration = 0;
   final ExponentialBackoff _reconnectBackoff = ExponentialBackoff(
@@ -64,62 +72,53 @@ class RealtimeBackgroundRunner {
     required String refreshToken,
     required String deviceId,
   }) async {
+    _token = token;
+    _host = host;
+    _refreshToken = refreshToken;
+    _deviceId = deviceId;
     _shouldRun = true;
     _connectionGeneration += 1;
     _reconnectBackoff.reset();
     final generation = _connectionGeneration;
 
+    await _sessionExpiredSubscription?.cancel();
+    _sessionExpiredSubscription = _authPersistence.currentSessionExpiredStream
+        .listen((expiredSession) {
+          if (!_shouldRun) {
+            return;
+          }
+
+          final sameHost = expiredSession.host == _host;
+          final sameDevice =
+              _deviceId.isEmpty || expiredSession.deviceId == _deviceId;
+          if (!sameHost || !sameDevice) {
+            return;
+          }
+
+          _stop();
+        });
+
     await AppNotifications.init();
-    await _attemptConnect(
-      token: token,
-      host: host,
-      refreshToken: refreshToken,
-      deviceId: deviceId,
-      generation: generation,
-    );
+
+    await _attemptConnect(generation: generation);
   }
 
-  Future<void> _attemptConnect({
-    required String token,
-    required String host,
-    required String refreshToken,
-    required String deviceId,
-    required int generation,
-  }) async {
+  Future<void> _attemptConnect({required int generation}) async {
     if (!_shouldRun || generation != _connectionGeneration) {
       return;
     }
 
     try {
-      await _connect(
-        token: token,
-        host: host,
-        refreshToken: refreshToken,
-        deviceId: deviceId,
-        generation: generation,
-      );
+      await _syncCredentialsFromPersistence();
+      await _connect(generation: generation);
     } catch (_) {
       if (_shouldRun && generation == _connectionGeneration) {
-        unawaited(
-          _scheduleReconnect(
-            token: token,
-            host: host,
-            refreshToken: refreshToken,
-            deviceId: deviceId,
-            generation: generation,
-          ),
-        );
+        unawaited(_scheduleReconnect(generation: generation));
       }
     }
   }
 
-  Future<void> _connect({
-    required String token,
-    required String host,
-    required String refreshToken,
-    required String deviceId,
-    required int generation,
-  }) async {
+  Future<void> _connect({required int generation}) async {
     if (!_shouldRun || generation != _connectionGeneration) {
       return;
     }
@@ -127,58 +126,82 @@ class RealtimeBackgroundRunner {
     _ws?.close();
     final client = WebsocketClient(
       session: AuthSession(
-        token: token,
-        host: host,
-        refreshToken: refreshToken,
-        deviceId: deviceId,
+        token: _token,
+        host: _host,
+        refreshToken: _refreshToken,
+        deviceId: _deviceId,
       ),
       authPersistence: _authPersistence,
     );
 
     _ws = client;
     await client.connect();
-    _reconnectBackoff.reset();
+    final subscriptionReady = Completer<void>();
     client.pingInterval(10);
-    await client.subscribe(_notificationChannelName);
+    client.listen((message) async {
+      switch (message.data.type) {
+        case 'subscribed':
+          final subscribed = message.data;
+          if (subscribed is WebsocketSubscribed && subscribed.subscribed) {
+            _syncCredentialsFromSession(client.session);
+            _reconnectBackoff.reset();
+            if (!subscriptionReady.isCompleted) {
+              subscriptionReady.complete();
+            }
+            return;
+          }
 
-    client.listen(_onMessage);
+          if (!subscriptionReady.isCompleted) {
+            subscriptionReady.completeError(Exception('Error: Not subscribed'));
+          }
+          client.close();
+          return;
+        case 'error':
+          final errorMessage = (message.data as WebsocketError).message;
+          if (!subscriptionReady.isCompleted) {
+            subscriptionReady.completeError(Exception(errorMessage));
+          }
+
+          if (_isAuthWebsocketError(errorMessage)) {
+            await _syncCredentialsFromPersistence();
+          }
+
+          client.close();
+          return;
+        default:
+          if (!subscriptionReady.isCompleted) {
+            subscriptionReady.complete();
+          }
+          await _onMessage(message);
+          return;
+      }
+    });
+    await client.subscribe(_notificationChannelName);
+    await subscriptionReady.future.timeout(
+      const Duration(seconds: 10),
+      onTimeout: () {
+        client.close();
+        throw TimeoutException('Subscription timeout for notification channel');
+      },
+    );
+
     client.onDisconnect(() {
       if (!_shouldRun || generation != _connectionGeneration) {
         return;
       }
 
-      unawaited(
-        _scheduleReconnect(
-          token: token,
-          host: host,
-          refreshToken: refreshToken,
-          deviceId: deviceId,
-          generation: generation,
-        ),
-      );
+      unawaited(_scheduleReconnect(generation: generation));
     });
   }
 
-  Future<void> _scheduleReconnect({
-    required String token,
-    required String host,
-    required String refreshToken,
-    required String deviceId,
-    required int generation,
-  }) async {
+  Future<void> _scheduleReconnect({required int generation}) async {
     final delay = _reconnectBackoff.nextDelay();
     await Future.delayed(delay);
     if (!_shouldRun || generation != _connectionGeneration) {
       return;
     }
 
-    await _attemptConnect(
-      token: token,
-      host: host,
-      refreshToken: refreshToken,
-      deviceId: deviceId,
-      generation: generation,
-    );
+    await _attemptConnect(generation: generation);
   }
 
   Future<void> _onMessage(WebsocketMessage message) async {
@@ -261,6 +284,40 @@ class RealtimeBackgroundRunner {
     _reconnectBackoff.reset();
     _ws?.close();
     _ws = null;
+    await _sessionExpiredSubscription?.cancel();
+    _sessionExpiredSubscription = null;
+  }
+
+  Future<void> _syncCredentialsFromPersistence() async {
+    if (_host.isEmpty || _deviceId.isEmpty) {
+      return;
+    }
+
+    final persistedSession = await _authPersistence.getSessionByHostAndDevice(
+      _host,
+      _deviceId,
+    );
+
+    if (persistedSession == null) {
+      return;
+    }
+
+    _syncCredentialsFromSession(persistedSession);
+  }
+
+  void _syncCredentialsFromSession(AuthSession session) {
+    _token = session.token;
+    _host = session.host;
+    _refreshToken = session.refreshToken;
+    _deviceId = session.deviceId;
+  }
+
+  bool _isAuthWebsocketError(String message) {
+    final lower = message.toLowerCase();
+    return lower.contains('invalid websocket jwt') ||
+        lower.contains('token has expired') ||
+        lower.contains('jwt') ||
+        lower.contains('unauthorized');
   }
 
   _StartArgs _parseStartArgs(dynamic arguments) {
