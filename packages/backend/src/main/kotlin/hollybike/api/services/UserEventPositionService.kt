@@ -72,9 +72,7 @@ class UserEventPositionService(
 	}
 
 	fun getReceiveChannel(eventId: Int, userId: Int): Channel<Body> {
-		println("Get user channel")
 		return receiveChannels[eventId to userId] ?: run {
-			println("Create")
 			lastPosition[eventId] ?: run {
 				lastPosition[eventId] = mutableMapOf()
 			}
@@ -89,21 +87,15 @@ class UserEventPositionService(
 	}
 
 	private suspend fun Channel<Body>.listenChannel(eventId: Int, userId: Int) {
-		println("start listen function")
 		val event = transaction(db) { Event.findById(eventId) } ?: return
-		println("get event ok")
 		val user = transaction(db) { User.findById(userId) } ?: return
-		println("get user ok")
 		val participation = transaction(db) {
 			EventParticipation.find {
 				(EventParticipations.user eq user.id) and (EventParticipations.event eq event.id) and (EventParticipations.isJoined eq true)
 			}.firstOrNull()
 		} ?: return
-		println("get participations ok")
 		for (message in this) {
-			println("receive message $message")
 			if(message is UserSendPosition) {
-				println("receive user position")
 				val entity = transaction(db) {
 					transaction(db) {
 						UserEventPosition.new {
@@ -124,10 +116,8 @@ class UserEventPositionService(
 						}
 					}.load(UserEventPosition::user)
 				}
-				println("in db ok")
 				lastPosition[eventId]!![userId] = entity
 				sendPosition(eventId, entity)
-				println("sended")
 			} else if(message is StopUserSendPosition) {
 				lastPosition[eventId]!!.remove(userId)
 				sendStopPosition(eventId, userId)
@@ -330,7 +320,7 @@ class UserEventPositionService(
 			speedArr.add(JsonPrimitive(v))
 
 			if (prevAltitude != null) {
-				val dh = s.alt - prevAltitude!!
+				val dh = s.alt - prevAltitude
 				if (dh >= 0) elevationGain += dh else elevationLoss += -dh
 			}
 			prevAltitude = s.alt

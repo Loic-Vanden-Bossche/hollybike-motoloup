@@ -19,9 +19,9 @@ import hollybike.api.services.storage.StorageService
 import hollybike.api.services.storage.StorageServiceFactory
 import hollybike.api.services.storage.signature.StorageSignatureMode
 import hollybike.api.services.storage.signature.StorageSignatureService
+import hollybike.api.plugins.configureMonitoring
 import hollybike.api.utils.configureRestart
 import io.ktor.util.logging.*
-import kotlin.math.log
 import kotlin.system.measureTimeMillis
 
 lateinit var signatureService: StorageSignatureService
@@ -44,7 +44,7 @@ fun run(isTestEnv: Boolean = false): EmbeddedServer<*, *> {
 		watchPaths = listOf("classes", "resources"),
 		module = Application::module,
 	).apply {
-		environment.monitor.subscribe(ApplicationStopPreparing) {
+		application.monitor.subscribe(ApplicationStopPreparing) {
 			stop()
 		}
 	}.start(wait = !isTestEnv)
@@ -62,6 +62,7 @@ fun Application.module() {
 	val db = configureDatabase() ?: return setupFailover()
 
 	configureSerialization()
+	configureMonitoring()
 	api(storageService, db)
 	frontend()
 	configureRestart(false)

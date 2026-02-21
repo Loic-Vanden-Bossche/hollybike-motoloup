@@ -58,7 +58,7 @@ object AccelPreprocess {
 
 			val aRaw = Vec3(ax, ay, az)
 
-			val dt = if (prevTime == null) 0.02 else max(0.005, (s.timeMillis - prevTime!!).toDouble() / 1000.0)
+			val dt = if (prevTime == null) 0.02 else max(0.005, (s.timeMillis - prevTime).toDouble() / 1000.0)
 			prevTime = s.timeMillis
 
 			// Update gravity estimate

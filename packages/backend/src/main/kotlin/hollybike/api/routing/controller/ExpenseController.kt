@@ -33,6 +33,7 @@ import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.routing
+import io.ktor.utils.io.jvm.javaio.toInputStream
 
 class ExpenseController(
 	application: Application,
@@ -96,7 +97,7 @@ class ExpenseController(
 	}
 
 	private fun Route.updateExpense() {
-		patch<Expenses.Id> {
+		patch<Expenses.Id> { it ->
 			val updateExpense = call.receive<TUpdateExpense>()
 			val expense = expenseService.getExpense(call.user, it.id) ?: run {
 				return@patch call.respond(HttpStatusCode.NotFound, "La dépense n'existe pas")
@@ -112,7 +113,7 @@ class ExpenseController(
 	}
 
 	private fun Route.deleteExpense() {
-		delete<Expenses.Id> {
+		delete<Expenses.Id> { it ->
 			val expense = expenseService.getExpense(call.user, it.id) ?: run {
 				return@delete call.respond(HttpStatusCode.NotFound, "Dépense non trouvé")
 			}
@@ -141,7 +142,7 @@ class ExpenseController(
 			expenseService.uploadProof(
 				call.user,
 				expense,
-				image.streamProvider().readBytes(),
+				image.provider().toInputStream().readBytes(),
 				contentType
 			)
 				.onSuccess { e ->

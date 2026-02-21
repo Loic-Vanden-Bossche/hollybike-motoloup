@@ -24,10 +24,10 @@ data class EkfState(
 data class FilterStep(
 	val tMillis: Long,
 	val xPred: EkfState,
-	val PPred: DoubleArray,     // 4x4 row-major
+	val pPred: DoubleArray,     // 4x4 row-major
 	val xFilt: EkfState,
-	val PFilt: DoubleArray,     // 4x4 row-major
-	val F: DoubleArray          // 4x4 row-major (linearized)
+	val pFilt: DoubleArray,     // 4x4 row-major
+	val f: DoubleArray          // 4x4 row-major (linearized)
 ) {
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
@@ -37,10 +37,10 @@ data class FilterStep(
 
 		if (tMillis != other.tMillis) return false
 		if (xPred != other.xPred) return false
-		if (!PPred.contentEquals(other.PPred)) return false
+		if (!pPred.contentEquals(other.pPred)) return false
 		if (xFilt != other.xFilt) return false
-		if (!PFilt.contentEquals(other.PFilt)) return false
-		if (!F.contentEquals(other.F)) return false
+		if (!pFilt.contentEquals(other.pFilt)) return false
+		if (!f.contentEquals(other.f)) return false
 
 		return true
 	}
@@ -48,10 +48,10 @@ data class FilterStep(
 	override fun hashCode(): Int {
 		var result = tMillis.hashCode()
 		result = 31 * result + xPred.hashCode()
-		result = 31 * result + PPred.contentHashCode()
+		result = 31 * result + pPred.contentHashCode()
 		result = 31 * result + xFilt.hashCode()
-		result = 31 * result + PFilt.contentHashCode()
-		result = 31 * result + F.contentHashCode()
+		result = 31 * result + pFilt.contentHashCode()
+		result = 31 * result + f.contentHashCode()
 		return result
 	}
 }
@@ -92,32 +92,32 @@ object EkfJourney {
 		0.0,0.0,0.0,1.0
 	)
 
-	private fun mat4Mul(A: DoubleArray, B: DoubleArray): DoubleArray {
-		val C = DoubleArray(16)
+	private fun mat4Mul(a: DoubleArray, b: DoubleArray): DoubleArray {
+		val out = DoubleArray(16)
 		for (r in 0..3) for (c in 0..3) {
 			var s = 0.0
-			for (k in 0..3) s += A[r*4+k] * B[k*4+c]
-			C[r*4+c] = s
+			for (k in 0..3) s += a[r*4+k] * b[k*4+c]
+			out[r*4+c] = s
 		}
-		return C
+		return out
 	}
 
-	private fun mat4Add(A: DoubleArray, B: DoubleArray): DoubleArray =
-		DoubleArray(16) { i -> A[i] + B[i] }
+	private fun mat4Add(a: DoubleArray, b: DoubleArray): DoubleArray =
+		DoubleArray(16) { i -> a[i] + b[i] }
 
-	private fun mat4Sub(A: DoubleArray, B: DoubleArray): DoubleArray =
-		DoubleArray(16) { i -> A[i] - B[i] }
+	private fun mat4Sub(a: DoubleArray, b: DoubleArray): DoubleArray =
+		DoubleArray(16) { i -> a[i] - b[i] }
 
-	private fun mat4Transpose(A: DoubleArray): DoubleArray {
-		val T = DoubleArray(16)
-		for (r in 0..3) for (c in 0..3) T[c*4+r] = A[r*4+c]
-		return T
+	private fun mat4Transpose(a: DoubleArray): DoubleArray {
+		val t = DoubleArray(16)
+		for (r in 0..3) for (c in 0..3) t[c*4+r] = a[r*4+c]
+		return t
 	}
 
-	private fun mat4Vec(A: DoubleArray, v: DoubleArray): DoubleArray {
+	private fun mat4Vec(a: DoubleArray, v: DoubleArray): DoubleArray {
 		val out = DoubleArray(4)
 		for (r in 0..3) {
-			out[r] = A[r*4+0]*v[0] + A[r*4+1]*v[1] + A[r*4+2]*v[2] + A[r*4+3]*v[3]
+			out[r] = a[r*4+0]*v[0] + a[r*4+1]*v[1] + a[r*4+2]*v[2] + a[r*4+3]*v[3]
 		}
 		return out
 	}
@@ -127,37 +127,38 @@ object EkfJourney {
 	// --- Small matrix ops for EKF measurement update ---
 	// Measurement is z = [x_gps, y_gps, speed]  (speed optional)
 	// H is 3x4 (or 2x4 if no speed)
-	private fun matMul(A: Array<DoubleArray>, B: DoubleArray, rows: Int, cols: Int): Array<DoubleArray> {
+	private fun matMul(a: Array<DoubleArray>, b: DoubleArray, rows: Int): Array<DoubleArray> {
 		// A: rows x 4, B: 4x4 -> result rows x 4
 		val out = Array(rows) { DoubleArray(4) }
 		for (r in 0 until rows) for (c in 0..3) {
 			var s = 0.0
-			for (k in 0..3) s += A[r][k] * B[k*4+c]
+			for (k in 0..3) s += a[r][k] * b[k*4+c]
 			out[r][c] = s
 		}
 		return out
 	}
 
-	private fun matMul2(A: Array<DoubleArray>, B: Array<DoubleArray>, rowsA: Int, colsB: Int, inner: Int): Array<DoubleArray> {
+	private fun matMul2(a: Array<DoubleArray>, b: Array<DoubleArray>, rowsA: Int, colsB: Int): Array<DoubleArray> {
+		val inner = b.size
 		val out = Array(rowsA) { DoubleArray(colsB) }
 		for (r in 0 until rowsA) for (c in 0 until colsB) {
 			var s = 0.0
-			for (k in 0 until inner) s += A[r][k] * B[k][c]
+			for (k in 0 until inner) s += a[r][k] * b[k][c]
 			out[r][c] = s
 		}
 		return out
 	}
 
-	private fun matTrans(A: Array<DoubleArray>): Array<DoubleArray> {
-		val out = Array(A[0].size) { DoubleArray(A.size) }
-		for (r in A.indices) for (c in A[0].indices) out[c][r] = A[r][c]
+	private fun matTrans(a: Array<DoubleArray>): Array<DoubleArray> {
+		val out = Array(a[0].size) { DoubleArray(a.size) }
+		for (r in a.indices) for (c in a[0].indices) out[c][r] = a[r][c]
 		return out
 	}
 
 	// Invert 2x2 / 3x3 (only what we need)
-	private fun inv2(S: Array<DoubleArray>): Array<DoubleArray> {
-		val a = S[0][0]; val b = S[0][1]
-		val c = S[1][0]; val d = S[1][1]
+	private fun inv2(s: Array<DoubleArray>): Array<DoubleArray> {
+		val a = s[0][0]; val b = s[0][1]
+		val c = s[1][0]; val d = s[1][1]
 		val det = a*d - b*c
 		require(abs(det) > 1e-12) { "Singular 2x2" }
 		val invDet = 1.0 / det
@@ -167,35 +168,28 @@ object EkfJourney {
 		)
 	}
 
-	private fun inv3(S: Array<DoubleArray>): Array<DoubleArray> {
-		val a = S[0][0]; val b = S[0][1]; val c = S[0][2]
-		val d = S[1][0]; val e = S[1][1]; val f = S[1][2]
-		val g = S[2][0]; val h = S[2][1]; val i = S[2][2]
-		val A =  (e*i - f*h)
-		val B = -(d*i - f*g)
-		val C =  (d*h - e*g)
-		val D = -(b*i - c*h)
-		val E =  (a*i - c*g)
-		val F = -(a*h - b*g)
-		val G =  (b*f - c*e)
-		val H = -(a*f - c*d)
-		val I =  (a*e - b*d)
-		val det = a*A + b*B + c*C
+	private fun inv3(s: Array<DoubleArray>): Array<DoubleArray> {
+		val a = s[0][0]; val b = s[0][1]; val c = s[0][2]
+		val d = s[1][0]; val e = s[1][1]; val f = s[1][2]
+		val g = s[2][0]; val h = s[2][1]; val i = s[2][2]
+
+		val cofactors = arrayOf(
+			doubleArrayOf(e * i - f * h, -(d * i - f * g), d * h - e * g),
+			doubleArrayOf(-(b * i - c * h), a * i - c * g, -(a * h - b * g)),
+			doubleArrayOf(b * f - c * e, -(a * f - c * d), a * e - b * d)
+		)
+		val det = a * cofactors[0][0] + b * cofactors[0][1] + c * cofactors[0][2]
 		require(abs(det) > 1e-12) { "Singular 3x3" }
 		val invDet = 1.0 / det
-		return arrayOf(
-			doubleArrayOf(A*invDet, D*invDet, G*invDet),
-			doubleArrayOf(B*invDet, E*invDet, H*invDet),
-			doubleArrayOf(C*invDet, F*invDet, I*invDet)
-		)
+		return Array(3) { row -> DoubleArray(3) { col -> cofactors[row][col] * invDet } }
 	}
 
-	private fun mahaSquared(r: DoubleArray, SInv: Array<DoubleArray>): Double {
+	private fun mahaSquared(r: DoubleArray, sInv: Array<DoubleArray>): Double {
 		// r^T SInv r
 		val tmp = DoubleArray(r.size)
 		for (row in r.indices) {
 			var s = 0.0
-			for (col in r.indices) s += SInv[row][col] * r[col]
+			for (col in r.indices) s += sInv[row][col] * r[col]
 			tmp[row] = s
 		}
 		var out = 0.0
@@ -214,7 +208,7 @@ object EkfJourney {
 		var x = EkfState(x0, y0, 0.0, 0.0)
 
 		// Initial covariance (tune)
-		var P = doubleArrayOf(
+		var p = doubleArrayOf(
 			25.0,0.0,0.0,0.0,
 			0.0,25.0,0.0,0.0,
 			0.0,0.0,100.0,0.0,
@@ -233,7 +227,7 @@ object EkfJourney {
 			// Predict
 			val dt = if (idx == 0) 0.0 else (t - samples[idx - 1].timeMillis).coerceAtLeast(1L) / 1000.0
 
-			val F = eye4().apply {
+			val f = eye4().apply {
 				this[0*4+2] = dt
 				this[1*4+3] = dt
 			}
@@ -245,7 +239,7 @@ object EkfJourney {
 			val dt4 = dt2*dt2
 			val sa2 = sigmaAccel * sigmaAccel
 
-			val Q = doubleArrayOf(
+			val q = doubleArrayOf(
 				sa2*dt4/4, 0.0,         sa2*dt3/2, 0.0,
 				0.0,        sa2*dt4/4,   0.0,        sa2*dt3/2,
 				sa2*dt3/2,  0.0,         sa2*dt2,    0.0,
@@ -259,7 +253,7 @@ object EkfJourney {
 				vy = x.vy
 			)
 
-			val PPred = mat4Add(mat4Mul(mat4Mul(F, P), mat4Transpose(F)), Q)
+			val pPred = mat4Add(mat4Mul(mat4Mul(f, p), mat4Transpose(f)), q)
 
 			// Update (EKF): z = [x_gps, y_gps, speed]
 			// Measurement noise from accuracy
@@ -273,41 +267,41 @@ object EkfJourney {
 			val v = hypot(xPred.vx, xPred.vy)
 			val h = if (useSpeed) doubleArrayOf(xPred.x, xPred.y, v) else doubleArrayOf(xPred.x, xPred.y)
 
-			val z = if (useSpeed) doubleArrayOf(zx, zy, s.speedMps!!) else doubleArrayOf(zx, zy)
+			val z = if (useSpeed) doubleArrayOf(zx, zy, s.speedMps) else doubleArrayOf(zx, zy)
 			val r = vecSub(z, h)
 
 			// H = dh/dx
-			val H = Array(m) { DoubleArray(4) }
+			val hJacobian = Array(m) { DoubleArray(4) }
 			// position rows
-			H[0][0] = 1.0; H[0][1] = 0.0; H[0][2] = 0.0; H[0][3] = 0.0
-			H[1][0] = 0.0; H[1][1] = 1.0; H[1][2] = 0.0; H[1][3] = 0.0
+			hJacobian[0][0] = 1.0; hJacobian[0][1] = 0.0; hJacobian[0][2] = 0.0; hJacobian[0][3] = 0.0
+			hJacobian[1][0] = 0.0; hJacobian[1][1] = 1.0; hJacobian[1][2] = 0.0; hJacobian[1][3] = 0.0
 
 			if (useSpeed) {
 				// speed = sqrt(vx^2 + vy^2)
 				val eps = 1e-6
 				val denom = max(eps, v)
-				H[2][2] = xPred.vx / denom
-				H[2][3] = xPred.vy / denom
+				hJacobian[2][2] = xPred.vx / denom
+				hJacobian[2][3] = xPred.vy / denom
 			}
 
 			// R
-			val R = Array(m) { DoubleArray(m) }
-			R[0][0] = rPos2
-			R[1][1] = rPos2
+			val rCov = Array(m) { DoubleArray(m) }
+			rCov[0][0] = rPos2
+			rCov[1][1] = rPos2
 			if (useSpeed) {
 				// speed noise (tune). If you trust GPS speed a lot, lower this.
 				val sigmaSpeed = 1.5 // m/s
-				R[2][2] = sigmaSpeed * sigmaSpeed
+				rCov[2][2] = sigmaSpeed * sigmaSpeed
 			}
 
 			// S = H P H^T + R
-			val HP = matMul(H, PPred, m, 4)
-			val S = matMul2(HP, matTrans(H), m, m, 4)
-			for (i in 0 until m) for (j in 0 until m) S[i][j] += R[i][j]
+			val hp = matMul(hJacobian, pPred, m)
+			val sCov = matMul2(hp, matTrans(hJacobian), m, m)
+			for (i in 0 until m) for (j in 0 until m) sCov[i][j] += rCov[i][j]
 
-			val SInv = when (m) {
-				2 -> inv2(S)
-				3 -> inv3(S)
+			val sInv = when (m) {
+				2 -> inv2(sCov)
+				3 -> inv3(sCov)
 				else -> error("Unsupported m=$m")
 			}
 
@@ -315,38 +309,38 @@ object EkfJourney {
 			// df=2: 95% ~ 5.99, 99% ~ 9.21
 			// df=3: 95% ~ 7.81, 99% ~ 11.34
 			val gate = if (m == 2) 9.21 else 11.34 // ~99% gate
-			val d2 = mahaSquared(r, SInv)
+			val d2 = mahaSquared(r, sInv)
 
 			val xFilt: EkfState
-			val PFilt: DoubleArray
+			val pFilt: DoubleArray
 
 			if (d2 > gate) {
 				// Reject this measurement as outlier -> keep prediction
 				xFilt = xPred
-				PFilt = PPred
+				pFilt = pPred
 			} else {
 				// K = P H^T S^-1   (4xm)
-				val Ht = matTrans(H) // 4xm
+				val hTransposed = matTrans(hJacobian) // 4xm
 				// Compute PHt (4xm)
-				val PHt = Array(4) { DoubleArray(m) }
+				val pht = Array(4) { DoubleArray(m) }
 				for (row in 0..3) for (col in 0 until m) {
 					var ssum = 0.0
-					for (k in 0..3) ssum += PPred[row*4+k] * Ht[k][col]
-					PHt[row][col] = ssum
+					for (k in 0..3) ssum += pPred[row*4+k] * hTransposed[k][col]
+					pht[row][col] = ssum
 				}
 				// K = PHt * SInv (4xm)
-				val K = Array(4) { DoubleArray(m) }
+				val kGain = Array(4) { DoubleArray(m) }
 				for (row in 0..3) for (col in 0 until m) {
 					var ssum = 0.0
-					for (k in 0 until m) ssum += PHt[row][k] * SInv[k][col]
-					K[row][col] = ssum
+					for (k in 0 until m) ssum += pht[row][k] * sInv[k][col]
+					kGain[row][col] = ssum
 				}
 
 				// x = xPred + K r
 				val dx = DoubleArray(4)
 				for (row in 0..3) {
 					var ssum = 0.0
-					for (k in 0 until m) ssum += K[row][k] * r[k]
+					for (k in 0 until m) ssum += kGain[row][k] * r[k]
 					dx[row] = ssum
 				}
 				xFilt = EkfState(
@@ -356,57 +350,57 @@ object EkfJourney {
 					vy = xPred.vy + dx[3]
 				)
 
-				// P = (I - K H) PPred
-				val KH = Array(4) { DoubleArray(4) }
+				// p = (I - K H) pPred
+				val kh = Array(4) { DoubleArray(4) }
 				for (r0 in 0..3) for (c0 in 0..3) {
 					var ssum = 0.0
-					for (k in 0 until m) ssum += K[r0][k] * H[k][c0]
-					KH[r0][c0] = ssum
+					for (k in 0 until m) ssum += kGain[r0][k] * hJacobian[k][c0]
+					kh[r0][c0] = ssum
 				}
-				val IminusKH = Array(4) { r0 -> DoubleArray(4) { c0 -> (if (r0 == c0) 1.0 else 0.0) - KH[r0][c0] } }
-				// PFilt = (I-KH) PPred
+				val iMinusKh = Array(4) { r0 -> DoubleArray(4) { c0 -> (if (r0 == c0) 1.0 else 0.0) - kh[r0][c0] } }
+				// pFilt = (I-KH) pPred
 				val outP = DoubleArray(16)
 				for (r0 in 0..3) for (c0 in 0..3) {
 					var ssum = 0.0
-					for (k in 0..3) ssum += IminusKH[r0][k] * PPred[k*4+c0]
+					for (k in 0..3) ssum += iMinusKh[r0][k] * pPred[k*4+c0]
 					outP[r0*4+c0] = ssum
 				}
-				PFilt = outP
+				pFilt = outP
 			}
 
 			steps += FilterStep(
 				tMillis = t,
 				xPred = xPred,
-				PPred = PPred,
+				pPred = pPred,
 				xFilt = xFilt,
-				PFilt = PFilt,
-				F = F
+				pFilt = pFilt,
+				f = f
 			)
 
 			x = xFilt
-			P = PFilt
+			p = pFilt
 		}
 
-		// RTS smoother (uses stored F, PPred, PFilt)
+		// RTS smoother (uses stored f, pPred, pFilt)
 		val smoothed = MutableList(steps.size) { steps[it].xFilt }
-		var Ps = steps.last().PFilt
+		var ps = steps.last().pFilt
 
 		for (k in steps.size - 2 downTo 0) {
 			val stepK = steps[k]
 			val stepK1 = steps[k + 1]
 
-			val Pk = stepK.PFilt
-			val Pk1Pred = stepK1.PPred
-			val Fk1 = stepK1.F
+			val pk = stepK.pFilt
+			val pk1Pred = stepK1.pPred
+			val fk1 = stepK1.f
 
-			// Compute smoother gain: Ck = Pk F^T (Pk+1_pred)^-1
+			// Compute smoother gain: ck = pk f^T (pk+1_pred)^-1
 			// We’ll invert 4x4 with a simple Gauss-Jordan (since it’s only 4x4)
-			val PkF_T = mat4Mul(Pk, mat4Transpose(Fk1))
-			val invPk1Pred = inv4GaussJordan(Pk1Pred)
+			val pkfTranspose = mat4Mul(pk, mat4Transpose(fk1))
+			val invPk1Pred = inv4GaussJordan(pk1Pred)
 
-			val Ck = mat4Mul(PkF_T, invPk1Pred)
+			val ck = mat4Mul(pkfTranspose, invPk1Pred)
 
-			// xs = xf + Ck (x_{k+1}^s - x_{k+1}^pred)
+			// xs = xf + ck (x_{k+1}^s - x_{k+1}^pred)
 			val xk = stepK.xFilt
 			val xk1s = smoothed[k + 1]
 			val xk1pred = stepK1.xPred
@@ -416,7 +410,7 @@ object EkfJourney {
 				xk1s.vx - xk1pred.vx,
 				xk1s.vy - xk1pred.vy
 			)
-			val corr = mat4Vec(Ck, diff)
+			val corr = mat4Vec(ck, diff)
 			val xks = EkfState(
 				x = xk.x + corr[0],
 				y = xk.y + corr[1],
@@ -425,45 +419,45 @@ object EkfJourney {
 			)
 			smoothed[k] = xks
 
-			// Ps = Pk + Ck (Ps_{k+1} - Pk+1_pred) Ck^T
-			val PsNext = Ps
-			val middle = mat4Sub(PsNext, Pk1Pred)
-			val PsNew = mat4Add(Pk, mat4Mul(mat4Mul(Ck, middle), mat4Transpose(Ck)))
-			Ps = PsNew
+			// ps = pk + ck (ps_{k+1} - pk+1_pred) ck^T
+			val psNext = ps
+			val middle = mat4Sub(psNext, pk1Pred)
+			val psNew = mat4Add(pk, mat4Mul(mat4Mul(ck, middle), mat4Transpose(ck)))
+			ps = psNew
 		}
 
 		return smoothed to origin
 	}
 
-	private fun inv4GaussJordan(A: DoubleArray): DoubleArray {
+	private fun inv4GaussJordan(a: DoubleArray): DoubleArray {
 		// 4x4 inversion via Gauss-Jordan; A row-major
-		val M = Array(4) { r -> DoubleArray(8) }
+		val m = Array(4) { DoubleArray(8) }
 		for (r in 0..3) {
-			for (c in 0..3) M[r][c] = A[r*4+c]
-			for (c in 0..3) M[r][4+c] = if (r == c) 1.0 else 0.0
+			for (c in 0..3) m[r][c] = a[r*4+c]
+			for (c in 0..3) m[r][4+c] = if (r == c) 1.0 else 0.0
 		}
 		for (col in 0..3) {
 			// pivot
 			var pivotRow = col
-			var maxAbs = abs(M[col][col])
+			var maxAbs = abs(m[col][col])
 			for (r in col+1..3) {
-				val v = abs(M[r][col])
+				val v = abs(m[r][col])
 				if (v > maxAbs) { maxAbs = v; pivotRow = r }
 			}
 			require(maxAbs > 1e-12) { "Singular 4x4" }
 			if (pivotRow != col) {
-				val tmp = M[col]; M[col] = M[pivotRow]; M[pivotRow] = tmp
+				val tmp = m[col]; m[col] = m[pivotRow]; m[pivotRow] = tmp
 			}
-			val piv = M[col][col]
-			for (c in col until 8) M[col][c] /= piv
+			val piv = m[col][col]
+			for (c in col until 8) m[col][c] /= piv
 			for (r in 0..3) {
 				if (r == col) continue
-				val f = M[r][col]
-				for (c in col until 8) M[r][c] -= f * M[col][c]
+				val f = m[r][col]
+				for (c in col until 8) m[r][c] -= f * m[col][c]
 			}
 		}
 		val inv = DoubleArray(16)
-		for (r in 0..3) for (c in 0..3) inv[r*4+c] = M[r][4+c]
+		for (r in 0..3) for (c in 0..3) inv[r*4+c] = m[r][4+c]
 		return inv
 	}
 }

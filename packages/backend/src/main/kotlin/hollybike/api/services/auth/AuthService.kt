@@ -20,7 +20,6 @@ import hollybike.api.types.user.EUserStatus
 import hollybike.api.utils.MailSender
 import hollybike.api.utils.isValidMail
 import hollybike.api.utils.validPassword
-import io.ktor.util.*
 import org.jetbrains.exposed.v1.dao.load
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.core.and
@@ -123,7 +122,7 @@ class AuthService(
 				.singleOrNull()
 				?: return@transaction Result.failure(UserNotFoundException())
 
-			if (!verify(login.password, userRow[Users.password].decodeBase64Bytes())) {
+			if (!verify(login.password, Base64.Default.decode(userRow[Users.password]))) {
 				return@transaction Result.failure(UserWrongPassword())
 			}
 
@@ -301,7 +300,7 @@ class AuthService(
 			return Result.failure(LinkExpire())
 		}
 		transaction(db) {
-			user.password = hash(password.newPassword).encodeBase64()
+			user.password = Base64.Default.encode(hash(password.newPassword))
 			Token.find { Tokens.user eq user.id }.forEach { it.delete() }
 		}
 		return Result.success(Unit)

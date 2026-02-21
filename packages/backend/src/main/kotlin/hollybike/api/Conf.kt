@@ -85,6 +85,7 @@ fun parseConf(): Conf? {
 			parseFileConf(f)
 		} catch(e: SerializationException) {
 			println("Malformed file")
+			e.printStackTrace()
 			null
 		}
 	} else {

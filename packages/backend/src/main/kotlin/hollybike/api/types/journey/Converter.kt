@@ -52,13 +52,8 @@ private fun Trk.getTrack(): Feature? {
 		return null
 	}
 	val properties = mutableMapOf<String, JsonElement>()
-	name?.let { properties["name"] = JsonPrimitive(it) }
-	cmt?.let { properties["cmt"] = JsonPrimitive(it) }
-	desc?.let { properties["desc"] = JsonPrimitive(it) }
-	if (times.isNotEmpty()) {
-		properties["coordTimes"] = JsonArray(times)
-		properties["time"] = times.first()
-	}
+	addBaseProperties(properties, name = name, cmt = cmt, desc = desc)
+	addTimesProperties(properties, times)
 	return Feature(
 		geometry = if (track.size == 1) {
 			LineString(track.first())
@@ -85,14 +80,8 @@ private fun Rte.getRoute(): Feature? {
 		return null
 	}
 	val properties = mutableMapOf<String, JsonElement>()
-	name?.let { properties["name"] = JsonPrimitive(it) }
-	cmt?.let { properties["cmt"] = JsonPrimitive(it) }
-	desc?.let { properties["desc"] = JsonPrimitive(it) }
-	type?.let { properties["type"] = JsonPrimitive(it) }
-	if (times.isNotEmpty()) {
-		properties["coordTimes"] = JsonArray(times)
-		properties["time"] = times.first()
-	}
+	addBaseProperties(properties, name = name, cmt = cmt, desc = desc, type = type)
+	addTimesProperties(properties, times)
 	return Feature(
 		properties = JsonObject(properties),
 		geometry = LineString(line)
@@ -106,10 +95,7 @@ private fun Wpt.getPoint(): Feature {
 		ele
 	)
 	val properties = mutableMapOf<String, JsonElement>()
-	name?.let { properties["name"] = JsonPrimitive(it) }
-	cmt?.let { properties["cmt"] = JsonPrimitive(it) }
-	desc?.let { properties["desc"] = JsonPrimitive(it) }
-	type?.let { properties["type"] = JsonPrimitive(it) }
+	addBaseProperties(properties, name = name, cmt = cmt, desc = desc, type = type)
 	time?.let { properties["time"] = JsonPrimitive(it.toString()) }
 	sym?.let { properties["sym"] = JsonPrimitive(it) }
 	return Feature(
@@ -144,47 +130,54 @@ private fun GeoJson.getRoutes(properties: JsonObject? = null): List<Rte> = when 
 	else -> emptyList()
 }
 
+private fun addBaseProperties(
+	properties: MutableMap<String, JsonElement>,
+	name: String? = null,
+	cmt: String? = null,
+	desc: String? = null,
+	type: String? = null
+) {
+	name?.let { properties["name"] = JsonPrimitive(it) }
+	cmt?.let { properties["cmt"] = JsonPrimitive(it) }
+	desc?.let { properties["desc"] = JsonPrimitive(it) }
+	type?.let { properties["type"] = JsonPrimitive(it) }
+}
+
+private fun addTimesProperties(properties: MutableMap<String, JsonElement>, times: List<JsonElement>) {
+	if (times.isEmpty()) return
+	properties["coordTimes"] = JsonArray(times)
+	properties["time"] = times.first()
+}
+
+private fun JsonElement.primitiveContentOrNull(): String? = when (this) {
+	is JsonPrimitive -> content
+	else -> null
+}
+
 fun JsonElement.getStringOrNull(key: String): String? = when (this) {
-	is JsonObject -> if (containsKey(key)) {
-		when (val el = this[key]) {
-			is JsonPrimitive -> el.content
-			else -> null
-		}
-	} else {
-		null
-	}
+	is JsonObject -> this[key]?.primitiveContentOrNull()
 
 	else -> null
 }
 
 fun JsonElement.getStringOrNull(index: Int): String? = when (this) {
-	is JsonArray -> if(this.size > index) {
-		when(val el = this[index]) {
-			is JsonPrimitive -> el.content
-			else -> null
-		}
-	} else {
-		null
-	}
+	is JsonArray -> if (this.size > index) this[index].primitiveContentOrNull() else null
 	else -> null
 }
 
+private fun parseInstantOrNull(value: String): Instant? = try {
+	Instant.parse(value)
+} catch (e: Exception) {
+	logger.debug(e.message, e)
+	null
+}
+
 fun JsonElement.getInstantOrNull(key: String): Instant? = getStringOrNull(key)?.let {
-	try {
-		Instant.parse(it)
-	} catch (e: Exception) {
-		logger.debug(e.message, e)
-		null
-	}
+	parseInstantOrNull(it)
 }
 
 fun JsonElement.getInstantOrNull(index: Int): Instant? = getStringOrNull(index)?.let {
-	try {
-		Instant.parse(it)
-	} catch (e: Exception) {
-		logger.debug(e.message, e)
-		null
-	}
+	parseInstantOrNull(it)
 }
 
 

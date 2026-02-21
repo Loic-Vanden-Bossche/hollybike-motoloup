@@ -4,15 +4,12 @@
 */
 package hollybike.api.routing.controller
 
-import hollybike.api.json
 import hollybike.api.plugins.user
 import hollybike.api.repository.userJourneyMapper
 import hollybike.api.routing.resources.UserJourneys
 import hollybike.api.services.UserEventPositionService
 import hollybike.api.services.storage.StorageService
 import hollybike.api.types.event.participation.TUserJourney
-import hollybike.api.types.journey.GeoJson
-import hollybike.api.types.journey.toGpx
 import hollybike.api.types.lists.TLists
 import hollybike.api.utils.search.getSearchParam
 import io.ktor.http.*
@@ -22,7 +19,6 @@ import io.ktor.server.request.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
@@ -105,15 +101,7 @@ class UserJourneyController(
 				return@get call.respond(HttpStatusCode.NotFound, "Le fichier n'existe pas")
 			}
 
-			val geojson = json.decodeFromString<GeoJson>(data.toString(Charsets.UTF_8))
-
-			if (call.request.accept()?.contains("geo+json") == true) {
-				call.respond(json.encodeToString(geojson))
-			} else if (call.request.accept()?.contains("gpx") == true) {
-				call.respond(xml.encodeToString(geojson.toGpx()))
-			} else {
-				call.respond(HttpStatusCode.BadRequest, "Il manque un format de retour")
-			}
+			call.respondJourneyFileByAccept(data, xml)
 		}
 	}
 }

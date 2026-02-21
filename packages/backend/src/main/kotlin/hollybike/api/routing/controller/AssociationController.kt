@@ -16,7 +16,6 @@ import hollybike.api.services.ExpenseService
 import hollybike.api.services.auth.AuthService
 import hollybike.api.services.auth.InvitationService
 import hollybike.api.types.association.*
-import hollybike.api.types.invitation.EInvitationStatus
 import hollybike.api.types.invitation.TInvitation
 import hollybike.api.types.association.TAssociation
 import hollybike.api.types.association.TNewAssociation
@@ -33,8 +32,10 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.charsets.*
-import kotlinx.datetime.*
+import io.ktor.utils.io.jvm.javaio.*
+import kotlinx.datetime.LocalDate
 import kotlin.math.ceil
+import kotlin.time.Instant
 
 class AssociationController(
 	application: Application,
@@ -125,23 +126,11 @@ class AssociationController(
 
 	private fun Route.updateMyAssociationPicture() {
 		patch<Associations.Me.Picture<API>>(EUserScope.Admin) {
-			val multipart = call.receiveMultipart()
-
-			val image = multipart.readPart() as PartData.FileItem
-
-			val contentType = image.contentType ?: run {
-				call.respond(HttpStatusCode.BadRequest, "Type de contenu de l'image manquant")
-				return@patch
-			}
-
-			if (contentType != ContentType.Image.JPEG && contentType != ContentType.Image.PNG) {
-				call.respond(HttpStatusCode.BadRequest, "Image invalide (JPEG et PNG seulement)")
-				return@patch
-			}
+			val (imageBytes, contentType) = call.receiveValidatedImage() ?: return@patch
 
 			val association = associationService.updateMyAssociationPicture(
 				call.user.association,
-				image.streamProvider().readBytes(),
+				imageBytes,
 				contentType
 			)
 
@@ -228,23 +217,11 @@ class AssociationController(
 
 	private fun Route.updateAssociationPicture() {
 		patch<Associations.Id.Picture<API>>(EUserScope.Root) { params ->
-			val multipart = call.receiveMultipart()
-
-			val image = multipart.readPart() as PartData.FileItem
-
-			val contentType = image.contentType ?: run {
-				call.respond(HttpStatusCode.BadRequest, "Type de contenu de l'image manquant")
-				return@patch
-			}
-
-			if (contentType != ContentType.Image.JPEG && contentType != ContentType.Image.PNG) {
-				call.respond(HttpStatusCode.BadRequest, "Image invalide (JPEG et PNG seulement)")
-				return@patch
-			}
+			val (imageBytes, contentType) = call.receiveValidatedImage() ?: return@patch
 
 			associationService.updateAssociationPicture(
 				params.id.id,
-				image.streamProvider().readBytes(),
+				imageBytes,
 				contentType
 			).onSuccess {
 				call.respond(TAssociation(it))
@@ -362,13 +339,7 @@ class AssociationController(
 				return@get
 			}
 			invitationService.getAllByAssociation(call.user, association, searchParam).onSuccess { invitations ->
-				val dto = invitations.map { i ->
-					if (i.status == EInvitationStatus.Enabled) {
-						TInvitation(i, authService.generateLink(host, i))
-					} else {
-						TInvitation(i)
-					}
-				}
+				val dto = invitations.toInvitationDtos(authService, host)
 				call.respond(TLists(dto, searchParam, count))
 			}.onFailure { e ->
 				when (e) {
@@ -394,12 +365,7 @@ class AssociationController(
 			param.filter.add(Filter(Expenses.date, startOfYear.toString(), FilterMode.GREATER_THAN_EQUAL))
 			param.filter.add(Filter(Expenses.date, endOfThisYear.toString(), FilterMode.LOWER_THAN))
 			val expenses = expenseService.getAll(call.user, param)
-			call.respondOutputStream(ContentType.Text.CSV) {
-				write("name,id_event,name_event,description,amount,date\n".toByteArray(Charsets.UTF_8))
-				expenses.forEach { e ->
-					write("${e.name},${e.event.id.value},${e.event.name},\"${e.description ?: ""}\",${e.amount},${e.date}\n".toByteArray(Charsets.UTF_8))
-				}
-			}
+			call.respondExpensesCsv(expenses)
 		}
 	}
 
@@ -417,11 +383,33 @@ class AssociationController(
 			val total = expenseService.getAllCount(call.user, param)
 			param.perPage = total.toInt()
 			val expenses = expenseService.getAll(call.user, param)
-			call.respondOutputStream(ContentType.Text.CSV) {
-				write("name,id_event,name_event,description,amount,date\n".toByteArray(Charsets.UTF_8))
-				expenses.forEach { e ->
-					write("${e.name},${e.event.id.value},${e.event.name},\"${e.description ?: ""}\",${e.amount},${e.date}\n".toByteArray(Charsets.UTF_8))
-				}
+			call.respondExpensesCsv(expenses)
+		}
+	}
+
+	private suspend fun ApplicationCall.receiveValidatedImage(): Pair<ByteArray, ContentType>? {
+		val image = (receiveMultipart().readPart() as? PartData.FileItem) ?: run {
+			respond(HttpStatusCode.BadRequest, "Fichier image manquant")
+			return null
+		}
+		val contentType = image.contentType ?: run {
+			respond(HttpStatusCode.BadRequest, "Type de contenu de l'image manquant")
+			return null
+		}
+		if (contentType != ContentType.Image.JPEG && contentType != ContentType.Image.PNG) {
+			respond(HttpStatusCode.BadRequest, "Image invalide (JPEG et PNG seulement)")
+			return null
+		}
+		val imageBytes = image.provider().toInputStream().use { it.readBytes() }
+		image.dispose()
+		return imageBytes to contentType
+	}
+
+	private suspend fun ApplicationCall.respondExpensesCsv(expenses: List<Expense>) {
+		respondOutputStream(ContentType.Text.CSV) {
+			write("name,id_event,name_event,description,amount,date\n".toByteArray(Charsets.UTF_8))
+			expenses.forEach { expense ->
+				write("${expense.name},${expense.event.id.value},${expense.event.name},\"${expense.description ?: ""}\",${expense.amount},${expense.date}\n".toByteArray(Charsets.UTF_8))
 			}
 		}
 	}

@@ -24,7 +24,7 @@ fun Application.configureRestart(confMode: Boolean) {
 						val application = call.application
 						val environment = application.environment
 						call.respond(HttpStatusCode.Gone)
-						environment.monitor.raiseCatching(ApplicationStopPreparing, environment, application.log)
+						application.monitor.raiseCatching(ApplicationStopPreparing, environment, application.log)
 					}
 				}
 			} else {
@@ -32,7 +32,7 @@ fun Application.configureRestart(confMode: Boolean) {
 					val application = call.application
 					val environment = application.environment
 					call.respond(HttpStatusCode.Gone)
-					environment.monitor.raiseCatching(ApplicationStopPreparing, environment, application.log)
+					application.monitor.raiseCatching(ApplicationStopPreparing, environment, application.log)
 				}
 			}
 		}

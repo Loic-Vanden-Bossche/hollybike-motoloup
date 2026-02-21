@@ -23,7 +23,7 @@ import org.jetbrains.exposed.v1.dao.load
 import org.jetbrains.exposed.v1.dao.with
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.eq
-import org.jetbrains.exposed.v1.jdbc.transactions.experimental.newSuspendedTransaction
+import org.jetbrains.exposed.v1.jdbc.transactions.suspendTransaction
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 
 class EventParticipationService(
@@ -86,6 +86,7 @@ class EventParticipationService(
 				User.wrapRow(row) to try {
 					EventParticipation.wrapRow(row).load(EventParticipation::event, Event::owner)
 				} catch (e: Throwable) {
+					println(e)
 					null
 				}
 			}.toList()
@@ -164,16 +165,16 @@ class EventParticipationService(
 		}
 	}
 
-	suspend fun removeUserFromEvent(caller: User, eventId: Int, userId: Int): Result<Unit> = newSuspendedTransaction(db = db) {
+	suspend fun removeUserFromEvent(caller: User, eventId: Int, userId: Int): Result<Unit> = suspendTransaction(db = db) {
 		val event = findEvent(caller, eventId)
-			?: return@newSuspendedTransaction Result.failure(EventNotFoundException("Event $eventId introuvable"))
+			?: return@suspendTransaction Result.failure(EventNotFoundException("Event $eventId introuvable"))
 
 		if (caller.id.value == userId) {
-			return@newSuspendedTransaction Result.failure(EventActionDeniedException("Vous ne pouvez pas vous retirer de l'événement"))
+			return@suspendTransaction Result.failure(EventActionDeniedException("Vous ne pouvez pas vous retirer de l'événement"))
 		}
 
 		if (event.owner.id.value == userId) {
-			return@newSuspendedTransaction Result.failure(EventActionDeniedException("Vous ne pouvez pas retirer le propriétaire de l'événement"))
+			return@suspendTransaction Result.failure(EventActionDeniedException("Vous ne pouvez pas retirer le propriétaire de l'événement"))
 		}
 
 		val participation = EventParticipation.find {
@@ -181,22 +182,22 @@ class EventParticipationService(
 		}.firstOrNull()
 
 		if (participation == null) {
-			return@newSuspendedTransaction Result.failure(NotParticipatingToEventException("Vous ne participez pas à cet événement"))
+			return@suspendTransaction Result.failure(NotParticipatingToEventException("Vous ne participez pas à cet événement"))
 		}
 
 		if (participation.role != EEventRole.Organizer) {
-			return@newSuspendedTransaction Result.failure(EventActionDeniedException("Seul un organisateur peut retirer un participant"))
+			return@suspendTransaction Result.failure(EventActionDeniedException("Seul un organisateur peut retirer un participant"))
 		}
 
 		val user = User.findById(userId)
-			?: return@newSuspendedTransaction Result.failure(EventNotFoundException("User $userId introuvable"))
+			?: return@suspendTransaction Result.failure(EventNotFoundException("User $userId introuvable"))
 
 		val userParticipation = EventParticipation.find {
 			eventParticipationUserEventCondition(user, eventId)
 		}.firstOrNull()
 
 		if (userParticipation == null) {
-			return@newSuspendedTransaction Result.failure(NotParticipatingToEventException("L'utilisateur ne participe pas à cet événement"))
+			return@suspendTransaction Result.failure(NotParticipatingToEventException("L'utilisateur ne participe pas à cet événement"))
 		}
 
 		userParticipation.isJoined = false
@@ -211,20 +212,20 @@ class EventParticipationService(
 		caller: User,
 		eventId: Int,
 		userIds: List<Int>
-	): Result<List<EventParticipation>> = newSuspendedTransaction(db = db) {
+	): Result<List<EventParticipation>> = suspendTransaction(db = db) {
 		val event = findEvent(caller, eventId)
-			?: return@newSuspendedTransaction Result.failure(EventNotFoundException("Event $eventId introuvable"))
+			?: return@suspendTransaction Result.failure(EventNotFoundException("Event $eventId introuvable"))
 
 		val participation = EventParticipation.find {
 			eventParticipationUserEventCondition(caller, eventId)
 		}.firstOrNull()
 
 		if (participation == null) {
-			return@newSuspendedTransaction Result.failure(NotParticipatingToEventException("Vous ne participez pas à cet événement"))
+			return@suspendTransaction Result.failure(NotParticipatingToEventException("Vous ne participez pas à cet événement"))
 		}
 
 		if (participation.role != EEventRole.Organizer) {
-			return@newSuspendedTransaction Result.failure(EventActionDeniedException("Seul l'organisateur peut ajouter des participants"))
+			return@suspendTransaction Result.failure(EventActionDeniedException("Seul l'organisateur peut ajouter des participants"))
 		}
 
 		val users = User.find { Users.id inList userIds }
@@ -251,7 +252,7 @@ class EventParticipationService(
 
 					userParticipation
 				} else {
-					return@newSuspendedTransaction Result.failure(AlreadyParticipatingToEventException("L'utilisateur ${user.id} participe déjà à cet événement"))
+					return@suspendTransaction Result.failure(AlreadyParticipatingToEventException("L'utilisateur ${user.id} participe déjà à cet événement"))
 				}
 			}
 		)
@@ -402,6 +403,7 @@ class EventParticipationService(
 			?: Result.failure(NotParticipatingToEventException("Vous ne participez pas à cet événement"))
 	}
 }
+
 
 
 

@@ -89,6 +89,7 @@ fun Application.configureSecurity(db: Database) {
 				try {
 					HttpAuthHeader.Single("Bearer", call.parameters["signature"] ?: "")
 				} catch (e: Throwable) {
+					e.printStackTrace()
 					null
 				}
 			}

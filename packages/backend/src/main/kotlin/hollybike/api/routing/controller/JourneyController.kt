@@ -23,7 +23,6 @@ import hollybike.api.types.position.TPosition
 import hollybike.api.types.position.TPositionRequest
 import hollybike.api.types.position.TPositionResult
 import hollybike.api.types.user.TUserPartial
-import hollybike.api.utils.GeoJson
 import hollybike.api.utils.search.getMapperData
 import hollybike.api.utils.search.getSearchParam
 import io.ktor.http.*
@@ -35,12 +34,12 @@ import io.ktor.server.resources.*
 import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.utils.io.jvm.javaio.toInputStream
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlin.time.Clock
 import kotlinx.serialization.decodeFromString
-import kotlinx.serialization.encodeToString
 import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
 import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
 import nl.adaptivity.xmlutil.serialization.XML
@@ -119,7 +118,7 @@ class JourneyController(
 	private val xml = XML {
 		defaultPolicy {
 			unknownChildHandler =
-				UnknownChildHandler { _, _, _, name, _ ->
+				UnknownChildHandler { _, _, _, _, _ ->
 					emptyList()
 				}
 		}
@@ -171,7 +170,7 @@ class JourneyController(
 
 			val file = multipart.readPart() as PartData.FileItem
 
-			val text = file.streamProvider().readBytes().toString(Charsets.UTF_8)
+			val text = file.provider().toInputStream().readBytes().toString(Charsets.UTF_8)
 
 			val geoJson = try {
 				xml.decodeFromString<Gpx>(text).toGeoJson()
@@ -189,7 +188,7 @@ class JourneyController(
 				bbox = getBoundingBox()
 			}
 
-			val contentType = ContentType.Application.GeoJson
+			val contentType = GeoJson
 
 			val journey = journeyService.getById(call.user, it.id.id) ?: run {
 				call.respond(HttpStatusCode.NotFound, "Le trajet n'as pas été trouvé")
@@ -368,15 +367,7 @@ class JourneyController(
 				return@get call.respond(HttpStatusCode.NotFound, "Le fichier n'existe pas")
 			}
 
-			val geojson = json.decodeFromString<GeoJson>(data.toString(Charsets.UTF_8))
-
-			if (call.request.accept()?.contains("geo+json") == true) {
-				call.respond(json.encodeToString(geojson))
-			} else if (call.request.accept()?.contains("gpx") == true) {
-				call.respond(xml.encodeToString(geojson.toGpx()))
-			} else {
-				call.respond(HttpStatusCode.BadRequest, "Il manque un format de retour")
-			}
+			call.respondJourneyFileByAccept(data, xml)
 		}
 	}
 }

@@ -118,7 +118,7 @@ class EventImageService(
 		eventImagesRequest(caller, searchParam, withPagination = false).count()
 	}
 
-	suspend fun uploadImages(
+	fun uploadImages(
 		caller: User,
 		eventId: Int,
 		images: List<Pair<ByteArray, String>>

@@ -4,7 +4,6 @@
 */
 package hollybike.api.services
 
-import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.repository.*
 import hollybike.api.types.user.EUserScope
 import hollybike.api.utils.search.*

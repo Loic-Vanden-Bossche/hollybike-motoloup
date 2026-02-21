@@ -26,6 +26,7 @@ import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.routing
+import io.ktor.utils.io.jvm.javaio.toInputStream
 
 class EventImageController(
 	application: Application,
@@ -83,7 +84,7 @@ class EventImageController(
 						null
 					}
 					if (contentType != null) {
-						images.add(part.streamProvider().readBytes() to contentType.toString())
+						images.add(part.provider().toInputStream().readBytes() to contentType.toString())
 					}
 				}
 				part.dispose()

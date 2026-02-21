@@ -277,6 +277,7 @@ class EventService(
 				EventParticipation::recordedPositions
 			)
 		} catch (e: Throwable) {
+			e.printStackTrace()
 			null
 		}
 	}
@@ -469,7 +470,7 @@ class EventService(
 
 	fun uploadEventImage(caller: User, eventId: Int, image: ByteArray, imageContentType: String): Result<Event> =
 		transaction(db) {
-			findEventIfOrganizer(eventId, caller).onFailure { return@transaction Result.failure(it) }.onSuccess {
+			findEventIfOrganizer(eventId, caller).onFailure { return@transaction Result.failure(it) }.onSuccess { it ->
 				try {
 					it.image?.let {
 						runBlocking { storageService.delete(it) }
