@@ -6,6 +6,7 @@ val awsSdkKotlinVersion: String by project
 
 plugins {
 	application
+	jacoco
 	kotlin("jvm") version "2.3.10"
 	id("com.github.ben-manes.versions") version "0.53.0"
 
@@ -165,8 +166,25 @@ liquibase {
 	runList = "main"
 }
 
-tasks.test {
+tasks.withType<Test>().configureEach {
 	useJUnitPlatform()
+	systemProperty("java.util.logging.config.file", file("src/test/resources/logging.properties").absolutePath)
+	testLogging {
+		events("passed", "failed", "skipped")
+	}
+}
+
+tasks.jacocoTestReport {
+	dependsOn(tasks.test)
+	reports {
+		xml.required.set(true)
+		html.required.set(true)
+		csv.required.set(false)
+	}
+}
+
+tasks.test {
+	finalizedBy(tasks.jacocoTestReport)
 }
 
 tasks.register<JavaExec>("runNativeAgent") {
@@ -188,7 +206,6 @@ tasks.register<Test>("testNativeAgent") {
 	dependsOn("testClasses")
 	testClassesDirs = sourceSets["test"].output.classesDirs
 	classpath = sourceSets["test"].runtimeClasspath
-	useJUnitPlatform()
 	maxParallelForks = 1
 	val outputDir = (project.findProperty("nativeImageAgentOutputDir") as String?) ?: "native-image/test"
 	doFirst {

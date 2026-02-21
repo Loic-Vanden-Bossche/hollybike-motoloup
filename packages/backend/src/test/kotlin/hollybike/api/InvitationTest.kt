@@ -50,8 +50,8 @@ class InvitationTest : IntegrationSpec({
 				maxUses = 20,
 				expiration = null
 			),
-		).forEach { invitationCreation ->
-			test("Should return create the invitation link") {
+		).forEachIndexed { index, invitationCreation ->
+			test("Should return create the invitation link #$index") {
 				onPremiseTestApp {
 					it.post("/api/invitation") {
 						auth(UserStore.admin1)

@@ -85,13 +85,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-#
-#      - name: Run SonarQube scan on main push
-#        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-#        uses: SonarSource/sonarqube-scan-action@v4
-#        env:
-#          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-#          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
 
       - name: Decode kube config
         run: |

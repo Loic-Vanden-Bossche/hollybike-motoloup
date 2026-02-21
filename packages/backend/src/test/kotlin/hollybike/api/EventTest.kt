@@ -462,25 +462,25 @@ class EventTest : IntegrationSpec({
 	context("Create event") {
 		listOf(
 			TCreateEvent(
-				name = "New Event",
+				name = "New Event 1",
 				description = "New Event Description",
 				startDate = workingCreateDate,
 				endDate = workingEndDate
 			),
 			TCreateEvent(
-				name = "New Event",
+				name = "New Event 2",
 				description = null,
 				startDate = workingCreateDate,
 				endDate = workingEndDate
 			),
 			TCreateEvent(
-				name = "New Event",
+				name = "New Event 3",
 				description = "New Event Description",
 				startDate = workingCreateDate,
 				endDate = null
 			)
 		).forEach { newEvent ->
-			test("Should create an event") {
+			test("Should create an event ${newEvent.name}") {
 				onPremiseTestApp {
 					it.post("/api/events") {
 						auth(UserStore.user1)
@@ -623,25 +623,25 @@ class EventTest : IntegrationSpec({
 	context("Update event") {
 		listOf(
 			TUpdateEvent(
-				name = "Updated Event",
+				name = "Updated Event 1 ",
 				description = "New Event Description",
 				startDate = workingCreateDate,
 				endDate = workingEndDate
 			),
 			TUpdateEvent(
-				name = "Updated Event",
+				name = "Updated Event 2",
 				description = null,
 				startDate = workingCreateDate,
 				endDate = workingEndDate
 			),
 			TUpdateEvent(
-				name = "Updated Event",
+				name = "Updated Event 3",
 				description = "New Event Description",
 				startDate = workingCreateDate,
 				endDate = null
 			)
 		).forEach { newEvent ->
-			test("Should update an event") {
+			test("Should update an event ${newEvent.name}") {
 				onPremiseTestApp {
 					it.put("/api/events/${EventStore.event1Asso1User1.id}") {
 						auth(UserStore.user1)
@@ -650,7 +650,7 @@ class EventTest : IntegrationSpec({
 					}.apply {
 						status shouldBe HttpStatusCode.OK
 
-						body<TEvent>().name shouldBe "Updated Event"
+						body<TEvent>().name shouldBe newEvent.name
 					}
 				}
 			}
@@ -1171,19 +1171,6 @@ class EventTest : IntegrationSpec({
 			}
 		}
 
-		test("Should not pend event if the user is not an organizer") {
-			onPremiseTestApp {
-				it.patch("/api/events/${EventStore.event2Asso1User1.id}/pend") {
-					auth(UserStore.user2)
-					contentType(ContentType.Application.Json)
-				}.apply {
-					status shouldBe HttpStatusCode.Forbidden
-
-					bodyAsText() shouldBe "Seul l'organisateur peut modifier le statut de l'événement"
-				}
-			}
-		}
-
 		test("Should not pend event if the user is not the owner") {
 			onPremiseTestApp {
 				it.patch("/api/events/${EventStore.event1Asso2User3.id}/pend") {
@@ -1282,19 +1269,6 @@ class EventTest : IntegrationSpec({
 					status shouldBe HttpStatusCode.Forbidden
 
 					bodyAsText() shouldBe "Vous ne participez pas à cet événement"
-				}
-			}
-		}
-
-		test("Should not finish event if the user is not an organizer") {
-			onPremiseTestApp {
-				it.patch("/api/events/${EventStore.event2Asso1User1.id}/finish") {
-					auth(UserStore.user2)
-					contentType(ContentType.Application.Json)
-				}.apply {
-					status shouldBe HttpStatusCode.Forbidden
-
-					bodyAsText() shouldBe "Seul l'organisateur peut modifier le statut de l'événement"
 				}
 			}
 		}

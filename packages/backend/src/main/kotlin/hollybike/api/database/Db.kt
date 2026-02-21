@@ -8,6 +8,7 @@ import hollybike.api.conf
 import hollybike.api.isCloud
 import hollybike.api.isTestEnv
 import io.ktor.server.application.*
+import liquibase.Scope
 import liquibase.UpdateSummaryEnum
 import liquibase.command.CommandScope
 import liquibase.command.core.UpdateCommandStep
@@ -15,9 +16,12 @@ import liquibase.command.core.helpers.DbUrlConnectionArgumentsCommandStep
 import liquibase.command.core.helpers.ShowSummaryArgument
 import liquibase.database.DatabaseFactory
 import liquibase.database.jvm.JdbcConnection
+import liquibase.ui.ConsoleUIService
 import org.jetbrains.exposed.v1.core.DatabaseConfig
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.postgresql.util.PSQLException
+import java.io.OutputStream
+import java.io.PrintStream
 import java.sql.Connection
 
 fun Application.configureDatabase(): Database? {
@@ -49,12 +53,28 @@ fun runMigration(isDev: Boolean, isCloud: Boolean, isTestEnv: Boolean, connectio
 		(if (isCloud) "cloud" else "premise")
 
 	val db = DatabaseFactory.getInstance().findCorrectDatabaseImplementation(JdbcConnection(connection))
-	CommandScope("update").apply {
-		addArgumentValue(UpdateCommandStep.CHANGELOG_FILE_ARG, changelog)
-		addArgumentValue(DbUrlConnectionArgumentsCommandStep.DATABASE_ARG, db)
-		addArgumentValue(UpdateCommandStep.CONTEXTS_ARG, context)
-		addArgumentValue(ShowSummaryArgument.SHOW_SUMMARY, UpdateSummaryEnum.OFF)
-	}.execute()
+	fun executeUpdate() {
+		CommandScope("update").apply {
+			addArgumentValue(UpdateCommandStep.CHANGELOG_FILE_ARG, changelog)
+			addArgumentValue(DbUrlConnectionArgumentsCommandStep.DATABASE_ARG, db)
+			addArgumentValue(UpdateCommandStep.CONTEXTS_ARG, context)
+			addArgumentValue(ShowSummaryArgument.SHOW_SUMMARY, UpdateSummaryEnum.OFF)
+		}.execute()
+	}
+
+	if (isTestEnv) {
+		val silentUi = ConsoleUIService().apply {
+			setOutputStream(PrintStream(OutputStream.nullOutputStream()))
+			setErrorStream(PrintStream(OutputStream.nullOutputStream()))
+			setAllowPrompt(false)
+		}
+
+		Scope.child(mapOf(Scope.Attr.ui.name to silentUi)) {
+			executeUpdate()
+		}
+	} else {
+		executeUpdate()
+	}
 }
 
 
