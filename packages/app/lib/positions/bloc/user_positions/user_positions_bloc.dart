@@ -133,13 +133,7 @@ class UserPositionsBloc extends Bloc<UserPositionsEvent, UserPositionsState> {
 
     await ws.subscribe('event/$eventId');
 
-    final stream = ws.stream;
-
-    if (stream == null) {
-      throw Exception('Error while listening to websocket');
-    }
-
-    return stream;
+    return ws.stream;
   }
 
   List<WebsocketReceivePosition> _replaceUserPosition(

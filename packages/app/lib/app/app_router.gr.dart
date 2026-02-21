@@ -446,7 +446,7 @@ class LoadingRoute extends _i15.PageRouteInfo<void> {
 /// [_i9.LoginScreen]
 class LoginRoute extends _i15.PageRouteInfo<LoginRouteArgs> {
   LoginRoute({
-    _i16.Key? key,
+    _i24.Key? key,
     required dynamic Function() onAuthSuccess,
     bool canPop = false,
     List<_i15.PageRouteInfo>? children,
@@ -482,7 +482,7 @@ class LoginRouteArgs {
     this.canPop = false,
   });
 
-  final _i16.Key? key;
+  final _i24.Key? key;
 
   final dynamic Function() onAuthSuccess;
 

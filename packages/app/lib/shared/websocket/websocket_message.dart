@@ -10,6 +10,7 @@ part 'websocket_message.g.dart';
 
 abstract class WebsocketBody {
   final String type = '';
+  Map<String, dynamic> toJson();
 }
 
 @Freezed(genericArgumentFactories: true)

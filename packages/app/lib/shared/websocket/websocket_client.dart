@@ -10,6 +10,7 @@ import 'dart:math' as math;
 import 'package:dio/dio.dart';
 import 'package:hollybike/auth/services/auth_persistence.dart';
 import 'package:hollybike/auth/types/auth_session.dart';
+import 'package:hollybike/shared/http/dio_client.dart';
 import 'package:hollybike/shared/types/json_map.dart';
 import 'package:hollybike/shared/websocket/recieve/websocket_added_to_event.dart';
 import 'package:hollybike/shared/websocket/recieve/websocket_event_deleted.dart';
@@ -31,11 +32,12 @@ import 'send/websocket_subscribe.dart';
 class WebsocketClient {
   final AuthSession session;
   final AuthPersistence? authPersistence;
-  final Dio _refreshDio = Dio();
+  final DioClient _refreshClient;
 
   WebSocket? _client;
 
-  WebsocketClient({required this.session, this.authPersistence});
+  WebsocketClient({required this.session, this.authPersistence})
+      : _refreshClient = DioClient(host: session.host);
 
   Future<WebsocketClient> connect() async {
     math.Random r = math.Random();
@@ -115,21 +117,12 @@ class WebsocketClient {
     });
   }
 
-  Stream<WebsocketMessage>? get stream {
-    final stream = _client?.asBroadcastStream().map((event) {
-      try {
-        log('Received message: $event', name: 'WebsocketClient.stream');
-        return parseMessage(event);
-      } catch (e) {
-        log('Error parsing message: $e', name: 'WebsocketClient.stream');
-        return null;
-      }
+  Stream<WebsocketMessage> get stream {
+    return _client!.asBroadcastStream().map((event) {
+      log('Received message: $event', name: 'WebsocketClient.stream');
+      return parseMessage(event);
     });
-
-    return stream?.where((event) => event != null).cast<WebsocketMessage>();
   }
-
-  bool get isConnected => _client != null;
 
   void listen(void Function(WebsocketMessage) onData) {
     _client?.listen((data) {
@@ -144,22 +137,35 @@ class WebsocketClient {
 
   Future<void> subscribe(String channel) async {
     log('Subscribing to channel: $channel', name: 'WebsocketClient.subscribe');
-
     final token = await _tokenForSubscription();
+    _sendMessage(channel, WebsocketSubscribe(token: token));
+  }
 
-    final message = WebsocketMessage(
-      channel: channel,
-      data: WebsocketSubscribe(token: token),
-    );
+  Future<AuthSession?> renewSessionIfPossible() async {
+    await _hydrateSessionFromPersistence();
 
-    final jsonObject = message.toJson((obj) => obj.toJson());
+    if (!_hasRefreshCredentials) {
+      log(
+        'Skipping websocket session renewal: missing refresh credentials',
+        name: 'WebsocketClient.renewSessionIfPossible',
+      );
+      return null;
+    }
 
-    final jsonString = jsonEncode(jsonObject);
-
-    _send(jsonString);
+    try {
+      return await _renewSessionIfNeeded(session);
+    } catch (e) {
+      log(
+        'Failed to renew websocket session: $e',
+        name: 'WebsocketClient.renewSessionIfPossible',
+      );
+      return null;
+    }
   }
 
   Future<String> _tokenForSubscription() async {
+    await _hydrateSessionFromPersistence();
+
     if (!_hasRefreshCredentials) {
       return session.token;
     }
@@ -179,6 +185,22 @@ class WebsocketClient {
 
   bool get _hasRefreshCredentials =>
       session.refreshToken.isNotEmpty && session.deviceId.isNotEmpty;
+
+  Future<void> _hydrateSessionFromPersistence() async {
+    final persistence = authPersistence;
+    if (persistence == null) {
+      return;
+    }
+
+    final persistedSession = await _findBestPersistedSession(
+      persistence,
+      session,
+    );
+
+    if (persistedSession != null) {
+      _applySessionUpdate(persistedSession);
+    }
+  }
 
   bool _isJwtExpiredOrNearExpiry(
     String token, {
@@ -212,21 +234,22 @@ class WebsocketClient {
     if (persistence == null) {
       final refreshed = await _renewSession(oldSession);
       _applySessionUpdate(refreshed);
+
       return refreshed;
     }
 
-    final persistedSession = await persistence.getSessionByHostAndDevice(
-      oldSession.host,
-      oldSession.deviceId,
+    final persistedSession = await _findBestPersistedSession(
+      persistence,
+      oldSession,
     );
     final sessionToRefresh = persistedSession ?? oldSession;
     final refreshLockKey = persistence.refreshLockKey(sessionToRefresh);
 
     if (persistence.isRefreshing(refreshLockKey)) {
       await persistence.waitIfRefreshing(refreshLockKey);
-      final refreshedFromStore = await persistence.getSessionByHostAndDevice(
-        oldSession.host,
-        oldSession.deviceId,
+      final refreshedFromStore = await _findBestPersistedSession(
+        persistence,
+        oldSession,
       );
       if (refreshedFromStore != null) {
         _applySessionUpdate(refreshedFromStore);
@@ -241,8 +264,19 @@ class WebsocketClient {
 
       if (persistedSession != null) {
         await persistence.replaceSession(persistedSession, refreshed);
+      } else {
+        final currentSession = await persistence.currentSession;
+        if (currentSession != null &&
+            currentSession.host == sessionToRefresh.host &&
+            (sessionToRefresh.deviceId.isEmpty ||
+                currentSession.deviceId == sessionToRefresh.deviceId)) {
+          await persistence.replaceSession(currentSession, refreshed);
+        } else {
+          persistence.currentSession = refreshed;
+        }
       }
 
+      persistence.currentSession = refreshed;
       _applySessionUpdate(refreshed);
       return refreshed;
     } on DioException catch (e) {
@@ -253,6 +287,31 @@ class WebsocketClient {
     } finally {
       persistence.markRefreshDone(refreshLockKey);
     }
+  }
+
+  Future<AuthSession?> _findBestPersistedSession(
+    AuthPersistence persistence,
+    AuthSession lookupSession,
+  ) async {
+    AuthSession? persistedSession;
+
+    if (lookupSession.deviceId.isNotEmpty) {
+      persistedSession = await persistence.getSessionByHostAndDevice(
+        lookupSession.host,
+        lookupSession.deviceId,
+      );
+    }
+
+    persistedSession ??= await persistence.getSessionByToken(lookupSession.token);
+
+    final currentSession = await persistence.currentSession;
+    if (persistedSession == null &&
+        currentSession != null &&
+        currentSession.host == lookupSession.host) {
+      persistedSession = currentSession;
+    }
+
+    return persistedSession;
   }
 
   Future<void> _onSessionExpired(
@@ -267,9 +326,8 @@ class WebsocketClient {
   }
 
   Future<AuthSession> _renewSession(AuthSession oldSession) async {
-    _refreshDio.options = BaseOptions();
-    final newSessionResponse = await _refreshDio.patch(
-      '${oldSession.host}/api/auth/refresh',
+    final newSessionResponse = await _refreshClient.dio.patch(
+      '/api/auth/refresh',
       data: {"device": oldSession.deviceId, "token": oldSession.refreshToken},
     );
 
@@ -288,14 +346,7 @@ class WebsocketClient {
       'Sending user position: ${position.latitude}, ${position.longitude}, ${position.altitude}, ${position.time}, ${position.speed}',
       name: 'WebsocketClient.sendUserPosition',
     );
-
-    final message = WebsocketMessage(channel: channel, data: position);
-
-    final jsonObject = message.toJson((obj) => obj.toJson());
-
-    final jsonString = jsonEncode(jsonObject);
-
-    _send(jsonString);
+    _sendMessage(channel, position);
   }
 
   void sendReadNotification(String channel, int notificationId) {
@@ -303,17 +354,7 @@ class WebsocketClient {
       'Sending read notification',
       name: 'WebsocketClient.sendReadNotification',
     );
-
-    final message = WebsocketMessage(
-      channel: channel,
-      data: WebsocketReadNotification(notificationId: notificationId),
-    );
-
-    final jsonObject = message.toJson((obj) => obj.toJson());
-
-    final jsonString = jsonEncode(jsonObject);
-
-    _send(jsonString);
+    _sendMessage(channel, WebsocketReadNotification(notificationId: notificationId));
   }
 
   void stopSendPositions(String channel) {
@@ -321,16 +362,10 @@ class WebsocketClient {
       'Stop sending user position',
       name: 'WebsocketClient.stopSendPositions',
     );
+    _sendMessage(channel, const WebsocketStopSendPosition());
+  }
 
-    final message = WebsocketMessage(
-      channel: channel,
-      data: const WebsocketStopSendPosition(),
-    );
-
-    final jsonObject = message.toJson((obj) => obj.toJson());
-
-    final jsonString = jsonEncode(jsonObject);
-
-    _send(jsonString);
+  void _sendMessage(String channel, WebsocketBody data) {
+    _send(jsonEncode({'channel': channel, 'data': data.toJson()}));
   }
 }
