@@ -58,21 +58,29 @@ class MyPositionServiceRepository {
     String refreshToken = '',
     String deviceId = '',
   }) async {
+    final parsedEventId = int.tryParse(eventId);
+    if (parsedEventId == null) {
+      log('Invalid eventId: $eventId', stackTrace: StackTrace.current);
+      return;
+    }
+
     _shouldRun = true;
     _connectionGeneration += 1;
     _reconnectBackoff.reset();
     final generation = _connectionGeneration;
 
-    await initParams(
-      token,
-      host,
-      int.tryParse(eventId),
-      generation,
-      refreshToken: refreshToken,
-      deviceId: deviceId,
-    ).catchError((e) {
+    _accessToken = token;
+    _refreshToken = refreshToken;
+    _deviceId = deviceId;
+    _host = host;
+    _eventId = parsedEventId;
+    _channel = 'event/$_eventId';
+
+    try {
+      await _attemptConnect(generation);
+    } catch (e) {
       log('Error while init callback: $e', stackTrace: StackTrace.current);
-    });
+    }
 
     await _accelerometerSubscription?.cancel();
     _accelerometerSubscription = userAccelerometerEventStream().listen((event) {
@@ -84,46 +92,19 @@ class MyPositionServiceRepository {
     await _sessionExpiredSubscription?.cancel();
     _sessionExpiredSubscription = _authPersistence.currentSessionExpiredStream
         .listen((expiredSession) {
-          if (!_shouldRun) {
-            return;
-          }
+          if (!_shouldRun) return;
 
           final sameHost = expiredSession.host == _host;
           final sameDevice =
               _deviceId.isEmpty || expiredSession.deviceId == _deviceId;
 
-          if (!sameHost || !sameDevice) {
-            return;
-          }
+          if (!sameHost || !sameDevice) return;
 
           log(
             'Session expired for background location stream; stopping reconnect loop',
           );
           _stopRealtime();
         });
-  }
-
-  Future<void> initParams(
-    String? token,
-    String? host,
-    int? eventId,
-    int generation, {
-    String refreshToken = '',
-    String deviceId = '',
-  }) async {
-    if (token == null || host == null || eventId == null) {
-      return Future.error('Missing parameters');
-    }
-
-    _accessToken = token;
-    _refreshToken = refreshToken;
-    _deviceId = deviceId;
-    _host = host;
-    _eventId = eventId;
-
-    _channel = 'event/${_eventId.toInt()}';
-
-    await _attemptConnect(generation);
   }
 
   Future<void> _attemptConnect(int generation) async {
@@ -244,20 +225,14 @@ class MyPositionServiceRepository {
   }
 
   Future<void> dispose() async {
-    _shouldRun = false;
-    _connectionGeneration += 1;
-    _reconnectBackoff.reset();
+    _client?.stopSendPositions(_channel);
+    _stopRealtime();
 
     await _accelerometerSubscription?.cancel();
     _accelerometerSubscription = null;
 
     await _sessionExpiredSubscription?.cancel();
     _sessionExpiredSubscription = null;
-
-    _client?.stopSendPositions(_channel);
-
-    _client?.close();
-    _client = null;
   }
 
   Future<void> callback(Position locationDto) async {

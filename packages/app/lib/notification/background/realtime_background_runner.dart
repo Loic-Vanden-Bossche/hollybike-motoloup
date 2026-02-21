@@ -50,12 +50,7 @@ class RealtimeBackgroundRunner {
       switch (call.method) {
         case _methodStart:
           final args = _parseStartArgs(call.arguments);
-          await _start(
-            token: args.token,
-            host: args.host,
-            refreshToken: args.refreshToken,
-            deviceId: args.deviceId,
-          );
+          await _start(args);
           return;
         case _methodStop:
           await _stop();
@@ -66,16 +61,11 @@ class RealtimeBackgroundRunner {
     });
   }
 
-  Future<void> _start({
-    required String token,
-    required String host,
-    required String refreshToken,
-    required String deviceId,
-  }) async {
-    _token = token;
-    _host = host;
-    _refreshToken = refreshToken;
-    _deviceId = deviceId;
+  Future<void> _start(_StartArgs args) async {
+    _token = args.token;
+    _host = args.host;
+    _refreshToken = args.refreshToken;
+    _deviceId = args.deviceId;
     _shouldRun = true;
     _connectionGeneration += 1;
     _reconnectBackoff.reset();
@@ -84,44 +74,36 @@ class RealtimeBackgroundRunner {
     await _sessionExpiredSubscription?.cancel();
     _sessionExpiredSubscription = _authPersistence.currentSessionExpiredStream
         .listen((expiredSession) {
-          if (!_shouldRun) {
-            return;
-          }
+          if (!_shouldRun) return;
 
           final sameHost = expiredSession.host == _host;
           final sameDevice =
               _deviceId.isEmpty || expiredSession.deviceId == _deviceId;
-          if (!sameHost || !sameDevice) {
-            return;
-          }
+          if (!sameHost || !sameDevice) return;
 
           _stop();
         });
 
     await AppNotifications.init();
 
-    await _attemptConnect(generation: generation);
+    await _attemptConnect(generation);
   }
 
-  Future<void> _attemptConnect({required int generation}) async {
-    if (!_shouldRun || generation != _connectionGeneration) {
-      return;
-    }
+  Future<void> _attemptConnect(int generation) async {
+    if (!_shouldRun || generation != _connectionGeneration) return;
 
     try {
       await _syncCredentialsFromPersistence();
-      await _connect(generation: generation);
+      await _connect(generation);
     } catch (_) {
       if (_shouldRun && generation == _connectionGeneration) {
-        unawaited(_scheduleReconnect(generation: generation));
+        unawaited(_scheduleReconnect(generation));
       }
     }
   }
 
-  Future<void> _connect({required int generation}) async {
-    if (!_shouldRun || generation != _connectionGeneration) {
-      return;
-    }
+  Future<void> _connect(int generation) async {
+    if (!_shouldRun || generation != _connectionGeneration) return;
 
     _ws?.close();
     final client = WebsocketClient(
@@ -137,12 +119,27 @@ class RealtimeBackgroundRunner {
     _ws = client;
     await client.connect();
     final subscriptionReady = Completer<void>();
+    var subscribedSuccessfully = false;
     client.pingInterval(10);
+
+    client.onDisconnect(() {
+      if (!_shouldRun || generation != _connectionGeneration) return;
+
+      if (!subscribedSuccessfully) {
+        _ws = null;
+        return;
+      }
+
+      _ws = null;
+      unawaited(_scheduleReconnect(generation));
+    });
+
     client.listen((message) async {
       switch (message.data.type) {
         case 'subscribed':
           final subscribed = message.data;
           if (subscribed is WebsocketSubscribed && subscribed.subscribed) {
+            subscribedSuccessfully = true;
             _syncCredentialsFromSession(client.session);
             _reconnectBackoff.reset();
             if (!subscriptionReady.isCompleted) {
@@ -182,6 +179,7 @@ class RealtimeBackgroundRunner {
           return;
       }
     });
+
     await client.subscribe(_notificationChannelName);
     await subscriptionReady.future.timeout(
       const Duration(seconds: 10),
@@ -190,31 +188,19 @@ class RealtimeBackgroundRunner {
         throw TimeoutException('Subscription timeout for notification channel');
       },
     );
-
-    client.onDisconnect(() {
-      if (!_shouldRun || generation != _connectionGeneration) {
-        return;
-      }
-
-      unawaited(_scheduleReconnect(generation: generation));
-    });
   }
 
-  Future<void> _scheduleReconnect({required int generation}) async {
+  Future<void> _scheduleReconnect(int generation) async {
     final delay = _reconnectBackoff.nextDelay();
     await Future.delayed(delay);
-    if (!_shouldRun || generation != _connectionGeneration) {
-      return;
-    }
+    if (!_shouldRun || generation != _connectionGeneration) return;
 
-    await _attemptConnect(generation: generation);
+    await _attemptConnect(generation);
   }
 
   Future<void> _onMessage(WebsocketMessage message) async {
     final payload = _buildNotificationPayload(message);
-    if (payload == null) {
-      return;
-    }
+    if (payload == null) return;
 
     await AppNotifications.showOneShot(
       channelId: payload.channelId,
@@ -295,18 +281,14 @@ class RealtimeBackgroundRunner {
   }
 
   Future<void> _syncCredentialsFromPersistence() async {
-    if (_host.isEmpty || _deviceId.isEmpty) {
-      return;
-    }
+    if (_host.isEmpty || _deviceId.isEmpty) return;
 
     final persistedSession = await _authPersistence.getSessionByHostAndDevice(
       _host,
       _deviceId,
     );
 
-    if (persistedSession == null) {
-      return;
-    }
+    if (persistedSession == null) return;
 
     _syncCredentialsFromSession(persistedSession);
   }
