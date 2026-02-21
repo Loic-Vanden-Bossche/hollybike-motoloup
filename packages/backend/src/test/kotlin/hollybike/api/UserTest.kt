@@ -446,8 +446,8 @@ class UserTest : IntegrationSpec({
 				oldPassword = "test",
 				newPassword = "NewPassword1",
 			)
-		).forEach { update ->
-			test("Should not update my password because one element is missing") {
+		).forEachIndexed { index, update ->
+			test("Should not update my password because one element is missing #$index") {
 				onPremiseTestApp {
 					it.patch("/api/users/me") {
 						auth(UserStore.user1)

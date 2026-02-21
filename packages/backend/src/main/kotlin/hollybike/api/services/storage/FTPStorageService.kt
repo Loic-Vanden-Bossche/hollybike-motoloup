@@ -5,7 +5,6 @@
 package hollybike.api.services.storage
 
 import hollybike.api.services.storage.signature.StorageSignatureService
-import org.apache.commons.net.PrintCommandListener
 import org.apache.commons.net.ftp.FTP
 import org.apache.commons.net.ftp.FTPClient
 import java.io.ByteArrayInputStream
@@ -26,10 +25,6 @@ class FTPStorageService(
 		if (ftpServer == null || ftpUsername == null || ftpPassword == null || ftpDirectory == null) {
 			throw IllegalArgumentException("FTP configuration is missing")
 		}
-
-		ftpClient.addProtocolCommandListener(
-			PrintCommandListener(System.out, true)
-		)
 
 		val server = ftpServer.removePrefix("ftp://")
 		val serverParts = server.split(":")

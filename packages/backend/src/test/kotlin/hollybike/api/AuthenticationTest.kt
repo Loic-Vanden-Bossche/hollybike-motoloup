@@ -129,7 +129,7 @@ class AuthenticationTest : IntegrationSpec({
 		}
 
 		listOf("test", "TEST", "Test", "Test123").forEach { password ->
-			test("Should not sign up user if the password is invalid") {
+			test("Should not sign up user if the password is invalid $password") {
 				onPremiseTestApp {
 					val invitation = generateInvitation(it, UserStore.admin1)
 

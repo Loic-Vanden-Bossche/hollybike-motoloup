@@ -25,10 +25,16 @@ import io.ktor.server.testing.*
 import org.testcontainers.containers.FixedHostPortGenericContainer
 import org.testcontainers.containers.GenericContainer
 import org.testcontainers.containers.PostgreSQLContainer
+import org.testcontainers.containers.wait.strategy.Wait
 import org.testcontainers.junit.jupiter.Container
 import org.testcontainers.junit.jupiter.Testcontainers
+import org.testcontainers.utility.DockerImageName
 import java.io.File
 import java.net.ServerSocket
+import java.time.Duration
+import java.util.logging.Level
+import java.util.logging.LogManager
+import java.util.logging.Logger
 
 @Testcontainers
 abstract class IntegrationSpec(body: FunSpec.() -> Unit = {}) : FunSpec({
@@ -57,41 +63,58 @@ abstract class IntegrationSpec(body: FunSpec.() -> Unit = {}) : FunSpec({
 				.withEnv("MINIO_ROOT_PASSWORD", "minio-test-password")
 				.withEnv("MINIO_DEFAULT_BUCKETS", "hollybike")
 				.withExposedPorts(9000)
+				.waitingFor(Wait.forHttp("/minio/health/live").forPort(9000))
 				.withCreateContainerCmdModifier { cmd ->
 					cmd.withEntrypoint("sh")
 					cmd.withCmd("-c", "mkdir -p /data/hollybike && /usr/bin/minio server /data")
 
 				}
 
+		@Suppress("DEPRECATION")
 		@Container
 		val ftp: FixedHostPortGenericContainer<*> =
-			FixedHostPortGenericContainer("fauria/vsftpd:latest")
+			FixedHostPortGenericContainer(DockerImageName.parse("fauria/vsftpd:latest").toString())
 				.withEnv("FTP_USER", "ftp-test-user")
 				.withEnv("FTP_PASS", "ftp-test-password")
+				.waitingFor(Wait.forListeningPort())
+				.withStartupTimeout(Duration.ofSeconds(30))
 
 		val tokenStore = TokenStore()
 
 		init {
+			configureLiquibaseLoggingForTests()
+
 			database.start()
 			minio.start()
-
-			ftp.withExposedPorts(21)
 
 			var freePort: Int
 			ServerSocket(0).use { socket ->
 				freePort = socket.getLocalPort()
 			}
 
-			ftp.withFixedExposedPort(freePort, freePort)
+			ftp.withExposedPorts(21)
+				.withFixedExposedPort(freePort, freePort)
 				.withEnv("PASV_MIN_PORT", freePort.toString())
 				.withEnv("PASV_MAX_PORT", freePort.toString())
 
 			ftp.start()
 
 			println("Initialized the containers")
-
-			Thread.sleep(5000)
 		}
+
+		private fun configureLiquibaseLoggingForTests() {
+			IntegrationSpec::class.java.classLoader.getResourceAsStream("logging.properties")?.use { input ->
+				LogManager.getLogManager().readConfiguration(input)
+			}
+
+			listOf("liquibase", "liquibase.changelog", "liquibase.command").forEach { loggerName ->
+				Logger.getLogger(loggerName).apply {
+					level = Level.OFF
+					useParentHandlers = false
+				}
+			}
+		}
+
 
 		suspend fun uploadProfileImageInStorage(client: HttpClient, sender: Pair<Int, String>): String {
 			val file = File(
