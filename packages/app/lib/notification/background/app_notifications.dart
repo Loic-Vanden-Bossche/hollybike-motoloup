@@ -25,7 +25,7 @@ class AppNotifications {
     const init = InitializationSettings(
       android: AndroidInitializationSettings('ic_stat_hollybike'),
     );
-    await plugin.initialize(init);
+    await plugin.initialize(settings: init);
 
     final android =
         plugin
@@ -91,10 +91,10 @@ class AppNotifications {
     required String body,
   }) async {
     await plugin.show(
-      _random.nextInt(1 << 20),
-      title,
-      body,
-      NotificationDetails(
+        id: _random.nextInt(1 << 20),
+      title: title,
+      body: body,
+      notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
           channelId,
@@ -103,7 +103,7 @@ class AppNotifications {
           priority: Priority.high,
           showWhen: false,
         ),
-      ),
+      )
     );
   }
 }

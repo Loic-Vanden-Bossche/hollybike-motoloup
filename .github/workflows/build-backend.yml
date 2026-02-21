@@ -43,7 +43,7 @@ jobs:
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6
 
       - name: Set up GraalVM (Java ${{ env.JAVA_VERSION }})
         uses: graalvm/setup-graalvm@v1
@@ -85,7 +85,7 @@ jobs:
 
       - name: Build and push container image
         if: inputs.externall_call
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: packages/backend
           push: true

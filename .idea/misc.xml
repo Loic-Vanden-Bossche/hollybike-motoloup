@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="EntryPointsManager">
     <list size="2">
@@ -32,6 +33,7 @@
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/geolocator_android-5.0.2/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.12+22/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.13+13/android" />
+    <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.13+14/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/image_picker_android-0.8.13+5/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/mapbox_maps_flutter-2.11.0/android" />
     <file type="web" url="file://$USER_HOME$/AppData/Local/Pub/Cache/hosted/pub.dev/mapbox_maps_flutter-2.18.0/android" />
