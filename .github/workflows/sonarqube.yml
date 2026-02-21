@@ -27,29 +27,51 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Detect changed areas
+        id: changes
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            backend:
+              - 'packages/backend/**'
+
       - name: Set up GraalVM (Java ${{ env.JAVA_VERSION }})
+        if: steps.changes.outputs.backend == 'true'
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: ${{ env.JAVA_VERSION }}
           cache: gradle
 
       - name: Ensure Gradle wrapper is executable
+        if: steps.changes.outputs.backend == 'true'
         working-directory: packages/backend
         run: chmod +x gradlew
 
       - name: Run backend tests with coverage
+        if: steps.changes.outputs.backend == 'true'
         working-directory: packages/backend
         run: ./gradlew test jacocoTestReport -Pis_on_premise=true --no-daemon
 
-      - name: Run SonarQube scan
+      - name: Run SonarQube scan (with backend coverage)
+        if: steps.changes.outputs.backend == 'true'
         uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
-            -Dsonar.sources=packages/backend/src/main
+            -Dsonar.sources=packages/app/lib,packages/backend/src/main,packages/frontend/src,packages/infrastructure
             -Dsonar.tests=packages/backend/src/test
             -Dsonar.java.binaries=packages/backend/build/classes/kotlin/main,packages/backend/build/classes/java/main
             -Dsonar.junit.reportPaths=packages/backend/build/test-results/test
             -Dsonar.coverage.jacoco.xmlReportPaths=packages/backend/build/reports/jacoco/test/jacocoTestReport.xml
+
+      - name: Run SonarQube scan (without backend coverage refresh)
+        if: steps.changes.outputs.backend != 'true'
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.sources=packages/app/lib,packages/frontend/src,packages/infrastructure
