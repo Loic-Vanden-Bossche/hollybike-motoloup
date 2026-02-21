@@ -36,6 +36,7 @@ import io.ktor.server.resources.post
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route
 import io.ktor.server.routing.routing
+import io.ktor.utils.io.jvm.javaio.toInputStream
 
 class UserController(
 	application: Application,
@@ -165,7 +166,7 @@ class UserController(
 			val path = userService.uploadUserProfilePicture(
 				call.user,
 				call.user,
-				image.streamProvider().readBytes(),
+				image.provider().toInputStream().readBytes(),
 				contentType.toString()
 			)
 
@@ -195,7 +196,7 @@ class UserController(
 			val path = userService.uploadUserProfilePicture(
 				call.user,
 				user,
-				image.streamProvider().readBytes(),
+				image.provider().toInputStream().readBytes(),
 				contentType.toString(),
 			)
 

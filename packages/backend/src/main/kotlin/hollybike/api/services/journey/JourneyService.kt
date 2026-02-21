@@ -4,7 +4,6 @@
 */
 package hollybike.api.services.journey
 
-import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.ConfMapBox
 import hollybike.api.exceptions.AssociationNotFound
 import hollybike.api.exceptions.NotAllowedException
@@ -21,9 +20,8 @@ import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.*
-import io.ktor.client.statement.*
+import io.ktor.client.statement.readRawBytes
 import io.ktor.http.*
-import kotlinx.coroutines.runBlocking
 import kotlin.time.Clock
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.exposed.v1.dao.load
@@ -264,7 +262,7 @@ class JourneyService(
 			return Result.failure(Exception("Failed to generate image from GeoJson"))
 		}
 
-		return Result.success(response.readBytes())
+		return Result.success(response.readRawBytes())
 	}
 }
 

@@ -4,7 +4,6 @@
 */
 package hollybike.api.utils.search
 
-import org.jetbrains.exposed.v1.jdbc.*
 import org.jetbrains.exposed.v1.core.Column
 import org.jetbrains.exposed.v1.core.SortOrder
 

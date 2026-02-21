@@ -7,7 +7,6 @@ package hollybike.api.utils
 import hollybike.api.plugins.user
 import hollybike.api.types.user.EUserScope
 import io.ktor.http.*
-import io.ktor.server.application.*
 import io.ktor.server.resources.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.Route

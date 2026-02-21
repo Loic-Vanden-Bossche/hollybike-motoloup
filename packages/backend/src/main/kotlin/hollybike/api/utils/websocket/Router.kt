@@ -40,10 +40,6 @@ class WebSocketCall(
 		session.sendSerialized(Message(data, path))
 	}
 
-	suspend fun respondText(data: String) {
-		session.send(data)
-	}
-
 	suspend fun close(code: CloseReason.Codes, message: String) {
 		session.close(CloseReason(code, message))
 	}
@@ -96,13 +92,7 @@ class WebSocketRouter(
 	}
 
 	internal fun route(path: List<PathElement>, body: WebSocketRoute.() -> Unit) {
-		val key = path.firstOrNull() ?: PathFragment("")
-		val route = routes[key] ?: WebSocketRoute().also { routes[key] = it }
-		if (path.size < 2) {
-			route.body()
-		} else {
-			route.route(path.drop(1), body)
-		}
+		routes.defineRoute(path, body)
 	}
 
 	suspend fun listen(wsServerSession: DefaultWebSocketServerSession) {
@@ -165,16 +155,10 @@ class WebSocketRoute {
 	}
 
 	internal fun route(path: List<PathElement>, body: WebSocketRoute.() -> Unit) {
-		val key = path.firstOrNull() ?: PathFragment("")
-		val route = routes[key] ?: WebSocketRoute().also { routes[key] = it }
-		if (path.size < 2) {
-			route.body()
-		} else {
-			route.route(path.drop(1), body)
-		}
+		routes.defineRoute(path, body)
 	}
 
-	suspend fun execute(path: List<PathElement>, call: WebSocketCall, coroutineScope: CoroutineScope): Boolean {
+	fun execute(path: List<PathElement>, call: WebSocketCall, coroutineScope: CoroutineScope): Boolean {
 		if (path.isEmpty()) {
 			return body?.let {
 				coroutineScope.launch {
@@ -210,6 +194,16 @@ private fun String.toPathElement(): PathElement {
 }
 
 private fun String.toPath(): List<PathElement> = split("/").filter { it.isNotEmpty() }.map { it.toPathElement() }
+
+private fun RouteElement.defineRoute(path: List<PathElement>, body: WebSocketRoute.() -> Unit) {
+	val key = path.firstOrNull() ?: PathFragment("")
+	val route = this[key] ?: WebSocketRoute().also { this[key] = it }
+	if (path.size < 2) {
+		route.body()
+	} else {
+		route.route(path.drop(1), body)
+	}
+}
 
 private fun RouteElement.match(key: PathElement): List<Pair<PathElement, WebSocketRoute?>> =
 	this.filter { it.key == key }.map { (k, v) -> k to v }

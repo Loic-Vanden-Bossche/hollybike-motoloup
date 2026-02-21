@@ -4,18 +4,14 @@
 */
 package hollybike.api.routing.controller
 
-import hollybike.api.json
 import hollybike.api.plugins.user
 import hollybike.api.repository.associationMapper
 import hollybike.api.repository.eventMapper
 import hollybike.api.repository.userMapper
 import hollybike.api.routing.resources.Events
 import hollybike.api.services.*
-import hollybike.api.services.storage.StorageService
 import hollybike.api.types.event.*
 import hollybike.api.types.event.participation.TUserJourney
-import hollybike.api.types.journey.GeoJson
-import hollybike.api.types.journey.toGpx
 import hollybike.api.types.lists.TLists
 import hollybike.api.types.user.EUserScope
 import hollybike.api.utils.checkContentType
@@ -33,10 +29,7 @@ import io.ktor.server.resources.post
 import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import kotlinx.serialization.encodeToString
-import nl.adaptivity.xmlutil.ExperimentalXmlUtilApi
-import nl.adaptivity.xmlutil.serialization.UnknownChildHandler
-import nl.adaptivity.xmlutil.serialization.XML
+import io.ktor.utils.io.jvm.javaio.toInputStream
 
 class EventController(
 	application: Application,
@@ -46,7 +39,6 @@ class EventController(
 	private val userService: UserService,
 	private val userEventPositionService: UserEventPositionService,
 	private val expenseService: ExpenseService,
-	private val storageService: StorageService
 ) {
 	private val mapper = eventMapper + associationMapper + userMapper
 
@@ -74,16 +66,6 @@ class EventController(
 				resetEventJourney()
 				terminateEventJourney()
 			}
-		}
-	}
-
-	@OptIn(ExperimentalXmlUtilApi::class)
-	private val xml = XML {
-		defaultPolicy {
-			unknownChildHandler =
-				UnknownChildHandler { _, _, _, name, _ ->
-					emptyList()
-				}
 		}
 	}
 
@@ -306,7 +288,7 @@ class EventController(
 			eventService.uploadEventImage(
 				call.user,
 				data.image.id,
-				image.streamProvider().readBytes(),
+				image.provider().toInputStream().readBytes(),
 				contentType.toString()
 			).onSuccess {
 				call.respond(TEvent(it, expenseService.authorizeBudget(call.user, it)))
@@ -333,7 +315,7 @@ class EventController(
 	}
 
 	private fun Route.terminateEventJourney() {
-		post<Events.Id.Participations.Me.Journey.Terminate> {
+		post<Events.Id.Participations.Me.Journey.Terminate> { it ->
 			val event = eventService.getEvent(call.user, it.journey.me.participations.eventId.id) ?: run {
 				call.respond(HttpStatusCode.NotFound, "Évènement inconnu")
 				return@post

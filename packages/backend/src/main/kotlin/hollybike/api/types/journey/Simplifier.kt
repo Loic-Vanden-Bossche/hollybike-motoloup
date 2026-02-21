@@ -5,10 +5,8 @@
 package hollybike.api.types.journey
 
 import hollybike.api.json
-import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
-import java.net.URLEncoder
 import kotlin.math.abs
 import kotlin.math.min
 
@@ -158,10 +156,6 @@ fun GeoJson.simplifyToUrlSafe(maxCharCount: Int = 7000): GeoJson {
 
 fun GeoJson.toJson(): String {
 	return json.encodeToString(this)
-}
-
-fun GeoJson.encodeUrl(): String {
-	return URLEncoder.encode(toJson(), "UTF-8")
 }
 
 fun GeoJson.clean(): GeoJson {

@@ -17,7 +17,6 @@ import hollybike.api.types.websocket.TNotification
 import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.serialization.encodeToString
 import org.jetbrains.exposed.v1.dao.load
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.eq

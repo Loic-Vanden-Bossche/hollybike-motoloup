@@ -4,7 +4,6 @@
 */
 package hollybike.api.services
 
-import org.jetbrains.exposed.v1.jdbc.*
 import aws.smithy.kotlin.runtime.text.encoding.encodeBase64String
 import de.nycode.bcrypt.hash
 import de.nycode.bcrypt.verify
@@ -20,7 +19,7 @@ import hollybike.api.utils.search.FilterMode
 import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import hollybike.api.utils.validPassword
-import io.ktor.util.*
+import kotlin.io.encoding.Base64
 import kotlin.time.Clock
 import org.jetbrains.exposed.v1.dao.load
 import org.jetbrains.exposed.v1.dao.with
@@ -66,6 +65,18 @@ class UserService(
 		EUserScope.Root -> true
 		EUserScope.Admin -> caller.association.id == target.association.id
 		EUserScope.User -> false
+	}
+
+	private fun getScopedSearchParam(caller: User, searchParam: SearchParam): SearchParam? {
+		if (caller.scope == EUserScope.User) {
+			return null
+		}
+
+		val param = searchParam.copy(filter = searchParam.filter.toMutableList())
+		if (caller.scope not EUserScope.Root) {
+			param.filter.add(Filter(Associations.id, caller.association.id.value.toString(), FilterMode.EQUAL))
+		}
+		return param
 	}
 
 	private suspend fun cleanupAndDeleteUser(user: User) {
@@ -179,10 +190,10 @@ class UserService(
 				if (update.newPassword != update.newPasswordAgain) {
 					return@transaction Result.failure(UserDifferentNewPassword())
 				}
-				if (!verify(update.oldPassword, password.decodeBase64Bytes())) {
+				if (!verify(update.oldPassword, Base64.decode(password))) {
 					return@transaction Result.failure(UserWrongPassword())
 				}
-				password = hash(it).encodeBase64()
+				password = Base64.encode(hash(it))
 			}
 			update.username?.let { username = it }
 			update.role?.let { role = it }
@@ -207,7 +218,7 @@ class UserService(
 			Result.success(user.apply {
 				update.username?.let { username = it }
 				update.email?.let { email = it }
-				update.password?.let { password = hash(it).encodeBase64() }
+				update.password?.let { password = Base64.encode(hash(it)) }
 				update.status?.let { status = it }
 				update.scope?.let { scope = it }
 				targetAssociation?.let { association = it }
@@ -217,13 +228,7 @@ class UserService(
 	}
 
 	fun getAll(caller: User, searchParam: SearchParam): List<User>? {
-		if (caller.scope == EUserScope.User) {
-			return null
-		}
-		val param = searchParam.copy(filter = searchParam.filter.toMutableList())
-		if (caller.scope not EUserScope.Root) {
-			param.filter.add(Filter(Associations.id, caller.association.id.value.toString(), FilterMode.EQUAL))
-		}
+		val param = getScopedSearchParam(caller, searchParam) ?: return null
 		return transaction(db) {
 			User.wrapRows(Users.innerJoin(Associations).selectAll().applyParam(param)).with(User::association).toList()
 		}
@@ -234,13 +239,7 @@ class UserService(
 	}?.association
 
 	fun getAllCount(caller: User, searchParam: SearchParam): Long? {
-		if (caller.scope == EUserScope.User) {
-			return null
-		}
-		val param = searchParam.copy(filter = searchParam.filter.toMutableList())
-		if (caller.scope not EUserScope.Root) {
-			param.filter.add(Filter(Associations.id, caller.association.id.value.toString(), FilterMode.EQUAL))
-		}
+		val param = getScopedSearchParam(caller, searchParam) ?: return null
 		return transaction(db) {
 			Users.innerJoin(Associations).selectAll().applyParam(param, false).count()
 		}

@@ -4,7 +4,6 @@
 */
 package hollybike.api.services
 
-import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.exceptions.*
 import hollybike.api.repository.*
 import hollybike.api.services.storage.StorageService
@@ -23,6 +22,7 @@ import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import io.ktor.http.*
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -54,12 +54,18 @@ class AssociationService(
 	private infix fun Association?.getIfAllowed(caller: User) = if(this != null && authorizeGet(caller, this)) this else null
 
 	private fun checkAlreadyExistsException(e: ExposedSQLException): Boolean {
-		val cause = if (e.cause is BatchUpdateException && (e.cause as BatchUpdateException).cause is PSQLException) {
-			(e.cause as BatchUpdateException).cause as PSQLException
-		} else if (e.cause is PSQLException) {
-			e.cause as PSQLException
-		} else {
-			return false
+		val cause = when (e.cause) {
+			is BatchUpdateException if (e.cause as BatchUpdateException).cause is PSQLException -> {
+				(e.cause as BatchUpdateException).cause as PSQLException
+			}
+
+			is PSQLException -> {
+				e.cause as PSQLException
+			}
+
+			else -> {
+				return false
+			}
 		}
 
 		return if (
@@ -240,7 +246,7 @@ class AssociationService(
 		val eventByMonth = events
 			.groupBy { event ->
 				val localDateTime = event.startDateTime.toLocalDateTime(TimeZone.UTC)
-				Pair(localDateTime.year, localDateTime.monthNumber)
+				Pair(localDateTime.year, localDateTime.month.number)
 			}
 			.toList()
 			.sortedWith(compareBy({ it.first.first }, { it.first.second }))

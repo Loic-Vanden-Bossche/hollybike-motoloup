@@ -42,13 +42,13 @@ class InvitationService(
 		}
 		var condition =
 			(Invitations.role eq role.value) and (Invitations.status neq EInvitationStatus.Disabled.value) and (Invitations.association eq association.id.value)
+
 		maxUse?.let { condition = condition and (Invitations.maxUses eq it) }
 		expiration?.let { condition = condition and (Invitations.expiration eq it) }
-		transaction(db) { Invitation.find(condition).singleOrNull() }?.let {
-			return Result.success(it)
-		} ?: run {
-			return Result.failure(InvitationNotFoundException())
-		}
+
+		return transaction(db) { Invitation.find(condition).singleOrNull() }
+			?.let { Result.success(it) }
+			?: Result.failure(InvitationNotFoundException())
 	}
 
 	fun getValidInvitation(id: Int) = transaction(db) {
@@ -98,19 +98,20 @@ class InvitationService(
 		if (caller.scope == EUserScope.User) {
 			return Result.failure(NotAllowedException())
 		}
-		transaction(db) {
+
+		val invitation = transaction(db) {
 			Invitation.find(
 				Invitations.id eq id
 			).with(Invitation::association).singleOrNull()?.apply {
 				status = EInvitationStatus.Disabled
 			}
-		}?.let {
-			if (it.association.id != caller.association.id && caller.scope != EUserScope.Root) {
-				return Result.failure(NotAllowedException())
-			}
-
-			return Result.success(it)
 		} ?: return Result.failure(InvitationNotFoundException())
+
+		if (invitation.association.id != caller.association.id && caller.scope != EUserScope.Root) {
+			return Result.failure(NotAllowedException())
+		}
+
+		return Result.success(invitation)
 	}
 
 	fun getAll(caller: User, searchParam: SearchParam): Result<List<Invitation>> {

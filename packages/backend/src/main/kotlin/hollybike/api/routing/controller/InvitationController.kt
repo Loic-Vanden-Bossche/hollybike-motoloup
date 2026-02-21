@@ -15,7 +15,6 @@ import hollybike.api.routing.resources.Invitation
 import hollybike.api.services.auth.AuthService
 import hollybike.api.services.auth.InvitationService
 import hollybike.api.types.auth.TMailDest
-import hollybike.api.types.invitation.EInvitationStatus
 import hollybike.api.types.invitation.TInvitation
 import hollybike.api.types.invitation.TInvitationCreation
 import hollybike.api.types.lists.TLists
@@ -63,13 +62,7 @@ class InvitationController(
 				return@get
 			}
 			invitationService.getAll(call.user, searchParam).onSuccess { invitations ->
-				val dto = invitations.map { i ->
-					if (i.status == EInvitationStatus.Enabled) {
-						TInvitation(i, authService.generateLink(host, i))
-					} else {
-						TInvitation(i)
-					}
-				}
+				val dto = invitations.toInvitationDtos(authService, host)
 				call.respond(TLists(dto, searchParam, count))
 			}.onFailure { e ->
 				when (e) {

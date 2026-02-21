@@ -4,7 +4,6 @@
 */
 package hollybike.api.services
 
-import org.jetbrains.exposed.v1.jdbc.*
 import hollybike.api.exceptions.BadAmountException
 import hollybike.api.exceptions.CannotCreateExpenseException
 import hollybike.api.exceptions.EventNotFoundException

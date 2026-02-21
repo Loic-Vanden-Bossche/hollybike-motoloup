@@ -44,26 +44,25 @@ fun Parameters.getSearchParam(mapper: Mapper): SearchParam {
 			null
 		}
 	} ?: emptyList()
-	val filter = mapper.asSequence().filter { (k, _) -> k in this }
-		.map { (k, v) ->
-			getAll(k)!!.map allMap@{
-				val (mode, value) = if (':' in it) {
-					it.split(":", limit = 2).let { values -> values[0] to values[1] }
-				} else {
-					it to null
-				}
-				if (mode !in FilterMode) {
+	val filter = mapper.asSequence().filter { (k, _) -> k in this }.flatMap { (k, v) ->
+		getAll(k)!!.map allMap@{
+			val (mode, value) = if (':' in it) {
+				it.split(":", limit = 2).let { values -> values[0] to values[1] }
+			} else {
+				it to null
+			}
+			if (mode !in FilterMode) {
+				null
+			} else {
+				val filterMode = FilterMode[mode]
+				if (value == null && filterMode != FilterMode.IS_NULL && filterMode != FilterMode.IS_NOT_NULL) {
 					null
 				} else {
-					val filterMode = FilterMode[mode]
-					if (value == null && filterMode != FilterMode.IS_NULL && filterMode != FilterMode.IS_NOT_NULL) {
-						null
-					} else {
-						Filter(v, value, FilterMode[mode])
-					}
+					Filter(v, value, FilterMode[mode])
 				}
 			}
-		}.flatten().filterNotNull().toMutableList()
+		}
+	}.filterNotNull().toMutableList()
 	return SearchParam(
 		query,
 		sort,
@@ -83,8 +82,8 @@ fun Query.applyParam(searchParam: SearchParam, pagination: Boolean = true): Quer
 	val filter = searchParamFilter(searchParam.filter)
 	val query = if ((searchParam.query?.split(" ")?.size ?: 0) == 2) {
 		val values = searchParam.query!!.split(" ")
-		val val1 = q.searchParamQuery(values.joinToString("%") { it.replace("%", "\\%") }, searchParam.mapper)
-		val val2 = q.searchParamQuery(values.reversed().joinToString("%") { it.replace("%", "\\%") }, searchParam.mapper)
+		val val1 = searchParamQuery(values.joinToString("%") { it.replace("%", "\\%") }, searchParam.mapper)
+		val val2 = searchParamQuery(values.reversed().joinToString("%") { it.replace("%", "\\%") }, searchParam.mapper)
 		if (val1 != null) {
 			if (val2 != null) {
 				val1 or val2
@@ -95,7 +94,10 @@ fun Query.applyParam(searchParam: SearchParam, pagination: Boolean = true): Quer
 			val2
 		}
 	} else {
-		searchParam.query?.let { query -> q.searchParamQuery(query.replace("%", "\\%").replace(" ", "%"), searchParam.mapper) }
+		searchParam.query?.let { query -> searchParamQuery(
+			query.replace("%", "\\%").replace(" ", "%"),
+			searchParam.mapper
+		) }
 	}
 	val where = if (query == null) {
 		filter
@@ -110,7 +112,7 @@ fun Query.applyParam(searchParam: SearchParam, pagination: Boolean = true): Quer
 }
 
 @Suppress("UNCHECKED_CAST")
-private fun Query.searchParamQuery(query: String, mapper: Mapper): Op<Boolean>? {
+private fun searchParamQuery(query: String, mapper: Mapper): Op<Boolean>? {
 	var op: Op<Boolean>? = null
 	mapper.forEach { (_, col) ->
 		when (col.columnType) {
@@ -157,127 +159,105 @@ private fun parseInstantValue(value: String): Instant? = try {
 	}
 }
 
+private enum class CompareOp {
+	EQ,
+	NEQ,
+	LT,
+	GT,
+	LTE,
+	GTE
+}
+
+private fun compareInt(column: Column<Int?>, value: Int, op: CompareOp): Op<Boolean> =
+	when (op) {
+		CompareOp.EQ -> column eq value
+		CompareOp.NEQ -> column neq value
+		CompareOp.LT -> column less value
+		CompareOp.GT -> column greater value
+		CompareOp.LTE -> column lessEq value
+		CompareOp.GTE -> column greaterEq value
+	}
+
+private fun compareString(column: Column<String?>, value: String, op: CompareOp): Op<Boolean> =
+	when (op) {
+		CompareOp.EQ -> column eq value
+		CompareOp.NEQ -> column neq value
+		CompareOp.LT -> column less value
+		CompareOp.GT -> column greater value
+		CompareOp.LTE -> column lessEq value
+		CompareOp.GTE -> column greaterEq value
+	}
+
+private fun compareInstant(column: Column<Instant?>, value: Instant, op: CompareOp): Op<Boolean> =
+	when (op) {
+		CompareOp.EQ -> column eq value
+		CompareOp.NEQ -> column neq value
+		CompareOp.LT -> column less value
+		CompareOp.GT -> column greater value
+		CompareOp.LTE -> column lessEq value
+		CompareOp.GTE -> column greaterEq value
+	}
+
 @Suppress("UNCHECKED_CAST")
-private infix fun Column<out Any?>.equal(value: String): Op<Boolean>? =
+private fun Column<out Any?>.asIntEntityIdComparisonTarget(value: String): Pair<Column<EntityID<Int>>, EntityID<Int>>? {
+	if (columnType !is EntityIDColumnType<*> || (columnType.sqlType() != "INT" && columnType.sqlType() != "SERIAL")) {
+		return null
+	}
+	val entityIdType = columnType as? EntityIDColumnType<Int> ?: return null
+	val id = value.toIntOrNull() ?: return null
+	val table = entityIdType.idColumn.table as? IdTable<Int> ?: return null
+	return (this as Column<EntityID<Int>>) to EntityID(id, table)
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun Column<out Any?>.asIntColumnComparisonTarget(value: String): Pair<Column<Int?>, Int>? {
+	if (columnType !is EntityIDColumnType<*> || (columnType.sqlType() != "INT" && columnType.sqlType() != "SERIAL")) {
+		return null
+	}
+	val intValue = value.toIntOrNull() ?: return null
+	return (this as Column<Int?>) to intValue
+}
+
+@Suppress("UNCHECKED_CAST")
+private fun Column<out Any?>.compareByType(value: String, op: CompareOp): Op<Boolean>? =
 	when (columnType) {
-		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) eq it }
-		is VarCharColumnType -> (this as Column<String?>) eq value
-		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) eq it }
-
-		is EntityIDColumnType<*> -> {
-			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
-				val entityIdType = columnType as? EntityIDColumnType<Int>
-				val id = value.toIntOrNull()
-				if (entityIdType != null && id != null) {
-					val table = entityIdType.idColumn.table as IdTable<Int>
-					(this as Column<EntityID<Int>>) eq EntityID(id, table)
-				} else {
-					null
-				}
-			} else {
-				null
-			}
+		is IntegerColumnType -> value.toIntOrNull()?.let { compareInt(this as Column<Int?>, it, op) }
+		is VarCharColumnType -> compareString(this as Column<String?>, value, op)
+		is KotlinInstantColumnType -> parseInstantValue(value)?.let { compareInstant(this as Column<Instant?>, it, op) }
+		is EntityIDColumnType<*> -> when (op) {
+			CompareOp.EQ -> asIntEntityIdComparisonTarget(value)?.let { (col, entityId) -> col eq entityId }
+			CompareOp.NEQ -> asIntEntityIdComparisonTarget(value)?.let { (col, entityId) -> col neq entityId }
+			CompareOp.LT,
+			CompareOp.GT,
+			CompareOp.LTE,
+			CompareOp.GTE -> asIntColumnComparisonTarget(value)?.let { (col, intValue) -> compareInt(col, intValue, op) }
 		}
-
 		else -> null
 	}
+
+@Suppress("UNCHECKED_CAST")
+private infix fun Column<out Any?>.equal(value: String): Op<Boolean>? =
+	compareByType(value, CompareOp.EQ)
 
 @Suppress("UNCHECKED_CAST")
 private infix fun Column<out Any?>.nEqual(value: String): Op<Boolean>? =
-	when (columnType) {
-		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) neq it }
-		is VarCharColumnType -> (this as Column<String?>) neq value
-		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) neq it }
-
-		is EntityIDColumnType<*> -> {
-			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
-				val entityIdType = columnType as? EntityIDColumnType<Int>
-				val id = value.toIntOrNull()
-				if (entityIdType != null && id != null) {
-					val table = entityIdType.idColumn.table as IdTable<Int>
-					(this as Column<EntityID<Int>>) neq EntityID(id, table)
-				} else {
-					null
-				}
-			} else {
-				null
-			}
-		}
-
-		else -> null
-	}
+	compareByType(value, CompareOp.NEQ)
 
 @Suppress("UNCHECKED_CAST")
 private infix fun Column<out Any?>.lt(value: String): Op<Boolean>? =
-	when (columnType) {
-		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) less it }
-		is VarCharColumnType -> (this as Column<String?>) less value
-		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) less it }
-
-		is EntityIDColumnType<*> -> {
-			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
-				value.toIntOrNull()?.let { (this as Column<Int?>) less it }
-			} else {
-				null
-			}
-		}
-
-		else -> null
-	}
+	compareByType(value, CompareOp.LT)
 
 @Suppress("UNCHECKED_CAST")
 private infix fun Column<out Any?>.gt(value: String): Op<Boolean>? =
-	when (columnType) {
-		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) greater it }
-		is VarCharColumnType -> (this as Column<String?>) greater value
-		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) greater it }
-
-		is EntityIDColumnType<*> -> {
-			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
-				value.toIntOrNull()?.let { (this as Column<Int?>) greater it }
-			} else {
-				null
-			}
-		}
-
-		else -> null
-	}
+	compareByType(value, CompareOp.GT)
 
 @Suppress("UNCHECKED_CAST")
 private infix fun Column<out Any?>.lte(value: String): Op<Boolean>? =
-	when (columnType) {
-		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) lessEq it }
-		is VarCharColumnType -> (this as Column<String?>) lessEq value
-		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) lessEq it }
-
-		is EntityIDColumnType<*> -> {
-			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
-				value.toIntOrNull()?.let { (this as Column<Int?>) lessEq it }
-			} else {
-				null
-			}
-		}
-
-		else -> null
-	}
+	compareByType(value, CompareOp.LTE)
 
 @Suppress("UNCHECKED_CAST")
 private infix fun Column<out Any?>.gte(value: String): Op<Boolean>? =
-	when (columnType) {
-		is IntegerColumnType -> value.toIntOrNull()?.let { (this as Column<Int?>) greaterEq it }
-		is VarCharColumnType -> (this as Column<String?>) greaterEq value
-		is KotlinInstantColumnType -> parseInstantValue(value)?.let { (this as Column<Instant?>) greaterEq it }
-
-		is EntityIDColumnType<*> -> {
-			if (columnType.sqlType() == "INT" || columnType.sqlType() == "SERIAL") {
-				value.toIntOrNull()?.let { (this as Column<Int?>) greaterEq it }
-			} else {
-				null
-			}
-		}
-
-		else -> null
-	}
+	compareByType(value, CompareOp.GTE)
 
 fun Mapper.getMapperData(): Map<String, String> = this.mapValues {
 	when (it.value.columnType) {

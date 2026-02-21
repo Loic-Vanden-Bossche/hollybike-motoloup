@@ -104,19 +104,16 @@ class ConfController(
 				} else {
 					val a = json.parseToJsonElement(conf)
 					val b = if (a is JsonObject) {
-						JsonObject(a.mapValues { (_, el) ->
-							if (el is JsonObject) {
-								JsonObject(el.mapValues { (k, el2) ->
-									if ("password" in k.lowercase() || "secret" in k.lowercase()) {
-										JsonPrimitive("******")
-									} else {
-										el2
+						JsonObject(
+							a.mapNotNull { (sectionKey, sectionValue) ->
+								val sectionObject = sectionValue as? JsonObject ?: return@mapNotNull null
+								sectionKey to JsonObject(
+									sectionObject.mapValues { (key, value) ->
+										if (isSensitiveKey(key)) JsonPrimitive("******") else value
 									}
-								})
-							} else {
-								null
-							}
-						}.filterValues { it != null } as Map<String, JsonObject>)
+								)
+							}.toMap()
+						)
 					} else {
 						null
 					}
@@ -133,29 +130,29 @@ class ConfController(
 		}
 		val a = json.parseToJsonElement(text)
 		val b = if (a is JsonObject) {
-			JsonObject(a.mapValues { (k, el) ->
-				if (el is JsonObject) {
-					JsonObject(el.mapValues { (k1, el2) ->
-						if ("password" in k1.lowercase() || "secret" in k1.lowercase()) {
-							if (el2 is JsonPrimitive && el2.content == "******") {
-								ref?.getValue(k, k1)?.let {
-									JsonPrimitive(it)
-								}
+			JsonObject(
+				a.mapNotNull { (sectionKey, sectionValue) ->
+					val sectionObject = sectionValue as? JsonObject ?: return@mapNotNull null
+					sectionKey to JsonObject(
+						sectionObject.mapValues { (key, value) ->
+							if (isSensitiveKey(key) && value is JsonPrimitive && value.content == "******") {
+								ref?.getValue(sectionKey, key)?.let { JsonPrimitive(it) } ?: value
 							} else {
-								el2
+								value
 							}
-						} else {
-							el2
 						}
-					}.filterValues { it != null } as Map<String, JsonObject>)
-				} else {
-					null
-				}
-			}.filterValues { it != null } as Map<String, JsonObject>)
+					)
+				}.toMap()
+			)
 		} else {
 			null
 		}
 		return json.encodeToString(b)
+	}
+
+	private fun isSensitiveKey(key: String): Boolean {
+		val normalized = key.lowercase()
+		return "password" in normalized || "secret" in normalized
 	}
 
 	private fun JsonElement.getValue(key1: String, key2: String): String? = if (this is JsonObject) {

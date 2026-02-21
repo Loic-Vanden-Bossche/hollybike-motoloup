@@ -17,6 +17,7 @@ import org.apache.commons.imaging.formats.tiff.taginfos.TagInfo
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.IOException
+import java.util.Locale
 import java.text.SimpleDateFormat
 
 class ImageMetadataService {
@@ -27,7 +28,10 @@ class ImageMetadataService {
 			if (metadata is JpegImageMetadata) {
 				val gpsInfo = metadata.findExifValueWithExactMatch(tag) ?: return null
 
-				val gpsValue = gpsInfo.value as Array<RationalNumber>
+				val gpsValue = (gpsInfo.value as? Array<*>)
+					?.filterIsInstance<RationalNumber>()
+					?.takeIf { it.size >= 3 }
+					?: return null
 				val gpsRef = metadata.findExifValueWithExactMatch(refTag) ?: return null
 				val value = gpsValue[0].toDouble() + gpsValue[1].toDouble() / 60 + gpsValue[2].toDouble() / 3600
 
@@ -81,7 +85,7 @@ class ImageMetadataService {
 				val gpsInfo = metadata.findExifValue(TiffTagConstants.TIFF_TAG_DATE_TIME) ?: return null
 
 				val gpsValue = gpsInfo.value as String
-				val test = SimpleDateFormat("yyyy:MM:dd HH:mm:ss").parse(gpsValue)
+				val test = SimpleDateFormat("yyyy:MM:dd HH:mm:ss", Locale.US).parse(gpsValue)
 
 				return Instant.fromEpochMilliseconds(test.time)
 			}
