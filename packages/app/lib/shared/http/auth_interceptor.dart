@@ -13,25 +13,36 @@ import '../../auth/types/auth_session.dart';
 class AuthInterceptor extends Interceptor {
   final Dio dio;
   final AuthPersistence authPersistence;
-  final Dio _refreshDio = Dio();
+  final Dio _refreshDio;
 
-  AuthInterceptor({required this.dio, required this.authPersistence});
+  AuthInterceptor({required this.dio, required this.authPersistence})
+      : _refreshDio = Dio(
+          BaseOptions(
+            connectTimeout: dio.options.connectTimeout,
+            receiveTimeout: dio.options.receiveTimeout,
+            sendTimeout: dio.options.sendTimeout,
+          ),
+        );
 
   void _debugLog(String message) {
     if (!kDebugMode) return;
-    developer.log(message, name: "AuthInterceptor");
+    developer.log(message, name: 'AuthInterceptor');
+  }
+
+  void _reject(ErrorInterceptorHandler handler, DioException err) {
+    handler.reject(
+      DioException(
+        requestOptions: err.requestOptions,
+        response: err.response,
+        error: err.response,
+      ),
+    );
   }
 
   dynamic _cloneRequestData(dynamic data) {
-    if (data is FormData) {
-      return data.clone();
-    }
-    if (data is Map) {
-      return Map<String, dynamic>.from(data);
-    }
-    if (data is List) {
-      return List<dynamic>.from(data);
-    }
+    if (data is FormData) return data.clone();
+    if (data is Map) return Map<String, dynamic>.from(data);
+    if (data is List) return List<dynamic>.from(data);
     return data;
   }
 
@@ -41,11 +52,10 @@ class AuthInterceptor extends Interceptor {
     RequestInterceptorHandler handler,
   ) async {
     final currentSession = await authPersistence.currentSession;
-    if (currentSession is AuthSession) {
+    if (currentSession != null) {
       if (options.baseUrl.isEmpty) {
-        options.baseUrl = "${currentSession.host}/api";
+        options.baseUrl = '${currentSession.host}/api';
       }
-
       if (options.headers['Authorization'] == null) {
         options.headers['Authorization'] = 'Bearer ${currentSession.token}';
       }
@@ -55,19 +65,9 @@ class AuthInterceptor extends Interceptor {
 
   @override
   void onError(DioException err, ErrorInterceptorHandler handler) async {
-    void reject() {
-      return handler.reject(
-        DioException(
-          requestOptions: err.requestOptions,
-          response: err.response,
-          error: err.response,
-        ),
-      );
-    }
-
     if (err.response?.statusCode != 401 ||
         err.requestOptions.extra['skipAuthRefresh'] == true) {
-      return reject();
+      return _reject(handler, err);
     }
 
     final authHeader = err.requestOptions.headers['Authorization'];
@@ -75,7 +75,7 @@ class AuthInterceptor extends Interceptor {
         authHeader is String ? authHeader.replaceFirst('Bearer ', '') : null;
 
     if (token == null) {
-      return reject();
+      return _reject(handler, err);
     }
 
     var requestSession = await authPersistence.getSessionByToken(token);
@@ -91,18 +91,17 @@ class AuthInterceptor extends Interceptor {
     }
 
     if (requestSession == null) {
-      return reject();
+      return _reject(handler, err);
     }
     final resolvedSession = requestSession;
 
     AuthSession? newSession;
-
     final refreshLockKey = authPersistence.refreshLockKey(resolvedSession);
 
     try {
       if (authPersistence.isRefreshing(refreshLockKey)) {
         _debugLog(
-          "Refresh already in progress for ${requestSession.host}/${requestSession.deviceId}. Waiting before retry.",
+          'Refresh already in progress for ${resolvedSession.host}/${resolvedSession.deviceId}. Waiting before retry.',
         );
         await authPersistence.waitIfRefreshing(refreshLockKey);
         newSession = await authPersistence.getSessionByHostAndDevice(
@@ -112,63 +111,55 @@ class AuthInterceptor extends Interceptor {
       } else {
         authPersistence.markRefreshing(refreshLockKey);
         _debugLog(
-          "Requesting new JWT for ${resolvedSession.host}/${resolvedSession.deviceId}.",
+          'Requesting new JWT for ${resolvedSession.host}/${resolvedSession.deviceId}.',
         );
-        newSession = await _renewSession(resolvedSession)
-            .then((value) {
-              _debugLog(
-                "New JWT received for ${resolvedSession.host}/${resolvedSession.deviceId}. Updating session store.",
-              );
-              return authPersistence.replaceSession(resolvedSession, value).then((
-                _,
-              ) {
-                authPersistence.currentSession = value;
-                return value;
-              });
-            })
-            .whenComplete(() {
-              authPersistence.markRefreshDone(refreshLockKey);
-            });
+        try {
+          final renewed = await _renewSession(resolvedSession);
+          _debugLog(
+            'New JWT received for ${resolvedSession.host}/${resolvedSession.deviceId}. Updating session store.',
+          );
+          await authPersistence.replaceSession(resolvedSession, renewed);
+          authPersistence.currentSession = renewed;
+          newSession = renewed;
+        } finally {
+          authPersistence.markRefreshDone(refreshLockKey);
+        }
       }
 
       if (newSession == null) {
-        return reject();
+        return _reject(handler, err);
       }
 
-      try {
-        final clonedData = _cloneRequestData(err.requestOptions.data);
-        final retryHeaders = Map<String, dynamic>.from(
-          err.requestOptions.headers,
-        );
-        retryHeaders['Authorization'] = 'Bearer ${newSession.token}';
-        if (clonedData is FormData) {
-          // Let Dio regenerate multipart content-type and boundary for cloned form-data.
-          retryHeaders.remove(Headers.contentTypeHeader);
-        }
+      final clonedData = _cloneRequestData(err.requestOptions.data);
+      final retryHeaders = Map<String, dynamic>.from(err.requestOptions.headers)
+        ..['Authorization'] = 'Bearer ${newSession.token}';
+      if (clonedData is FormData) {
+        // Let Dio regenerate the multipart content-type and boundary for cloned form-data.
+        retryHeaders.remove(Headers.contentTypeHeader);
+      }
 
-        _debugLog(
-          "Retrying request ${err.requestOptions.method} ${err.requestOptions.path} with refreshed JWT.",
-        );
+      _debugLog(
+        'Retrying request ${err.requestOptions.method} ${err.requestOptions.path} with refreshed JWT.',
+      );
+
+      try {
         final response = await dio.fetch(
           err.requestOptions.copyWith(headers: retryHeaders, data: clonedData),
         );
-
         return handler.resolve(response);
       } on DioException catch (e) {
         if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
           await onSessionExpired(resolvedSession);
         }
-
         return handler.reject(
           DioException(requestOptions: e.requestOptions, error: e.response),
         );
       }
     } on DioException catch (e) {
-      // Expire only on explicit auth failures; transient network failures should not disconnect user.
+      // Expire only on explicit auth failures; transient network failures should not disconnect the user.
       if (e.response?.statusCode == 401 || e.response?.statusCode == 403) {
         await onSessionExpired(resolvedSession);
       }
-
       return handler.reject(
         DioException(requestOptions: e.requestOptions, error: e.response),
       );
@@ -176,9 +167,7 @@ class AuthInterceptor extends Interceptor {
   }
 
   bool _sameHost(String host, RequestOptions requestOptions) {
-    if (requestOptions.baseUrl.isEmpty) {
-      return false;
-    }
+    if (requestOptions.baseUrl.isEmpty) return false;
 
     try {
       return Uri.parse(host).origin == Uri.parse(requestOptions.baseUrl).origin;
@@ -189,29 +178,18 @@ class AuthInterceptor extends Interceptor {
 
   Future<void> onSessionExpired(AuthSession session) async {
     final currentSession = await authPersistence.currentSession;
-
     if (currentSession == session) {
       authPersistence.expiredCurrentSession = session;
     }
-
     await authPersistence.removeSession(session);
   }
 
   Future<AuthSession> _renewSession(AuthSession oldSession) async {
-    _refreshDio.options = BaseOptions(
-      connectTimeout: dio.options.connectTimeout,
-      receiveTimeout: dio.options.receiveTimeout,
-      sendTimeout: dio.options.sendTimeout,
-    );
-    final newSessionResponse = await _refreshDio.patch(
+    final response = await _refreshDio.patch(
       '${oldSession.host}/api/auth/refresh',
       options: Options(extra: {'skipAuthRefresh': true}),
-      data: {"device": oldSession.deviceId, "token": oldSession.refreshToken},
+      data: {'device': oldSession.deviceId, 'token': oldSession.refreshToken},
     );
-
-    return AuthSession.fromResponseJson(
-      oldSession.host,
-      newSessionResponse.data,
-    );
+    return AuthSession.fromResponseJson(oldSession.host, response.data);
   }
 }
