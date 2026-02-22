@@ -1,6 +1,6 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Loic Vanden Bossche
 */
 import 'dart:async';
 
@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../shared/utils/dates.dart';
+import '../../../ui/widgets/inputs/glass_picker_field.dart';
 
 class EventDateInput extends StatelessWidget {
   final DateTime date;
@@ -20,14 +21,13 @@ class EventDateInput extends StatelessWidget {
   });
 
   String formatDate(DateTime date) {
-    DateTime today = DateTime.now();
-    DateFormat fullDateFormatter = DateFormat.yMMMd();
+    final today = DateTime.now();
+    final fullDateFormatter = DateFormat.yMMMd();
 
     if (checkSameDate(date, today)) {
       return "Aujourd'hui";
-    } else {
-      return fullDateFormatter.format(date);
     }
+    return fullDateFormatter.format(date);
   }
 
   void _onDateChanged(DateTime? date) {
@@ -38,43 +38,20 @@ class EventDateInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 56,
-      width: double.infinity,
-      child: Stack(
-        children: [
-          TextField(
-            controller: TextEditingController(text: formatDate(date)),
-            readOnly: true,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              labelText: "Date",
-              fillColor: Theme.of(context).colorScheme.primaryContainer,
-              filled: true,
-              suffixIcon: const Icon(Icons.today),
-            ),
-          ),
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () {
-                Timer(const Duration(milliseconds: 200), () {
-                  showDatePicker(
-                    context: context,
-                    initialDate: date,
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime(2100),
-                  ).then(_onDateChanged);
-                });
-              },
-            ),
-          ),
-        ],
-      ),
+    return GlassPickerField(
+      text: formatDate(date),
+      labelText: 'Date',
+      icon: Icons.today,
+      onTap: () {
+        Timer(const Duration(milliseconds: 200), () {
+          showDatePicker(
+            context: context,
+            initialDate: date,
+            firstDate: DateTime(1900),
+            lastDate: DateTime(2100),
+          ).then(_onDateChanged);
+        });
+      },
     );
   }
 }

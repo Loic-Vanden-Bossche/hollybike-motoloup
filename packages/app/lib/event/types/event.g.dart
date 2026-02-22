@@ -22,6 +22,8 @@ _Event _$EventFromJson(Map<String, dynamic> json) => _Event(
   image: json['image'] as String?,
   imageKey: json['image_key'] as String?,
   budget: (json['budget'] as num?)?.toInt(),
+  participantsCount: (json['participants_count'] as num?)?.toInt() ?? 0,
+  distance: (json['distance'] as num?)?.toInt(),
 );
 
 Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
@@ -37,6 +39,8 @@ Map<String, dynamic> _$EventToJson(_Event instance) => <String, dynamic>{
   'image': instance.image,
   'image_key': instance.imageKey,
   'budget': instance.budget,
+  'participants_count': instance.participantsCount,
+  'distance': instance.distance,
 };
 
 const _$EventStatusStateEnumMap = {

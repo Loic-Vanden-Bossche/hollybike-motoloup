@@ -1,6 +1,6 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Lo�c Vanden Bossche
 */
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -22,7 +22,7 @@ import '../fragments/archived_events.dart';
 import '../services/event/event_repository.dart';
 import '../widgets/add_event_floating_button.dart';
 
-enum EventListTab { future, user, archived }
+enum EventListTab { user, future, archived }
 
 @RoutePage()
 class EventsScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -47,7 +47,7 @@ class _EventsScreenState extends State<EventsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _controller;
 
-  int _currentTab = EventListTab.future.index;
+  int _currentTab = EventListTab.user.index;
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +56,7 @@ class _EventsScreenState extends State<EventsScreen>
         BlocListener<FutureEventsBloc, EventsState>(
           listener: (context, state) {
             if (state is EventCreationSuccess) {
-              Toast.showSuccessToast(context, "Événement créé");
+              Toast.showSuccessToast(context, '�v�nement cr��');
 
               Future.delayed(const Duration(milliseconds: 50), () {
                 if (!context.mounted) return;
@@ -78,18 +78,21 @@ class _EventsScreenState extends State<EventsScreen>
       child: BlocProvidedBuilder<ProfileBloc, ProfileState>(
         builder: (context, bloc, state) {
           final tabs = [
+            TabDescription(
+              title: 'Mes évènements',
+              icon: Icons.event_available_rounded,
+              fragment: UserEvents(
+                onShowGlobalEventsRequested:
+                    () => _controller.animateTo(EventListTab.future.index),
+              ),
+            ),
             const TabDescription(
-              title: "Évènements",
+              title: 'Évènements',
               icon: Icons.event_rounded,
               fragment: FutureEvents(),
             ),
             const TabDescription(
-              title: "Mes évènements",
-              icon: Icons.event_available_rounded,
-              fragment: UserEvents(),
-            ),
-            const TabDescription(
-              title: "Archives",
+              title: 'Archivés',
               icon: Icons.archive_outlined,
               fragment: ArchivedEvents(),
             ),

@@ -1,6 +1,6 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Loic Vanden Bossche
 */
 import 'package:flutter/material.dart';
 
@@ -22,29 +22,71 @@ class SwitchWithText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     final switchWidget = Switch(
       value: value,
-      onChanged:
-          onChange != null
-              ? (value) {
-                onChange?.call();
-              }
-              : null,
+      onChanged: onChange != null ? (_) => onChange?.call() : null,
+      thumbColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return scheme.secondary;
+        }
+        return scheme.onPrimary.withValues(alpha: 0.7);
+      }),
+      trackColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return scheme.secondary.withValues(alpha: 0.35);
+        }
+        return scheme.onPrimary.withValues(alpha: 0.16);
+      }),
+      trackOutlineColor: WidgetStateProperty.resolveWith((states) {
+        if (states.contains(WidgetState.selected)) {
+          return scheme.secondary.withValues(alpha: 0.45);
+        }
+        return scheme.onPrimary.withValues(alpha: 0.22);
+      }),
+      materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
     );
 
-    const separator = SizedBox(width: 10);
+    final label = Expanded(
+      child: Text(
+        text,
+        softWrap: true,
+        style: TextStyle(
+          color: scheme.onPrimary.withValues(alpha: 0.88),
+          fontSize: 13,
+          fontVariations: const [FontVariation.weight(600)],
+        ),
+      ),
+    );
 
-    final label = Expanded(child: Text(text, softWrap: true));
+    final rowChildren =
+        alignment == SwitchAlignment.left
+            ? [switchWidget, const SizedBox(width: 10), label]
+            : [label, const SizedBox(width: 10), switchWidget];
 
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
       onTap: onChange,
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children:
-            alignment == SwitchAlignment.left
-                ? [switchWidget, separator, label]
-                : [label, separator, switchWidget],
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 180),
+        curve: Curves.easeOutCubic,
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color:
+              value
+                  ? scheme.onPrimary.withValues(alpha: 0.12)
+                  : scheme.onPrimary.withValues(alpha: 0.06),
+          border: Border.all(
+            color:
+                value
+                    ? scheme.secondary.withValues(alpha: 0.35)
+                    : scheme.onPrimary.withValues(alpha: 0.14),
+            width: 1,
+          ),
+        ),
+        child: Row(mainAxisSize: MainAxisSize.min, children: rowChildren),
       ),
     );
   }

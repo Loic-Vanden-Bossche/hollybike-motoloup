@@ -43,8 +43,9 @@ class EventEditFloatingButton extends StatelessWidget {
     Timer(const Duration(milliseconds: 100), () {
       showModalBottomSheet<void>(
         context: context,
-        enableDrag: false,
+        enableDrag: true,
         isScrollControlled: true,
+        backgroundColor: Colors.transparent,
         builder: (BuildContext context) {
           return EventFormModal(
             canEditDates: event.status != EventStatusState.now,

@@ -1,8 +1,10 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Loic Vanden Bossche
 */
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/inputs/glass_input_decoration.dart';
 
 class EventFormNameField extends StatelessWidget {
   final TextEditingController nameController;
@@ -11,6 +13,8 @@ class EventFormNameField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return TextFormField(
       controller: nameController,
       autocorrect: true,
@@ -18,27 +22,23 @@ class EventFormNameField extends StatelessWidget {
       autovalidateMode: AutovalidateMode.onUserInteraction,
       validator: (value) {
         if (value!.isEmpty) {
-          return "Veuillez entrer un nom pour l'événement";
+          return "Veuillez entrer un nom pour l'évènement";
         }
 
         if (value.length < 3) {
-          return "Le nom de l'événement doit contenir au moins 3 caractères";
+          return "Le nom de l'évènement doit contenir au moins 3 caractères";
         }
 
         if (value.length > 100) {
-          return "Le nom de l'événement ne peut pas dépasser 100 caractères";
+          return "Le nom de l'évènement ne peut pas dépasser 100 caractères";
         }
 
         return null;
       },
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
-        ),
-        labelText: "Nom de l'événement",
-        fillColor: Theme.of(context).colorScheme.primaryContainer,
-        filled: true,
+      style: TextStyle(color: scheme.onPrimary),
+      decoration: buildGlassInputDecoration(
+        context,
+        labelText: "Nom de l'évènement",
       ),
     );
   }

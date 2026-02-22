@@ -1,6 +1,6 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Lo�c Vanden Bossche
 */
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -20,12 +20,16 @@ class EventsListFragment<T extends EventsBloc> extends StatefulWidget {
   final void Function() onNextPageRequested;
   final Future<void> Function() onRefreshRequested;
   final String placeholderText;
+  final String? emptyActionLabel;
+  final VoidCallback? onEmptyActionPressed;
 
   const EventsListFragment({
     super.key,
     required this.onNextPageRequested,
     required this.onRefreshRequested,
     required this.placeholderText,
+    this.emptyActionLabel,
+    this.onEmptyActionPressed,
   });
 
   @override
@@ -71,15 +75,38 @@ class _EventsListFragmentState<T extends EventsBloc>
         displacement: topInset + 28,
         child: BlocBuilder<T, EventsState>(
           builder: (context, state) {
-            if (state.events.isEmpty) {
-              return _buildPlaceholder(context, state);
-            }
+            final isListVisible = state.events.isNotEmpty;
+            final viewKey =
+                isListVisible ? 'list' : 'placeholder-${state.status.name}';
+            final view =
+                isListVisible
+                    ? EventsList(
+                      hasMore: state.hasMore,
+                      events: state.events,
+                      onNextPageRequested: widget.onNextPageRequested,
+                      onRefreshRequested: widget.onRefreshRequested,
+                    )
+                    : _buildPlaceholder(context, state);
 
-            return EventsList(
-              hasMore: state.hasMore,
-              events: state.events,
-              onNextPageRequested: widget.onNextPageRequested,
-              onRefreshRequested: widget.onRefreshRequested,
+            return AnimatedSwitcher(
+              duration: const Duration(milliseconds: 320),
+              switchInCurve: Curves.easeOutCubic,
+              switchOutCurve: Curves.easeInCubic,
+              layoutBuilder:
+                  (currentChild, previousChildren) => Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      ...previousChildren,
+                      if (currentChild != null) currentChild,
+                    ],
+                  ),
+              transitionBuilder:
+                  (child, animation) =>
+                      FadeTransition(opacity: animation, child: child),
+              child: KeyedSubtree(
+                key: ValueKey(viewKey),
+                child: view,
+              ),
             );
           },
         ),
@@ -90,7 +117,10 @@ class _EventsListFragmentState<T extends EventsBloc>
   Widget _buildPlaceholder(BuildContext context, EventsState state) {
     switch (state.status) {
       case EventStatus.loading:
-        return const Center(child: CircularProgressIndicator());
+        return ScrollablePlaceholder(
+          padding: MediaQuery.of(context).size.width * 0.2,
+          child: const Center(child: CircularProgressIndicator()),
+        );
       case EventStatus.error:
         return ScrollablePlaceholder(
           padding: MediaQuery.of(context).size.width * 0.1,
@@ -128,6 +158,15 @@ class _EventsListFragmentState<T extends EventsBloc>
                 style: Theme.of(context).textTheme.bodyMedium,
                 textAlign: TextAlign.center,
               ),
+              if (widget.emptyActionLabel != null &&
+                  widget.onEmptyActionPressed != null) ...[
+                const SizedBox(height: 18),
+                FilledButton.icon(
+                  onPressed: widget.onEmptyActionPressed,
+                  icon: const Icon(Icons.event_rounded, size: 16),
+                  label: Text(widget.emptyActionLabel!),
+                ),
+              ],
             ],
           ),
         );
