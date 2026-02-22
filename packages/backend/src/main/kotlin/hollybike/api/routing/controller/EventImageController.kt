@@ -113,11 +113,11 @@ class EventImageController(
 		get<Events.Images.ImageId> { data ->
 			val searchParam = call.request.queryParameters.getSearchParam(mapper)
 
-			eventImageService.getImageWithDetails(call.user, data.imageId, searchParam).let { image ->
+			eventImageService.getImageDetails(call.user, data.imageId, searchParam).let { image ->
 				if (image == null) {
 					call.respond(HttpStatusCode.NotFound)
 				} else {
-					call.respond(TEventImageDetails(image, call.user.id == image.owner.id))
+					call.respond(image)
 				}
 			}
 		}
