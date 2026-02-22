@@ -3,35 +3,26 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'package:flutter/material.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 import 'package:lottie/lottie.dart';
 
 Future<void> showEventDateWarningDialog(BuildContext context, String message) {
-  return showDialog<void>(
+  return showGlassConfirmationDialog(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Dates/horaires invalides'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Lottie.asset(
-              height: 150,
-              fit: BoxFit.cover,
-              'assets/lottie/lottie_calendar_error_animation.json',
-              repeat: false,
-            ),
-            Text(message),
-          ],
+    title: 'Dates/horaires invalides',
+    showCancel: false,
+    confirmLabel: 'Ok',
+    content: Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Lottie.asset(
+          height: 150,
+          fit: BoxFit.cover,
+          'assets/lottie/lottie_calendar_error_animation.json',
+          repeat: false,
         ),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Ok'),
-          ),
-        ],
-      );
-    },
+        Text(message),
+      ],
+    ),
   );
 }

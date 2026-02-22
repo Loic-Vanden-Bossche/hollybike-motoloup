@@ -4,6 +4,7 @@
 */
 import 'package:flutter/material.dart';
 import 'package:hollybike/profile/widgets/profile_journeys.dart';
+import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 import 'package:hollybike/user/types/minimal_user.dart';
 
 class UserJourneyListModal extends StatefulWidget {
@@ -25,56 +26,63 @@ class _UserJourneyListModalState extends State<UserJourneyListModal> {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(31),
-          topRight: Radius.circular(31),
-        ),
-      ),
-      child: SafeArea(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                left: 16,
-                right: 16,
-                top: 16,
-                bottom: 0,
+    final scheme = Theme.of(context).colorScheme;
+
+    return GlassBottomModal(
+      maxContentHeight: 520,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Text(
+                'Sélectionner un trajet',
+                style: TextStyle(
+                  color: scheme.onPrimary,
+                  fontSize: 16,
+                  fontVariations: const [FontVariation.weight(700)],
+                ),
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
+              const Spacer(),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer.withValues(alpha: 0.55),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: scheme.onPrimary.withValues(alpha: 0.12),
+                      width: 1,
+                    ),
                   ),
-                  const SizedBox(width: 16),
-                  Text(
-                    'Selectionnez un trajet',
-                    style: Theme.of(context).textTheme.titleMedium,
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 16,
+                    color: scheme.onPrimary.withValues(alpha: 0.65),
                   ),
-                ],
+                ),
               ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Journey list
+          Flexible(
+            child: ProfileJourneys(
+              user: widget.user,
+              isMe: true,
+              scrollController: scrollController,
+              isNested: false,
+              onJourneySelected: (userJourney) {
+                widget.fileSelected(userJourney.file);
+                Navigator.of(context).pop();
+              },
             ),
-            Flexible(
-              child: ProfileJourneys(
-                user: widget.user,
-                isMe: true,
-                scrollController: scrollController,
-                isNested: false,
-                onJourneySelected: (userJourney) {
-                  widget.fileSelected(userJourney.file);
-                  Navigator.of(context).pop();
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

@@ -31,6 +31,7 @@ class UserEvents extends StatelessWidget {
             placeholderText: 'Vous ne participez à aucun évènement',
             emptyActionLabel: 'Voir les évènements',
             onEmptyActionPressed: onShowGlobalEventsRequested,
+            prioritizeUpcomingFirst: true,
           );
         },
       ),

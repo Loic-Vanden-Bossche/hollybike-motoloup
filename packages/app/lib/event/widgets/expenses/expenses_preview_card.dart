@@ -22,24 +22,18 @@ class ExpensesPreviewCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (eventDetails.expenses == null && eventDetails.totalExpense == null) {
-      return const SizedBox();
+      return const SizedBox.shrink();
     }
 
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 100,
-          width: double.infinity,
-          child: _buildExpenses(
-            context,
-            eventDetails.expenses!,
-            eventDetails.event.budget,
-            eventDetails.totalExpense!,
-          ),
-        ),
-      ],
+    return SizedBox(
+      height: 110,
+      width: double.infinity,
+      child: _buildExpenses(
+        context,
+        eventDetails.expenses!,
+        eventDetails.event.budget,
+        eventDetails.totalExpense!,
+      ),
     );
   }
 
@@ -50,18 +44,18 @@ class ExpensesPreviewCard extends StatelessWidget {
     int totalExpenses,
   ) {
     if (expenses.isEmpty && budget == null) {
-      return EmptyPreviewExpensesCard(onTap: () => onTap(context));
+      return EmptyPreviewExpensesCard(onTap: () => _onTap(context));
     }
 
     return ExpensesPreviewCardContent(
       expenses: expenses,
       budget: budget,
       totalExpenses: totalExpenses,
-      onTap: () => onTap(context),
+      onTap: () => _onTap(context),
     );
   }
 
-  void onTap(BuildContext context) {
+  void _onTap(BuildContext context) {
     showModalBottomSheet(
       backgroundColor: Colors.transparent,
       isScrollControlled: true,

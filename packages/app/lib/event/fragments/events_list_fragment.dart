@@ -22,6 +22,7 @@ class EventsListFragment<T extends EventsBloc> extends StatefulWidget {
   final String placeholderText;
   final String? emptyActionLabel;
   final VoidCallback? onEmptyActionPressed;
+  final bool prioritizeUpcomingFirst;
 
   const EventsListFragment({
     super.key,
@@ -30,6 +31,7 @@ class EventsListFragment<T extends EventsBloc> extends StatefulWidget {
     required this.placeholderText,
     this.emptyActionLabel,
     this.onEmptyActionPressed,
+    this.prioritizeUpcomingFirst = false,
   });
 
   @override
@@ -85,6 +87,7 @@ class _EventsListFragmentState<T extends EventsBloc>
                       events: state.events,
                       onNextPageRequested: widget.onNextPageRequested,
                       onRefreshRequested: widget.onRefreshRequested,
+                      prioritizeUpcomingFirst: widget.prioritizeUpcomingFirst,
                     )
                     : _buildPlaceholder(context, state);
 
@@ -103,10 +106,7 @@ class _EventsListFragmentState<T extends EventsBloc>
               transitionBuilder:
                   (child, animation) =>
                       FadeTransition(opacity: animation, child: child),
-              child: KeyedSubtree(
-                key: ValueKey(viewKey),
-                child: view,
-              ),
+              child: KeyedSubtree(key: ValueKey(viewKey), child: view),
             );
           },
         ),

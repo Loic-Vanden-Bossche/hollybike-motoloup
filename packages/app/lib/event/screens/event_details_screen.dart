@@ -2,6 +2,8 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
+import 'dart:ui';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,7 +20,6 @@ import 'package:hollybike/profile/services/profile_repository.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar_action_container.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar_action_icon.dart';
-import 'package:hollybike/shared/widgets/bar/top_bar_title.dart';
 import 'package:hollybike/shared/widgets/hud/hud.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
 import 'package:provider/provider.dart';
@@ -209,7 +210,6 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                   onPressed: () => context.router.maybePop(),
                   icon: Icons.arrow_back,
                 ),
-                title: const TopBarTitle("Détails"),
                 suffix: _renderActions(state),
               ),
               floatingActionButton: _getFloatingButton(),
@@ -236,25 +236,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                       sliver: SliverPersistentHeader(
                         pinned: true,
                         delegate: PinnedHeaderDelegate(
-                          height: 50,
-                          child: Container(
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            child: TabBar(
-                              controller: _tabController,
-                              labelColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              indicatorColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              tabs: const [
-                                Tab(icon: Icon(Icons.info)),
-                                Tab(icon: Icon(Icons.photo_library_rounded)),
-                                Tab(
-                                  icon: Icon(Icons.add_photo_alternate_rounded),
-                                ),
-                                Tab(icon: Icon(Icons.explore_rounded)),
-                              ],
-                            ),
-                          ),
+                          height: 52,
+                          child: _buildGlassTabBar(context),
                         ),
                       ),
                     ),
@@ -268,6 +251,82 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       ),
     );
   }
+
+  // ── Glassmorphic pill tab bar ───────────────────────────────────────────────
+
+  Widget _buildGlassTabBar(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      color: scheme.primaryContainer,
+      alignment: Alignment.center,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(50),
+        child: BackdropFilter(
+          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: scheme.primary.withValues(alpha: 0.60),
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.10),
+                width: 1,
+              ),
+            ),
+            child: TabBar(
+              controller: _tabController,
+              isScrollable: true,
+              tabAlignment: TabAlignment.center,
+              dividerColor: Colors.transparent,
+              padding: const EdgeInsets.symmetric(horizontal: 4),
+              indicatorSize: TabBarIndicatorSize.tab,
+              indicatorPadding: const EdgeInsets.symmetric(vertical: 5),
+              indicator: BoxDecoration(
+                borderRadius: BorderRadius.circular(50),
+                color: scheme.secondary.withValues(alpha: 0.20),
+                border: Border.all(
+                  color: scheme.secondary.withValues(alpha: 0.30),
+                  width: 1,
+                ),
+              ),
+              labelColor: scheme.secondary,
+              unselectedLabelColor: scheme.onPrimary.withValues(alpha: 0.55),
+              labelStyle: Theme.of(context).textTheme.titleSmall,
+              unselectedLabelStyle: Theme.of(context).textTheme.titleSmall,
+              overlayColor: WidgetStateProperty.all(Colors.transparent),
+              splashFactory: NoSplash.splashFactory,
+              tabs: [
+                _buildTab(Icons.info_rounded, 'Infos'),
+                _buildTab(Icons.photo_library_rounded, 'Photos'),
+                _buildTab(Icons.add_photo_alternate_rounded, 'Mes photos'),
+                _buildTab(Icons.explore_rounded, 'Carte'),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTab(IconData icon, String label) {
+    return Tab(
+      height: 36,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 6),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 14),
+            const SizedBox(width: 6),
+            Text(label),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ── Tab content ────────────────────────────────────────────────────────────
 
   Widget _tabTabContent() {
     return BlocBuilder<EventDetailsBloc, EventDetailsState>(

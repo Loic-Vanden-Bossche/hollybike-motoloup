@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 
 import '../../app/app_router.gr.dart';
 
@@ -57,108 +58,146 @@ class JourneyToolsModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(31),
-          topRight: Radius.circular(31),
+    final scheme = Theme.of(context).colorScheme;
+
+    return GlassBottomModal(
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
+            children: [
+              Text(
+                'Sélectionner un outil',
+                style: TextStyle(
+                  color: scheme.onPrimary,
+                  fontSize: 16,
+                  fontVariations: const [FontVariation.weight(700)],
+                ),
+              ),
+              const Spacer(),
+              _buildCloseButton(context, scheme),
+            ],
+          ),
+          const SizedBox(height: 14),
+
+          // Tools list
+          for (final tool in journeyTools)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: _buildToolCard(context, scheme, tool),
+            ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCloseButton(BuildContext context, ColorScheme scheme) {
+    return GestureDetector(
+      onTap: () => Navigator.of(context).pop(),
+      child: Container(
+        padding: const EdgeInsets.all(7),
+        decoration: BoxDecoration(
+          color: scheme.primaryContainer.withValues(alpha: 0.55),
+          shape: BoxShape.circle,
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.12),
+            width: 1,
+          ),
+        ),
+        child: Icon(
+          Icons.close_rounded,
+          size: 16,
+          color: scheme.onPrimary.withValues(alpha: 0.65),
         ),
       ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        child: SafeArea(
-          child: SizedBox(
-            width: double.infinity,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+    );
+  }
+
+  Widget _buildToolCard(
+    BuildContext context,
+    ColorScheme scheme,
+    JourneyTool tool,
+  ) {
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer.withValues(alpha: 0.60),
+              borderRadius: BorderRadius.circular(16),
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.10),
+                width: 1,
+              ),
+            ),
+            padding: const EdgeInsets.all(14),
+            child: Row(
               children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Selectionnez un outil',
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.close),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(10),
+                  child: Image(
+                    image: tool.icon,
+                    width: 40,
+                    height: 40,
+                    fit: BoxFit.cover,
+                  ),
                 ),
-                const SizedBox(height: 16),
-                for (final tool in journeyTools)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 16),
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        onTap: () {
-                          context.router.push(
-                            ImportGpxToolRoute(
-                              url: tool.url,
-                              onGpxDownloaded: onGpxDownloaded,
-                              onClose: () => Navigator.of(context).pop(),
-                            ),
-                          );
-                        },
-                        borderRadius: BorderRadius.circular(14),
-                        child: Ink(
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(14),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Row(
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(8),
-                                  child: Image(
-                                    image: tool.icon,
-                                    width: 40,
-                                    height: 40,
-                                  ),
-                                ),
-                                const SizedBox(width: 16),
-                                Flexible(
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      Text(
-                                        tool.name,
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.titleSmall,
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        tool.description,
-                                        style:
-                                            Theme.of(
-                                              context,
-                                            ).textTheme.bodySmall,
-                                        softWrap: true,
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        tool.name,
+                        style: TextStyle(
+                          color: scheme.onPrimary,
+                          fontSize: 13,
+                          fontVariations: const [FontVariation.weight(650)],
                         ),
                       ),
-                    ),
+                      const SizedBox(height: 3),
+                      Text(
+                        tool.description,
+                        style: TextStyle(
+                          color: scheme.onPrimary.withValues(alpha: 0.55),
+                          fontSize: 11,
+                          fontVariations: const [FontVariation.weight(450)],
+                        ),
+                        softWrap: true,
+                      ),
+                    ],
                   ),
+                ),
+                const SizedBox(width: 8),
+                Icon(
+                  Icons.arrow_forward_ios_rounded,
+                  size: 13,
+                  color: scheme.onPrimary.withValues(alpha: 0.35),
+                ),
               ],
             ),
           ),
-        ),
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                borderRadius: BorderRadius.circular(16),
+                onTap: () {
+                  context.router.push(
+                    ImportGpxToolRoute(
+                      url: tool.url,
+                      onGpxDownloaded: onGpxDownloaded,
+                      onClose: () => Navigator.of(context).pop(),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

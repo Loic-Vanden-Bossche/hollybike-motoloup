@@ -12,6 +12,7 @@ import 'package:hollybike/event/widgets/details/status/event_details_status.dart
 import 'package:hollybike/positions/bloc/my_position/my_position_bloc.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_event.dart';
 import 'package:hollybike/shared/utils/dates.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 
 class EventFinishedStatus extends StatelessWidget {
   final EventDetails eventDetails;
@@ -50,38 +51,23 @@ class EventFinishedStatus extends StatelessWidget {
       return null;
     }
 
-    return () => {
-      showDialog(
+    return () async {
+      final confirmed = await showGlassConfirmationDialog(
         context: context,
-        builder: (contextDialog) {
-          return AlertDialog(
-            title: const Text("Terminer le parcours"),
-            content: const Text(
-              "Êtes-vous sûr de vouloir terminer le parcours ? Vous ne pourrez plus partager votre position en temps réel.",
-            ),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: const Text("Annuler"),
-              ),
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
+        title: "Terminer le parcours",
+        message:
+            "Êtes-vous sûr de vouloir terminer le parcours ? Vous ne pourrez plus partager votre position en temps réel.",
+        cancelLabel: "Annuler",
+        confirmLabel: "Terminer",
+      );
 
-                  context.read<EventDetailsBloc>().add(TerminateUserJourney());
+      if (confirmed == true && context.mounted) {
+        context.read<EventDetailsBloc>().add(TerminateUserJourney());
 
-                  if (isCurrentEvent) {
-                    context.read<MyPositionBloc>().add(DisableSendPositions());
-                  }
-                },
-                child: const Text("Terminer"),
-              ),
-            ],
-          );
-        },
-      ),
+        if (isCurrentEvent) {
+          context.read<MyPositionBloc>().add(DisableSendPositions());
+        }
+      }
     };
   }
 }

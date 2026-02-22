@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import '../../../app/app_router.gr.dart';
 import '../../../shared/utils/dates.dart';
 import '../../types/minimal_event.dart';
+import '../../types/event_status_state.dart';
 import '../event_preview_card/event_preview_card.dart';
 
 // Height of the visible TopBar content (see shared/widgets/bar/top_bar.dart).
@@ -29,12 +30,14 @@ class EventsSectionsList extends StatefulWidget {
   final bool hasMore;
   final ScrollController? controller;
   final ScrollPhysics physics;
+  final bool prioritizeUpcomingFirst;
 
   const EventsSectionsList({
     super.key,
     required this.events,
     required this.hasMore,
     this.controller,
+    this.prioritizeUpcomingFirst = false,
     this.physics = const BouncingScrollPhysics(
       parent: AlwaysScrollableScrollPhysics(),
     ),
@@ -74,82 +77,85 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
         controller: widget.controller,
         physics: widget.physics,
         slivers: [
-        // ── Phantom header ────────────────────────────────────────────────
-        // Transparent, pinned — reserves the top-bar area so section headers
-        // cannot creep behind the glass pill.
-        SliverPersistentHeader(
-          pinned: true,
-          delegate: _PhantomHeaderDelegate(height: topInset),
-        ),
+          // ── Phantom header ────────────────────────────────────────────────
+          // Transparent, pinned — reserves the top-bar area so section headers
+          // cannot creep behind the glass pill.
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: _PhantomHeaderDelegate(height: topInset),
+          ),
 
-        // ── Month sections ────────────────────────────────────────────────
-        ...sections
-            .map(
-              (section) => SliverMainAxisGroup(
-                slivers: [
-                  SliverPersistentHeader(
-                    pinned: true,
-                    delegate: _AnimatedMonthHeaderDelegate(
-                      title: section.title,
-                      colorScheme: scheme,
-                      hasScrolled: _hasScrolled,
-                    ),
+          // ── Month sections ────────────────────────────────────────────────
+          ...sections.map(
+            (section) => SliverMainAxisGroup(
+              slivers: [
+                SliverPersistentHeader(
+                  pinned: true,
+                  delegate: _AnimatedMonthHeaderDelegate(
+                    title: section.title,
+                    colorScheme: scheme,
+                    hasScrolled: _hasScrolled,
                   ),
-                  SliverList(
-                    delegate: SliverChildBuilderDelegate((context, index) {
-                      final event = section.events[index];
+                ),
+                SliverList(
+                  delegate: SliverChildBuilderDelegate((context, index) {
+                    final event = section.events[index];
 
-                      return TweenAnimationBuilder(
-                        tween: Tween<double>(begin: 0, end: 1),
-                        duration: const Duration(milliseconds: 300),
-                        curve: Curves.easeInOut,
-                        builder: (context, double value, child) {
-                          return Transform.translate(
-                            offset: Offset(30 * (1 - value), 0),
-                            child: Opacity(
-                              opacity: value,
-                              child: EventPreviewCard(
-                                event: event,
-                                onTap:
-                                    (uniqueKey) => _navigateToEventDetails(
-                                      context,
-                                      event,
-                                      uniqueKey,
-                                    ),
-                              ),
+                    return TweenAnimationBuilder(
+                      tween: Tween<double>(begin: 0, end: 1),
+                      duration: const Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                      builder: (context, double value, child) {
+                        return Transform.translate(
+                          offset: Offset(30 * (1 - value), 0),
+                          child: Opacity(
+                            opacity: value,
+                            child: EventPreviewCard(
+                              event: event,
+                              onTap:
+                                  (uniqueKey) => _navigateToEventDetails(
+                                    context,
+                                    event,
+                                    uniqueKey,
+                                  ),
                             ),
-                          );
-                        },
-                      );
-                    }, childCount: section.events.length),
-                  ),
-                  if (widget.hasMore && section == sections.last)
-                    const SliverToBoxAdapter(
-                      child: Center(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(vertical: 16.0),
-                          child: CircularProgressIndicator(),
-                        ),
+                          ),
+                        );
+                      },
+                    );
+                  }, childCount: section.events.length),
+                ),
+                if (widget.hasMore && section == sections.last)
+                  const SliverToBoxAdapter(
+                    child: Center(
+                      child: Padding(
+                        padding: EdgeInsets.symmetric(vertical: 16.0),
+                        child: CircularProgressIndicator(),
                       ),
                     ),
-                ],
-              ),
+                  ),
+              ],
             ),
+          ),
 
-        SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
+          SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
         ],
       ),
     );
   }
 
   List<EventSection> getEventSections(List<MinimalEvent> events) {
+    final sortedEvents =
+        widget.prioritizeUpcomingFirst ? _sortUpcomingFirst(events) : events;
+
     final sections = <EventSection>[];
     List<List<MinimalEvent>> groupedEvents = [];
 
-    for (var i = 0; i < events.length; i++) {
-      final event = events[i];
+    for (var i = 0; i < sortedEvents.length; i++) {
+      final event = sortedEvents[i];
 
-      if (i == 0 || event.startDate.month != events[i - 1].startDate.month) {
+      if (i == 0 ||
+          event.startDate.month != sortedEvents[i - 1].startDate.month) {
         groupedEvents.add([]);
       }
 
@@ -164,6 +170,41 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
     }
 
     return sections;
+  }
+
+  List<MinimalEvent> _sortUpcomingFirst(List<MinimalEvent> events) {
+    final now = DateTime.now();
+    final upcoming = <MinimalEvent>[];
+    final past = <MinimalEvent>[];
+
+    for (final event in events) {
+      if (_isUpcoming(event, now)) {
+        upcoming.add(event);
+      } else {
+        past.add(event);
+      }
+    }
+
+    past.sort((a, b) => _pastSortDate(b).compareTo(_pastSortDate(a)));
+
+    return [...upcoming, ...past];
+  }
+
+  bool _isUpcoming(MinimalEvent event, DateTime now) {
+    if (event.status == EventStatusState.finished ||
+        event.status == EventStatusState.canceled) {
+      return false;
+    }
+
+    if (event.status == EventStatusState.now) {
+      return true;
+    }
+
+    return !event.startDate.isBefore(now);
+  }
+
+  DateTime _pastSortDate(MinimalEvent event) {
+    return event.endDate ?? event.startDate;
   }
 
   void _navigateToEventDetails(
@@ -286,10 +327,7 @@ class _PhantomHeaderDelegate extends SliverPersistentHeaderDelegate {
     BuildContext context,
     double shrinkOffset,
     bool overlapsContent,
-  ) => SizedBox(
-    height: height,
-    width: double.infinity,
-  );
+  ) => SizedBox(height: height, width: double.infinity);
 
   @override
   double get maxExtent => height;

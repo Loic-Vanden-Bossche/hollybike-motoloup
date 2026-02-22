@@ -67,6 +67,7 @@ void journeyImportModalFromType(
     case NewJourneyType.library:
       showModalBottomSheet<void>(
         context: context,
+        backgroundColor: Colors.transparent,
         isScrollControlled: true,
         builder: (_) {
           return BlocProvider.value(
@@ -105,9 +106,8 @@ void journeyImportModalFromType(
 
       showModalBottomSheet<void>(
         context: context,
-        constraints: BoxConstraints(
-          maxHeight: MediaQuery.of(context).size.height * 0.7,
-        ),
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
         builder: (_) {
           return BlocProvider<ProfileJourneysBloc>(
             create:
