@@ -29,33 +29,41 @@ class _TopBarSearchInputState extends State<TopBarSearchInput> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Material(
       type: MaterialType.transparency,
       child: Container(
         margin: const EdgeInsets.all(5),
         decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.surface,
+          color: scheme.onPrimary.withValues(alpha: 0.08),
           borderRadius: BorderRadius.circular(50),
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.12),
+            width: 1,
+          ),
         ),
         child: LayoutBuilder(
           builder: (context, constraints) {
             return TextFormField(
               focusNode: _focusNode,
               textAlignVertical: TextAlignVertical.center,
-              style: Theme.of(context).textTheme.titleSmall,
+              style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                color: scheme.onPrimary.withValues(alpha: 0.86),
+              ),
               onEditingComplete: _handleEditingCompletion,
               onTapOutside: _handleOutsideTap,
               onChanged: _handleChange,
               decoration: InputDecoration(
                 hintText: "Recherche",
                 hintStyle: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: scheme.onPrimary.withValues(alpha: 0.45),
                 ),
                 constraints: BoxConstraints(maxHeight: constraints.maxHeight),
                 isDense: true,
                 prefixIcon: Icon(
                   Icons.search,
-                  color: Theme.of(context).colorScheme.onPrimaryContainer,
+                  color: scheme.onPrimary.withValues(alpha: 0.52),
                   size: constraints.maxHeight * 0.6,
                 ),
                 border: InputBorder.none,

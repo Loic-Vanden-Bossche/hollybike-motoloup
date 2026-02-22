@@ -16,26 +16,30 @@ class ImageGalleryDetailsPosition extends StatelessWidget {
       return const SizedBox();
     }
 
+    final scheme = Theme.of(context).colorScheme;
     final imagePosition = position as Position;
 
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
+        color: scheme.onPrimary.withValues(alpha: 0.06),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.12),
+          width: 1,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
               Position.getIcon(imagePosition.positionType),
-              color: Theme.of(context).colorScheme.onPrimary,
-              size: 36,
+              color: scheme.onPrimary.withValues(alpha: 0.72),
+              size: 22,
             ),
-            const SizedBox(width: 20),
+            const SizedBox(width: 10),
             Expanded(child: _buildPosition(context, imagePosition)),
           ],
         ),
@@ -53,7 +57,14 @@ class ImageGalleryDetailsPosition extends StatelessWidget {
     void addSpan(TextSpan span) {
       if (texts.isNotEmpty) {
         texts.add(
-          TextSpan(text: ", ", style: Theme.of(context).textTheme.bodySmall),
+          TextSpan(
+            text: ", ",
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.onPrimary.withValues(alpha: 0.6),
+            ),
+          ),
         );
       }
 
@@ -64,7 +75,11 @@ class ImageGalleryDetailsPosition extends StatelessWidget {
       addSpan(
         TextSpan(
           text: preciseName,
-          style: Theme.of(context).textTheme.titleSmall,
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.86),
+          ),
         ),
       );
     }
@@ -73,7 +88,11 @@ class ImageGalleryDetailsPosition extends StatelessWidget {
       addSpan(
         TextSpan(
           text: fullCityName,
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.7),
+          ),
         ),
       );
     }
@@ -88,7 +107,11 @@ class ImageGalleryDetailsPosition extends StatelessWidget {
       addSpan(
         TextSpan(
           text: "${position.latitude}, ${position.longitude}",
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.7),
+          ),
         ),
       );
     }

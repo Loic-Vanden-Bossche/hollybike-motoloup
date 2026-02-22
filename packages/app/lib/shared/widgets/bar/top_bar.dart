@@ -21,11 +21,13 @@ class TopBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final horizontalInset = noPadding ? 0.0 : 16.0;
+
     return SafeArea(
       child: Padding(
         padding: EdgeInsets.only(
-          left: prefix == null ? 0 : 16,
-          right: suffix == null ? 0 : 16,
+          left: prefix == null ? 0 : horizontalInset,
+          right: suffix == null ? 0 : horizontalInset,
         ),
         child: SizedBox(
           height: 46,
@@ -67,7 +69,13 @@ class TopBar extends StatelessWidget {
                     child: Hero(
                       tag: "top_bar_title",
                       transitionOnUserGestures: true,
-                      child: BarContainer(child: title),
+                      child: BarContainer(
+                        alignment: Alignment.center,
+                        margin: EdgeInsets.symmetric(
+                          horizontal: noPadding ? 8 : 16,
+                        ),
+                        child: title,
+                      ),
                     ),
                   ),
                 ],

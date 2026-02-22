@@ -9,6 +9,7 @@ import 'package:hollybike/event/bloc/event_participations_bloc/event_participati
 import 'package:hollybike/event/widgets/event_loading_profile_picture.dart';
 import 'package:hollybike/event/widgets/participations/event_participation_actions_menu.dart';
 import 'package:hollybike/event/widgets/participations/event_participation_modal.dart';
+import 'package:hollybike/shared/utils/dates.dart';
 
 import '../../bloc/event_participations_bloc/event_participations_bloc.dart';
 import '../../types/participation/event_participation.dart';
@@ -31,36 +32,124 @@ class EventParticipationCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      child: ListTile(
-        onTap: () {
-          _onOpenParticipationModal(context);
-        },
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        dense: true,
-        leading: Hero(
-          tag: "profile_picture_participation_${participation.user.id}",
-          child: UserProfilePicture(
-            url: participation.user.profilePicture,
-            profilePictureKey: participation.user.profilePictureKey,
-            radius: 20,
+    final scheme = Theme.of(context).colorScheme;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: () => _onOpenParticipationModal(context),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color:
+                isCurrentUser
+                    ? scheme.secondary.withValues(alpha: 0.12)
+                    : scheme.onPrimary.withValues(alpha: 0.05),
+            border: Border.all(
+              color:
+                  isCurrentUser
+                      ? scheme.secondary.withValues(alpha: 0.34)
+                      : scheme.onPrimary.withValues(alpha: 0.12),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              Hero(
+                tag: "profile_picture_participation_${participation.user.id}",
+                child: UserProfilePicture(
+                  url: participation.user.profilePicture,
+                  profilePictureKey: participation.user.profilePictureKey,
+                  radius: 22,
+                ),
+              ),
+              const SizedBox(width: 11),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Text(
+                            participation.user.username,
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: Theme.of(
+                              context,
+                            ).textTheme.titleSmall?.copyWith(
+                              color: scheme.onPrimary,
+                              fontVariations: const [FontVariation.weight(740)],
+                            ),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        _buildRoleBadge(context),
+                      ],
+                    ),
+                    const SizedBox(height: 3),
+                    Text(
+                      'Inscrit ${formatPastTime(participation.joinedDateTime)}',
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.onPrimary.withValues(alpha: 0.62),
+                      ),
+                    ),
+                    if (isCurrentUser) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Vous participez à cet événement',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.secondary,
+                          fontVariations: const [FontVariation.weight(650)],
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              EventParticipationActionsMenu(
+                participation: participation,
+                canEdit: isCurrentUserOrganizer && (!isOwner && !isCurrentUser),
+                onPromote: () => _onPromote(context),
+                onDemote: () => _onDemote(context),
+                onRemove: () => _onRemove(context),
+              ),
+              const SizedBox(width: 2),
+              Icon(
+                Icons.chevron_right_rounded,
+                size: 19,
+                color: scheme.onPrimary.withValues(alpha: 0.4),
+              ),
+            ],
           ),
         ),
-        title: Text(
-          participation.user.username,
-          style: Theme.of(context).textTheme.titleSmall,
+      ),
+    );
+  }
+
+  Widget _buildRoleBadge(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final isOrganizerRole = participation.roleName == 'Organisateur';
+    final color = isOrganizerRole ? scheme.secondary : scheme.onPrimary;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(999),
+        color: color.withValues(alpha: isOrganizerRole ? 0.18 : 0.1),
+        border: Border.all(
+          color: color.withValues(alpha: isOrganizerRole ? 0.36 : 0.2),
+          width: 1,
         ),
-        subtitle: Text(
-          participation.roleName,
-          style: Theme.of(context).textTheme.bodyMedium,
-        ),
-        trailing: EventParticipationActionsMenu(
-          participation: participation,
-          canEdit: isCurrentUserOrganizer && (!isOwner && !isCurrentUser),
-          onPromote: () => _onPromote(context),
-          onDemote: () => _onDemote(context),
-          onRemove: () => _onRemove(context),
+      ),
+      child: Text(
+        participation.roleName,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: color.withValues(alpha: 0.95),
+          fontVariations: const [FontVariation.weight(700)],
         ),
       ),
     );
@@ -87,6 +176,7 @@ class EventParticipationCard extends StatelessWidget {
   void _onOpenParticipationModal(BuildContext context) {
     showModalBottomSheet(
       context: context,
+      backgroundColor: Colors.transparent,
       isScrollControlled: true,
       builder: (_) {
         return BlocProvider.value(

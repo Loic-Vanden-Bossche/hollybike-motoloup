@@ -17,28 +17,34 @@ class ImageGalleryDetailsTime extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
+        color: scheme.onPrimary.withValues(alpha: 0.06),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.12),
+          width: 1,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Icon(
               Icons.access_time_rounded,
-              color: Theme.of(context).colorScheme.onPrimary,
-              size: 36,
+              color: scheme.onPrimary.withValues(alpha: 0.72),
+              size: 22,
             ),
-            const SizedBox(width: 20),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: _buildDates(context),
+            const SizedBox(width: 10),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: _buildDates(context),
+              ),
             ),
           ],
         ),
@@ -50,7 +56,11 @@ class ImageGalleryDetailsTime extends StatelessWidget {
     final widgets = <Widget>[
       Text(
         "Ajoutée ${formatReadableDate(uploadedAt.toLocal())}",
-        style: Theme.of(context).textTheme.bodySmall,
+        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+          color: Theme.of(
+            context,
+          ).colorScheme.onPrimary.withValues(alpha: 0.78),
+        ),
       ),
     ];
 
@@ -59,7 +69,11 @@ class ImageGalleryDetailsTime extends StatelessWidget {
         const SizedBox(height: 4),
         Text(
           "Prise ${formatReadableDate(takenAt!.toLocal())}",
-          style: Theme.of(context).textTheme.bodySmall,
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.62),
+          ),
         ),
       ]);
     }

@@ -19,6 +19,9 @@ import '../../../shared/widgets/bar/top_bar_title.dart';
 import '../../../shared/widgets/hud/hud.dart';
 import '../../services/event/event_repository.dart';
 import '../../services/participation/event_participation_repository.dart';
+import 'package:lottie/lottie.dart';
+
+const _kTopBarContentHeight = 46.0;
 
 @RoutePage()
 class EventCandidatesScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -87,6 +90,8 @@ class _EventCandidatesScreenState extends State<EventCandidatesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final topInset = MediaQuery.of(context).padding.top + _kTopBarContentHeight;
+
     return BlocListener<EventCandidatesBloc, EventCandidatesState>(
       listener: (context, state) {
         if (state is EventCandidatesPageLoadFailure) {
@@ -124,88 +129,72 @@ class _EventCandidatesScreenState extends State<EventCandidatesScreen> {
               title: const TopBarTitle("Ajouter des participants"),
             ),
             floatingActionButton: floatingActionButton,
-            body: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 16),
-                  TextField(
-                    decoration: InputDecoration(
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: BorderSide.none,
+            body: BlocBuilder<EventCandidatesBloc, EventCandidatesState>(
+              builder: (context, state) {
+                final isLoading = state is EventCandidatesPageLoadInProgress;
+                final hasInitialLoading = isLoading && state.candidates.isEmpty;
+
+                if (state is EventCandidatesPageLoadFailure) {
+                  return _buildErrorState(state.errorMessage, topInset);
+                }
+
+                return CustomScrollView(
+                  controller: _scrollController,
+                  physics: const AlwaysScrollableScrollPhysics(),
+                  slivers: [
+                    SliverToBoxAdapter(child: SizedBox(height: topInset + 6)),
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                        child: _buildSearchBox(context),
                       ),
-                      prefixIcon: const Icon(Icons.search),
-                      labelText: "Rechercher un utilisateur",
-                      fillColor: Theme.of(context).colorScheme.primaryContainer,
-                      filled: true,
                     ),
-                    onChanged: _onSearchCandidates,
-                  ),
-                  const SizedBox(height: 16),
-                  BlocBuilder<EventCandidatesBloc, EventCandidatesState>(
-                    builder: (context, state) {
-                      final isLoading =
-                          state is EventCandidatesPageLoadInProgress;
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 10),
+                        child: _CandidatesSummary(
+                          selectedCount: _selectedCandidates.length,
+                          totalVisible: state.candidates.length,
+                        ),
+                      ),
+                    ),
+                    if (hasInitialLoading)
+                      const SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: Center(child: CircularProgressIndicator()),
+                      )
+                    else if (state.candidates.isEmpty)
+                      SliverFillRemaining(
+                        hasScrollBody: false,
+                        child: _buildEmptyState(),
+                      )
+                    else
+                      SliverPadding(
+                        padding: const EdgeInsets.fromLTRB(16, 0, 16, 90),
+                        sliver: SliverList(
+                          delegate: SliverChildBuilderDelegate(
+                            (context, index) {
+                              final candidatesChildCount =
+                                  state.candidates.isEmpty
+                                      ? 0
+                                      : (state.candidates.length * 2) - 1;
+                              final loadingIndex =
+                                  state.hasMore ? candidatesChildCount : -1;
 
-                      if (isLoading && state.candidates.isEmpty) {
-                        return const Column(
-                          children: [
-                            SizedBox(height: 32),
-                            Center(child: CircularProgressIndicator()),
-                          ],
-                        );
-                      }
-
-                      if (state is EventCandidatesPageLoadFailure) {
-                        return Column(
-                          children: [
-                            const SizedBox(height: 32),
-                            Center(child: Text(state.errorMessage)),
-                          ],
-                        );
-                      }
-
-                      if (state.candidates.isEmpty) {
-                        return Column(
-                          children: [
-                            const SizedBox(height: 32),
-                            Center(
-                              child:
-                                  _searchQuery.isEmpty
-                                      ? const Text(
-                                        "Tous les utilisateurs sont déjà inscrits",
-                                      )
-                                      : const Text("Aucun utilisateur trouvé"),
-                            ),
-                          ],
-                        );
-                      }
-
-                      final totalCandidates =
-                          state.candidates.length + (state.hasMore ? 1 : 0);
-
-                      return Expanded(
-                        child: ClipRRect(
-                          borderRadius: BorderRadius.circular(10),
-                          child: ListView.separated(
-                            controller: _scrollController,
-                            padding: const EdgeInsets.only(bottom: 80),
-                            itemCount: totalCandidates,
-                            separatorBuilder:
-                                (context, index) => const SizedBox(height: 6),
-                            itemBuilder: (context, index) {
-                              if (state.hasMore &&
-                                  index == totalCandidates - 1) {
-                                return const Center(
-                                  child: CircularProgressIndicator(),
+                              if (state.hasMore && index == loadingIndex) {
+                                return const Padding(
+                                  padding: EdgeInsets.symmetric(vertical: 12),
+                                  child: Center(
+                                    child: CircularProgressIndicator(),
+                                  ),
                                 );
                               }
 
-                              final candidate = state.candidates[index];
+                              if (index.isOdd) {
+                                return const SizedBox(height: 8);
+                              }
+
+                              final candidate = state.candidates[index ~/ 2];
 
                               return EventCandidateCard(
                                 candidate: candidate,
@@ -219,17 +208,132 @@ class _EventCandidatesScreenState extends State<EventCandidatesScreen> {
                                 onTap: () => _onCandidateSelected(candidate.id),
                               );
                             },
+                            childCount: _candidateListChildCount(
+                              state.candidates.length,
+                              state.hasMore,
+                            ),
                           ),
                         ),
-                      );
-                    },
-                  ),
-                ],
-              ),
+                      ),
+                  ],
+                );
+              },
             ),
           );
         },
       ),
+    );
+  }
+
+  Widget _buildSearchBox(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(18),
+        color: scheme.primaryContainer.withValues(alpha: 0.58),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.12),
+          width: 1,
+        ),
+      ),
+      child: TextField(
+        decoration: InputDecoration(
+          border: InputBorder.none,
+          prefixIcon: Icon(
+            Icons.search_rounded,
+            color: scheme.onPrimary.withValues(alpha: 0.6),
+          ),
+          hintText: "Rechercher un utilisateur",
+          hintStyle: TextStyle(color: scheme.onPrimary.withValues(alpha: 0.45)),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 10,
+            vertical: 14,
+          ),
+        ),
+        onChanged: _onSearchCandidates,
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    final scheme = Theme.of(context).colorScheme;
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 30),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(
+              height: 100,
+              child: Lottie.asset(
+                'assets/lottie/lottie_calendar_placeholder.json',
+                repeat: false,
+              ),
+            ),
+            const SizedBox(height: 12),
+            Text(
+              _searchQuery.isEmpty
+                  ? "Tous les utilisateurs sont déjà inscrits"
+                  : "Aucun utilisateur trouvé",
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: scheme.onPrimary.withValues(alpha: 0.86),
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 6),
+            Text(
+              _searchQuery.isEmpty
+                  ? "Aucun candidat supplémentaire disponible pour cet événement."
+                  : "Essayez un autre terme de recherche.",
+              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: scheme.onPrimary.withValues(alpha: 0.6),
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildErrorState(String errorMessage, double topInset) {
+    final scheme = Theme.of(context).colorScheme;
+    return CustomScrollView(
+      physics: const AlwaysScrollableScrollPhysics(),
+      slivers: [
+        SliverToBoxAdapter(child: SizedBox(height: topInset + 32)),
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(18),
+                color: scheme.error.withValues(alpha: 0.12),
+                border: Border.all(
+                  color: scheme.error.withValues(alpha: 0.35),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.error_outline_rounded, color: scheme.error),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      errorMessage,
+                      style: Theme.of(
+                        context,
+                      ).textTheme.bodyMedium?.copyWith(color: scheme.error),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
     );
   }
 
@@ -264,6 +368,100 @@ class _EventCandidatesScreenState extends State<EventCandidatesScreen> {
   void _searchCandidates(String query) {
     context.read<EventCandidatesBloc>().add(
       SearchCandidates(eventId: widget.eventId, search: query),
+    );
+  }
+
+  int _candidateListChildCount(int candidatesCount, bool hasMore) {
+    if (candidatesCount == 0) {
+      return hasMore ? 1 : 0;
+    }
+
+    return (candidatesCount * 2) - 1 + (hasMore ? 1 : 0);
+  }
+}
+
+class _CandidatesSummary extends StatelessWidget {
+  final int selectedCount;
+  final int totalVisible;
+
+  const _CandidatesSummary({
+    required this.selectedCount,
+    required this.totalVisible,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.secondary.withValues(alpha: 0.14),
+            scheme.primary.withValues(alpha: 0.46),
+          ],
+        ),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.14),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: scheme.onPrimary.withValues(alpha: 0.1),
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.18),
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              Icons.person_add_alt_1_rounded,
+              color: scheme.secondary,
+              size: 19,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '$totalVisible candidat${totalVisible > 1 ? 's' : ''} visible${totalVisible > 1 ? 's' : ''}',
+                  style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                    color: scheme.onPrimary.withValues(alpha: 0.9),
+                  ),
+                ),
+                const SizedBox(height: 3),
+                Text(
+                  selectedCount == 0
+                      ? 'Sélectionnez des utilisateurs à ajouter.'
+                      : '$selectedCount sélectionné${selectedCount > 1 ? 's' : ''}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color:
+                        selectedCount == 0
+                            ? scheme.onPrimary.withValues(alpha: 0.62)
+                            : scheme.secondary,
+                    fontVariations:
+                        selectedCount == 0
+                            ? null
+                            : const [FontVariation.weight(700)],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

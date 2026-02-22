@@ -123,7 +123,9 @@ class GlassBottomModal extends StatelessWidget {
                           const SizedBox(height: 10),
                         ],
                         ConstrainedBox(
-                          constraints: BoxConstraints(maxHeight: maxContentHeight),
+                          constraints: BoxConstraints(
+                            maxHeight: maxContentHeight,
+                          ),
                           child: child,
                         ),
                       ],

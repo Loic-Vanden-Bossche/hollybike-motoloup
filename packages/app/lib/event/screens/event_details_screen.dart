@@ -20,6 +20,7 @@ import 'package:hollybike/profile/services/profile_repository.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar_action_container.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar_action_icon.dart';
+import 'package:hollybike/shared/widgets/bar/top_bar_title.dart';
 import 'package:hollybike/shared/widgets/hud/hud.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
 import 'package:provider/provider.dart';
@@ -91,6 +92,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   late bool _animate = widget.animate;
 
   late final ScrollController _scrollController = ScrollController();
+  bool _interceptBackOnMap = false;
 
   EventDetailsTab currentTab = EventDetailsTab.info;
 
@@ -106,150 +108,200 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         setState(() {
           currentTab = newTab;
         });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _syncBackInterception();
+        });
       }
     });
 
+    _scrollController.addListener(_syncBackInterception);
     _refreshEventDetails();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.removeListener(_syncBackInterception);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<EventDetailsBloc, EventDetailsState>(
-      listener: (context, state) {
-        if (state is EventOperationFailure) {
-          Toast.showErrorToast(context, state.errorMessage);
-        } else if (state is EventDetailsLoadFailure) {
-          Toast.showErrorToast(context, state.errorMessage);
-        } else if (state is DeleteEventFailure) {
-          Toast.showErrorToast(context, state.errorMessage);
-        }
-
-        if (state is EventOperationSuccess) {
-          Toast.showSuccessToast(context, state.successMessage);
-        }
-
-        if (state is DeleteEventSuccess) {
-          Toast.showSuccessToast(context, "Événement supprimé");
-
-          setState(() {
-            _animate = false;
-          });
-
-          context.router.removeWhere((route) {
-            if (route.path == '/event-participations') {
-              final eventId =
-                  route
-                      .argsAs(
-                        orElse:
-                            () => EventParticipationsRouteArgs(
-                              eventDetails: EventDetails.empty(),
-                              participationPreview: [],
-                            ),
-                      )
-                      .eventDetails
-                      .event
-                      .id;
-
-              return eventId == widget.event.id;
-            }
-
-            if (route.path == "/event-details") {
-              final eventId =
-                  route
-                      .argsAs(
-                        orElse:
-                            () => EventDetailsRouteArgs(
-                              event: MinimalEvent.empty(),
-                            ),
-                      )
-                      .event
-                      .id;
-
-              return eventId == widget.event.id;
-            }
-
-            return false;
-          });
-        }
+    return PopScope(
+      canPop: !_interceptBackOnMap,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (!_interceptBackOnMap) return;
+        await _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOutCubic,
+        );
       },
-      child: BlocBuilder<EventDetailsBloc, EventDetailsState>(
-        builder: (context, state) {
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider<EventImagesBloc>(
-                create:
-                    (context) => EventImagesBloc(
-                      eventId: widget.event.id,
-                      imageRepository: RepositoryProvider.of<ImageRepository>(
-                        context,
-                      ),
-                    ),
-              ),
-              BlocProvider(
-                create:
-                    (context) => EventMyImagesBloc(
-                      eventId: widget.event.id,
-                      imageRepository: RepositoryProvider.of<ImageRepository>(
-                        context,
-                      ),
-                      eventRepository: RepositoryProvider.of<EventRepository>(
-                        context,
-                      ),
-                    ),
-              ),
-            ],
-            child: Hud(
-              appBar: TopBar(
-                prefix: TopBarActionIcon(
-                  onPressed: () => context.router.maybePop(),
-                  icon: Icons.arrow_back,
-                ),
-                suffix: _renderActions(state),
-              ),
-              floatingActionButton: _getFloatingButton(),
-              body: NestedScrollView(
-                controller: _scrollController,
-                headerSliverBuilder: (
-                  BuildContext context,
-                  bool innerBoxIsScrolled,
-                ) {
-                  return <Widget>[
-                    SliverToBoxAdapter(
-                      child: EventDetailsHeader(
-                        event:
-                            state.eventDetails?.event.toMinimalEvent() ??
-                            widget.event,
-                        animate: _animate,
-                        uniqueKey: widget.uniqueKey,
-                      ),
-                    ),
-                    SliverOverlapAbsorber(
-                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                        context,
-                      ),
-                      sliver: SliverPersistentHeader(
-                        pinned: true,
-                        delegate: PinnedHeaderDelegate(
-                          height: 52,
-                          child: _buildGlassTabBar(context),
+      child: BlocListener<EventDetailsBloc, EventDetailsState>(
+        listener: (context, state) {
+          if (state is EventOperationFailure) {
+            Toast.showErrorToast(context, state.errorMessage);
+          } else if (state is EventDetailsLoadFailure) {
+            Toast.showErrorToast(context, state.errorMessage);
+          } else if (state is DeleteEventFailure) {
+            Toast.showErrorToast(context, state.errorMessage);
+          }
+
+          if (state is EventOperationSuccess) {
+            Toast.showSuccessToast(context, state.successMessage);
+          }
+
+          if (state is DeleteEventSuccess) {
+            Toast.showSuccessToast(context, "Événement supprimé");
+
+            setState(() {
+              _animate = false;
+            });
+
+            context.router.removeWhere((route) {
+              if (route.path == '/event-participations') {
+                final eventId =
+                    route
+                        .argsAs(
+                          orElse:
+                              () => EventParticipationsRouteArgs(
+                                eventDetails: EventDetails.empty(),
+                                participationPreview: [],
+                              ),
+                        )
+                        .eventDetails
+                        .event
+                        .id;
+
+                return eventId == widget.event.id;
+              }
+
+              if (route.path == "/event-details") {
+                final eventId =
+                    route
+                        .argsAs(
+                          orElse:
+                              () => EventDetailsRouteArgs(
+                                event: MinimalEvent.empty(),
+                              ),
+                        )
+                        .event
+                        .id;
+
+                return eventId == widget.event.id;
+              }
+
+              return false;
+            });
+          }
+        },
+        child: BlocBuilder<EventDetailsBloc, EventDetailsState>(
+          builder: (context, state) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<EventImagesBloc>(
+                  create:
+                      (context) => EventImagesBloc(
+                        eventId: widget.event.id,
+                        imageRepository: RepositoryProvider.of<ImageRepository>(
+                          context,
                         ),
                       ),
-                    ),
-                  ];
-                },
-                body: _tabTabContent(),
+                ),
+                BlocProvider(
+                  create:
+                      (context) => EventMyImagesBloc(
+                        eventId: widget.event.id,
+                        imageRepository: RepositoryProvider.of<ImageRepository>(
+                          context,
+                        ),
+                        eventRepository: RepositoryProvider.of<EventRepository>(
+                          context,
+                        ),
+                      ),
+                ),
+              ],
+              child: Hud(
+                appBar: TopBar(
+                  prefix: TopBarActionIcon(
+                    onPressed: _handleBackNavigation,
+                    icon: Icons.arrow_back,
+                  ),
+                  title: TopBarTitle(
+                    state.eventDetails?.event.name ?? widget.event.name,
+                  ),
+                  suffix: _renderActions(state),
+                ),
+                floatingActionButton: _getFloatingButton(),
+                body: NestedScrollView(
+                  controller: _scrollController,
+                  headerSliverBuilder: (
+                    BuildContext context,
+                    bool innerBoxIsScrolled,
+                  ) {
+                    return <Widget>[
+                      SliverToBoxAdapter(
+                        child: EventDetailsHeader(
+                          event:
+                              state.eventDetails?.event.toMinimalEvent() ??
+                              widget.event,
+                          animate: _animate,
+                          uniqueKey: widget.uniqueKey,
+                        ),
+                      ),
+                      SliverOverlapAbsorber(
+                        handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                          context,
+                        ),
+                        sliver: SliverPersistentHeader(
+                          pinned: true,
+                          delegate: PinnedHeaderDelegate(
+                            height: 52,
+                            child: _buildGlassTabBar(context),
+                          ),
+                        ),
+                      ),
+                    ];
+                  },
+                  body: _tabTabContent(),
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
+  }
+
+  Future<void> _handleBackNavigation() async {
+    if (_shouldScrollMapToTopFirst()) {
+      await _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    context.router.maybePop();
+  }
+
+  bool _shouldScrollMapToTopFirst() {
+    if (currentTab != EventDetailsTab.map) return false;
+    if (!_scrollController.hasClients) return false;
+    return _scrollController.offset > 24;
+  }
+
+  void _syncBackInterception() {
+    final shouldIntercept = _shouldScrollMapToTopFirst();
+
+    if (shouldIntercept != _interceptBackOnMap && mounted) {
+      setState(() {
+        _interceptBackOnMap = shouldIntercept;
+      });
+    }
   }
 
   // ── Glassmorphic pill tab bar ───────────────────────────────────────────────
@@ -399,16 +451,26 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         child: EventDetailsMap(
           eventId: eventDetails.event.id,
           journey: eventDetails.journey,
-          onMapLoaded: () {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          },
+          onMapLoaded: _scrollMapToFullscreen,
+          onMapInteractionStart: _scrollMapToFullscreen,
         ),
       ),
     ];
+  }
+
+  void _scrollMapToFullscreen() {
+    if (!_scrollController.hasClients) return;
+
+    final target = _scrollController.position.maxScrollExtent;
+    final current = _scrollController.offset;
+
+    if ((target - current).abs() < 24) return;
+
+    _scrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<void> _refreshEventDetails() {

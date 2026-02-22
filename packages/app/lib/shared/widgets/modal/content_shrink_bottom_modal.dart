@@ -34,6 +34,8 @@ class ContentShrinkBottomModal extends StatefulWidget {
 }
 
 class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
+  static const double _contentVisibilityThreshold = 20.0;
+
   late final double _bottomContainerMaxHeight =
       widget.maxModalHeight.toDouble();
   double _bottomContainerHeight = 0;
@@ -43,7 +45,7 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
 
   bool get modalOpened => _bottomContainerHeight == _bottomContainerMaxHeight;
 
-  bool get modalOpening => _bottomContainerHeight > 0;
+  bool get modalOpening => _bottomContainerHeight > _contentVisibilityThreshold;
 
   @override
   void didUpdateWidget(covariant ContentShrinkBottomModal oldWidget) {

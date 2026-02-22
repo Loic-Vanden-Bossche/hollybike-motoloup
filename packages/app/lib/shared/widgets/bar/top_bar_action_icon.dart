@@ -24,10 +24,13 @@ class TopBarActionIcon extends StatelessWidget {
       onPressed: onPressed,
       child: Icon(
         icon,
+        size: 18,
         color:
             colorInverted
                 ? Theme.of(context).colorScheme.primary
-                : Theme.of(context).colorScheme.onPrimary,
+                : Theme.of(
+                  context,
+                ).colorScheme.onPrimary.withValues(alpha: 0.86),
       ),
     );
   }
