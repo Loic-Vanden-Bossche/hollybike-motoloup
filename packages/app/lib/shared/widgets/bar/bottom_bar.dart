@@ -2,6 +2,8 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
+import 'dart:ui';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -91,70 +93,84 @@ class _BottomBarState extends State<BottomBar> {
   Widget build(BuildContext context) {
     return BlocBuilder<ProfileBloc, ProfileState>(
       builder: (context, state) {
-        final selectedColor = Theme.of(context).colorScheme.secondary;
-        final unselectedColor = Theme.of(
-          context,
-        ).colorScheme.onPrimary.withAlpha(100);
-
-        const iconSize = 30.0;
+        final scheme = Theme.of(context).colorScheme;
+        final selectedColor = scheme.secondary;
+        final unselectedColor = scheme.onPrimary.withValues(alpha: 0.4);
+        const iconSize = 28.0;
 
         return SafeArea(
-          child: SizedBox(
-            height: 50,
-            child: NavBar(
-              currentIndex: _currentIndex,
-              onSelected: (index) {
-                final currentRouteName = context.router.current.name;
-                if (_routes[index].routeName != currentRouteName) {
-                  context.router.removeWhere((route) {
-                    if (route.name == _routes[index].routeName) {
-                      return true;
-                    }
-
-                    return false;
-                  });
-
-                  context.router.push(_routes[index].route);
-                }
-              },
-              children: [
-                NavBarItem(
-                  selectedIcon: Icon(
-                    Icons.event_rounded,
-                    color: selectedColor,
-                    size: iconSize,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 6, 24, 8),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(28),
+              child: BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 24, sigmaY: 24),
+                child: Container(
+                  height: 60,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(28),
+                    color: scheme.primary.withValues(alpha: 0.65),
+                    border: Border.all(
+                      color: scheme.onPrimary.withValues(alpha: 0.1),
+                      width: 1,
+                    ),
                   ),
-                  icon: Icon(
-                    Icons.event_rounded,
-                    color: unselectedColor,
-                    size: iconSize,
+                  child: NavBar(
+                    currentIndex: _currentIndex,
+                    selectedColor: selectedColor,
+                    onSelected: (index) {
+                      final currentRouteName = context.router.current.name;
+                      if (_routes[index].routeName != currentRouteName) {
+                        context.router.removeWhere((route) {
+                          if (route.name == _routes[index].routeName) {
+                            return true;
+                          }
+                          return false;
+                        });
+                        context.router.push(_routes[index].route);
+                      }
+                    },
+                    children: [
+                      NavBarItem(
+                        selectedIcon: Icon(
+                          Icons.event_rounded,
+                          color: selectedColor,
+                          size: iconSize,
+                        ),
+                        icon: Icon(
+                          Icons.event_rounded,
+                          color: unselectedColor,
+                          size: iconSize,
+                        ),
+                      ),
+                      NavBarItem(
+                        selectedIcon: Icon(
+                          Icons.search_rounded,
+                          color: selectedColor,
+                          size: iconSize,
+                        ),
+                        icon: Icon(
+                          Icons.search_rounded,
+                          color: unselectedColor,
+                          size: iconSize,
+                        ),
+                      ),
+                      NavBarItem(
+                        selectedIcon: ProfileBottomBarButton(
+                          isSelected: true,
+                          size: iconSize,
+                          color: selectedColor,
+                        ),
+                        icon: ProfileBottomBarButton(
+                          isSelected: false,
+                          size: iconSize,
+                          color: unselectedColor,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                NavBarItem(
-                  selectedIcon: Icon(
-                    Icons.search_rounded,
-                    color: selectedColor,
-                    size: iconSize,
-                  ),
-                  icon: Icon(
-                    Icons.search_rounded,
-                    color: unselectedColor,
-                    size: iconSize,
-                  ),
-                ),
-                NavBarItem(
-                  selectedIcon: ProfileBottomBarButton(
-                    isSelected: true,
-                    size: iconSize,
-                    color: selectedColor,
-                  ),
-                  icon: ProfileBottomBarButton(
-                    isSelected: false,
-                    size: iconSize,
-                    color: unselectedColor,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         );
@@ -172,12 +188,14 @@ class NavBarItem {
 
 class NavBar extends StatelessWidget {
   final int currentIndex;
+  final Color selectedColor;
   final void Function(int) onSelected;
   final List<NavBarItem> children;
 
   const NavBar({
     super.key,
     required this.currentIndex,
+    required this.selectedColor,
     required this.onSelected,
     required this.children,
   });
@@ -199,15 +217,49 @@ class NavBar extends StatelessWidget {
   }
 
   Widget _buildContainer(BuildContext context, int index) {
-    final selectedIcon =
-        currentIndex == index
-            ? children[index].selectedIcon
-            : children[index].icon;
+    final isSelected = currentIndex == index;
+    final icon =
+        isSelected ? children[index].selectedIcon : children[index].icon;
+    const animationDuration = Duration(milliseconds: 220);
+    final iconScale = isSelected ? 0.82 : 1.0;
 
     return Container(
       color: Colors.transparent,
       height: double.infinity,
-      child: selectedIcon,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          AnimatedScale(
+            scale: iconScale,
+            duration: animationDuration,
+            curve: Curves.easeOutCubic,
+            child: icon,
+          ),
+          AnimatedContainer(
+            duration: animationDuration,
+            curve: Curves.easeOutCubic,
+            height: isSelected ? 4 : 0,
+          ),
+          AnimatedContainer(
+            duration: animationDuration,
+            curve: Curves.easeOutCubic,
+            width: isSelected ? 4 : 0,
+            height: isSelected ? 4 : 0,
+            child: AnimatedOpacity(
+              opacity: isSelected ? 1.0 : 0.0,
+              duration: animationDuration,
+              curve: Curves.easeOutCubic,
+              child: Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: selectedColor,
+                ),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

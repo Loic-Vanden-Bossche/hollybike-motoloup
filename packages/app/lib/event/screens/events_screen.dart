@@ -15,7 +15,6 @@ import 'package:hollybike/shared/widgets/hud/hud.dart';
 import '../../app/app_router.gr.dart';
 import '../../shared/types/tab_description.dart';
 import '../../shared/widgets/app_toast.dart';
-import '../../shared/widgets/bar/top_bar_tab_dropdown.dart';
 import '../bloc/events_bloc/events_event.dart';
 import '../bloc/events_bloc/events_state.dart';
 import '../bloc/events_bloc/future_events_bloc.dart';
@@ -81,12 +80,12 @@ class _EventsScreenState extends State<EventsScreen>
           final tabs = [
             const TabDescription(
               title: "Évènements",
-              icon: Icons.event,
+              icon: Icons.event_rounded,
               fragment: FutureEvents(),
             ),
             const TabDescription(
               title: "Mes évènements",
-              icon: Icons.event_available,
+              icon: Icons.event_available_rounded,
               fragment: UserEvents(),
             ),
             const TabDescription(
@@ -99,17 +98,9 @@ class _EventsScreenState extends State<EventsScreen>
           return Hud(
             appBar: TopBar(
               noPadding: true,
-              title: TopBarTabDropdown(
+              title: _EventPillTabs(
                 controller: _controller,
-                entries:
-                    tabs
-                        .map(
-                          (tab) => TabDropdownEntry(
-                            title: tab.title,
-                            icon: tab.icon,
-                          ),
-                        )
-                        .toList(),
+                tabs: tabs,
               ),
             ),
             floatingActionButton: _getFloatingActionButton(),
@@ -158,5 +149,60 @@ class _EventsScreenState extends State<EventsScreen>
         _currentTab = newTab;
       });
     }
+  }
+}
+
+class _EventPillTabs extends StatelessWidget {
+  final TabController controller;
+  final List<TabDescription> tabs;
+
+  const _EventPillTabs({required this.controller, required this.tabs});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return TabBar(
+      controller: controller,
+      isScrollable: true,
+      tabAlignment: TabAlignment.center,
+      dividerColor: Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      indicatorSize: TabBarIndicatorSize.tab,
+      indicatorPadding: const EdgeInsets.symmetric(vertical: 6),
+      indicator: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: scheme.secondary.withValues(alpha: 0.2),
+        border: Border.all(
+          color: scheme.secondary.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      labelColor: scheme.secondary,
+      unselectedLabelColor: scheme.onPrimary.withValues(alpha: 0.55),
+      labelStyle: Theme.of(context).textTheme.titleSmall,
+      unselectedLabelStyle: Theme.of(context).textTheme.titleSmall,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      splashFactory: NoSplash.splashFactory,
+      tabs:
+          tabs
+              .map(
+                (tab) => Tab(
+                  height: 36,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(tab.icon, size: 14),
+                        const SizedBox(width: 6),
+                        Text(tab.title),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+    );
   }
 }

@@ -32,28 +32,46 @@ jobs:
         uses: dorny/paths-filter@v3
         with:
           filters: |
-            backend:
-              - 'packages/backend/**'
+            backend_code:
+              - 'packages/backend/src/main/**'
+
+      - name: Restore cached backend coverage report
+        id: jacoco-cache
+        uses: actions/cache/restore@v5
+        with:
+          path: packages/backend/build/reports/jacoco/test/jacocoTestReport.xml
+          key: sonarqube-backend-jacoco-${{ github.ref_name }}-${{ github.sha }}
+          restore-keys: |
+            sonarqube-backend-jacoco-${{ github.ref_name }}-
 
       - name: Set up GraalVM (Java ${{ env.JAVA_VERSION }})
-        if: steps.changes.outputs.backend == 'true'
         uses: graalvm/setup-graalvm@v1
         with:
           java-version: ${{ env.JAVA_VERSION }}
           cache: gradle
 
       - name: Ensure Gradle wrapper is executable
-        if: steps.changes.outputs.backend == 'true'
         working-directory: packages/backend
         run: chmod +x gradlew
 
+      - name: Compile backend classes for Sonar
+        working-directory: packages/backend
+        run: ./gradlew classes -Pis_on_premise=true --no-daemon
+
       - name: Run backend tests with coverage
-        if: steps.changes.outputs.backend == 'true'
+        if: steps.changes.outputs.backend_code == 'true'
         working-directory: packages/backend
         run: ./gradlew test jacocoTestReport -Pis_on_premise=true --no-daemon
 
+      - name: Save backend coverage report cache
+        if: steps.changes.outputs.backend_code == 'true'
+        uses: actions/cache/save@v5
+        with:
+          path: packages/backend/build/reports/jacoco/test/jacocoTestReport.xml
+          key: sonarqube-backend-jacoco-${{ github.ref_name }}-${{ github.sha }}
+
       - name: Run SonarQube scan (with backend coverage)
-        if: steps.changes.outputs.backend == 'true'
+        if: steps.changes.outputs.backend_code == 'true'
         uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -66,12 +84,27 @@ jobs:
             -Dsonar.junit.reportPaths=packages/backend/build/test-results/test
             -Dsonar.coverage.jacoco.xmlReportPaths=packages/backend/build/reports/jacoco/test/jacocoTestReport.xml
 
-      - name: Run SonarQube scan (without backend coverage refresh)
-        if: steps.changes.outputs.backend != 'true'
+      - name: Run SonarQube scan (reuse cached backend coverage)
+        if: steps.changes.outputs.backend_code != 'true' && steps.jacoco-cache.outputs.cache-hit == 'true'
         uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
         with:
           args: >
-            -Dsonar.sources=packages/app/lib,packages/frontend/src,packages/infrastructure
+            -Dsonar.sources=packages/app/lib,packages/backend/src/main,packages/frontend/src,packages/infrastructure
+            -Dsonar.tests=packages/backend/src/test
+            -Dsonar.java.binaries=packages/backend/build/classes/kotlin/main,packages/backend/build/classes/java/main
+            -Dsonar.coverage.jacoco.xmlReportPaths=packages/backend/build/reports/jacoco/test/jacocoTestReport.xml
+
+      - name: Run SonarQube scan (no backend coverage file available)
+        if: steps.changes.outputs.backend_code != 'true' && steps.jacoco-cache.outputs.cache-hit != 'true'
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+        with:
+          args: >
+            -Dsonar.sources=packages/app/lib,packages/backend/src/main,packages/frontend/src,packages/infrastructure
+            -Dsonar.tests=packages/backend/src/test
+            -Dsonar.java.binaries=packages/backend/build/classes/kotlin/main,packages/backend/build/classes/java/main

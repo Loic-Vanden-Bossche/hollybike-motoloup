@@ -14,6 +14,8 @@ import '../bloc/events_bloc/events_state.dart';
 import '../bloc/events_bloc/future_events_bloc.dart';
 import '../widgets/events_list/events_list.dart';
 
+const _kTopBarContentHeight = 46.0;
+
 class EventsListFragment<T extends EventsBloc> extends StatefulWidget {
   final void Function() onNextPageRequested;
   final Future<void> Function() onRefreshRequested;
@@ -41,6 +43,8 @@ class _EventsListFragmentState<T extends EventsBloc>
 
   @override
   Widget build(BuildContext context) {
+    final topInset = MediaQuery.of(context).padding.top + _kTopBarContentHeight;
+
     return MultiBlocListener(
       listeners: [
         BlocListener<AuthBloc, AuthState>(
@@ -63,6 +67,8 @@ class _EventsListFragmentState<T extends EventsBloc>
       ],
       child: ThemedRefreshIndicator(
         onRefresh: widget.onRefreshRequested,
+        edgeOffset: topInset,
+        displacement: topInset + 28,
         child: BlocBuilder<T, EventsState>(
           builder: (context, state) {
             if (state.events.isEmpty) {
