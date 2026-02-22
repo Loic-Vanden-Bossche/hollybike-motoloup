@@ -30,7 +30,10 @@ data class TEventPartial(
 	@SerialName("update_date_time")
 	val updateDateTime: Instant,
 	val association: TPartialAssociation,
-	val budget: Int? = null
+	val budget: Int? = null,
+	@SerialName("participants_count")
+	val participantsCount: Int,
+	val distance: Int? = null
 ) {
 	constructor(entity: Event) : this(
 		id = entity.id.value,
@@ -45,7 +48,9 @@ data class TEventPartial(
 		createDateTime = entity.createDateTime,
 		updateDateTime = entity.updateDateTime,
 		association = TPartialAssociation(entity.association),
-		budget = entity.budget
+		budget = entity.budget,
+		participantsCount = entity.participants.count { it.isJoined },
+		distance = entity.journey?.totalDistance
 	)
 }
 

@@ -19,7 +19,8 @@ class AddEventFloatingButton extends StatelessWidget {
         showModalBottomSheet<void>(
           isScrollControlled: true,
           context: context,
-          enableDrag: false,
+          enableDrag: true,
+          backgroundColor: Colors.transparent,
           builder: (BuildContext modalContext) {
             return EventFormModal(
               onSubmit: (formData) {

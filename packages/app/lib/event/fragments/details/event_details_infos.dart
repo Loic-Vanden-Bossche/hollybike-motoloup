@@ -46,32 +46,41 @@ class EventDetailsInfos extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          EventStatusFeed(eventDetails: eventDetails),
-          const SizedBox(height: 13),
+          // Content with consistent horizontal padding
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                EventStatusFeed(eventDetails: eventDetails),
+                const SizedBox(height: 16),
+
+                // ── PARTICIPANTS ─────────────────────────────────────
+                _sectionLabel(context, 'PARTICIPANTS'),
+                const SizedBox(height: 8),
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    EventParticipationsPreview(
-                      event: event,
-                      previewParticipants: previewParticipants,
-                      previewParticipantsCount: previewParticipantsCount,
-                      onTap: () {
-                        Timer(const Duration(milliseconds: 100), () {
-                          context.router.push(
-                            EventParticipationsRoute(
-                              eventDetails: eventDetails,
-                              participationPreview: previewParticipants,
-                              eventDetailsBloc:
-                                  context.read<EventDetailsBloc>(),
-                            ),
-                          );
-                        });
-                      },
+                    Expanded(
+                      child: EventParticipationsPreview(
+                        event: event,
+                        previewParticipants: previewParticipants,
+                        previewParticipantsCount: previewParticipantsCount,
+                        onTap: () {
+                          Timer(const Duration(milliseconds: 100), () {
+                            context.router.push(
+                              EventParticipationsRoute(
+                                eventDetails: eventDetails,
+                                participationPreview: previewParticipants,
+                                eventDetailsBloc:
+                                    context.read<EventDetailsBloc>(),
+                              ),
+                            );
+                          });
+                        },
+                      ),
                     ),
+                    const SizedBox(width: 12),
                     EventJoinButton(
                       isJoined: eventDetails.isParticipating,
                       canJoin: eventDetails.canJoin,
@@ -79,32 +88,88 @@ class EventDetailsInfos extends StatelessWidget {
                     ),
                   ],
                 ),
+
+                // Description (self-explanatory, no section label)
+                const SizedBox(height: 12),
                 EventDetailsDescription(description: event.description),
-                BlocProvider<EventJourneyBloc>(
-                  create:
-                      (context) => EventJourneyBloc(
-                        journeyRepository:
-                            RepositoryProvider.of<JourneyRepository>(context),
-                        eventRepository: RepositoryProvider.of<EventRepository>(
-                          context,
+
+                // ── ITINÉRAIRE ───────────────────────────────────────
+                if (eventDetails.journey != null ||
+                    eventDetails.canEditJourney) ...[
+                  const SizedBox(height: 20),
+                  _sectionLabel(context, 'ITINÉRAIRE'),
+                  const SizedBox(height: 8),
+                  BlocProvider<EventJourneyBloc>(
+                    create:
+                        (context) => EventJourneyBloc(
+                          journeyRepository:
+                              RepositoryProvider.of<JourneyRepository>(context),
+                          eventRepository:
+                              RepositoryProvider.of<EventRepository>(context),
                         ),
-                      ),
-                  child: JourneyPreviewCard(
-                    canAddJourney: eventDetails.canEditJourney,
-                    journey: eventDetails.journey,
-                    eventDetails: eventDetails,
-                    onViewOnMap: onViewOnMap,
+                    child: JourneyPreviewCard(
+                      canAddJourney: eventDetails.canEditJourney,
+                      journey: eventDetails.journey,
+                      eventDetails: eventDetails,
+                      onViewOnMap: onViewOnMap,
+                    ),
                   ),
-                ),
-                EventMyJourney(eventDetails: eventDetails),
-                WeatherForecastCard(eventDetails: eventDetails),
-                ExpensesPreviewCard(eventDetails: eventDetails),
+                  const SizedBox(height: 12),
+                  EventMyJourney(eventDetails: eventDetails),
+                ] else ...[
+                  EventMyJourney(eventDetails: eventDetails),
+                ],
+
+                // ── MÉTÉO ────────────────────────────────────────────
+                if (eventDetails.journey?.destination != null) ...[
+                  const SizedBox(height: 20),
+                  _sectionLabel(context, 'MÉTÉO'),
+                  const SizedBox(height: 8),
+                  WeatherForecastCard(eventDetails: eventDetails),
+                ],
+
+                // ── DÉPENSES ─────────────────────────────────────────
+                if (eventDetails.expenses != null ||
+                    eventDetails.totalExpense != null) ...[
+                  const SizedBox(height: 20),
+                  _sectionLabel(context, 'DÉPENSES'),
+                  const SizedBox(height: 8),
+                  ExpensesPreviewCard(eventDetails: eventDetails),
+                ],
+
                 const SizedBox(height: 90),
               ],
             ),
           ),
         ],
       ),
+    );
+  }
+
+  Widget _sectionLabel(BuildContext context, String label) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 14,
+          decoration: BoxDecoration(
+            color: scheme.secondary,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          label,
+          style: TextStyle(
+            color: scheme.secondary.withValues(alpha: 0.8),
+            fontSize: 10,
+            fontVariations: const [FontVariation.weight(700)],
+            letterSpacing: 1.5,
+          ),
+        ),
+      ],
     );
   }
 

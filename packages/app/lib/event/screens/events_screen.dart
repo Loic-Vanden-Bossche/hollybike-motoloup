@@ -1,6 +1,6 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Lo�c Vanden Bossche
 */
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -15,7 +15,6 @@ import 'package:hollybike/shared/widgets/hud/hud.dart';
 import '../../app/app_router.gr.dart';
 import '../../shared/types/tab_description.dart';
 import '../../shared/widgets/app_toast.dart';
-import '../../shared/widgets/bar/top_bar_tab_dropdown.dart';
 import '../bloc/events_bloc/events_event.dart';
 import '../bloc/events_bloc/events_state.dart';
 import '../bloc/events_bloc/future_events_bloc.dart';
@@ -23,7 +22,7 @@ import '../fragments/archived_events.dart';
 import '../services/event/event_repository.dart';
 import '../widgets/add_event_floating_button.dart';
 
-enum EventListTab { future, user, archived }
+enum EventListTab { user, future, archived }
 
 @RoutePage()
 class EventsScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -48,7 +47,7 @@ class _EventsScreenState extends State<EventsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _controller;
 
-  int _currentTab = EventListTab.future.index;
+  int _currentTab = EventListTab.user.index;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +56,7 @@ class _EventsScreenState extends State<EventsScreen>
         BlocListener<FutureEventsBloc, EventsState>(
           listener: (context, state) {
             if (state is EventCreationSuccess) {
-              Toast.showSuccessToast(context, "Événement créé");
+              Toast.showSuccessToast(context, '�v�nement cr��');
 
               Future.delayed(const Duration(milliseconds: 50), () {
                 if (!context.mounted) return;
@@ -79,18 +78,21 @@ class _EventsScreenState extends State<EventsScreen>
       child: BlocProvidedBuilder<ProfileBloc, ProfileState>(
         builder: (context, bloc, state) {
           final tabs = [
+            TabDescription(
+              title: 'Mes évènements',
+              icon: Icons.event_available_rounded,
+              fragment: UserEvents(
+                onShowGlobalEventsRequested:
+                    () => _controller.animateTo(EventListTab.future.index),
+              ),
+            ),
             const TabDescription(
-              title: "Évènements",
-              icon: Icons.event,
+              title: 'Évènements',
+              icon: Icons.event_rounded,
               fragment: FutureEvents(),
             ),
             const TabDescription(
-              title: "Mes évènements",
-              icon: Icons.event_available,
-              fragment: UserEvents(),
-            ),
-            const TabDescription(
-              title: "Archives",
+              title: 'Archivés',
               icon: Icons.archive_outlined,
               fragment: ArchivedEvents(),
             ),
@@ -99,17 +101,9 @@ class _EventsScreenState extends State<EventsScreen>
           return Hud(
             appBar: TopBar(
               noPadding: true,
-              title: TopBarTabDropdown(
+              title: _EventPillTabs(
                 controller: _controller,
-                entries:
-                    tabs
-                        .map(
-                          (tab) => TabDropdownEntry(
-                            title: tab.title,
-                            icon: tab.icon,
-                          ),
-                        )
-                        .toList(),
+                tabs: tabs,
               ),
             ),
             floatingActionButton: _getFloatingActionButton(),
@@ -158,5 +152,60 @@ class _EventsScreenState extends State<EventsScreen>
         _currentTab = newTab;
       });
     }
+  }
+}
+
+class _EventPillTabs extends StatelessWidget {
+  final TabController controller;
+  final List<TabDescription> tabs;
+
+  const _EventPillTabs({required this.controller, required this.tabs});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return TabBar(
+      controller: controller,
+      isScrollable: true,
+      tabAlignment: TabAlignment.center,
+      dividerColor: Colors.transparent,
+      padding: const EdgeInsets.symmetric(horizontal: 8),
+      indicatorSize: TabBarIndicatorSize.tab,
+      indicatorPadding: const EdgeInsets.symmetric(vertical: 6),
+      indicator: BoxDecoration(
+        borderRadius: BorderRadius.circular(50),
+        color: scheme.secondary.withValues(alpha: 0.2),
+        border: Border.all(
+          color: scheme.secondary.withValues(alpha: 0.3),
+          width: 1,
+        ),
+      ),
+      labelColor: scheme.secondary,
+      unselectedLabelColor: scheme.onPrimary.withValues(alpha: 0.55),
+      labelStyle: Theme.of(context).textTheme.titleSmall,
+      unselectedLabelStyle: Theme.of(context).textTheme.titleSmall,
+      overlayColor: WidgetStateProperty.all(Colors.transparent),
+      splashFactory: NoSplash.splashFactory,
+      tabs:
+          tabs
+              .map(
+                (tab) => Tab(
+                  height: 36,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(tab.icon, size: 14),
+                        const SizedBox(width: 6),
+                        Text(tab.title),
+                      ],
+                    ),
+                  ),
+                ),
+              )
+              .toList(),
+    );
   }
 }

@@ -11,6 +11,7 @@ import 'package:hollybike/event/bloc/event_images_bloc/event_image_details_event
 import 'package:hollybike/event/bloc/event_images_bloc/event_image_details_state.dart';
 import 'package:hollybike/image/type/event_image_details.dart';
 import 'package:hollybike/shared/widgets/app_toast.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 import 'package:http/http.dart';
 // ignore: depend_on_referenced_packages
 import 'package:path/path.dart' as path;
@@ -177,35 +178,20 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
     );
   }
 
-  void _onDeleteImage() {
-    showDialog(
+  void _onDeleteImage() async {
+    final confirmed = await showGlassConfirmationDialog(
       context: context,
-      builder: (modalContext) {
-        return AlertDialog(
-          title: const Text("Suppression de l'image"),
-          content: const Text(
-            "Êtes-vous sûr de vouloir supprimer cette image ?",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(modalContext).pop();
-              },
-              child: const Text("Annuler"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<EventImageDetailsBloc>().add(
-                  DeleteImage(imageId: widget.image.id),
-                );
-
-                Navigator.of(modalContext).pop();
-              },
-              child: const Text("Confirmer"),
-            ),
-          ],
-        );
-      },
+      title: "Suppression de l'image",
+      message: "Êtes-vous sûr de vouloir supprimer cette image ?",
+      cancelLabel: "Annuler",
+      confirmLabel: "Confirmer",
+      destructiveConfirm: true,
     );
+
+    if (confirmed == true && mounted) {
+      context.read<EventImageDetailsBloc>().add(
+        DeleteImage(imageId: widget.image.id),
+      );
+    }
   }
 }

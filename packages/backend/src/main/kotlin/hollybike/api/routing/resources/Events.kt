@@ -11,6 +11,9 @@ class Events(val api: API = API()) {
 	@Resource("future")
 	class Future(val events: Events)
 
+	@Resource("participating")
+	class Participating(val events: Events)
+
 	@Resource("archived")
 	class Archived(val events: Events)
 

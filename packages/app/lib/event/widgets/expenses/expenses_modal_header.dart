@@ -33,27 +33,71 @@ class ExpensesModalHeader extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
+        // Options menu
         PopupMenuButton(
+          icon: Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer.withValues(alpha: 0.55),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.12),
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              Icons.tune_rounded,
+              size: 16,
+              color: scheme.onPrimary.withValues(alpha: 0.65),
+            ),
+          ),
           onSelected: (value) {
             _onModalActionSelected(context, value, budget, eventName);
           },
           itemBuilder: (context) {
-            return _buildBudgetActions(budget, expenses);
+            return _buildBudgetActions(context, scheme, budget, expenses);
           },
         ),
         const Spacer(),
-        ElevatedButton(
-          onPressed:
-              () => _onModalActionSelected(
-                context,
-                ExpensesModalAction.addExpense,
-                budget,
-                eventName,
+        // Add expense button
+        GestureDetector(
+          onTap: () => _onModalActionSelected(
+            context,
+            ExpensesModalAction.addExpense,
+            budget,
+            eventName,
+          ),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: scheme.secondary.withValues(alpha: 0.15),
+              border: Border.all(
+                color: scheme.secondary.withValues(alpha: 0.40),
+                width: 1,
               ),
-          child: const Text('Ajouter une dépense'),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.add_rounded, size: 14, color: scheme.secondary),
+                const SizedBox(width: 6),
+                Text(
+                  'Ajouter',
+                  style: TextStyle(
+                    color: scheme.secondary,
+                    fontSize: 12,
+                    fontVariations: const [FontVariation.weight(650)],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -121,12 +165,13 @@ class ExpensesModalHeader extends StatelessWidget {
         break;
       case ExpensesModalAction.downloadCSV:
         context.read<EventExpensesBloc>().add(DownloadReport());
-
         break;
     }
   }
 
   List<PopupMenuItem> _buildBudgetActions(
+    BuildContext context,
+    ColorScheme scheme,
     int? budget,
     List<EventExpense> expenses,
   ) {
@@ -134,23 +179,23 @@ class ExpensesModalHeader extends StatelessWidget {
 
     final actions = <PopupMenuItem>[
       hasBudget
-          ? const PopupMenuItem(
+          ? PopupMenuItem(
             value: ExpensesModalAction.editBudget,
             child: Row(
               children: [
-                Icon(Icons.edit),
-                SizedBox(width: 8),
-                Text('Modifier le budget'),
+                Icon(Icons.edit_outlined, size: 18, color: scheme.onPrimary),
+                const SizedBox(width: 8),
+                const Text('Modifier le budget'),
               ],
             ),
           )
-          : const PopupMenuItem(
+          : PopupMenuItem(
             value: ExpensesModalAction.addBudget,
             child: Row(
               children: [
-                Icon(Icons.add_circle_outline_rounded),
-                SizedBox(width: 8),
-                Text('Ajouter un budget'),
+                Icon(Icons.savings_outlined, size: 18, color: scheme.onPrimary),
+                const SizedBox(width: 8),
+                const Text('Ajouter un budget'),
               ],
             ),
           ),
@@ -158,13 +203,13 @@ class ExpensesModalHeader extends StatelessWidget {
 
     if (hasBudget) {
       actions.add(
-        const PopupMenuItem(
+        PopupMenuItem(
           value: ExpensesModalAction.removeBudget,
           child: Row(
             children: [
-              Icon(Icons.remove_circle_outline_rounded),
-              SizedBox(width: 8),
-              Text('Supprimer le budget'),
+              Icon(Icons.remove_circle_outline_rounded, size: 18, color: scheme.error),
+              const SizedBox(width: 8),
+              Text('Supprimer le budget', style: TextStyle(color: scheme.error)),
             ],
           ),
         ),
@@ -173,13 +218,13 @@ class ExpensesModalHeader extends StatelessWidget {
 
     if (expenses.isNotEmpty) {
       actions.add(
-        const PopupMenuItem(
+        PopupMenuItem(
           value: ExpensesModalAction.downloadCSV,
           child: Row(
             children: [
-              Icon(Icons.download),
-              SizedBox(width: 8),
-              Text('Télécharger le fichier CSV'),
+              Icon(Icons.download_outlined, size: 18, color: scheme.onPrimary),
+              const SizedBox(width: 8),
+              const Text('Télécharger le CSV'),
             ],
           ),
         ),

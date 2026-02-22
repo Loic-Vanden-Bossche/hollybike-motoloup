@@ -8,6 +8,7 @@ import 'package:hollybike/event/types/event_status_state.dart';
 import 'package:hollybike/event/widgets/details/event_upload_image_modal.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_bloc.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_event.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 
 import '../../bloc/event_details_bloc/event_details_bloc.dart';
 import '../../bloc/event_details_bloc/event_details_event.dart';
@@ -147,66 +148,36 @@ class EventDetailsActionsMenu extends StatelessWidget {
     }
   }
 
-  void _onFinish(BuildContext context) {
-    showDialog(
+  void _onFinish(BuildContext context) async {
+    final confirmed = await showGlassConfirmationDialog(
       context: context,
-      builder: (modalContext) {
-        return AlertDialog(
-          title: const Text("Terminer l'événement"),
-          content: const Text(
-            "Êtes-vous sûr de vouloir terminer cet événement ?",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(modalContext).pop();
-              },
-              child: const Text("Annuler"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<EventDetailsBloc>().add(FinishEvent());
-                Navigator.of(modalContext).pop();
-              },
-              child: const Text("Terminer"),
-            ),
-          ],
-        );
-      },
+      title: "Terminer l'événement",
+      message: "Êtes-vous sûr de vouloir terminer cet événement ?",
+      cancelLabel: "Annuler",
+      confirmLabel: "Terminer",
     );
+
+    if (confirmed == true && context.mounted) {
+      context.read<EventDetailsBloc>().add(FinishEvent());
+    }
   }
 
-  void _onCancel(BuildContext context) {
-    showDialog(
+  void _onCancel(BuildContext context) async {
+    final confirmed = await showGlassConfirmationDialog(
       context: context,
-      builder: (modalContext) {
-        return AlertDialog(
-          title: const Text("Annuler l'événement"),
-          content: const Text(
-            "Êtes-vous sûr de vouloir annuler cet événement ?",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(modalContext).pop();
-              },
-              child: const Text("Revenir en arrière"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<EventDetailsBloc>().add(CancelEvent());
-
-                Navigator.of(modalContext).pop();
-              },
-              child: const Text("Confirmer"),
-            ),
-          ],
-        );
-      },
+      title: "Annuler l'événement",
+      message: "Êtes-vous sûr de vouloir annuler cet événement ?",
+      cancelLabel: "Revenir en arrière",
+      confirmLabel: "Confirmer",
+      destructiveConfirm: true,
     );
+
+    if (confirmed == true && context.mounted) {
+      context.read<EventDetailsBloc>().add(CancelEvent());
+    }
   }
 
-  void _onDelete(BuildContext context) {
+  void _onDelete(BuildContext context) async {
     if (status == EventStatusState.now) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -216,33 +187,18 @@ class EventDetailsActionsMenu extends StatelessWidget {
       return;
     }
 
-    showDialog(
+    final confirmed = await showGlassConfirmationDialog(
       context: context,
-      builder: (modalContext) {
-        return AlertDialog(
-          title: const Text("Supprimer l'événement"),
-          content: const Text(
-            "Êtes-vous sûr de vouloir supprimer cet événement ?",
-          ),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(modalContext).pop();
-              },
-              child: const Text("Annuler"),
-            ),
-            TextButton(
-              onPressed: () {
-                context.read<EventDetailsBloc>().add(DeleteEvent());
-
-                Navigator.of(modalContext).pop();
-              },
-              child: const Text("Supprimer"),
-            ),
-          ],
-        );
-      },
+      title: "Supprimer l'événement",
+      message: "Êtes-vous sûr de vouloir supprimer cet événement ?",
+      cancelLabel: "Annuler",
+      confirmLabel: "Supprimer",
+      destructiveConfirm: true,
     );
+
+    if (confirmed == true && context.mounted) {
+      context.read<EventDetailsBloc>().add(DeleteEvent());
+    }
   }
 
   void _onLeave(BuildContext context) {

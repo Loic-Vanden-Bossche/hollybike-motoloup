@@ -47,6 +47,7 @@ class EventController(
 			authenticate {
 				getAllEvents()
 				getFutureEvents()
+				getParticipatingEvents()
 				getArchivedEvents()
 				getEventDetails()
 				getEventExpenseReport()
@@ -86,6 +87,17 @@ class EventController(
 
 			val events = eventService.getFutureEvents(call.user, searchParam)
 			val totalEvents = eventService.countFutureEvents(call.user, searchParam)
+
+			call.respond(TLists(events.map { TEventPartial(it) }, searchParam, totalEvents))
+		}
+	}
+
+	private fun Route.getParticipatingEvents() {
+		get<Events.Participating> {
+			val searchParam = call.request.queryParameters.getSearchParam(mapper)
+
+			val events = eventService.getParticipatingEvents(call.user, searchParam)
+			val totalEvents = eventService.countParticipatingEvents(call.user, searchParam)
 
 			call.respond(TLists(events.map { TEventPartial(it) }, searchParam, totalEvents))
 		}

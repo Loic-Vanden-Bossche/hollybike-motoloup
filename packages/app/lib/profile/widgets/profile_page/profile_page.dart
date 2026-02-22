@@ -14,13 +14,16 @@ import 'package:hollybike/profile/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hollybike/profile/bloc/profile_images_bloc/profile_images_bloc.dart';
 import 'package:hollybike/profile/bloc/profile_journeys_bloc/profile_journeys_bloc.dart';
 import 'package:hollybike/profile/widgets/profile_banner/profile_banner.dart';
-import 'package:hollybike/profile/widgets/profile_description/profile_description.dart';
-import 'package:hollybike/profile/widgets/profile_images.dart';
-import 'package:hollybike/profile/widgets/profile_journeys.dart';
 import 'package:hollybike/profile/widgets/profile_page/placeholder_profile_page.dart';
 import 'package:hollybike/shared/widgets/pinned_header_delegate.dart';
 import 'package:hollybike/user/types/minimal_user.dart';
 import 'package:hollybike/user_journey/services/user_journey_repository.dart';
+
+import '../../widgets/profile_images.dart';
+import '../../widgets/profile_journeys.dart';
+
+// Tab bar height — must match the Padding(top:) applied to ProfileEvents
+const _kTabBarHeight = 52.0;
 
 class ProfilePage extends StatefulWidget {
   final int? id;
@@ -29,6 +32,8 @@ class ProfilePage extends StatefulWidget {
   final String? email;
   final Association? association;
   final bool isMe;
+  final VoidCallback? onBack;
+  final VoidCallback? onSettings;
 
   const ProfilePage({
     super.key,
@@ -38,6 +43,8 @@ class ProfilePage extends StatefulWidget {
     this.email,
     required this.association,
     this.isMe = false,
+    this.onBack,
+    this.onSettings,
   });
 
   @override
@@ -60,12 +67,20 @@ class _ProfilePageState extends State<ProfilePage> {
     }
 
     if (widget.profile == null) {
-      return const Center(
+      return Center(
         child: Text(
           'Une erreur est survenue lors de la récupération du profil.',
+          style: TextStyle(
+            color: Theme.of(context).colorScheme.onPrimary.withValues(
+              alpha: 0.55,
+            ),
+          ),
+          textAlign: TextAlign.center,
         ),
       );
     }
+
+    final scheme = Theme.of(context).colorScheme;
 
     return DefaultTabController(
       length: 3,
@@ -73,21 +88,20 @@ class _ProfilePageState extends State<ProfilePage> {
         controller: _scrollController,
         headerSliverBuilder:
             (context, scrolled) => [
+              // ── Profile hero banner ──────────────────────────────────────
               SliverToBoxAdapter(
-                child: Column(
-                  children: [
-                    ProfileBanner(
-                      profile: widget.profile as MinimalUser,
-                      canEdit: widget.isMe,
-                    ),
-                    ProfileDescription(
-                      profile: widget.profile as MinimalUser,
-                      association: widget.association as Association,
-                      email: widget.email,
-                    ),
-                  ],
+                child: ProfileBanner(
+                  profile: widget.profile!,
+                  association: widget.association,
+                  email: widget.email,
+                  canEdit: widget.isMe,
+                  onBack: widget.onBack,
+                  onSettings: widget.onSettings,
                 ),
               ),
+              const SliverToBoxAdapter(child: SizedBox(height: 12)),
+
+              // ── Pinned glass pill tab bar ────────────────────────────────
               SliverOverlapAbsorber(
                 handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
                   context,
@@ -95,17 +109,40 @@ class _ProfilePageState extends State<ProfilePage> {
                 sliver: SliverPersistentHeader(
                   pinned: true,
                   delegate: PinnedHeaderDelegate(
-                    height: 50,
+                    height: _kTabBarHeight,
                     child: Container(
-                      color: Theme.of(context).scaffoldBackgroundColor,
-                      child: TabBar(
-                        labelColor: Theme.of(context).colorScheme.secondary,
-                        indicatorColor: Theme.of(context).colorScheme.secondary,
-                        tabs: const [
-                          Tab(icon: Icon(Icons.event_rounded)),
-                          Tab(icon: Icon(Icons.image_rounded)),
-                          Tab(icon: Icon(Icons.route_rounded)),
-                        ],
+                      color: scheme.primaryContainer,
+                      padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: scheme.primaryContainer.withValues(alpha: 0.60),
+                          borderRadius: BorderRadius.circular(50),
+                          border: Border.all(
+                            color: scheme.onPrimary.withValues(alpha: 0.08),
+                            width: 1,
+                          ),
+                        ),
+                        child: TabBar(
+                          indicator: BoxDecoration(
+                            color: scheme.secondary.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(50),
+                            border: Border.all(
+                              color: scheme.secondary.withValues(alpha: 0.35),
+                              width: 1,
+                            ),
+                          ),
+                          indicatorSize: TabBarIndicatorSize.tab,
+                          dividerColor: Colors.transparent,
+                          labelColor: scheme.secondary,
+                          unselectedLabelColor: scheme.onPrimary.withValues(
+                            alpha: 0.45,
+                          ),
+                          tabs: const [
+                            Tab(icon: Icon(Icons.event_rounded, size: 18)),
+                            Tab(icon: Icon(Icons.image_rounded, size: 18)),
+                            Tab(icon: Icon(Icons.route_rounded, size: 18)),
+                          ],
+                        ),
                       ),
                     ),
                   ),
@@ -172,7 +209,7 @@ class _ProfilePageState extends State<ProfilePage> {
           return TabBarView(
             children: [
               Padding(
-                padding: const EdgeInsets.only(top: 50),
+                padding: const EdgeInsets.only(top: _kTabBarHeight),
                 child: ProfileEvents(
                   isMe: isMe,
                   username: widget.profile!.username,

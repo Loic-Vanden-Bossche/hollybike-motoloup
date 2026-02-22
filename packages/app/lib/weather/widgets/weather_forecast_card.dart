@@ -18,17 +18,12 @@ class WeatherForecastCard extends StatelessWidget {
     final destination = eventDetails.journey?.destination;
 
     if (destination == null) {
-      return const SizedBox();
+      return const SizedBox.shrink();
     }
 
-    return Column(
-      children: [
-        const SizedBox(height: 16),
-        SizedBox(
-          height: 120,
-          child: _buildWeatherForecastCardContent(context, destination),
-        ),
-      ],
+    return SizedBox(
+      height: 110,
+      child: _buildWeatherForecastCardContent(context, destination),
     );
   }
 
@@ -37,21 +32,18 @@ class WeatherForecastCard extends StatelessWidget {
     Position destination,
   ) {
     final startDate = eventDetails.event.startDate;
-
     final endDate =
         eventDetails.event.endDate ?? startDate.add(const Duration(hours: 4));
 
     if (endDate.isBefore(DateTime.now())) {
       return const WeatherForecastEmptyCard(
-        message:
-            'La météo est disponible uniquement pour les événements à venir.',
+        message: 'La météo est disponible uniquement pour les événements à venir.',
       );
     }
 
     if (startDate.difference(DateTime.now()).inDays > 5) {
       return const WeatherForecastEmptyCard(
-        message:
-            'La météo est disponible uniquement pour les 5 prochains jours.',
+        message: 'La météo est disponible uniquement pour les 5 prochains jours.',
       );
     }
 

@@ -2,6 +2,8 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/event/types/event_details.dart';
@@ -61,13 +63,12 @@ class JourneyPreviewCard extends StatelessWidget {
     bool loadingOperation,
   ) {
     if (journey == null && !loadingOperation) {
-      if (!canAddJourney) {
-        return const SizedBox();
-      }
+      if (!canAddJourney) return const SizedBox.shrink();
 
-      return _buildContainer(
-        ClipRRect(
-          borderRadius: BorderRadius.circular(14),
+      return SizedBox(
+        height: 140,
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(22),
           child: UploadJourneyMenu(
             event: eventDetails.event,
             onSelection: (type) {
@@ -79,58 +80,70 @@ class JourneyPreviewCard extends StatelessWidget {
       );
     }
 
-    return _buildContainer(
-      AnimatedCrossFade(
-        duration: const Duration(milliseconds: 500),
-        crossFadeState:
-            loadingOperation
-                ? CrossFadeState.showSecond
-                : CrossFadeState.showFirst,
-        firstChild: SizedBox(
-          height: 140,
-          child: JourneyPreviewCardContainer(
-            onTap: () {
-              showModalBottomSheet(
-                backgroundColor: Colors.transparent,
-                isScrollControlled: true,
-                context: context,
-                builder:
-                    (_) => BlocProvider.value(
-                      value: context.read<EventJourneyBloc>(),
-                      child: JourneyModal(
-                        journey: journey!,
-                        eventDetails: eventDetails,
-                        onViewOnMap: onViewOnMap,
-                      ),
+    return AnimatedCrossFade(
+      duration: const Duration(milliseconds: 500),
+      crossFadeState:
+          loadingOperation
+              ? CrossFadeState.showSecond
+              : CrossFadeState.showFirst,
+      firstChild: SizedBox(
+        height: 140,
+        child: JourneyPreviewCardContainer(
+          onTap: () {
+            showModalBottomSheet(
+              backgroundColor: Colors.transparent,
+              isScrollControlled: true,
+              context: context,
+              builder:
+                  (_) => BlocProvider.value(
+                    value: context.read<EventJourneyBloc>(),
+                    child: JourneyModal(
+                      journey: journey!,
+                      eventDetails: eventDetails,
+                      onViewOnMap: onViewOnMap,
                     ),
-              );
-            },
-            child: JourneyPreviewCardContent(
-              journey: journey,
-              loadingPositions: loadingPositions,
-            ),
+                  ),
+            );
+          },
+          child: JourneyPreviewCardContent(
+            journey: journey,
+            loadingPositions: loadingPositions,
           ),
         ),
-        secondChild: SizedBox(
-          height: 140,
-          child: Container(
-            decoration: BoxDecoration(
-              color: Theme.of(context).colorScheme.surfaceContainer,
-              borderRadius: BorderRadius.circular(14),
-            ),
-            child: const Center(child: CircularProgressIndicator()),
-          ),
-        ),
+      ),
+      secondChild: SizedBox(
+        height: 140,
+        child: _buildLoadingCard(context),
       ),
     );
   }
 
-  Widget _buildContainer(Widget child) {
-    return Column(
-      children: [
-        const SizedBox(height: 16),
-        SizedBox(height: 140, child: child),
-      ],
+  Widget _buildLoadingCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                scheme.primary.withValues(alpha: 0.56),
+                scheme.primary.withValues(alpha: 0.42),
+              ],
+            ),
+            border: Border.all(
+              color: scheme.onPrimary.withValues(alpha: 0.12),
+              width: 1,
+            ),
+          ),
+          child: const Center(child: CircularProgressIndicator()),
+        ),
+      ),
     );
   }
 }

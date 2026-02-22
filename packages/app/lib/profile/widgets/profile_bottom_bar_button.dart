@@ -31,6 +31,7 @@ class ProfileBottomBarButton extends StatelessWidget {
     HapticFeedback.heavyImpact();
     showModalBottomSheet(
       context: context,
+      isScrollControlled: true,
       backgroundColor: Colors.transparent,
       builder: (context) => const ProfileModal(),
     );

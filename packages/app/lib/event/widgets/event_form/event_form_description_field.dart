@@ -1,8 +1,10 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Loic Vanden Bossche
 */
 import 'package:flutter/material.dart';
+
+import '../../../ui/widgets/inputs/glass_input_decoration.dart';
 
 class EventFormDescriptionField extends StatelessWidget {
   final TextEditingController descriptionController;
@@ -14,6 +16,8 @@ class EventFormDescriptionField extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return TextFormField(
       controller: descriptionController,
       maxLines: null,
@@ -28,15 +32,15 @@ class EventFormDescriptionField extends StatelessWidget {
 
         return null;
       },
-      decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide.none,
+      style: TextStyle(color: scheme.onPrimary),
+      decoration: buildGlassInputDecoration(
+        context,
+        labelText: 'Description (optionnel)',
+        suffixIcon: Icon(
+          Icons.description_outlined,
+          color: scheme.onPrimary.withValues(alpha: 0.62),
+          size: 18,
         ),
-        labelText: "Description (optionnel)",
-        fillColor: Theme.of(context).colorScheme.primaryContainer,
-        filled: true,
-        suffixIcon: const Icon(Icons.description),
       ),
     );
   }

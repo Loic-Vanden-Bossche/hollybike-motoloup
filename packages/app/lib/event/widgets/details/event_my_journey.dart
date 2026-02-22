@@ -2,6 +2,8 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:hollybike/event/types/event_details.dart';
 import 'package:hollybike/user_journey/widgets/user_journey_card.dart';
@@ -16,19 +18,43 @@ class EventMyJourney extends StatelessWidget {
     if (eventDetails.callerParticipation == null ||
         (eventDetails.callerParticipation?.hasRecordedPositions == false &&
             eventDetails.callerParticipation?.journey == null)) {
-      return const SizedBox();
+      return const SizedBox.shrink();
     }
 
-    return Column(
-      children: [const SizedBox(height: 16), _buildMyJourney(context)],
-    );
+    return _buildGlassCard(context);
   }
 
-  Widget _buildMyJourney(BuildContext context) {
-    return UserJourneyCard(
-      isCurrentEvent: true,
-      journey: eventDetails.callerParticipation?.journey,
-      color: Theme.of(context).colorScheme.primary,
+  Widget _buildGlassCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
+        child: Container(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                scheme.secondary.withValues(alpha: 0.10),
+                scheme.primary.withValues(alpha: 0.45),
+              ],
+            ),
+            border: Border.all(
+              color: scheme.secondary.withValues(alpha: 0.20),
+              width: 1,
+            ),
+          ),
+          padding: const EdgeInsets.all(14),
+          child: UserJourneyCard(
+            isCurrentEvent: true,
+            journey: eventDetails.callerParticipation?.journey,
+            color: scheme.secondary,
+          ),
+        ),
+      ),
     );
   }
 }

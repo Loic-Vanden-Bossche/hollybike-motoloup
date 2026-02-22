@@ -10,6 +10,7 @@ import 'package:hollybike/auth/widgets/text_form_builder.dart';
 import 'package:hollybike/profile/bloc/edit_profile_bloc/edit_profile_bloc.dart';
 import 'package:hollybike/profile/bloc/edit_profile_bloc/edit_profile_event.dart';
 import 'package:hollybike/shared/widgets/dialog/closable_dialog.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 
 class UpdatePasswordModal extends StatefulWidget {
   final String email;
@@ -90,34 +91,17 @@ class _EventImagesVisibilityDialogState extends State<UpdatePasswordModal> {
   }
 
   void _onResetPassword(BuildContext context) {
-    showDialog<void>(
+    showGlassConfirmationDialog(
       context: context,
-      builder: (_) {
-        return AlertDialog(
-          title: const Text('Réinitialisation du mot de passe'),
-          content: const Text(
-            'Un email de réinitialisation de mot de passe vous sera envoyé.',
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text('Annuler'),
-            ),
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-                context.read<EditProfileBloc>().add(
-                  ResetPassword(email: widget.email),
-                );
-              },
-              child: const Text('Envoyer'),
-            ),
-          ],
-        );
-      },
-    );
+      title: 'Réinitialisation du mot de passe',
+      message: 'Un email de réinitialisation de mot de passe vous sera envoyé.',
+      cancelLabel: 'Annuler',
+      confirmLabel: 'Envoyer',
+    ).then((confirmed) {
+      if (confirmed == true && context.mounted) {
+        context.read<EditProfileBloc>().add(ResetPassword(email: widget.email));
+      }
+    });
   }
 
   String? _inputValidator(String? inputText) {

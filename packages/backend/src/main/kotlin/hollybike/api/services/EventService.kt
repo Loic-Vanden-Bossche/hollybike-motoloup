@@ -149,6 +149,48 @@ class EventService(
 		return eventsQuery
 	}
 
+	private fun participatingEventsQuery(caller: User, searchParam: SearchParam, pagination: Boolean = true): Query {
+		val callerParticipation = EventParticipations.alias("caller_participation")
+		val participation = EventParticipations.alias("participation")
+		val participant = Users.alias("participant")
+
+		val eventsQuery = Events.innerJoin(
+			Associations,
+			{ association },
+			{ Associations.id }
+		).innerJoin(
+			Users,
+			{ Events.owner },
+			{ Users.id }
+		).innerJoin(
+			callerParticipation,
+			{ callerParticipation[EventParticipations.event] },
+			{ Events.id },
+			{
+				(callerParticipation[EventParticipations.user] eq caller.id) and
+					(callerParticipation[EventParticipations.isJoined] eq true)
+			}
+		).leftJoin(
+			participation,
+			{ participation[EventParticipations.event] },
+			{ Events.id },
+		).leftJoin(
+			participant,
+			{ participant[Users.id] },
+			{ participation[EventParticipations.user] },
+			{ participation[EventParticipations.isJoined] eq true }
+		).select(Events.columns + Users.columns + Associations.columns)
+			.applyParam(searchParam, pagination).withDistinct()
+
+		if (caller.scope != EUserScope.Root) {
+			eventsQuery.andWhere {
+				Events.association eq caller.association.id
+			}
+		}
+
+		return eventsQuery
+	}
+
 	suspend fun handleEventExceptions(exception: Throwable, call: ApplicationCall) {
 		when (exception) {
 			is EventNotFoundException -> call.respond(
@@ -205,7 +247,7 @@ class EventService(
 	fun getAllEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
 		Event.wrapRows(
 			eventsQuery(caller, searchParam)
-		).with(Event::owner, Event::association).toList()
+		).with(Event::owner, Event::association, Event::participants, Event::journey).toList()
 	}
 
 	fun countAllEvents(caller: User, searchParam: SearchParam): Long = transaction(db) {
@@ -225,11 +267,21 @@ class EventService(
 	fun getFutureEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
 		Event.wrapRows(
 			eventsQuery(caller, searchParam).andWhere { futureEventsCondition() }
-		).with(Event::owner, Event::association).toList()
+		).with(Event::owner, Event::association, Event::participants, Event::journey).toList()
 	}
 
 	fun countFutureEvents(caller: User, searchParam: SearchParam): Long = transaction(db) {
 		eventsQuery(caller, searchParam, pagination = false).andWhere { futureEventsCondition() }.count()
+	}
+
+	fun getParticipatingEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
+		Event.wrapRows(
+			participatingEventsQuery(caller, searchParam)
+		).with(Event::owner, Event::association, Event::participants, Event::journey).toList()
+	}
+
+	fun countParticipatingEvents(caller: User, searchParam: SearchParam): Long = transaction(db) {
+		participatingEventsQuery(caller, searchParam, pagination = false).count()
 	}
 
 	private fun archivedEventsCondition(): Op<Boolean> {
@@ -242,7 +294,7 @@ class EventService(
 	fun getArchivedEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
 		Event.wrapRows(
 			eventsQuery(caller, searchParam).andWhere { archivedEventsCondition() }
-		).with(Event::owner, Event::association).toList()
+		).with(Event::owner, Event::association, Event::participants, Event::journey).toList()
 	}
 
 	fun countArchivedEvents(caller: User, searchParam: SearchParam): Long = transaction(db) {
@@ -270,15 +322,12 @@ class EventService(
 			Journey::start,
 			Journey::end,
 			Journey::destination
-		) to try {
+		) to eventRow.getOrNull(EventParticipations.id)?.let {
 			EventParticipation.wrapRow(eventRow).load(
 				EventParticipation::user,
 				EventParticipation::journey,
 				EventParticipation::recordedPositions
 			)
-		} catch (e: Throwable) {
-			e.printStackTrace()
-			null
 		}
 	}
 

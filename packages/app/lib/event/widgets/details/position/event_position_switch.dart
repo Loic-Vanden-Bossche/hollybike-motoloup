@@ -30,28 +30,24 @@ class EventPositionSwitch extends StatelessWidget {
             eventDetails.event.status == EventStatusState.now;
 
         final isTracking = state.isRunning;
-
         final isCurrentEvent = state.eventId == eventDetails.event.id;
+        final isShown = isEligible || isTracking;
 
-        final isShown = (isEligible || isTracking);
-        return AnimatedCrossFade(
+        return AnimatedSize(
           duration: const Duration(milliseconds: 300),
-          crossFadeState:
-              !isShown ? CrossFadeState.showFirst : CrossFadeState.showSecond,
-          firstChild: const SizedBox(),
-          secondChild: Container(
-            width: double.infinity,
-            color: Theme.of(context).colorScheme.primary,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              child: _switchContent(
-                context,
-                state,
-                isCurrentEvent || !isTracking,
-                isLoading,
-              ),
-            ),
-          ),
+          curve: Curves.easeInOut,
+          child:
+              isShown
+                  ? Padding(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: _switchContent(
+                      context,
+                      state,
+                      isCurrentEvent || !isTracking,
+                      isLoading,
+                    ),
+                  )
+                  : const SizedBox(width: double.infinity),
         );
       },
     );
@@ -63,16 +59,24 @@ class EventPositionSwitch extends StatelessWidget {
     bool isCurrent,
     bool isLoading,
   ) {
+    final scheme = Theme.of(context).colorScheme;
+
     if (!isCurrent) {
-      return const SizedBox(
-        height: 50,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Votre position est partagée sur un autre événement'),
-          ],
-        ),
+      return Row(
+        children: [
+          Icon(Icons.location_on_rounded, color: scheme.secondary, size: 16),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              'Votre position est partagée sur un autre événement',
+              style: TextStyle(
+                color: scheme.onPrimary.withValues(alpha: 0.75),
+                fontSize: 13,
+                fontVariations: const [FontVariation.weight(550)],
+              ),
+            ),
+          ),
+        ],
       );
     }
 
@@ -91,10 +95,7 @@ class EventPositionSwitch extends StatelessWidget {
   }
 
   void _onSelected(BuildContext context, bool isRunning, bool isLoading) {
-    if (isLoading) {
-      return;
-    }
-
+    if (isLoading) return;
     if (isRunning) {
       _cancelPositions(context);
     } else {
@@ -116,7 +117,6 @@ class EventPositionSwitch extends StatelessWidget {
   Future<bool> _checkLocationPermission() async {
     final perm = await Permission.location.request();
     await Permission.notification.request();
-
     return perm.isGranted;
   }
 

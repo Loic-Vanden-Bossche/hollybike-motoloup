@@ -19,6 +19,7 @@ import 'package:hollybike/user_journey/services/user_journey_repository.dart';
 import 'package:hollybike/user_journey/type/user_journey.dart';
 import 'package:hollybike/profile/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hollybike/shared/utils/add_separators.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 import 'package:hollybike/user_journey/widgets/user_journey_content.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
@@ -443,66 +444,46 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
   void _handleModalAction(BuildContext context, JourneyModalAction action) {
     switch (action) {
       case JourneyModalAction.resetJourney:
-        showDialog<void>(
-          context: context,
-          builder: (_) {
-            return AlertDialog(
-              title: const Text('Êtes-vous sûr de réinitialiser le parcours ?'),
-              content: const Text(
-                'Le parcours sera dissocié de l\'événement, mais restera disponible dans votre historique.',
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Annuler'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.read<EventDetailsBloc>().add(ResetUserJourney());
-                  },
-                  child: const Text('Confirmer'),
-                ),
-              ],
-            );
-          },
-        );
+        _onResetJourney(context);
         break;
       case JourneyModalAction.deleteJourney:
-        showDialog<void>(
-          context: context,
-          builder: (_) {
-            return AlertDialog(
-              title: const Text('Êtes-vous sûr de supprimer le parcours ?'),
-              content: const Text('Le parcours sera définitivement supprimé.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Annuler'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.read<UserJourneyDetailsBloc>().add(
-                      DeleteUserJourney(),
-                    );
-                  },
-                  child: const Text('Confirmer'),
-                ),
-              ],
-            );
-          },
-        );
+        _onDeleteJourney(context);
         break;
       case JourneyModalAction.downloadJourney:
         context.read<UserJourneyDetailsBloc>().add(
           DownloadUserJourney(fileName: _getJourneyFileName()),
         );
         break;
+    }
+  }
+
+  void _onResetJourney(BuildContext context) async {
+    final confirmed = await showGlassConfirmationDialog(
+      context: context,
+      title: 'Réinitialiser le parcours',
+      message:
+          'Le parcours sera dissocié de l\'événement, mais restera disponible dans votre historique.',
+      cancelLabel: 'Annuler',
+      confirmLabel: 'Confirmer',
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<EventDetailsBloc>().add(ResetUserJourney());
+    }
+  }
+
+  void _onDeleteJourney(BuildContext context) async {
+    final confirmed = await showGlassConfirmationDialog(
+      context: context,
+      title: 'Supprimer le parcours',
+      message: 'Le parcours sera définitivement supprimé.',
+      cancelLabel: 'Annuler',
+      confirmLabel: 'Confirmer',
+      destructiveConfirm: true,
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<UserJourneyDetailsBloc>().add(DeleteUserJourney());
     }
   }
 
