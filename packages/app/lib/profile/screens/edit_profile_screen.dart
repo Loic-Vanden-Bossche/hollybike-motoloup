@@ -169,100 +169,126 @@ class _EditProfileScreenState extends State<EditProfileScreen> {
                   return const SizedBox();
                 }
 
-                return SingleChildScrollView(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // ── Glass hero ────────────────────────────────────────
-                      _buildHero(context, currentProfile),
-                      const SizedBox(height: 24),
-
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16),
-                        child: Form(
-                          key: _formKey,
+                return LayoutBuilder(
+                  builder: (context, constraints) {
+                    return SingleChildScrollView(
+                      child: ConstrainedBox(
+                        constraints: BoxConstraints(
+                          minHeight: constraints.maxHeight,
+                        ),
+                        child: IntrinsicHeight(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              // ── INFORMATIONS section ──────────────────────
-                              _sectionLabel(context, 'INFORMATIONS'),
-                              const SizedBox(height: 10),
-                              TextFormField(
-                                controller: _usernameController,
-                                keyboardType: TextInputType.name,
-                                autocorrect: true,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                onChanged: (_) => _markTouched(),
-                                validator: (value) {
-                                  if (value == null || value.isEmpty) {
-                                    return "Le nom d'utilisateur ne peut pas être vide.";
-                                  }
-                                  if (value.length > 1000) {
-                                    return "Le nom d'utilisateur ne peut pas dépasser 1000 caractères.";
-                                  }
-                                  return null;
-                                },
-                                decoration: buildGlassInputDecoration(
-                                  context,
-                                  labelText: "Nom d'utilisateur",
-                                  suffixIcon: Icon(
-                                    Icons.account_circle_rounded,
-                                    size: 18,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary
-                                        .withValues(alpha: 0.35),
+                              // ── Glass hero ────────────────────────────────
+                              _buildHero(context, currentProfile),
+                              const SizedBox(height: 24),
+
+                              Padding(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                ),
+                                child: Form(
+                                  key: _formKey,
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      // ── INFORMATIONS section ──────────────
+                                      _sectionLabel(context, 'INFORMATIONS'),
+                                      const SizedBox(height: 10),
+                                      TextFormField(
+                                        controller: _usernameController,
+                                        keyboardType: TextInputType.name,
+                                        autocorrect: true,
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        autovalidateMode:
+                                            AutovalidateMode.onUserInteraction,
+                                        onChanged: (_) => _markTouched(),
+                                        validator: (value) {
+                                          if (value == null || value.isEmpty) {
+                                            return "Le nom d'utilisateur ne peut pas être vide.";
+                                          }
+                                          if (value.length > 1000) {
+                                            return "Le nom d'utilisateur ne peut pas dépasser 1000 caractères.";
+                                          }
+                                          return null;
+                                        },
+                                        decoration: buildGlassInputDecoration(
+                                          context,
+                                          labelText: "Nom d'utilisateur",
+                                          suffixIcon: Icon(
+                                            Icons.account_circle_rounded,
+                                            size: 18,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary
+                                                .withValues(alpha: 0.35),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 14),
+                                      TextFormField(
+                                        controller: _descriptionController,
+                                        autocorrect: true,
+                                        textCapitalization:
+                                            TextCapitalization.sentences,
+                                        autovalidateMode:
+                                            AutovalidateMode.onUserInteraction,
+                                        onChanged: (_) => _markTouched(),
+                                        validator: (value) {
+                                          if (value != null &&
+                                              value.length > 255) {
+                                            return "Votre description ne peut pas dépasser 255 caractères.";
+                                          }
+                                          return null;
+                                        },
+                                        decoration: buildGlassInputDecoration(
+                                          context,
+                                          labelText: "Description (facultatif)",
+                                          suffixIcon: Icon(
+                                            Icons.description_rounded,
+                                            size: 18,
+                                            color: Theme.of(context)
+                                                .colorScheme
+                                                .onPrimary
+                                                .withValues(alpha: 0.35),
+                                          ),
+                                        ),
+                                      ),
+                                      const SizedBox(height: 28),
+
+                                      // ── SÉCURITÉ section ──────────────────
+                                      _sectionLabel(context, 'SÉCURITÉ'),
+                                      const SizedBox(height: 10),
+                                      _buildPasswordRow(
+                                        context,
+                                        currentProfile.email,
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),
-                              const SizedBox(height: 14),
-                              TextFormField(
-                                controller: _descriptionController,
-                                autocorrect: true,
-                                textCapitalization:
-                                    TextCapitalization.sentences,
-                                autovalidateMode:
-                                    AutovalidateMode.onUserInteraction,
-                                onChanged: (_) => _markTouched(),
-                                validator: (value) {
-                                  if (value != null && value.length > 255) {
-                                    return "Votre description ne peut pas dépasser 255 caractères.";
-                                  }
-                                  return null;
-                                },
-                                decoration: buildGlassInputDecoration(
-                                  context,
-                                  labelText: "Description (facultatif)",
-                                  suffixIcon: Icon(
-                                    Icons.description_rounded,
-                                    size: 18,
-                                    color: Theme.of(context)
-                                        .colorScheme
-                                        .onPrimary
-                                        .withValues(alpha: 0.35),
-                                  ),
+
+                              // Fills remaining space so save button sits at bottom
+                              const Spacer(),
+
+                              Padding(
+                                padding: EdgeInsets.fromLTRB(
+                                  16,
+                                  24,
+                                  16,
+                                  MediaQuery.of(context).padding.bottom + 24,
                                 ),
+                                child: _buildSaveButton(context, isLoading),
                               ),
-                              const SizedBox(height: 28),
-
-                              // ── SÉCURITÉ section ──────────────────────────
-                              _sectionLabel(context, 'SÉCURITÉ'),
-                              const SizedBox(height: 10),
-                              _buildPasswordRow(context, currentProfile.email),
-                              const SizedBox(height: 32),
-
-                              // ── Save button ───────────────────────────────
-                              _buildSaveButton(context, isLoading),
-                              const SizedBox(height: 40),
                             ],
                           ),
                         ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             ),
