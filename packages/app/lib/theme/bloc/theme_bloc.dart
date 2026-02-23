@@ -48,8 +48,8 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
     error: const Color(0xffd20f39),
     primary: const Color(0xffeff1f5),
     primaryContainer: const Color(0xffe6e9ef),
-    onPrimary: const Color(0xff5c5f77),
-    onPrimaryContainer: const Color(0xff4c4f69),
+    onPrimary: const Color(0xff4c4f69),
+    onPrimaryContainer: const Color(0xff6c6f85),
     surface: const Color(0xffdce0e8),
     onSurface: const Color(0xff4c4f69),
     onSurfaceVariant: const Color(0xff5c5f77),
@@ -244,8 +244,9 @@ class ThemeBloc extends Bloc<ThemeEvent, ThemeState> {
   }
 
   ProgressIndicatorThemeData get _indicatorTheme {
+    // Use teal accent — consistent with explicit uses in the app
     return ProgressIndicatorThemeData(
-      color: _darkColorScheme.onPrimary.withValues(alpha: 0.7),
+      color: _colorScheme.secondary,
     );
   }
 

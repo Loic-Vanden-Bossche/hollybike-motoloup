@@ -1,6 +1,6 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Loic Vanden Bossche
 */
 import 'dart:async';
 
@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../../shared/utils/dates.dart';
+import '../../../ui/widgets/inputs/glass_picker_field.dart';
 
 class EventDateRangeInput extends StatelessWidget {
   final DateTimeRange dateRange;
@@ -20,22 +21,21 @@ class EventDateRangeInput extends StatelessWidget {
   });
 
   String formatDateRange(DateTimeRange dateRange) {
-    DateTime start = dateRange.start;
-    DateTime end = dateRange.end;
-    DateTime today = DateTime.now();
+    final start = dateRange.start;
+    final end = dateRange.end;
+    final today = DateTime.now();
 
-    DateFormat fullDateFormatter = DateFormat.yMMMMd();
-    DateFormat shortDateFormatter = DateFormat('dd/MM/yyyy');
+    final fullDateFormatter = DateFormat.yMMMMd();
+    final shortDateFormatter = DateFormat('dd/MM/yyyy');
 
     if (checkSameDate(start, end)) {
       if (checkSameDate(start, today)) {
         return "Aujourd'hui";
-      } else {
-        return "Le ${fullDateFormatter.format(start)}";
       }
-    } else {
-      return "Du ${shortDateFormatter.format(start)} au ${shortDateFormatter.format(end)}";
+      return 'Le ${fullDateFormatter.format(start)}';
     }
+
+    return 'Du ${shortDateFormatter.format(start)} au ${shortDateFormatter.format(end)}';
   }
 
   void _onDateRangeChanged(DateTimeRange? dateRange) {
@@ -46,43 +46,20 @@ class EventDateRangeInput extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: 56,
-      width: double.infinity,
-      child: Stack(
-        children: [
-          TextField(
-            controller: TextEditingController(text: formatDateRange(dateRange)),
-            readOnly: true,
-            decoration: InputDecoration(
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide.none,
-              ),
-              labelText: "Plage de dates",
-              fillColor: Theme.of(context).colorScheme.primaryContainer,
-              filled: true,
-              suffixIcon: const Icon(Icons.date_range),
-            ),
-          ),
-          Material(
-            color: Colors.transparent,
-            child: InkWell(
-              borderRadius: BorderRadius.circular(12),
-              onTap: () {
-                Timer(const Duration(milliseconds: 200), () {
-                  showDateRangePicker(
-                    context: context,
-                    initialDateRange: dateRange,
-                    firstDate: DateTime(1900),
-                    lastDate: DateTime(2100),
-                  ).then(_onDateRangeChanged);
-                });
-              },
-            ),
-          ),
-        ],
-      ),
+    return GlassPickerField(
+      text: formatDateRange(dateRange),
+      labelText: 'Plage de dates',
+      icon: Icons.date_range,
+      onTap: () {
+        Timer(const Duration(milliseconds: 200), () {
+          showDateRangePicker(
+            context: context,
+            initialDateRange: dateRange,
+            firstDate: DateTime(1900),
+            lastDate: DateTime(2100),
+          ).then(_onDateRangeChanged);
+        });
+      },
     );
   }
 }

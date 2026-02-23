@@ -3,33 +3,19 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'package:flutter/material.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 
 Future<void> showEventDiscardChangesDialog(
   BuildContext context,
   void Function() onConfirm,
 ) {
-  return showDialog<void>(
+  return showGlassConfirmationDialog(
     context: context,
-    builder: (BuildContext context) {
-      return AlertDialog(
-        title: const Text('Êtes-vous sûr de vouloir annuler ?'),
-        content: const Text('Toutes les informations saisies seront perdues.'),
-        actions: <Widget>[
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-            },
-            child: const Text('Annuler'),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.of(context).pop();
-              onConfirm();
-            },
-            child: const Text('Confirmer'),
-          ),
-        ],
-      );
-    },
-  );
+    title: 'Annuler la création ?',
+    message: 'Toutes les informations saisies seront perdues.',
+    cancelLabel: 'Annuler',
+    confirmLabel: 'Confirmer',
+  ).then((confirmed) {
+    if (confirmed == true) onConfirm();
+  });
 }

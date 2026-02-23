@@ -24,29 +24,91 @@ class EventCandidateCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      margin: const EdgeInsets.symmetric(vertical: 5),
-      child: CheckboxListTile(
-        value: isSelected,
-        enabled: !alreadyParticipating,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-        onChanged: (_) => onTap(),
-        secondary: UserProfilePicture(
-          url: candidate.profilePicture,
-          profilePictureKey: candidate.profilePictureKey,
-          radius: 20,
+    final scheme = Theme.of(context).colorScheme;
+    final isDisabled = alreadyParticipating;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(18),
+        onTap: isDisabled ? null : onTap,
+        child: Ink(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(18),
+            color:
+                isDisabled
+                    ? scheme.onPrimary.withValues(alpha: 0.03)
+                    : isSelected
+                    ? scheme.secondary.withValues(alpha: 0.14)
+                    : scheme.onPrimary.withValues(alpha: 0.05),
+            border: Border.all(
+              color:
+                  isDisabled
+                      ? scheme.onPrimary.withValues(alpha: 0.10)
+                      : isSelected
+                      ? scheme.secondary.withValues(alpha: 0.36)
+                      : scheme.onPrimary.withValues(alpha: 0.12),
+              width: 1,
+            ),
+          ),
+          child: Row(
+            children: [
+              UserProfilePicture(
+                url: candidate.profilePicture,
+                profilePictureKey: candidate.profilePictureKey,
+                radius: 22,
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      candidate.username,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                        color: scheme.onPrimary.withValues(
+                          alpha: isDisabled ? 0.55 : 0.88,
+                        ),
+                      ),
+                    ),
+                    if (candidate.eventRole != null) ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        "Déjà ${_eventRoleName(candidate.eventRole!)}",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onPrimary.withValues(alpha: 0.56),
+                        ),
+                      ),
+                    ] else ...[
+                      const SizedBox(height: 3),
+                      Text(
+                        isSelected
+                            ? "Sera ajouté à l'événement"
+                            : "Appuyez pour sélectionner",
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color:
+                              isSelected
+                                  ? scheme.secondary
+                                  : scheme.onPrimary.withValues(alpha: 0.52),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(width: 8),
+              IgnorePointer(
+                child: Checkbox(
+                  value: isSelected,
+                  onChanged: isDisabled ? null : (_) {},
+                ),
+              ),
+            ],
+          ),
         ),
-        title: Text(
-          candidate.username,
-          style: Theme.of(context).textTheme.titleSmall,
-        ),
-        subtitle:
-            candidate.eventRole != null
-                ? Text(
-                  "Déjà ${_eventRoleName(candidate.eventRole!)}",
-                  style: Theme.of(context).textTheme.bodyMedium,
-                )
-                : null,
       ),
     );
   }

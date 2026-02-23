@@ -6,6 +6,7 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:hollybike/event/types/participation/event_participation.dart';
 import 'package:hollybike/shared/utils/dates.dart';
+import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 
 import '../event_loading_profile_picture.dart';
 import '../../../user_journey/widgets/user_journey_card.dart';
@@ -17,88 +18,116 @@ class EventParticipationModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(31),
-          topRight: Radius.circular(31),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
+    final scheme = Theme.of(context).colorScheme;
+
+    return GlassBottomModal(
+      maxContentHeight: 540,
+      contentPadding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(
-                height: 60,
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
+              Hero(
+                tag: "user-${participation.user.id}-profile-picture",
+                child: UserProfilePicture(
+                  url: participation.user.profilePicture,
+                  profilePictureKey: participation.user.profilePictureKey,
+                  radius: 24,
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    UserProfilePicture(
-                      url: participation.user.profilePicture,
-                      profilePictureKey: participation.user.profilePictureKey,
-                      radius: 20,
-                    ),
-                    const SizedBox(width: 16),
-                    Expanded(
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            participation.user.username,
-                            style: Theme.of(context).textTheme.titleSmall,
-                            overflow: TextOverflow.ellipsis,
+                    Hero(
+                      tag: "user-${participation.user.id}-username",
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Text(
+                          participation.user.username,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: scheme.onPrimary,
+                            fontVariations: const [FontVariation.weight(760)],
                           ),
-                          Text(
-                            participation.roleName,
-                            style: Theme.of(context).textTheme.bodyMedium,
-                          ),
-                        ],
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
                     ),
-                    const SizedBox(width: 16),
-                    ElevatedButton(
-                      onPressed: () => _onOpenUserProfile(context),
-                      child: const Text("Voir le profil"),
+                    const SizedBox(height: 3),
+                    Text(
+                      participation.roleName,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: scheme.secondary,
+                        fontVariations: const [FontVariation.weight(650)],
+                      ),
                     ),
                   ],
                 ),
               ),
-              const Divider(),
-              const SizedBox(height: 4),
-              Row(
-                children: [
-                  Icon(
-                    Icons.history,
-                    color: Theme.of(context).colorScheme.onPrimary,
-                  ),
-                  const SizedBox(width: 8),
-                  Text(
-                    "Inscrit ${formatTimeDate(participation.joinedDateTime.toLocal())}",
-                    style: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                ],
-              ),
-              const SizedBox(height: 16),
-              UserJourneyCard(
-                journey: participation.journey,
-                user: participation.user,
-                color: Theme.of(context).colorScheme.primaryContainer,
-                isCurrentEvent: true,
+              IconButton(
+                onPressed: () => _onOpenUserProfile(context),
+                style: IconButton.styleFrom(
+                  backgroundColor: scheme.secondary.withValues(alpha: 0.16),
+                  foregroundColor: scheme.secondary,
+                ),
+                icon: const Icon(Icons.open_in_new_rounded),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 14),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(14),
+              color: scheme.onPrimary.withValues(alpha: 0.07),
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.12),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.history_rounded,
+                  size: 18,
+                  color: scheme.onPrimary.withValues(alpha: 0.72),
+                ),
+                const SizedBox(width: 9),
+                Expanded(
+                  child: Text(
+                    "Inscrit ${formatTimeDate(participation.joinedDateTime.toLocal())}",
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                      color: scheme.onPrimary.withValues(alpha: 0.72),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(height: 14),
+          UserJourneyCard(
+            journey: participation.journey,
+            user: participation.user,
+            color: scheme.secondary.withValues(alpha: 0.18),
+            isCurrentEvent: true,
+          ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }
 
   void _onOpenUserProfile(BuildContext context) {
-    context.router.pushPath("/profile/${participation.user.id}");
+    final router = context.router;
+    Navigator.of(context).pop();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router.pushPath("/profile/${participation.user.id}");
+    });
   }
 }

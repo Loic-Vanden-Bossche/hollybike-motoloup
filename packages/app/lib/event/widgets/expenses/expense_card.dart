@@ -13,56 +13,78 @@ class ExpenseCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final hasProof = expense.proof != null;
+
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
-      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(14),
+        color: scheme.primary.withValues(alpha: 0.55),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.10),
+          width: 1,
+        ),
       ),
-      child: Row(
-        children: [
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  expense.name,
-                  overflow: TextOverflow.ellipsis,
-                  style: Theme.of(context).textTheme.titleSmall,
-                ),
-                const SizedBox(height: 4),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: [
-                    Icon(
-                      Icons.photo_album_rounded,
-                      size: 14,
-                      color:
-                          expense.proof != null
-                              ? Theme.of(context).colorScheme.secondary
-                              : Colors.red.shade200,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    expense.name,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: scheme.onPrimary,
+                      fontSize: 13,
+                      fontVariations: const [FontVariation.weight(650)],
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      expense.proof != null
-                          ? 'Avec preuve de paiement'
-                          : 'Sans preuve de paiement',
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
-                ),
-              ],
+                  ),
+                  const SizedBox(height: 4),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.photo_album_rounded,
+                        size: 12,
+                        color: hasProof
+                            ? scheme.secondary
+                            : scheme.onPrimary.withValues(alpha: 0.35),
+                      ),
+                      const SizedBox(width: 4),
+                      Text(
+                        hasProof
+                            ? 'Avec preuve de paiement'
+                            : 'Sans preuve de paiement',
+                        style: TextStyle(
+                          color: hasProof
+                              ? scheme.secondary.withValues(alpha: 0.80)
+                              : scheme.onPrimary.withValues(alpha: 0.40),
+                          fontSize: 10,
+                          fontVariations: const [FontVariation.weight(500)],
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
-          ),
-          const SizedBox(width: 16),
-          Text(
-            '${(expense.amount.toDouble() / 100).toStringAsFixed(2)} €',
-            style: Theme.of(context).textTheme.titleSmall,
-          ),
-          ExpenseActions(expense: expense),
-        ],
+            const SizedBox(width: 12),
+            Text(
+              '${(expense.amount.toDouble() / 100).toStringAsFixed(2)} €',
+              style: TextStyle(
+                color: scheme.onPrimary,
+                fontSize: 14,
+                fontVariations: const [FontVariation.weight(700)],
+              ),
+            ),
+            ExpenseActions(expense: expense),
+          ],
+        ),
       ),
     );
   }

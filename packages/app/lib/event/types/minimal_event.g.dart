@@ -22,6 +22,9 @@ _MinimalEvent _$MinimalEventFromJson(Map<String, dynamic> json) =>
       description: json['description'] as String?,
       image: json['image'] as String?,
       imageKey: json['image_key'] as String?,
+      budget: (json['budget'] as num?)?.toInt(),
+      participantsCount: (json['participants_count'] as num?)?.toInt() ?? 0,
+      distance: (json['distance'] as num?)?.toInt(),
     );
 
 Map<String, dynamic> _$MinimalEventToJson(_MinimalEvent instance) =>
@@ -37,6 +40,9 @@ Map<String, dynamic> _$MinimalEventToJson(_MinimalEvent instance) =>
       'description': instance.description,
       'image': instance.image,
       'image_key': instance.imageKey,
+      'budget': instance.budget,
+      'participants_count': instance.participantsCount,
+      'distance': instance.distance,
     };
 
 const _$EventStatusStateEnumMap = {

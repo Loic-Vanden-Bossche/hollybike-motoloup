@@ -29,6 +29,9 @@ sealed class MinimalEvent with _$MinimalEvent {
     String? description,
     String? image,
     @JsonKey(name: "image_key") String? imageKey,
+    int? budget,
+    @JsonKey(name: "participants_count") @Default(0) int participantsCount,
+    int? distance,
   }) = _MinimalEvent;
 
   Color get color => Event.getStatusColor(status);

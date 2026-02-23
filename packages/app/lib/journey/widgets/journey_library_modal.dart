@@ -10,6 +10,7 @@ import 'package:hollybike/journey/bloc/journeys_library_bloc/journeys_library_ev
 import 'package:hollybike/journey/bloc/journeys_library_bloc/journeys_library_state.dart';
 import 'package:hollybike/journey/widgets/journey_library.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
+import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 
 import '../../event/bloc/event_journey_bloc/event_journey_event.dart';
 import '../bloc/journeys_library_bloc/journeys_library_bloc.dart';
@@ -33,78 +34,85 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
   @override
   void initState() {
     super.initState();
-
     BlocProvider.of<JourneysLibraryBloc>(context).add(RefreshJourneysLibrary());
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(31),
-          topRight: Radius.circular(31),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.all(16),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+    final scheme = Theme.of(context).colorScheme;
+
+    return GlassBottomModal(
+      maxContentHeight: 480,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    'Selectionnez un parcours',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
+              Text(
+                'Sélectionner un parcours',
+                style: TextStyle(
+                  color: scheme.onPrimary,
+                  fontSize: 16,
+                  fontVariations: const [FontVariation.weight(700)],
+                ),
               ),
-              const SizedBox(height: 16),
-              Flexible(
-                child: BlocBuilder<JourneysLibraryBloc, JourneysLibraryState>(
-                  builder: (context, state) {
-                    final isEmpty = state.journeys.isEmpty;
-                    final isLoading =
-                        state is JourneysLibraryPageLoadInProgress ||
-                        state is JourneysLibraryInitial;
-
-                    final isShrunk =
-                        (isLoading && isEmpty) || (isEmpty && !isLoading);
-
-                    return AnimatedContainer(
-                      constraints: BoxConstraints(
-                        maxHeight: isShrunk ? 150 : 400,
-                      ),
-                      curve: Curves.easeInOut,
-                      duration: const Duration(milliseconds: 200),
-                      child: _buildLibrary(
-                        state.journeys,
-                        isLoading && isEmpty,
-                      ),
-                    );
-                  },
+              const Spacer(),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer.withValues(alpha: 0.55),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: scheme.onPrimary.withValues(alpha: 0.12),
+                      width: 1,
+                    ),
+                  ),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 16,
+                    color: scheme.onPrimary.withValues(alpha: 0.65),
+                  ),
                 ),
               ),
             ],
           ),
-        ),
+          const SizedBox(height: 14),
+
+          // Library content
+          BlocBuilder<JourneysLibraryBloc, JourneysLibraryState>(
+            builder: (context, state) {
+              final isEmpty = state.journeys.isEmpty;
+              final isLoading =
+                  state is JourneysLibraryPageLoadInProgress ||
+                  state is JourneysLibraryInitial;
+              final isShrunk =
+                  (isLoading && isEmpty) || (isEmpty && !isLoading);
+
+              return AnimatedContainer(
+                constraints: BoxConstraints(maxHeight: isShrunk ? 140 : 400),
+                curve: Curves.easeInOut,
+                duration: const Duration(milliseconds: 200),
+                child: _buildLibrary(state.journeys, isLoading && isEmpty),
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildLibrary(List<Journey> journeys, bool isLoading) {
     if (isLoading) {
-      return const Center(child: CircularProgressIndicator());
+      return Center(
+        child: CircularProgressIndicator(
+          color: Theme.of(context).colorScheme.secondary,
+          strokeWidth: 2.5,
+        ),
+      );
     }
 
     return ThemedRefreshIndicator(
@@ -120,15 +128,12 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
 
   Future<void> _onRefresh() {
     final bloc = BlocProvider.of<JourneysLibraryBloc>(context);
-
     bloc.add(RefreshJourneysLibrary());
-
     return bloc.firstWhenNotLoading;
   }
 
   void _onAddJourney() async {
     Navigator.of(context).pop();
-
     if (widget.onJourneyAdded != null) {
       widget.onJourneyAdded!();
     }
@@ -138,11 +143,9 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
     if (widget.onJourneyAdded != null) {
       widget.onJourneyAdded!();
     }
-
     BlocProvider.of<EventJourneyBloc>(
       context,
     ).add(AttachJourneyToEvent(journey: journey, eventId: widget.event.id));
-
     Navigator.of(context).pop();
   }
 }

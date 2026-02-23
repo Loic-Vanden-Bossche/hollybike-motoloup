@@ -21,18 +21,24 @@ class JourneyLibraryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Stack(
       children: [
         Container(
           decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.surface,
-            borderRadius: BorderRadius.circular(10),
+            color: scheme.primaryContainer.withValues(alpha: 0.60),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: scheme.onPrimary.withValues(alpha: 0.10),
+              width: 1,
+            ),
           ),
-          padding: const EdgeInsets.all(16),
+          padding: const EdgeInsets.all(14),
           child: Column(
             children: [
               SizedBox(
-                height: 130,
+                height: 120,
                 child: Row(
                   mainAxisSize: MainAxisSize.max,
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -45,7 +51,11 @@ class JourneyLibraryCard extends StatelessWidget {
                         children: [
                           Text(
                             journey.name,
-                            style: Theme.of(context).textTheme.titleMedium,
+                            style: TextStyle(
+                              color: scheme.onPrimary,
+                              fontSize: 14,
+                              fontVariations: const [FontVariation.weight(650)],
+                            ),
                             maxLines: 2,
                             softWrap: true,
                           ),
@@ -63,7 +73,7 @@ class JourneyLibraryCard extends StatelessWidget {
                     Expanded(
                       flex: 2,
                       child: ClipRRect(
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(12),
                         child: JourneyImage(
                           imageKey: journey.previewImageKey,
                           imageUrl: journey.previewImage,
@@ -73,7 +83,7 @@ class JourneyLibraryCard extends StatelessWidget {
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 10),
               JourneyLocation(journey: journey.toMinimalJourney()),
             ],
           ),
@@ -82,7 +92,7 @@ class JourneyLibraryCard extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: InkWell(
-              borderRadius: BorderRadius.circular(10),
+              borderRadius: BorderRadius.circular(16),
               onTap: () => onSelected(journey),
             ),
           ),

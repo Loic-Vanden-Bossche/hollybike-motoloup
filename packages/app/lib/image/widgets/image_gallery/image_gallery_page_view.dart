@@ -76,6 +76,9 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
   @override
   Widget build(BuildContext context) {
     final currentImage = this.currentImage;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final dynamicModalHeight =
+        (screenHeight * 0.58).clamp(420.0, 560.0).round();
 
     if (currentImage == null) {
       return Container(color: Colors.black);
@@ -106,7 +109,7 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
                   modalOpened = opened;
                 });
               },
-              maxModalHeight: 460,
+              maxModalHeight: dynamicModalHeight,
               enableDrag: !isZoomed && !_blockModalDrag,
               modalContent: ImageGalleryBottomModal(
                 image: widget.images[currentPage],

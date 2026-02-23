@@ -24,6 +24,7 @@ import 'event_api.dart';
 
 class EventRepository {
   final EventApi eventApi;
+  static const int participatingStreamKey = -1;
 
   final int numberOfEventsPerRequest = 10;
 
@@ -85,6 +86,9 @@ class EventRepository {
     int? userId,
     String? query,
   }) async {
+    final streamKey =
+        requestType == "participating" ? participatingStreamKey : userId;
+
     final pageResult = await eventApi.getEvents(
       requestType,
       page,
@@ -93,10 +97,10 @@ class EventRepository {
       query: query,
     );
 
-    if (userId != null && _userStreamMapper.containsKey(userId)) {
+    if (streamKey != null && _userStreamMapper.containsKey(streamKey)) {
       _userStreamMapper.add(
-        userId,
-        _userStreamMapper.get(userId)! + pageResult.items,
+        streamKey,
+        _userStreamMapper.get(streamKey)! + pageResult.items,
       );
 
       return pageResult;
@@ -132,6 +136,9 @@ class EventRepository {
       _lastQuery = query;
     }
 
+    final streamKey =
+        requestType == "participating" ? participatingStreamKey : userId;
+
     final pageResult = await eventApi.getEvents(
       requestType,
       0,
@@ -140,9 +147,9 @@ class EventRepository {
       query: query,
     );
 
-    if (userId != null) {
+    if (streamKey != null) {
       _userStreamMapper.add(
-        userId,
+        streamKey,
         pageResult.items,
         state: pageResult.refreshedType,
       );
@@ -267,6 +274,10 @@ class EventRepository {
       }
     }
 
+    if (_userStreamMapper.containsKey(participatingStreamKey)) {
+      await refreshEvents("participating");
+    }
+
     final details = _eventDetailsStreamMapper.get(eventId);
 
     if (details == null) {
@@ -293,6 +304,10 @@ class EventRepository {
       if (events.any((e) => e.id == eventId)) {
         await refreshEvents("future", userId: userId);
       }
+    }
+
+    if (_userStreamMapper.containsKey(participatingStreamKey)) {
+      await refreshEvents("participating");
     }
 
     _eventDetailsStreamMapper.add(
@@ -322,7 +337,11 @@ class EventRepository {
       }
 
       if (events.any((e) => e.id == eventId)) {
-        refreshEvents("future", userId: userId);
+        if (userId == participatingStreamKey) {
+          refreshEvents("participating");
+        } else {
+          refreshEvents("future", userId: userId);
+        }
       }
     }
 
@@ -423,7 +442,11 @@ class EventRepository {
     }
 
     for (final userId in _userStreamMapper.keys) {
-      await refreshEvents("future", userId: userId);
+      if (userId == participatingStreamKey) {
+        await refreshEvents("participating");
+      } else {
+        await refreshEvents("future", userId: userId);
+      }
     }
 
     if (_futureEventsStreamCounter.isListening) {

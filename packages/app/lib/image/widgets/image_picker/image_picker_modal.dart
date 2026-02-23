@@ -10,6 +10,7 @@ import 'package:hollybike/image/utils/image_picker/img.dart';
 import 'package:hollybike/image/widgets/image_picker/image_picker_choice_list.dart';
 import 'package:hollybike/image/widgets/image_picker/image_picker_modal_header.dart';
 import 'package:hollybike/image/widgets/image_picker/image_picker_selected_images_list.dart';
+import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 
 class ImagePickerModal extends StatefulWidget {
   final ImagePickerMode mode;
@@ -34,91 +35,58 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
 
   @override
   Widget build(BuildContext context) {
-    final border = BorderSide(
-      color: Theme.of(context).colorScheme.onPrimary,
-      width: 3,
-    );
+    final scheme = Theme.of(context).colorScheme;
 
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        border: Border(top: border, left: border, right: border),
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(31),
-          topRight: Radius.circular(31),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(
-          top: 8,
-          left: 16,
-          right: 16,
-          bottom: 16,
-        ),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _buildDragHandle(context),
-              const SizedBox(height: 8),
-              ImagePickerModalHeader(
-                onClose: widget.onClose,
-                onSubmit: _onSubmit,
-                canSubmit: _selectedImages.isNotEmpty && !widget.isLoading,
-                selectedCount: _selectedImages.length,
-              ),
-              const SizedBox(height: 16),
-              if (widget.isLoading) _buildLoadingState(context),
-              if (!widget.isLoading) ...[
-                _buildSelectedImageList(),
-                if (_selectedImages.isEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(bottom: 8),
-                    child: Text(
-                      "Choisissez vos photos",
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Theme.of(
-                          context,
-                        ).colorScheme.onPrimary.withValues(alpha: 0.6),
-                      ),
-                    ),
-                  ),
-                ImagePickerChoiceList(
-                  mode: widget.mode,
-                  onImagesSelected: _onImagesSelected,
-                ),
-              ],
-            ],
+    return GlassBottomModal(
+      showGrabber: false,
+      contentPadding: const EdgeInsets.fromLTRB(14, 14, 14, 6),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ImagePickerModalHeader(
+            onClose: widget.onClose,
+            onSubmit: _onSubmit,
+            canSubmit: _selectedImages.isNotEmpty && !widget.isLoading,
+            selectedCount: _selectedImages.length,
           ),
-        ),
+          const SizedBox(height: 14),
+
+          if (widget.isLoading) _buildLoadingState(scheme),
+          if (!widget.isLoading) ...[
+            _buildSelectedImageList(),
+            if (_selectedImages.isEmpty)
+              Padding(
+                padding: const EdgeInsets.only(bottom: 8),
+                child: Text(
+                  'Choisissez vos photos',
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.50),
+                    fontSize: 12,
+                    fontVariations: const [FontVariation.weight(450)],
+                  ),
+                ),
+              ),
+            ImagePickerChoiceList(
+              mode: widget.mode,
+              onImagesSelected: _onImagesSelected,
+            ),
+          ],
+        ],
       ),
     );
   }
 
-  Widget _buildDragHandle(BuildContext context) {
-    return Center(
-      child: Container(
-        width: 36,
-        height: 4,
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
-          borderRadius: BorderRadius.circular(2),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildLoadingState(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-
+  Widget _buildLoadingState(ColorScheme scheme) {
     return Column(
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(2),
           child: LinearProgressIndicator(
             minHeight: 3,
-            backgroundColor: colorScheme.onPrimary.withValues(alpha: 0.1),
-            valueColor: AlwaysStoppedAnimation<Color>(colorScheme.onPrimary),
+            backgroundColor: scheme.onPrimary.withValues(alpha: 0.10),
+            valueColor: AlwaysStoppedAnimation<Color>(
+              scheme.secondary,
+            ),
           ),
         ),
         const SizedBox(height: 16),
@@ -140,20 +108,22 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
               mainAxisSize: MainAxisSize.min,
               children: [
                 SizedBox(
-                  width: 24,
-                  height: 24,
+                  width: 22,
+                  height: 22,
                   child: CircularProgressIndicator(
-                    strokeWidth: 2.5,
-                    color: colorScheme.onPrimary,
+                    strokeWidth: 2,
+                    color: scheme.secondary,
                   ),
                 ),
                 const SizedBox(height: 12),
                 Text(
                   _selectedImages.length > 1
-                      ? "Envoi de ${_selectedImages.length} photos..."
-                      : "Envoi en cours...",
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onPrimary.withValues(alpha: 0.7),
+                      ? 'Envoi de ${_selectedImages.length} photos...'
+                      : 'Envoi en cours...',
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.60),
+                    fontSize: 12,
+                    fontVariations: const [FontVariation.weight(500)],
                   ),
                 ),
               ],
@@ -194,7 +164,6 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
       if (widget.mode == ImagePickerMode.single) {
         _selectedImages.clear();
       }
-
       _selectedImages.addAll(images);
     });
   }

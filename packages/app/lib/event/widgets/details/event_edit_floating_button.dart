@@ -6,6 +6,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:hollybike/event/types/event_status_state.dart';
+import 'package:hollybike/ui/widgets/buttons/glass_fab.dart';
 
 import '../../types/event.dart';
 import '../../types/event_form_data.dart';
@@ -27,15 +28,10 @@ class EventEditFloatingButton extends StatelessWidget {
   Widget build(BuildContext context) {
     if (!canEdit) return const SizedBox();
 
-    return FloatingActionButton.extended(
+    return GlassFab(
+      icon: Icons.edit_rounded,
+      label: 'Modifier',
       onPressed: () => _onOpenEditModal(context),
-      label: Text(
-        'Modifier',
-        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-          color: Theme.of(context).colorScheme.primary,
-        ),
-      ),
-      icon: const Icon(Icons.edit),
     );
   }
 
@@ -43,8 +39,9 @@ class EventEditFloatingButton extends StatelessWidget {
     Timer(const Duration(milliseconds: 100), () {
       showModalBottomSheet<void>(
         context: context,
-        enableDrag: false,
+        enableDrag: true,
         isScrollControlled: true,
+        backgroundColor: Colors.transparent,
         builder: (BuildContext context) {
           return EventFormModal(
             canEditDates: event.status != EventStatusState.now,

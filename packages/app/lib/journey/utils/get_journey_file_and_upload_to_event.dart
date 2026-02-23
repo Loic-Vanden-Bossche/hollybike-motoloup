@@ -4,6 +4,7 @@
 */
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 import '../../event/types/event.dart';
 
 Future<PlatformFile?> getJourneyFile(BuildContext context, Event event) async {
@@ -20,22 +21,12 @@ Future<PlatformFile?> getJourneyFile(BuildContext context, Event event) async {
   if (!context.mounted) return null;
 
   if (extension != 'gpx' && extension != 'geojson') {
-    showDialog(
+    showGlassConfirmationDialog(
       context: context,
-      builder: (context) {
-        return AlertDialog(
-          title: const Text("Fichier invalide"),
-          content: const Text("Le fichier doit être au format GPX ou GEOJSON"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("Ok"),
-            ),
-          ],
-        );
-      },
+      title: "Fichier invalide",
+      message: "Le fichier doit être au format GPX ou GEOJSON",
+      showCancel: false,
+      confirmLabel: "Ok",
     );
 
     return null;

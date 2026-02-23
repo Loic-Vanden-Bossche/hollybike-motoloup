@@ -14,27 +14,56 @@ class ImageGalleryDetailsOwner extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
+        color: scheme.onPrimary.withValues(alpha: 0.06),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.12),
+          width: 1,
+        ),
       ),
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.start,
-          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             UserProfilePicture(
               url: owner.profilePicture,
               profilePictureKey: owner.profilePictureKey,
-              radius: 18,
+              radius: 20,
             ),
-            const SizedBox(width: 20),
-            Text(
-              owner.username,
-              style: Theme.of(context).textTheme.titleMedium,
+            const SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                owner.username,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                  color: scheme.onPrimary.withValues(alpha: 0.88),
+                  fontVariations: const [FontVariation.weight(700)],
+                ),
+              ),
+            ),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+                color: scheme.secondary.withValues(alpha: 0.16),
+                border: Border.all(
+                  color: scheme.secondary.withValues(alpha: 0.32),
+                  width: 1,
+                ),
+              ),
+              child: Text(
+                'Auteur',
+                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: scheme.secondary,
+                  fontVariations: const [FontVariation.weight(700)],
+                ),
+              ),
             ),
           ],
         ),

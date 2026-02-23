@@ -3,6 +3,7 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'package:flutter/material.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
 import '../../types/event.dart';
 
 enum NewJourneyType { library, file, userJourney, external }
@@ -12,26 +13,26 @@ Future<NewJourneyType?> showUploadJourneyMenu(
   bool includeLibrary = true,
   required RelativeRect position,
 }) async {
-  final value = await showMenu(
+  final value = await showGlassPopupMenu(
     context: context,
     position: position,
     items: [
       if (includeLibrary)
-        const PopupMenuItem(
+        glassPopupMenuItem(
           value: NewJourneyType.library,
-          child: Text('Depuis un parcours existant'),
+          label: 'Depuis un parcours existant',
         ),
-      const PopupMenuItem(
+      glassPopupMenuItem(
         value: NewJourneyType.userJourney,
-        child: Text('Depuis un trajet précédent'),
+        label: 'Depuis un trajet précédent',
       ),
-      const PopupMenuItem(
+      glassPopupMenuItem(
         value: NewJourneyType.external,
-        child: Text('Depuis un outil externe'),
+        label: 'Depuis un outil externe',
       ),
-      const PopupMenuItem(
+      glassPopupMenuItem(
         value: NewJourneyType.file,
-        child: Text('Depuis un fichier GPX/GEOJSON'),
+        label: 'Depuis un fichier GPX/GEOJSON',
       ),
     ],
   );

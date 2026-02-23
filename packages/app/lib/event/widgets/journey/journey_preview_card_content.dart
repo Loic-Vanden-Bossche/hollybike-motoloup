@@ -22,42 +22,51 @@ class JourneyPreviewCardContent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (journey == null) {
-      return const SizedBox();
-    }
+    if (journey == null) return const SizedBox.shrink();
 
+    final scheme = Theme.of(context).colorScheme;
     final existingJourney = journey!;
 
     return Row(
-      mainAxisSize: MainAxisSize.max,
-      mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        // ── Left: distance hero + location ───────────────────────────
         Expanded(
           flex: 2,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                children: [
-                  Text(
-                    existingJourney.distanceLabel,
-                    style: Theme.of(context).textTheme.titleMedium,
-                    softWrap: true,
-                  ),
-                  const SizedBox(width: 8),
-                ],
+              Text(
+                existingJourney.distanceLabel,
+                style: TextStyle(
+                  color: scheme.onPrimary,
+                  fontSize: 20,
+                  fontVariations: const [FontVariation.weight(750)],
+                  height: 1.0,
+                ),
               ),
-              const SizedBox(height: 8),
-              _getJourneyLocation(context, existingJourney),
+              const SizedBox(height: 2),
+              Text(
+                'distance',
+                style: TextStyle(
+                  color: scheme.onPrimary.withValues(alpha: 0.45),
+                  fontSize: 9,
+                  fontVariations: const [FontVariation.weight(600)],
+                  letterSpacing: 1.0,
+                ),
+              ),
+              const SizedBox(height: 10),
+              _buildLocationInfo(context, existingJourney),
             ],
           ),
         ),
         const SizedBox(width: 12),
+        // ── Right: journey preview image ──────────────────────────────
         Expanded(
           flex: 3,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(10),
+            borderRadius: BorderRadius.circular(14),
             child: JourneyImage(
               imageKey: existingJourney.previewImageKey,
               imageUrl: existingJourney.previewImage,
@@ -68,33 +77,23 @@ class JourneyPreviewCardContent extends StatelessWidget {
     );
   }
 
-  Widget _getJourneyLocation(BuildContext context, MinimalJourney journey) {
+  Widget _buildLocationInfo(BuildContext context, MinimalJourney journey) {
+    final scheme = Theme.of(context).colorScheme;
+
     if (loadingPositions && journey.destination == null) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           TextLoadingPlaceholder(
             textStyle: Theme.of(context).textTheme.bodySmall,
-            minLetters: 15,
-            maxLetters: 17,
+            minLetters: 10,
+            maxLetters: 14,
           ),
-          const SizedBox(height: 2),
+          const SizedBox(height: 4),
           TextLoadingPlaceholder(
             textStyle: Theme.of(context).textTheme.bodySmall,
-            minLetters: 15,
-            maxLetters: 17,
-          ),
-          const SizedBox(height: 8),
-          TextLoadingPlaceholder(
-            textStyle: Theme.of(context).textTheme.bodySmall,
-            minLetters: 15,
-            maxLetters: 17,
-          ),
-          const SizedBox(height: 2),
-          TextLoadingPlaceholder(
-            textStyle: Theme.of(context).textTheme.bodySmall,
-            minLetters: 15,
-            maxLetters: 17,
+            minLetters: 10,
+            maxLetters: 14,
           ),
         ],
       );
@@ -102,14 +101,17 @@ class JourneyPreviewCardContent extends StatelessWidget {
 
     final location = journey.readablePartialLocation;
     final start = journey.start;
-
-    final wigets = <Widget>[];
+    final widgets = <Widget>[];
 
     if (start != null) {
-      wigets.add(
+      widgets.add(
         Row(
           children: [
-            const Icon(Icons.flag, size: 16),
+            Icon(
+              Icons.trip_origin_rounded,
+              size: 11,
+              color: scheme.secondary,
+            ),
             const SizedBox(width: 4),
             Expanded(child: JourneyPosition(pos: start)),
           ],
@@ -118,16 +120,23 @@ class JourneyPreviewCardContent extends StatelessWidget {
     }
 
     if (location != null) {
-      wigets.add(
+      widgets.add(
         Row(
           children: [
-            const Icon(Icons.location_on_sharp, size: 16),
+            Icon(
+              Icons.location_on_rounded,
+              size: 11,
+              color: scheme.onPrimary.withValues(alpha: 0.45),
+            ),
             const SizedBox(width: 4),
             Expanded(
               child: Text(
                 location,
-                style: Theme.of(context).textTheme.bodySmall,
-                softWrap: true,
+                style: TextStyle(
+                  color: scheme.onPrimary.withValues(alpha: 0.60),
+                  fontSize: 11,
+                  fontVariations: const [FontVariation.weight(500)],
+                ),
                 overflow: TextOverflow.ellipsis,
                 maxLines: 2,
               ),
@@ -137,13 +146,11 @@ class JourneyPreviewCardContent extends StatelessWidget {
       );
     }
 
-    if (wigets.isEmpty) {
-      return const SizedBox();
-    }
+    if (widgets.isEmpty) return const SizedBox.shrink();
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
-      children: addSeparators(wigets, const SizedBox(height: 8)),
+      children: addSeparators(widgets, const SizedBox(height: 5)),
     );
   }
 }

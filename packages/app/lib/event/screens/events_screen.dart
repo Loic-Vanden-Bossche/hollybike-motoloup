@@ -1,6 +1,6 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Lo�c Vanden Bossche
 */
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -11,11 +11,11 @@ import 'package:hollybike/profile/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar.dart';
 import 'package:hollybike/shared/widgets/bloc_provided_builder.dart';
 import 'package:hollybike/shared/widgets/hud/hud.dart';
+import 'package:hollybike/ui/widgets/bar/glass_tab_bar.dart';
 
 import '../../app/app_router.gr.dart';
 import '../../shared/types/tab_description.dart';
 import '../../shared/widgets/app_toast.dart';
-import '../../shared/widgets/bar/top_bar_tab_dropdown.dart';
 import '../bloc/events_bloc/events_event.dart';
 import '../bloc/events_bloc/events_state.dart';
 import '../bloc/events_bloc/future_events_bloc.dart';
@@ -23,7 +23,7 @@ import '../fragments/archived_events.dart';
 import '../services/event/event_repository.dart';
 import '../widgets/add_event_floating_button.dart';
 
-enum EventListTab { future, user, archived }
+enum EventListTab { user, future, archived }
 
 @RoutePage()
 class EventsScreen extends StatefulWidget implements AutoRouteWrapper {
@@ -48,7 +48,7 @@ class _EventsScreenState extends State<EventsScreen>
     with SingleTickerProviderStateMixin {
   late final TabController _controller;
 
-  int _currentTab = EventListTab.future.index;
+  int _currentTab = EventListTab.user.index;
 
   @override
   Widget build(BuildContext context) {
@@ -57,7 +57,7 @@ class _EventsScreenState extends State<EventsScreen>
         BlocListener<FutureEventsBloc, EventsState>(
           listener: (context, state) {
             if (state is EventCreationSuccess) {
-              Toast.showSuccessToast(context, "Événement créé");
+              Toast.showSuccessToast(context, '�v�nement cr��');
 
               Future.delayed(const Duration(milliseconds: 50), () {
                 if (!context.mounted) return;
@@ -79,18 +79,21 @@ class _EventsScreenState extends State<EventsScreen>
       child: BlocProvidedBuilder<ProfileBloc, ProfileState>(
         builder: (context, bloc, state) {
           final tabs = [
+            TabDescription(
+              title: 'Mes évènements',
+              icon: Icons.event_available_rounded,
+              fragment: UserEvents(
+                onShowGlobalEventsRequested:
+                    () => _controller.animateTo(EventListTab.future.index),
+              ),
+            ),
             const TabDescription(
-              title: "Évènements",
-              icon: Icons.event,
+              title: 'Évènements',
+              icon: Icons.event_rounded,
               fragment: FutureEvents(),
             ),
             const TabDescription(
-              title: "Mes évènements",
-              icon: Icons.event_available,
-              fragment: UserEvents(),
-            ),
-            const TabDescription(
-              title: "Archives",
+              title: 'Archivés',
               icon: Icons.archive_outlined,
               fragment: ArchivedEvents(),
             ),
@@ -99,15 +102,18 @@ class _EventsScreenState extends State<EventsScreen>
           return Hud(
             appBar: TopBar(
               noPadding: true,
-              title: TopBarTabDropdown(
+              useTitleContainer: false,
+              title: GlassTabBar(
                 controller: _controller,
-                entries:
+                isScrollable: true,
+                tabAlignment: TabAlignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                tabBarPadding: const EdgeInsets.symmetric(horizontal: 8),
+                items:
                     tabs
                         .map(
-                          (tab) => TabDropdownEntry(
-                            title: tab.title,
-                            icon: tab.icon,
-                          ),
+                          (tab) =>
+                              GlassTabItem(icon: tab.icon, label: tab.title),
                         )
                         .toList(),
               ),

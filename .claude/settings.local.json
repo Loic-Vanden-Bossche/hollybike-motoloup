@@ -4,7 +4,9 @@
       "Bash(wc:*)",
       "mcp__gemini-design-mcp__create_frontend",
       "Bash(npm install:*)",
-      "Bash(dart analyze:*)"
+      "Bash(dart analyze:*)",
+      "Bash(cd /c/Users/loic/IdeaProjects/hollybike-motoloup/packages/app && flutter analyze lib/event/fragments/details/event_details_images.dart 2>&1)",
+      "Bash(cd /c/Users/loic/IdeaProjects/hollybike-motoloup/packages/app && flutter analyze lib/event/fragments/details/event_details_my_images.dart 2>&1)"
     ]
   }
 }

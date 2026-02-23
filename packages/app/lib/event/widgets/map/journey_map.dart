@@ -22,12 +22,14 @@ class JourneyMap extends StatefulWidget {
   final MinimalJourney? journey;
   final List<WebsocketReceivePosition> userPositions;
   final void Function() onMapLoaded;
+  final void Function()? onMapInteractionStart;
 
   const JourneyMap({
     super.key,
     required this.journey,
     required this.userPositions,
     required this.onMapLoaded,
+    this.onMapInteractionStart,
   });
 
   @override
@@ -37,14 +39,34 @@ class JourneyMap extends StatefulWidget {
 class _JourneyMapState extends State<JourneyMap> {
   Map<int, PointAnnotation> currentPositions = {};
   bool _mapLoading = true;
+  bool _pointerDown = false;
+  bool _interactionDispatched = false;
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: MediaQuery.of(context).size.height * 0.8,
-      child: Stack(
-        children: <Widget>[
-          MapWidget(
+    return Stack(
+      fit: StackFit.expand,
+      children: <Widget>[
+        Listener(
+          onPointerDown: (_) {
+            _pointerDown = true;
+            _interactionDispatched = false;
+          },
+          onPointerMove: (_) {
+            if (_pointerDown && !_interactionDispatched) {
+              _interactionDispatched = true;
+              widget.onMapInteractionStart?.call();
+            }
+          },
+          onPointerUp: (_) {
+            _pointerDown = false;
+            _interactionDispatched = false;
+          },
+          onPointerCancel: (_) {
+            _pointerDown = false;
+            _interactionDispatched = false;
+          },
+          child: MapWidget(
             gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
               Factory<OneSequenceGestureRecognizer>(
                 () => EagerGestureRecognizer(),
@@ -53,18 +75,18 @@ class _JourneyMapState extends State<JourneyMap> {
             key: const ValueKey("mapWidget"),
             onMapCreated: _onMapCreated,
           ),
-          AnimatedOpacity(
-            opacity: _mapLoading ? 1 : 0,
-            duration: const Duration(milliseconds: 500),
-            child: IgnorePointer(
-              child: Container(
-                color: Theme.of(context).scaffoldBackgroundColor,
-                child: const Center(child: CircularProgressIndicator()),
-              ),
+        ),
+        AnimatedOpacity(
+          opacity: _mapLoading ? 1 : 0,
+          duration: const Duration(milliseconds: 500),
+          child: IgnorePointer(
+            child: Container(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              child: const Center(child: CircularProgressIndicator()),
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 

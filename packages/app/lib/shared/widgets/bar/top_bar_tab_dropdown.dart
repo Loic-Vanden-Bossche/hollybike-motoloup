@@ -32,48 +32,67 @@ class _TopBarTabDropdownState extends State<TopBarTabDropdown> {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Material(
       type: MaterialType.transparency,
-      child: Stack(
-        children: [
-          LayoutBuilder(
-            builder: (context, constraints) {
-              return DropdownMenu(
-                key: _menuKey,
-                controller: controller,
-                textStyle: Theme.of(context).textTheme.titleMedium,
-                inputDecorationTheme: InputDecorationTheme(
-                  constraints: BoxConstraints(maxHeight: constraints.maxHeight),
-                  isDense: true,
-                  contentPadding: const EdgeInsets.only(left: 16),
-                  border: InputBorder.none,
-                ),
-                menuStyle: MenuStyle(
-                  padding: const WidgetStatePropertyAll(EdgeInsets.zero),
-                  shape: WidgetStatePropertyAll(
-                    RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  backgroundColor: WidgetStatePropertyAll(
-                    Theme.of(context).colorScheme.primary,
-                  ),
-                ),
-                onSelected: _handleSelectedValueChange,
-                dropdownMenuEntries: _renderMenuEntries(),
-              );
-            },
+      child: Container(
+        margin: const EdgeInsets.all(5),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: scheme.onPrimary.withValues(alpha: 0.08),
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.12),
+            width: 1,
           ),
-          Positioned.fill(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                onTap: openDropdown,
-                borderRadius: BorderRadius.circular(14),
+        ),
+        child: Stack(
+          children: [
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return DropdownMenu(
+                  key: _menuKey,
+                  controller: controller,
+                  textStyle: Theme.of(context).textTheme.titleMedium?.copyWith(
+                    color: scheme.onPrimary.withValues(alpha: 0.86),
+                  ),
+                  inputDecorationTheme: InputDecorationTheme(
+                    constraints: BoxConstraints(
+                      maxHeight: constraints.maxHeight,
+                    ),
+                    isDense: true,
+                    contentPadding: const EdgeInsets.only(left: 16),
+                    border: InputBorder.none,
+                  ),
+                  trailingIcon: Icon(
+                    Icons.keyboard_arrow_down_rounded,
+                    color: scheme.onPrimary.withValues(alpha: 0.58),
+                  ),
+                  menuStyle: MenuStyle(
+                    padding: const WidgetStatePropertyAll(EdgeInsets.zero),
+                    shape: WidgetStatePropertyAll(
+                      RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                    ),
+                    backgroundColor: WidgetStatePropertyAll(scheme.primary),
+                  ),
+                  onSelected: _handleSelectedValueChange,
+                  dropdownMenuEntries: _renderMenuEntries(),
+                );
+              },
+            ),
+            Positioned.fill(
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  onTap: openDropdown,
+                  borderRadius: BorderRadius.circular(14),
+                ),
               ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

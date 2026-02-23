@@ -19,12 +19,14 @@ class EventDetailsMap extends StatefulWidget {
   final int eventId;
   final MinimalJourney? journey;
   final void Function() onMapLoaded;
+  final void Function()? onMapInteractionStart;
 
   const EventDetailsMap({
     super.key,
     required this.eventId,
     required this.journey,
     required this.onMapLoaded,
+    this.onMapInteractionStart,
   });
 
   @override
@@ -58,10 +60,20 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
 
         return EventDetailsTabScrollWrapper(
           scrollViewKey: 'event_details_map_${widget.eventId}',
-          child: JourneyMap(
-            journey: widget.journey,
-            onMapLoaded: widget.onMapLoaded,
-            userPositions: state.userPositions,
+          sliverChild: true,
+          child: SliverFillRemaining(
+            hasScrollBody: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+              child: _MapCard(
+                child: JourneyMap(
+                  journey: widget.journey,
+                  onMapLoaded: widget.onMapLoaded,
+                  onMapInteractionStart: widget.onMapInteractionStart,
+                  userPositions: state.userPositions,
+                ),
+              ),
+            ),
           ),
         );
       },
@@ -95,5 +107,37 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
     context.read<EventDetailsBloc>().add(LoadEventDetails());
 
     return context.read<EventDetailsBloc>().firstWhenNotLoading;
+  }
+}
+
+class _MapCard extends StatelessWidget {
+  final Widget child;
+
+  const _MapCard({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.14),
+            width: 1,
+          ),
+          boxShadow: const [
+            BoxShadow(
+              color: Color(0x24000000),
+              blurRadius: 26,
+              offset: Offset(0, 8),
+            ),
+          ],
+        ),
+        child: child,
+      ),
+    );
   }
 }

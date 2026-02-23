@@ -22,24 +22,56 @@ class BudgetProgress extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final expensesInEuro = totalExpenses.toDouble() / 100;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
+        // ── Header row: label + budget cap ──────────────────────────
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              _expensesLabel(),
+              style: TextStyle(
+                color: scheme.onPrimary.withValues(alpha: 0.50),
+                fontSize: 9,
+                fontVariations: const [FontVariation.weight(700)],
+                letterSpacing: 1.2,
+              ),
+            ),
+            _buildBudgetCap(context, scheme),
+          ],
+        ),
+        const SizedBox(height: 6),
+        // ── Hero amount ──────────────────────────────────────────────
         Text.rich(
           TextSpan(
-            text: '${_getExpensesTitle()} - ',
             children: [
               TextSpan(
                 text: expensesInEuro.toStringAsFixed(2),
-                style: Theme.of(context).textTheme.titleSmall,
+                style: TextStyle(
+                  color: scheme.onPrimary,
+                  fontSize: 22,
+                  fontVariations: const [FontVariation.weight(750)],
+                  height: 1.0,
+                ),
               ),
-              const TextSpan(text: ' €'),
+              TextSpan(
+                text: ' €',
+                style: TextStyle(
+                  color: scheme.onPrimary.withValues(alpha: 0.55),
+                  fontSize: 13,
+                  fontVariations: const [FontVariation.weight(600)],
+                ),
+              ),
             ],
           ),
         ),
         const SizedBox(height: 8),
+        // ── Progress bar ─────────────────────────────────────────────
         GradientProgressBar(
           animateStart: animateStart,
           maxValue: budget?.toDouble() ?? 1,
@@ -50,43 +82,50 @@ class BudgetProgress extends StatelessWidget {
             Colors.red.shade400,
           ],
         ),
-        const SizedBox(height: 8),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.end,
-          children: [_getBudgetTitle(context)],
-        ),
       ],
     );
   }
 
-  Widget _getBudgetTitle(BuildContext context) {
+  Widget _buildBudgetCap(BuildContext context, ColorScheme scheme) {
     if (budget == null) {
-      return const Text('Aucun budget renseigné');
+      return Text(
+        'Sans limite',
+        style: TextStyle(
+          color: scheme.onPrimary.withValues(alpha: 0.38),
+          fontSize: 9,
+          fontVariations: const [FontVariation.weight(600)],
+          letterSpacing: 0.5,
+        ),
+      );
     }
 
     return Text.rich(
       TextSpan(
-        text: 'Budget - ',
         children: [
           TextSpan(
-            text: budget?.toStringAsFixed(2),
-            style: Theme.of(context).textTheme.titleSmall,
+            text: 'Budget: ',
+            style: TextStyle(
+              color: scheme.onPrimary.withValues(alpha: 0.45),
+              fontSize: 9,
+              fontVariations: const [FontVariation.weight(600)],
+            ),
           ),
-          const TextSpan(text: ' €'),
+          TextSpan(
+            text: '${budget?.toStringAsFixed(2)} €',
+            style: TextStyle(
+              color: scheme.onPrimary.withValues(alpha: 0.75),
+              fontSize: 9,
+              fontVariations: const [FontVariation.weight(700)],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  String _getExpensesTitle() {
-    if (expenses.isEmpty) {
-      return 'Aucune dépenses';
-    }
-
-    if (expenses.length == 1) {
-      return '1 Dépense';
-    }
-
-    return '${expenses.length} Dépenses';
+  String _expensesLabel() {
+    if (expenses.isEmpty) return 'AUCUNE DÉPENSE';
+    if (expenses.length == 1) return '1 DÉPENSE';
+    return '${expenses.length} DÉPENSES';
   }
 }

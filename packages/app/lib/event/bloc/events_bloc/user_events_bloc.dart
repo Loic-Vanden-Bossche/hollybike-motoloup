@@ -12,10 +12,11 @@ import 'events_event.dart';
 import 'events_state.dart';
 
 class UserEventsBloc extends EventsBloc {
-  final int userId;
+  final int? userId;
+  static const int _participatingKey = -1;
 
-  UserEventsBloc({required super.eventRepository, required this.userId})
-    : super(requestType: "future") {
+  UserEventsBloc({required super.eventRepository, this.userId})
+    : super(requestType: userId == null ? "participating" : "future") {
     on<RefreshUserEvents>(_onRefreshUserEvents);
   }
 
@@ -24,8 +25,10 @@ class UserEventsBloc extends EventsBloc {
     SubscribeToEvents event,
     Emitter<EventsState> emit,
   ) async {
+    final streamKey = userId ?? _participatingKey;
+
     await emit.forEach<StreamValue<List<MinimalEvent>, RefreshedType>>(
-      eventRepository.userEventsStream(userId),
+      eventRepository.userEventsStream(streamKey),
       onData: (data) {
         final events = data.value;
         final isRefreshed = data.state;

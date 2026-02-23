@@ -344,6 +344,45 @@ class EventTest : IntegrationSpec({
 		}
 	}
 
+	context("Get participating events") {
+		test("Should get only events where caller participates including finished ones") {
+			onPremiseTestApp {
+				it.get("/api/events/participating?page=0&per_page=20") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+
+					val body = body<TLists<TEventPartial>>()
+					val eventIds = body.data.map { event -> event.id }
+
+					eventIds shouldContain EventStore.event1Asso1User1.id
+					eventIds shouldContain EventStore.event2Asso1User1.id
+					eventIds shouldContain EventStore.event3Asso1User1.id
+					eventIds shouldContain EventStore.event4Asso1User1.id
+					eventIds shouldNotContain EventStore.event6Asso1User2.id
+				}
+			}
+		}
+
+		test("Should include events where caller participates but does not own") {
+			onPremiseTestApp {
+				it.get("/api/events/participating?page=0&per_page=20") {
+					auth(UserStore.user2)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+
+					val body = body<TLists<TEventPartial>>()
+					val eventIds = body.data.map { event -> event.id }
+
+					eventIds shouldContain EventStore.event2Asso1User1.id
+					eventIds shouldContain EventStore.event5Asso1User2.id
+					eventIds shouldContain EventStore.event6Asso1User2.id
+					eventIds shouldNotContain EventStore.event1Asso1User1.id
+				}
+			}
+		}
+	}
+
 	context("Get event by id") {
 		test("Should get the event by id") {
 			onPremiseTestApp {

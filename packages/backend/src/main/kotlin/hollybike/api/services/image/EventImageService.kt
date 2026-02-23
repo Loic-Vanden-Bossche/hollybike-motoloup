@@ -15,13 +15,13 @@ import hollybike.api.types.position.TPositionRequest
 import hollybike.api.types.position.EPositionScope
 import hollybike.api.types.position.TImageForProcessing
 import hollybike.api.types.position.TPositionResult
+import hollybike.api.types.event.image.TEventImageDetails
 import hollybike.api.utils.search.Filter
 import hollybike.api.utils.search.FilterMode
 import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
 import io.ktor.server.application.*
 import kotlinx.coroutines.runBlocking
-import org.jetbrains.exposed.v1.dao.load
 import org.jetbrains.exposed.v1.dao.with
 import org.jetbrains.exposed.v1.core.*
 import org.jetbrains.exposed.v1.core.eq
@@ -98,19 +98,21 @@ class EventImageService(
 		).toList()
 	}
 
-	fun getImageWithDetails(caller: User, imageId: Int, searchParam: SearchParam): EventImage? = transaction(db) {
+	fun getImageDetails(caller: User, imageId: Int, searchParam: SearchParam): TEventImageDetails? = transaction(db) {
 		searchParam.filter.add(Filter(EventImages.id, imageId.toString(), FilterMode.EQUAL))
 
-		eventImagesRequest(caller, searchParam, withPagination = false).firstOrNull().let { image ->
-			image?.let {
-				EventImage.wrapRow(it).load(
-					EventImage::owner,
-					EventImage::event,
-					EventImage::position,
-					Event::owner,
-					Event::association
-				)
-			}
+		EventImage.wrapRows(
+			eventImagesRequest(caller, searchParam, withPagination = false)
+		).with(
+			EventImage::owner,
+			EventImage::event,
+			EventImage::position,
+			Event::owner,
+			Event::association,
+			Event::participants,
+			Event::journey
+		).firstOrNull()?.let { image ->
+			TEventImageDetails(image, caller.id == image.owner.id)
 		}
 	}
 

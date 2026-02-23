@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/event/bloc/event_expenses_bloc/event_expenses_bloc.dart';
 import 'package:hollybike/event/types/event_expense.dart';
 import 'package:hollybike/event/widgets/expenses/proof_view_modal.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
 
 import '../../bloc/event_expenses_bloc/event_expenses_event.dart';
 import 'expenses_image_picker_modal.dart';
@@ -20,7 +21,7 @@ class ExpenseActions extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return PopupMenuButton(
+    return GlassPopupMenuButton<ExpenseAction>(
       onSelected: (value) => _onSelected(context, value),
       itemBuilder: (context) {
         return _buildExpenseActions(expense);
@@ -28,44 +29,34 @@ class ExpenseActions extends StatelessWidget {
     );
   }
 
-  List<PopupMenuItem> _buildExpenseActions(EventExpense expense) {
-    final actions = <PopupMenuItem>[];
+  List<PopupMenuItem<ExpenseAction>> _buildExpenseActions(
+    EventExpense expense,
+  ) {
+    final actions = <PopupMenuItem<ExpenseAction>>[];
 
     if (expense.proof != null) {
       actions.add(
-        const PopupMenuItem(
+        glassPopupMenuItem(
           value: ExpenseAction.seeProof,
-          child: Row(
-            children: [
-              Icon(Icons.photo_album_rounded),
-              SizedBox(width: 8),
-              Text('Voir la preuve de paiement'),
-            ],
-          ),
+          icon: Icons.photo_album_rounded,
+          label: 'Voir la preuve de paiement',
         ),
       );
     }
 
     actions.addAll([
-      PopupMenuItem(
+      glassPopupMenuItem(
         value: ExpenseAction.addProof,
-        child: Row(
-          children: [
-            const Icon(Icons.photo_album_rounded),
-            const SizedBox(width: 8),
-            Text(
-              expense.proof == null
-                  ? 'Ajouter une preuve de paiement'
-                  : 'Modifier la preuve de paiement',
-            ),
-          ],
-        ),
+        icon: Icons.photo_album_rounded,
+        label:
+            expense.proof == null
+                ? 'Ajouter une preuve de paiement'
+                : 'Modifier la preuve de paiement',
       ),
-      const PopupMenuItem(
+      glassPopupMenuItem(
         value: ExpenseAction.delete,
-        child: Row(
-          children: [Icon(Icons.delete), SizedBox(width: 8), Text('Supprimer')],
-        ),
+        icon: Icons.delete,
+        label: 'Supprimer',
       ),
     ]);
 

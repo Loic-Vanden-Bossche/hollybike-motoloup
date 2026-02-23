@@ -12,6 +12,7 @@ class EventsList extends StatefulWidget {
   final void Function() onNextPageRequested;
   final void Function() onRefreshRequested;
   final bool hasMore;
+  final bool prioritizeUpcomingFirst;
 
   const EventsList({
     super.key,
@@ -19,6 +20,7 @@ class EventsList extends StatefulWidget {
     required this.onNextPageRequested,
     required this.onRefreshRequested,
     required this.hasMore,
+    this.prioritizeUpcomingFirst = false,
   });
 
   @override
@@ -36,6 +38,7 @@ class _EventsListState extends State<EventsList> {
         events: widget.events,
         hasMore: widget.hasMore,
         controller: _scrollController,
+        prioritizeUpcomingFirst: widget.prioritizeUpcomingFirst,
       ),
     );
   }

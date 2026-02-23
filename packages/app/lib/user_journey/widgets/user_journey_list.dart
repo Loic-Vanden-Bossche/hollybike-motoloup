@@ -16,6 +16,7 @@ class UserJourneyList extends StatelessWidget {
   final List<UserJourney> userJourneys;
   final MinimalUser user;
   final bool isNested;
+  final double bottomPadding;
   final void Function(UserJourney)? onJourneySelected;
 
   const UserJourneyList({
@@ -24,6 +25,7 @@ class UserJourneyList extends StatelessWidget {
     required this.userJourneys,
     required this.user,
     this.isNested = true,
+    this.bottomPadding = 0,
     this.onJourneySelected,
   });
 
@@ -40,6 +42,7 @@ class UserJourneyList extends StatelessWidget {
           sliver: SliverList.separated(
             itemBuilder: (context, index) {
               final journey = userJourneys[index];
+              final scheme = Theme.of(context).colorScheme;
 
               return TweenAnimationBuilder(
                 tween: Tween<double>(begin: 0, end: 1),
@@ -53,7 +56,7 @@ class UserJourneyList extends StatelessWidget {
                       child: UserJourneyCard(
                         showDate: true,
                         journey: journey,
-                        color: Theme.of(context).cardColor,
+                        color: scheme.secondary.withValues(alpha: 0.18),
                         user: user,
                         onJourneySelected: onJourneySelected,
                         onDeleted: () {
@@ -80,6 +83,8 @@ class UserJourneyList extends StatelessWidget {
               ),
             ),
           ),
+        if (bottomPadding > 0)
+          SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
       ],
     );
   }

@@ -10,6 +10,7 @@ import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_bloc.dart'
 import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_event.dart';
 import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_state.dart';
 import 'package:hollybike/event/types/event.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
 import 'package:hollybike/event/widgets/journey/journey_import_modal_from_type.dart';
 import 'package:hollybike/event/widgets/journey/upload_journey_menu.dart';
 
@@ -40,62 +41,81 @@ class JourneyModalHeader extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    final actions = <Widget>[];
-
-    if (canEditJourney) {
-      actions.add(
-        PopupMenuButton<JourneyModalAction>(
-          onSelected: (action) => _onActionsSelected(context, action),
-          itemBuilder:
-              (context) => [
-                PopupMenuItem(
-                  value: JourneyModalAction.update,
-                  child: UploadJourneyMenu(
-                    event: event,
-                    onSelection: (type) => _onUpdateJourney(context, type),
-                    child: const Row(
-                      children: [
-                        Icon(Icons.swap_calls_rounded),
-                        SizedBox(width: 8),
-                        Text('Changer de parcours'),
-                      ],
-                    ),
-                  ),
-                ),
-                const PopupMenuItem(
-                  value: JourneyModalAction.delete,
-                  child: Row(
-                    children: [
-                      Icon(Icons.remove_circle),
-                      SizedBox(width: 8),
-                      Text('Retirer le parcours'),
-                    ],
-                  ),
-                ),
-              ],
-        ),
-      );
-    }
-
-    actions.add(
-      ElevatedButton(
-        onPressed: () => _onOpenMap(context),
-        child: const Text('Voir sur la carte'),
-      ),
-    );
+    final scheme = Theme.of(context).colorScheme;
 
     return Row(
-      mainAxisAlignment:
-          actions.length > 1
-              ? MainAxisAlignment.spaceBetween
-              : MainAxisAlignment.end,
-      children: actions,
+      children: [
+        if (canEditJourney) _buildEditMenu(context, scheme),
+        const Spacer(),
+        _buildMapButton(context, scheme),
+      ],
+    );
+  }
+
+  Widget _buildEditMenu(BuildContext context, ColorScheme scheme) {
+    return GlassPopupMenuButton<JourneyModalAction>(
+      onSelected: (action) => _onActionsSelected(context, action),
+      icon: const GlassPopupMenuTriggerIcon(icon: Icons.tune_rounded),
+      itemBuilder:
+          (context) => [
+            glassPopupMenuItem(
+              value: JourneyModalAction.update,
+              child: UploadJourneyMenu(
+                event: event,
+                onSelection: (type) => _onUpdateJourney(context, type),
+                child: const Row(
+                  children: [
+                    Icon(Icons.swap_calls_rounded),
+                    SizedBox(width: 10),
+                    Text('Changer de parcours'),
+                  ],
+                ),
+              ),
+            ),
+            glassPopupMenuItem(
+              value: JourneyModalAction.delete,
+              icon: Icons.remove_circle_outline_rounded,
+              label: 'Retirer le parcours',
+              color: scheme.error,
+            ),
+          ],
+    );
+  }
+
+  Widget _buildMapButton(BuildContext context, ColorScheme scheme) {
+    return GestureDetector(
+      onTap: () => _onOpenMap(context),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: scheme.secondary.withValues(alpha: 0.15),
+          border: Border.all(
+            color: scheme.secondary.withValues(alpha: 0.40),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.map_outlined, size: 14, color: scheme.secondary),
+            const SizedBox(width: 6),
+            Text(
+              'Voir sur la carte',
+              style: TextStyle(
+                color: scheme.secondary,
+                fontSize: 12,
+                fontVariations: const [FontVariation.weight(650)],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
   void _onUpdateJourney(BuildContext context, NewJourneyType type) async {
     await Navigator.of(context).maybePop();
-
     if (context.mounted) {
       journeyImportModalFromType(
         context,
@@ -110,7 +130,6 @@ class JourneyModalHeader extends StatelessWidget {
 
   void _onDeleteJourney(BuildContext context) {
     _returnToDetails(context);
-
     context.read<EventJourneyBloc>().add(
       RemoveJourneyFromEvent(eventId: event.id),
     );
@@ -124,7 +143,6 @@ class JourneyModalHeader extends StatelessWidget {
 
   void _onOpenMap(BuildContext context) {
     _returnToDetails(context);
-
     Timer(const Duration(milliseconds: 200), () {
       onViewOnMap();
     });

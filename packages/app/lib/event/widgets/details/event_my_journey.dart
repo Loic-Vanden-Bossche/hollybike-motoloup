@@ -16,19 +16,15 @@ class EventMyJourney extends StatelessWidget {
     if (eventDetails.callerParticipation == null ||
         (eventDetails.callerParticipation?.hasRecordedPositions == false &&
             eventDetails.callerParticipation?.journey == null)) {
-      return const SizedBox();
+      return const SizedBox.shrink();
     }
 
-    return Column(
-      children: [const SizedBox(height: 16), _buildMyJourney(context)],
-    );
-  }
+    final scheme = Theme.of(context).colorScheme;
 
-  Widget _buildMyJourney(BuildContext context) {
     return UserJourneyCard(
       isCurrentEvent: true,
       journey: eventDetails.callerParticipation?.journey,
-      color: Theme.of(context).colorScheme.primary,
+      color: scheme.secondary.withValues(alpha: 0.18),
     );
   }
 }

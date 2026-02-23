@@ -3,7 +3,10 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hollybike/event/widgets/expenses/currency_input.dart';
+import 'package:hollybike/ui/widgets/inputs/glass_input_decoration.dart';
+import 'package:hollybike/ui/widgets/modal/glass_dialog.dart';
 
 class EditBudgetModal extends StatefulWidget {
   final bool addMode;
@@ -23,25 +26,20 @@ class EditBudgetModal extends StatefulWidget {
 }
 
 class _EditBudgetModalState extends State<EditBudgetModal> {
+  final _formKey = GlobalKey<FormState>();
   late final TextEditingController _budgetController;
 
   @override
   void initState() {
-    _budgetController = TextEditingController(text: _getDefaultBudget());
     super.initState();
+    _budgetController = TextEditingController(text: _getDefaultBudget());
   }
 
   String _getDefaultBudget() {
-    if (widget.addMode) {
+    if (widget.addMode || widget.budget == null) {
       return '';
     }
-
-    if (widget.budget == null) {
-      return '';
-    }
-
     final correctedBudget = widget.budget! * 100;
-
     return CurrencyInputFormatter.defaultFormat(correctedBudget.toString());
   }
 
@@ -53,52 +51,105 @@ class _EditBudgetModalState extends State<EditBudgetModal> {
 
   @override
   Widget build(BuildContext context) {
-    final formKey = GlobalKey<FormState>();
+    final scheme = Theme.of(context).colorScheme;
+    final label = widget.addMode ? 'Ajouter un budget' : 'Modifier le budget';
+    final confirmLabel = widget.addMode ? 'Ajouter' : 'Modifier';
 
-    return AlertDialog(
-      backgroundColor: Theme.of(context).colorScheme.primary,
-      title: Text(widget.addMode ? 'Ajouter un budget' : 'Modifier le budget'),
-      content: Form(
-        key: formKey,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            CurrencyInput(
-              controller: _budgetController,
-              labelText: 'Budget',
-              validator: (value) {
-                if (value?.isEmpty == true || value == '0,00 €') {
-                  return 'Veuillez entrer un budget';
-                }
-
-                return null;
-              },
-            ),
+    return GlassDialog(
+      title: label,
+      onClose: () => Navigator.of(context).pop(),
+      body: Form(
+        key: _formKey,
+        child: TextFormField(
+          controller: _budgetController,
+          keyboardType: TextInputType.number,
+          autovalidateMode: AutovalidateMode.onUserInteraction,
+          inputFormatters: [
+            FilteringTextInputFormatter.digitsOnly,
+            CurrencyInputFormatter(),
           ],
+          decoration: buildGlassInputDecoration(
+            context,
+            labelText: 'Budget',
+          ),
+          validator: (value) {
+            if (value?.isEmpty == true || value == '0,00 €') {
+              return 'Veuillez entrer un budget';
+            }
+            return null;
+          },
         ),
       ),
       actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+        // Cancel
+        GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: scheme.primaryContainer.withValues(alpha: 0.55),
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.12),
+                width: 1,
+              ),
+            ),
+            child: Text(
+              'Annuler',
+              style: TextStyle(
+                color: scheme.onPrimary.withValues(alpha: 0.65),
+                fontSize: 13,
+                fontVariations: const [FontVariation.weight(600)],
+              ),
+            ),
+          ),
         ),
-        ElevatedButton(
-          onPressed: () {
-            if (!formKey.currentState!.validate()) {
-              return;
-            }
-
-            final budget = int.parse(
-              _budgetController.text.replaceAll(RegExp(r'[^0-9]'), ''),
-            );
-
-            widget.onBudgetChange((budget / 100).round());
-
-            Navigator.of(context).pop();
-          },
-          child: Text(widget.addMode ? 'Ajouter' : 'Modifier'),
+        // Confirm
+        GestureDetector(
+          onTap: _onSubmit,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: scheme.secondary.withValues(alpha: 0.15),
+              border: Border.all(
+                color: scheme.secondary.withValues(alpha: 0.40),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  widget.addMode ? Icons.add_rounded : Icons.check_rounded,
+                  size: 14,
+                  color: scheme.secondary,
+                ),
+                const SizedBox(width: 6),
+                Text(
+                  confirmLabel,
+                  style: TextStyle(
+                    color: scheme.secondary,
+                    fontSize: 13,
+                    fontVariations: const [FontVariation.weight(650)],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ],
     );
+  }
+
+  void _onSubmit() {
+    if (!_formKey.currentState!.validate()) return;
+
+    final budget = int.parse(
+      _budgetController.text.replaceAll(RegExp(r'[^0-9]'), ''),
+    );
+
+    widget.onBudgetChange((budget / 100).round());
+    Navigator.of(context).pop();
   }
 }

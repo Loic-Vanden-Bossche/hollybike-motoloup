@@ -1,16 +1,18 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Loic Vanden Bossche
 */
 import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../../ui/widgets/inputs/glass_picker_field.dart';
+
 class EventTimeInput extends StatelessWidget {
   final TimeOfDay time;
   final String label;
-  final Function(TimeOfDay) onTimeChanged;
+  final void Function(TimeOfDay) onTimeChanged;
   final DateTime? date;
 
   const EventTimeInput({
@@ -28,25 +30,32 @@ class EventTimeInput extends StatelessWidget {
   }
 
   String formatDate(DateTime date) {
-    DateFormat fullDateFormatter = DateFormat.yMMMEd();
-    return "Le ${fullDateFormatter.format(date)}";
+    final fullDateFormatter = DateFormat.yMMMEd();
+    return 'Le ${fullDateFormatter.format(date)}';
   }
 
-  Widget getText() {
+  Widget getText(BuildContext context) {
     if (date == null) {
       return const SizedBox();
-    } else {
-      return Expanded(
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(formatDate(date!)),
-            const Text("à"),
-            const SizedBox(),
-          ],
-        ),
-      );
     }
+
+    final scheme = Theme.of(context).colorScheme;
+
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.only(right: 10),
+        child: Text(
+          '${formatDate(date!)} à',
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
+          style: TextStyle(
+            color: scheme.onPrimary.withValues(alpha: 0.78),
+            fontSize: 12,
+            fontVariations: const [FontVariation.weight(600)],
+          ),
+        ),
+      ),
+    );
   }
 
   @override
@@ -54,42 +63,20 @@ class EventTimeInput extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        getText(),
-        SizedBox(
-          height: 56,
-          width: 120,
-          child: Stack(
-            children: [
-              TextField(
-                controller: TextEditingController(text: time.format(context)),
-                readOnly: true,
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    borderSide: BorderSide.none,
-                  ),
-                  labelText: label,
-                  fillColor: Theme.of(context).colorScheme.primaryContainer,
-                  filled: true,
-                  suffixIcon: const Icon(Icons.access_time),
-                ),
-              ),
-              Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(12),
-                  onTap: () {
-                    Timer(const Duration(milliseconds: 200), () {
-                      showTimePicker(
-                        context: context,
-                        initialTime: time,
-                      ).then(_onTimeChanged);
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
+        getText(context),
+        GlassPickerField(
+          text: time.format(context),
+          labelText: label,
+          icon: Icons.access_time,
+          width: 130,
+          onTap: () {
+            Timer(const Duration(milliseconds: 200), () {
+              showTimePicker(
+                context: context,
+                initialTime: time,
+              ).then(_onTimeChanged);
+            });
+          },
         ),
       ],
     );

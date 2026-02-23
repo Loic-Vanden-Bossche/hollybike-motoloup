@@ -9,6 +9,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/shared/utils/add_separators.dart';
 import 'package:hollybike/shared/utils/dates.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
+import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 import 'package:hollybike/weather/bloc/weather_forecast_bloc.dart';
 import 'package:hollybike/weather/bloc/weather_forecast_event.dart';
 import 'package:hollybike/weather/bloc/weather_forecast_state.dart';
@@ -25,183 +26,214 @@ class WeatherForecastModal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primary,
-        borderRadius: const BorderRadius.only(
-          topLeft: Radius.circular(31),
-          topRight: Radius.circular(31),
-        ),
-      ),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        child: SafeArea(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
+    final scheme = Theme.of(context).colorScheme;
+
+    return GlassBottomModal(
+      maxContentHeight: 480,
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Header
+          Row(
             children: [
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  IconButton(
-                    icon: const Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                  const SizedBox(width: 16),
-                  Text(
-                    'Prévisions météo',
-                    style: Theme.of(context).textTheme.titleMedium,
-                  ),
-                ],
+              Text(
+                'Prévisions météo',
+                style: TextStyle(
+                  color: scheme.onPrimary,
+                  fontSize: 16,
+                  fontVariations: const [FontVariation.weight(700)],
+                ),
               ),
-              const SizedBox(height: 10),
-              BlocBuilder<WeatherForecastBloc, WeatherForecastState>(
-                builder: (context, state) {
-                  return ConstrainedBox(
-                    constraints: const BoxConstraints(maxHeight: 400),
-                    child: _buildWeatherForecast(
-                      context,
-                      state.weatherForecast,
+              const Spacer(),
+              GestureDetector(
+                onTap: () => Navigator.of(context).pop(),
+                child: Container(
+                  padding: const EdgeInsets.all(7),
+                  decoration: BoxDecoration(
+                    color: scheme.primaryContainer.withValues(alpha: 0.55),
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: scheme.onPrimary.withValues(alpha: 0.12),
+                      width: 1,
                     ),
-                  );
-                },
+                  ),
+                  child: Icon(
+                    Icons.close_rounded,
+                    size: 16,
+                    color: scheme.onPrimary.withValues(alpha: 0.65),
+                  ),
+                ),
               ),
-              const SizedBox(height: 16),
             ],
           ),
-        ),
+          const SizedBox(height: 14),
+
+          // Forecast content
+          BlocBuilder<WeatherForecastBloc, WeatherForecastState>(
+            builder: (context, state) {
+              if (state.weatherForecast == null) {
+                return const SizedBox.shrink();
+              }
+              return _buildWeatherForecast(
+                context,
+                scheme,
+                state.weatherForecast!,
+              );
+            },
+          ),
+        ],
       ),
     );
   }
 
   Widget _buildWeatherForecast(
     BuildContext context,
-    WeatherForecastGrouped? weatherForecast,
+    ColorScheme scheme,
+    WeatherForecastGrouped weatherForecast,
   ) {
-    if (weatherForecast == null) {
-      return const SizedBox();
-    }
-
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(14),
-      child: ThemedRefreshIndicator(
-        onRefresh: () => _onRefresh(context),
-        child: CustomScrollView(
-          shrinkWrap: true,
-          slivers: addSeparators(
-            weatherForecast.dailyWeather.map((dailyWeather) {
-              return SliverMainAxisGroup(
-                slivers: [
-                  SliverStack(
-                    children: [
-                      SliverPositioned.fill(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color:
-                                Theme.of(context).colorScheme.primaryContainer,
-                            borderRadius: BorderRadius.circular(14),
+    return Flexible(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(16),
+        child: ThemedRefreshIndicator(
+          onRefresh: () => _onRefresh(context),
+          child: CustomScrollView(
+            shrinkWrap: true,
+            slivers: addSeparators(
+              weatherForecast.dailyWeather.map((dailyWeather) {
+                return SliverMainAxisGroup(
+                  slivers: [
+                    SliverStack(
+                      children: [
+                        SliverPositioned.fill(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: scheme.primaryContainer.withValues(
+                                alpha: 0.60,
+                              ),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: scheme.onPrimary.withValues(alpha: 0.10),
+                                width: 1,
+                              ),
+                            ),
                           ),
                         ),
-                      ),
-                      MultiSliver(
-                        children: [
-                          SliverPersistentHeader(
-                            pinned: true,
-                            delegate: PinnedHeaderDelegate(
-                              height: 50,
-                              animationDuration: 300,
-                              child: Container(
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color:
-                                      Theme.of(
-                                        context,
-                                      ).colorScheme.primaryContainer,
-                                  borderRadius: BorderRadius.circular(14),
-                                ),
-                                child: Padding(
+                        MultiSliver(
+                          children: [
+                            SliverPersistentHeader(
+                              pinned: true,
+                              delegate: PinnedHeaderDelegate(
+                                height: 50,
+                                animationDuration: 300,
+                                child: Container(
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: scheme.primaryContainer.withValues(
+                                      alpha: 0.90,
+                                    ),
+                                    borderRadius: BorderRadius.circular(16),
+                                    border: Border(
+                                      bottom: BorderSide(
+                                        color: scheme.onPrimary.withValues(
+                                          alpha: 0.08,
+                                        ),
+                                        width: 1,
+                                      ),
+                                    ),
+                                  ),
                                   padding: const EdgeInsets.symmetric(
                                     horizontal: 16,
                                   ),
-                                  child: Column(
-                                    mainAxisSize: MainAxisSize.min,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [_buildDayHeader(dailyWeather)],
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: _buildDayHeader(scheme, dailyWeather),
                                   ),
                                 ),
                               ),
                             ),
-                          ),
-                          SliverPadding(
-                            padding: const EdgeInsets.only(
-                              left: 16,
-                              right: 16,
-                              bottom: 16,
-                            ),
-                            sliver: Builder(
-                              builder: (context) {
-                                if (dailyWeather.hourlyWeather.isEmpty) {
-                                  return const SliverToBoxAdapter(
-                                    child: SizedBox(
-                                      height: 70,
-                                      child: Center(
-                                        child: Text(
-                                          'Pas de données disponibles pour ce jour',
-                                        ),
-                                      ),
-                                    ),
-                                  );
-                                }
-
-                                return SliverList.separated(
-                                  itemCount: dailyWeather.hourlyWeather.length,
-                                  itemBuilder: (context, index) {
-                                    final hourlyWeather =
-                                        dailyWeather.hourlyWeather[index];
-
-                                    return TweenAnimationBuilder(
-                                      tween: Tween<double>(begin: 0, end: 1),
-                                      duration: const Duration(
-                                        milliseconds: 300,
-                                      ),
-                                      curve: Curves.easeInOut,
-                                      builder: (context, double value, child) {
-                                        return Transform.translate(
-                                          offset: Offset(30 * (1 - value), 0),
-                                          child: Opacity(
-                                            opacity: value,
-                                            child: _buildHourlyData(
-                                              hourlyWeather,
+                            SliverPadding(
+                              padding: const EdgeInsets.only(
+                                left: 12,
+                                right: 12,
+                                bottom: 12,
+                                top: 4,
+                              ),
+                              sliver: Builder(
+                                builder: (context) {
+                                  if (dailyWeather.hourlyWeather.isEmpty) {
+                                    return SliverToBoxAdapter(
+                                      child: SizedBox(
+                                        height: 60,
+                                        child: Center(
+                                          child: Text(
+                                            'Pas de données pour ce jour',
+                                            style: TextStyle(
+                                              color: scheme.onPrimary
+                                                  .withValues(alpha: 0.50),
+                                              fontSize: 12,
                                             ),
                                           ),
-                                        );
-                                      },
-                                    );
-                                  },
-                                  separatorBuilder:
-                                      (context, index) => Divider(
-                                        color: Theme.of(context)
-                                            .colorScheme
-                                            .onPrimary
-                                            .withValues(alpha: 0.5),
-                                        height: 0.5,
-                                        thickness: 0.5,
+                                        ),
                                       ),
-                                );
-                              },
+                                    );
+                                  }
+
+                                  return SliverList.separated(
+                                    itemCount:
+                                        dailyWeather.hourlyWeather.length,
+                                    itemBuilder: (context, index) {
+                                      final hourlyWeather =
+                                          dailyWeather.hourlyWeather[index];
+
+                                      return TweenAnimationBuilder(
+                                        tween: Tween<double>(begin: 0, end: 1),
+                                        duration: const Duration(
+                                          milliseconds: 300,
+                                        ),
+                                        curve: Curves.easeInOut,
+                                        builder: (
+                                          context,
+                                          double value,
+                                          child,
+                                        ) {
+                                          return Transform.translate(
+                                            offset: Offset(
+                                              30 * (1 - value),
+                                              0,
+                                            ),
+                                            child: Opacity(
+                                              opacity: value,
+                                              child: _buildHourlyRow(
+                                                scheme,
+                                                hourlyWeather,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+                                    },
+                                    separatorBuilder:
+                                        (context, index) => Divider(
+                                          color: scheme.onPrimary.withValues(
+                                            alpha: 0.08,
+                                          ),
+                                          height: 1,
+                                          thickness: 1,
+                                        ),
+                                  );
+                                },
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              );
-            }).toList(),
-            const SliverToBoxAdapter(child: SizedBox(height: 16)),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
+                );
+              }).toList(),
+              const SliverToBoxAdapter(child: SizedBox(height: 12)),
+            ),
           ),
         ),
       ),
@@ -210,71 +242,86 @@ class WeatherForecastModal extends StatelessWidget {
 
   Future<void> _onRefresh(BuildContext context) {
     final bloc = BlocProvider.of<WeatherForecastBloc>(context);
-
     bloc.add(FetchWeatherForecast());
-
     return bloc.firstWhenNotLoading;
   }
 
-  Widget _buildDayHeader(DailyWeatherGrouped dailyWeather) {
-    final date = dailyWeather.date;
+  Widget _buildDayHeader(ColorScheme scheme, DailyWeatherGrouped dailyWeather) {
+    final dateTime = DateTime.parse(dailyWeather.date);
+    final dayName = DateFormat('EEEE d', 'fr_FR').format(dateTime);
 
-    DateTime dateTime = DateTime.parse(date);
-    String dayName = DateFormat('EEEE d', 'fr_FR').format(dateTime);
     return Text.rich(
       TextSpan(
         children: [
           TextSpan(
             text: '${dayName.capitalize()} ',
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          ),
-          const TextSpan(
-            text: '- ',
             style: TextStyle(
-              fontSize: 18,
-              fontWeight: FontWeight.normal, // Make dash not bold
+              color: scheme.onPrimary,
+              fontSize: 15,
+              fontVariations: const [FontVariation.weight(700)],
             ),
           ),
           TextSpan(
             text:
-                '${dailyWeather.maxTemperature} / ${dailyWeather.minTemperature}',
-            style: const TextStyle(fontSize: 18),
+                '— ${dailyWeather.maxTemperature}° / ${dailyWeather.minTemperature}°',
+            style: TextStyle(
+              color: scheme.onPrimary.withValues(alpha: 0.55),
+              fontSize: 13,
+              fontVariations: const [FontVariation.weight(500)],
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildHourlyData(HourlyWeather hourlyWeather) {
-    String hourString = hourlyWeather.time;
-    String temperature = hourlyWeather.temperature;
-    String weatherCondition = getWeatherConditionLabel(
-      hourlyWeather.weatherCondition,
-    );
-
+  Widget _buildHourlyRow(ColorScheme scheme, HourlyWeather hourlyWeather) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: const EdgeInsets.symmetric(vertical: 6),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Lottie.asset(
             getWeatherConditionLottiePath(
               hourlyWeather.weatherCondition,
               hourlyWeather.isDay,
             ),
-            height: 30,
+            height: 28,
             animate: false,
           ),
-          const SizedBox(width: 8),
+          const SizedBox(width: 10),
           SizedBox(
-            width: 60,
-            child: Text(hourString, style: const TextStyle(fontSize: 16)),
+            width: 52,
+            child: Text(
+              hourlyWeather.time,
+              style: TextStyle(
+                color: scheme.onPrimary.withValues(alpha: 0.80),
+                fontSize: 13,
+                fontVariations: const [FontVariation.weight(600)],
+              ),
+            ),
           ),
           SizedBox(
-            width: 50,
-            child: Text(temperature, style: const TextStyle(fontSize: 16)),
+            width: 48,
+            child: Text(
+              hourlyWeather.temperature,
+              style: TextStyle(
+                color: scheme.onPrimary,
+                fontSize: 13,
+                fontVariations: const [FontVariation.weight(700)],
+              ),
+            ),
           ),
-          Text('-  $weatherCondition', style: const TextStyle(fontSize: 16)),
+          Expanded(
+            child: Text(
+              getWeatherConditionLabel(hourlyWeather.weatherCondition),
+              style: TextStyle(
+                color: scheme.onPrimary.withValues(alpha: 0.55),
+                fontSize: 11,
+                fontVariations: const [FontVariation.weight(500)],
+              ),
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
         ],
       ),
     );

@@ -27,31 +27,63 @@ class JourneyLibrary extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (journeys.isEmpty) {
+      final scheme = Theme.of(context).colorScheme;
+
       return Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const Text('Aucun parcours disponible.'),
+            Text(
+              'Aucun parcours disponible.',
+              style: TextStyle(
+                color: scheme.onPrimary.withValues(alpha: 0.55),
+                fontSize: 14,
+                fontVariations: const [FontVariation.weight(500)],
+              ),
+            ),
             const SizedBox(height: 16),
-            ClipRRect(
-              borderRadius: BorderRadius.circular(32),
-              child: UploadJourneyMenu(
-                event: event,
-                includeLibrary: false,
-                onSelection: (type) {
-                  journeyImportModalFromType(
-                    context,
-                    type,
-                    event,
-                    selected: onAddJourney,
-                  );
-                },
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 5),
-                  child: ElevatedButton(
-                    onPressed: () {},
-                    child: const Text('Ajouter un parcours'),
+            UploadJourneyMenu(
+              event: event,
+              includeLibrary: false,
+              onSelection: (type) {
+                journeyImportModalFromType(
+                  context,
+                  type,
+                  event,
+                  selected: onAddJourney,
+                );
+              },
+              child: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 18,
+                  vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: scheme.secondary.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(50),
+                  border: Border.all(
+                    color: scheme.secondary.withValues(alpha: 0.40),
+                    width: 1,
                   ),
+                ),
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.add_rounded,
+                      size: 15,
+                      color: scheme.secondary,
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Ajouter un parcours',
+                      style: TextStyle(
+                        color: scheme.secondary,
+                        fontSize: 13,
+                        fontVariations: const [FontVariation.weight(650)],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),

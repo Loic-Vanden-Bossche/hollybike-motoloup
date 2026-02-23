@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$MinimalEvent {
 
- int get id; String get name; MinimalUser get owner; EventStatusState get status;@JsonKey(name: "start_date_time") DateTime get startDate;@JsonKey(name: "end_date_time") DateTime? get endDate;@JsonKey(name: "create_date_time") DateTime get createdAt;@JsonKey(name: "update_date_time") DateTime get updatedAt; String? get description; String? get image;@JsonKey(name: "image_key") String? get imageKey;
+ int get id; String get name; MinimalUser get owner; EventStatusState get status;@JsonKey(name: "start_date_time") DateTime get startDate;@JsonKey(name: "end_date_time") DateTime? get endDate;@JsonKey(name: "create_date_time") DateTime get createdAt;@JsonKey(name: "update_date_time") DateTime get updatedAt; String? get description; String? get image;@JsonKey(name: "image_key") String? get imageKey; int? get budget;@JsonKey(name: "participants_count") int get participantsCount; int? get distance;
 /// Create a copy of MinimalEvent
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $MinimalEventCopyWith<MinimalEvent> get copyWith => _$MinimalEventCopyWithImpl<M
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is MinimalEvent&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.status, status) || other.status == status)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.image, image) || other.image == image)&&(identical(other.imageKey, imageKey) || other.imageKey == imageKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is MinimalEvent&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.status, status) || other.status == status)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.image, image) || other.image == image)&&(identical(other.imageKey, imageKey) || other.imageKey == imageKey)&&(identical(other.budget, budget) || other.budget == budget)&&(identical(other.participantsCount, participantsCount) || other.participantsCount == participantsCount)&&(identical(other.distance, distance) || other.distance == distance));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,owner,status,startDate,endDate,createdAt,updatedAt,description,image,imageKey);
+int get hashCode => Object.hash(runtimeType,id,name,owner,status,startDate,endDate,createdAt,updatedAt,description,image,imageKey,budget,participantsCount,distance);
 
 @override
 String toString() {
-  return 'MinimalEvent(id: $id, name: $name, owner: $owner, status: $status, startDate: $startDate, endDate: $endDate, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, image: $image, imageKey: $imageKey)';
+  return 'MinimalEvent(id: $id, name: $name, owner: $owner, status: $status, startDate: $startDate, endDate: $endDate, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, image: $image, imageKey: $imageKey, budget: $budget, participantsCount: $participantsCount, distance: $distance)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $MinimalEventCopyWith<$Res>  {
   factory $MinimalEventCopyWith(MinimalEvent value, $Res Function(MinimalEvent) _then) = _$MinimalEventCopyWithImpl;
 @useResult
 $Res call({
- int id, String name, MinimalUser owner, EventStatusState status,@JsonKey(name: "start_date_time") DateTime startDate,@JsonKey(name: "end_date_time") DateTime? endDate,@JsonKey(name: "create_date_time") DateTime createdAt,@JsonKey(name: "update_date_time") DateTime updatedAt, String? description, String? image,@JsonKey(name: "image_key") String? imageKey
+ int id, String name, MinimalUser owner, EventStatusState status,@JsonKey(name: "start_date_time") DateTime startDate,@JsonKey(name: "end_date_time") DateTime? endDate,@JsonKey(name: "create_date_time") DateTime createdAt,@JsonKey(name: "update_date_time") DateTime updatedAt, String? description, String? image,@JsonKey(name: "image_key") String? imageKey, int? budget,@JsonKey(name: "participants_count") int participantsCount, int? distance
 });
 
 
@@ -65,7 +65,7 @@ class _$MinimalEventCopyWithImpl<$Res>
 
 /// Create a copy of MinimalEvent
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? owner = null,Object? status = null,Object? startDate = null,Object? endDate = freezed,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? image = freezed,Object? imageKey = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? owner = null,Object? status = null,Object? startDate = null,Object? endDate = freezed,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? image = freezed,Object? imageKey = freezed,Object? budget = freezed,Object? participantsCount = null,Object? distance = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -78,7 +78,10 @@ as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore
 as DateTime,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,image: freezed == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String?,imageKey: freezed == imageKey ? _self.imageKey : imageKey // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,budget: freezed == budget ? _self.budget : budget // ignore: cast_nullable_to_non_nullable
+as int?,participantsCount: null == participantsCount ? _self.participantsCount : participantsCount // ignore: cast_nullable_to_non_nullable
+as int,distance: freezed == distance ? _self.distance : distance // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 /// Create a copy of MinimalEvent
@@ -169,10 +172,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  MinimalUser owner,  EventStatusState status, @JsonKey(name: "start_date_time")  DateTime startDate, @JsonKey(name: "end_date_time")  DateTime? endDate, @JsonKey(name: "create_date_time")  DateTime createdAt, @JsonKey(name: "update_date_time")  DateTime updatedAt,  String? description,  String? image, @JsonKey(name: "image_key")  String? imageKey)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String name,  MinimalUser owner,  EventStatusState status, @JsonKey(name: "start_date_time")  DateTime startDate, @JsonKey(name: "end_date_time")  DateTime? endDate, @JsonKey(name: "create_date_time")  DateTime createdAt, @JsonKey(name: "update_date_time")  DateTime updatedAt,  String? description,  String? image, @JsonKey(name: "image_key")  String? imageKey,  int? budget, @JsonKey(name: "participants_count")  int participantsCount,  int? distance)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _MinimalEvent() when $default != null:
-return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_that.endDate,_that.createdAt,_that.updatedAt,_that.description,_that.image,_that.imageKey);case _:
+return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_that.endDate,_that.createdAt,_that.updatedAt,_that.description,_that.image,_that.imageKey,_that.budget,_that.participantsCount,_that.distance);case _:
   return orElse();
 
 }
@@ -190,10 +193,10 @@ return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  MinimalUser owner,  EventStatusState status, @JsonKey(name: "start_date_time")  DateTime startDate, @JsonKey(name: "end_date_time")  DateTime? endDate, @JsonKey(name: "create_date_time")  DateTime createdAt, @JsonKey(name: "update_date_time")  DateTime updatedAt,  String? description,  String? image, @JsonKey(name: "image_key")  String? imageKey)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String name,  MinimalUser owner,  EventStatusState status, @JsonKey(name: "start_date_time")  DateTime startDate, @JsonKey(name: "end_date_time")  DateTime? endDate, @JsonKey(name: "create_date_time")  DateTime createdAt, @JsonKey(name: "update_date_time")  DateTime updatedAt,  String? description,  String? image, @JsonKey(name: "image_key")  String? imageKey,  int? budget, @JsonKey(name: "participants_count")  int participantsCount,  int? distance)  $default,) {final _that = this;
 switch (_that) {
 case _MinimalEvent():
-return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_that.endDate,_that.createdAt,_that.updatedAt,_that.description,_that.image,_that.imageKey);}
+return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_that.endDate,_that.createdAt,_that.updatedAt,_that.description,_that.image,_that.imageKey,_that.budget,_that.participantsCount,_that.distance);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -207,10 +210,10 @@ return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_th
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  MinimalUser owner,  EventStatusState status, @JsonKey(name: "start_date_time")  DateTime startDate, @JsonKey(name: "end_date_time")  DateTime? endDate, @JsonKey(name: "create_date_time")  DateTime createdAt, @JsonKey(name: "update_date_time")  DateTime updatedAt,  String? description,  String? image, @JsonKey(name: "image_key")  String? imageKey)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String name,  MinimalUser owner,  EventStatusState status, @JsonKey(name: "start_date_time")  DateTime startDate, @JsonKey(name: "end_date_time")  DateTime? endDate, @JsonKey(name: "create_date_time")  DateTime createdAt, @JsonKey(name: "update_date_time")  DateTime updatedAt,  String? description,  String? image, @JsonKey(name: "image_key")  String? imageKey,  int? budget, @JsonKey(name: "participants_count")  int participantsCount,  int? distance)?  $default,) {final _that = this;
 switch (_that) {
 case _MinimalEvent() when $default != null:
-return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_that.endDate,_that.createdAt,_that.updatedAt,_that.description,_that.image,_that.imageKey);case _:
+return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_that.endDate,_that.createdAt,_that.updatedAt,_that.description,_that.image,_that.imageKey,_that.budget,_that.participantsCount,_that.distance);case _:
   return null;
 
 }
@@ -222,7 +225,7 @@ return $default(_that.id,_that.name,_that.owner,_that.status,_that.startDate,_th
 @JsonSerializable()
 
 class _MinimalEvent extends MinimalEvent {
-  const _MinimalEvent({required this.id, required this.name, required this.owner, required this.status, @JsonKey(name: "start_date_time") required this.startDate, @JsonKey(name: "end_date_time") this.endDate, @JsonKey(name: "create_date_time") required this.createdAt, @JsonKey(name: "update_date_time") required this.updatedAt, this.description, this.image, @JsonKey(name: "image_key") this.imageKey}): super._();
+  const _MinimalEvent({required this.id, required this.name, required this.owner, required this.status, @JsonKey(name: "start_date_time") required this.startDate, @JsonKey(name: "end_date_time") this.endDate, @JsonKey(name: "create_date_time") required this.createdAt, @JsonKey(name: "update_date_time") required this.updatedAt, this.description, this.image, @JsonKey(name: "image_key") this.imageKey, this.budget, @JsonKey(name: "participants_count") this.participantsCount = 0, this.distance}): super._();
   factory _MinimalEvent.fromJson(Map<String, dynamic> json) => _$MinimalEventFromJson(json);
 
 @override final  int id;
@@ -236,6 +239,9 @@ class _MinimalEvent extends MinimalEvent {
 @override final  String? description;
 @override final  String? image;
 @override@JsonKey(name: "image_key") final  String? imageKey;
+@override final  int? budget;
+@override@JsonKey(name: "participants_count") final  int participantsCount;
+@override final  int? distance;
 
 /// Create a copy of MinimalEvent
 /// with the given fields replaced by the non-null parameter values.
@@ -250,16 +256,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MinimalEvent&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.status, status) || other.status == status)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.image, image) || other.image == image)&&(identical(other.imageKey, imageKey) || other.imageKey == imageKey));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _MinimalEvent&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.owner, owner) || other.owner == owner)&&(identical(other.status, status) || other.status == status)&&(identical(other.startDate, startDate) || other.startDate == startDate)&&(identical(other.endDate, endDate) || other.endDate == endDate)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.updatedAt, updatedAt) || other.updatedAt == updatedAt)&&(identical(other.description, description) || other.description == description)&&(identical(other.image, image) || other.image == image)&&(identical(other.imageKey, imageKey) || other.imageKey == imageKey)&&(identical(other.budget, budget) || other.budget == budget)&&(identical(other.participantsCount, participantsCount) || other.participantsCount == participantsCount)&&(identical(other.distance, distance) || other.distance == distance));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,owner,status,startDate,endDate,createdAt,updatedAt,description,image,imageKey);
+int get hashCode => Object.hash(runtimeType,id,name,owner,status,startDate,endDate,createdAt,updatedAt,description,image,imageKey,budget,participantsCount,distance);
 
 @override
 String toString() {
-  return 'MinimalEvent(id: $id, name: $name, owner: $owner, status: $status, startDate: $startDate, endDate: $endDate, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, image: $image, imageKey: $imageKey)';
+  return 'MinimalEvent(id: $id, name: $name, owner: $owner, status: $status, startDate: $startDate, endDate: $endDate, createdAt: $createdAt, updatedAt: $updatedAt, description: $description, image: $image, imageKey: $imageKey, budget: $budget, participantsCount: $participantsCount, distance: $distance)';
 }
 
 
@@ -270,7 +276,7 @@ abstract mixin class _$MinimalEventCopyWith<$Res> implements $MinimalEventCopyWi
   factory _$MinimalEventCopyWith(_MinimalEvent value, $Res Function(_MinimalEvent) _then) = __$MinimalEventCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String name, MinimalUser owner, EventStatusState status,@JsonKey(name: "start_date_time") DateTime startDate,@JsonKey(name: "end_date_time") DateTime? endDate,@JsonKey(name: "create_date_time") DateTime createdAt,@JsonKey(name: "update_date_time") DateTime updatedAt, String? description, String? image,@JsonKey(name: "image_key") String? imageKey
+ int id, String name, MinimalUser owner, EventStatusState status,@JsonKey(name: "start_date_time") DateTime startDate,@JsonKey(name: "end_date_time") DateTime? endDate,@JsonKey(name: "create_date_time") DateTime createdAt,@JsonKey(name: "update_date_time") DateTime updatedAt, String? description, String? image,@JsonKey(name: "image_key") String? imageKey, int? budget,@JsonKey(name: "participants_count") int participantsCount, int? distance
 });
 
 
@@ -287,7 +293,7 @@ class __$MinimalEventCopyWithImpl<$Res>
 
 /// Create a copy of MinimalEvent
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? owner = null,Object? status = null,Object? startDate = null,Object? endDate = freezed,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? image = freezed,Object? imageKey = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? owner = null,Object? status = null,Object? startDate = null,Object? endDate = freezed,Object? createdAt = null,Object? updatedAt = null,Object? description = freezed,Object? image = freezed,Object? imageKey = freezed,Object? budget = freezed,Object? participantsCount = null,Object? distance = freezed,}) {
   return _then(_MinimalEvent(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -300,7 +306,10 @@ as DateTime,updatedAt: null == updatedAt ? _self.updatedAt : updatedAt // ignore
 as DateTime,description: freezed == description ? _self.description : description // ignore: cast_nullable_to_non_nullable
 as String?,image: freezed == image ? _self.image : image // ignore: cast_nullable_to_non_nullable
 as String?,imageKey: freezed == imageKey ? _self.imageKey : imageKey // ignore: cast_nullable_to_non_nullable
-as String?,
+as String?,budget: freezed == budget ? _self.budget : budget // ignore: cast_nullable_to_non_nullable
+as int?,participantsCount: null == participantsCount ? _self.participantsCount : participantsCount // ignore: cast_nullable_to_non_nullable
+as int,distance: freezed == distance ? _self.distance : distance // ignore: cast_nullable_to_non_nullable
+as int?,
   ));
 }
 

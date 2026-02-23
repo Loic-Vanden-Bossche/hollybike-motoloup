@@ -1,10 +1,11 @@
 /*
   Hollybike Mobile Flutter application
-  Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
+  Made by enzoSoa (Enzo SOARES) and Loic Vanden Bossche
 */
 import 'package:flutter/material.dart';
 import 'package:hollybike/event/types/event_form_data.dart';
 import 'package:hollybike/event/widgets/event_form/event_form.dart';
+import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 
 import 'event_discard_changes_dialog.dart';
 
@@ -29,74 +30,53 @@ class EventFormModal extends StatefulWidget {
 }
 
 class _EventFormModalState extends State<EventFormModal> {
-  var touched = false;
+  bool touched = false;
+  bool _discardDialogOpen = false;
 
   @override
   Widget build(BuildContext context) {
-    final border = BorderSide(
-      color: Theme.of(context).colorScheme.onPrimary,
-      width: 3,
-    );
-
     return Padding(
-      padding: EdgeInsets.only(
-        bottom: MediaQuery.of(context).viewInsets.bottom,
-      ),
+      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
       child: PopScope(
         canPop: false,
         onPopInvokedWithResult: (didPop, result) {
           if (didPop) return;
-
-          if (!touched) {
-            Navigator.of(context).pop();
-            return;
-          }
-
-          showEventDiscardChangesDialog(context, () {
-            Navigator.of(context).pop();
-          });
+          _handleClose();
         },
-        child: Container(
-          decoration: BoxDecoration(
-            color: Theme.of(context).colorScheme.primary,
-            border: Border(top: border, left: border, right: border),
-            borderRadius: const BorderRadius.only(
-              topLeft: Radius.circular(31),
-              topRight: Radius.circular(31),
-            ),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.only(top: 18, left: 16, right: 16),
-            child: SafeArea(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxHeight: 335),
-                child: EventForm(
-                  canEditDates: widget.canEditDates,
-                  enforceNoPastDates: widget.enforceNoPastDates,
-                  submitButtonText: widget.submitButtonText,
-                  initialData: widget.initialData,
-                  onClose: () {
-                    if (!touched) {
-                      Navigator.of(context).pop();
-                      return;
-                    }
-
-                    showEventDiscardChangesDialog(context, () {
-                      Navigator.of(context).pop();
-                    });
-                  },
-                  onTouched: () {
-                    setState(() {
-                      touched = true;
-                    });
-                  },
-                  onSubmit: widget.onSubmit,
-                ),
-              ),
-            ),
+        child: GlassBottomModal(
+          maxContentHeight: 440,
+          child: EventForm(
+            canEditDates: widget.canEditDates,
+            enforceNoPastDates: widget.enforceNoPastDates,
+            submitButtonText: widget.submitButtonText,
+            initialData: widget.initialData,
+            onClose: _handleClose,
+            onTouched: () {
+              setState(() {
+                touched = true;
+              });
+            },
+            onSubmit: widget.onSubmit,
           ),
         ),
       ),
     );
+  }
+
+  Future<void> _handleClose() async {
+    if (!touched) {
+      Navigator.of(context).pop();
+      return;
+    }
+
+    if (_discardDialogOpen) return;
+    _discardDialogOpen = true;
+    try {
+      await showEventDiscardChangesDialog(context, () {
+        Navigator.of(context).pop();
+      });
+    } finally {
+      _discardDialogOpen = false;
+    }
   }
 }

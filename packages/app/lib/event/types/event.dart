@@ -31,6 +31,8 @@ sealed class Event with _$Event {
     String? image,
     @JsonKey(name: "image_key") String? imageKey,
     int? budget,
+    @JsonKey(name: "participants_count") @Default(0) int participantsCount,
+    int? distance,
   }) = _Event;
 
   Color get color => getStatusColor(status);

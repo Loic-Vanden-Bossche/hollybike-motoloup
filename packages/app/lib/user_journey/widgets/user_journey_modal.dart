@@ -10,22 +10,24 @@ import 'package:hollybike/event/bloc/event_details_bloc/event_details_event.dart
 import 'package:hollybike/event/bloc/event_details_bloc/event_details_state.dart';
 import 'package:hollybike/event/services/event/event_repository.dart';
 import 'package:hollybike/event/services/participation/event_participation_repository.dart';
+import 'package:hollybike/profile/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hollybike/shared/widgets/app_toast.dart';
+import 'package:hollybike/shared/widgets/bloc_provided_builder.dart';
+import 'package:hollybike/shared/widgets/gradient_progress_bar.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
+import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 import 'package:hollybike/user/types/minimal_user.dart';
 import 'package:hollybike/user_journey/bloc/user_journey_details_bloc.dart';
 import 'package:hollybike/user_journey/bloc/user_journey_details_event.dart';
 import 'package:hollybike/user_journey/bloc/user_journey_details_state.dart';
 import 'package:hollybike/user_journey/services/user_journey_repository.dart';
 import 'package:hollybike/user_journey/type/user_journey.dart';
-import 'package:hollybike/profile/bloc/profile_bloc/profile_bloc.dart';
-import 'package:hollybike/shared/utils/add_separators.dart';
-import 'package:hollybike/user_journey/widgets/user_journey_content.dart';
 import 'package:intl/intl.dart';
 import 'package:lottie/lottie.dart';
+
 import '../../event/bloc/event_details_bloc/event_details_bloc.dart';
 import '../../shared/utils/dates.dart';
-import '../../shared/widgets/bloc_provided_builder.dart';
-import '../../shared/widgets/gradient_progress_bar.dart';
 
 enum JourneyModalAction { resetJourney, deleteJourney, downloadJourney }
 
@@ -72,10 +74,7 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
     }
 
     _betterPercentage =
-        isBetterThan.entries.fold(0.0, (acc, entry) {
-          final isBetter = entry.value;
-          return acc + isBetter;
-        }) /
+        isBetterThan.entries.fold(0.0, (acc, entry) => acc + entry.value) /
         isBetterThan.length;
 
     _betterThanCount =
@@ -86,24 +85,24 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
     BuildContext context,
     Widget Function(BuildContext, bool isLoading) builder,
   ) {
-    final eventDetailsBloc = context.readOrNull<EventDetailsBloc>();
+    final eventDetailsBloc = _readOrNull<EventDetailsBloc>(context);
 
     if (eventDetailsBloc == null) {
       return builder(context, false);
-    } else {
-      return BlocConsumer(
-        bloc: eventDetailsBloc,
-        listener: (context, state) {
-          if (state is UserJourneyReset) {
-            Navigator.of(context).pop();
-            Toast.showSuccessToast(context, 'Parcours réinitialisé');
-          }
-        },
-        builder: (context, state) {
-          return builder(context, state is EventOperationInProgress);
-        },
-      );
     }
+
+    return BlocConsumer(
+      bloc: eventDetailsBloc,
+      listener: (context, state) {
+        if (state is UserJourneyReset) {
+          Navigator.of(context).pop();
+          Toast.showSuccessToast(context, 'Parcours réinitialisé');
+        }
+      },
+      builder: (context, state) {
+        return builder(context, state is EventOperationInProgress);
+      },
+    );
   }
 
   @override
@@ -149,265 +148,301 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
   }
 
   Widget _buildContent(bool isLoading) {
-    return Container(
-      decoration: _modalDecoration(),
-      child: Padding(
-        padding: const EdgeInsets.only(top: 16, left: 16, right: 16),
-        child: SafeArea(
-          child: BlocProvidedBuilder<ProfileBloc, ProfileState>(
-            builder: (context, bloc, _) {
-              final currentProfileEvent = bloc.currentProfile;
-              final currentUserId =
-                  (currentProfileEvent is ProfileLoadSuccessEvent
-                      ? currentProfileEvent.profile.id
-                      : null);
+    return GlassBottomModal(
+      maxContentHeight: 640,
+      contentPadding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
+      child: BlocProvidedBuilder<ProfileBloc, ProfileState>(
+        builder: (context, bloc, _) {
+          final currentProfileEvent = bloc.currentProfile;
+          final currentUserId =
+              (currentProfileEvent is ProfileLoadSuccessEvent
+                  ? currentProfileEvent.profile.id
+                  : null);
+          final isCurrentUser =
+              widget.user?.id == null || (currentUserId == widget.user?.id);
 
-              final isCurrentUser =
-                  widget.user?.id == null || (currentUserId == widget.user?.id);
-
-              return Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeader(context, isCurrentUser, isLoading),
-                  const SizedBox(height: 16),
-                  _JourneyInfoRow(
-                    icon: Icons.history,
-                    text:
-                        "Parcours terminé ${formatTimeDate(widget.journey.createdAt.toLocal())}",
-                  ),
-                  const SizedBox(height: 8),
-                  _JourneyInfoRow(
-                    icon: Icons.route_outlined,
-                    text:
-                        '${widget.journey.distanceLabel} - ${widget.journey.totalTimeLabel}',
-                    titleStyle: Theme.of(context).textTheme.titleMedium,
-                    bodyStyle: Theme.of(context).textTheme.bodyMedium,
-                  ),
-                  const SizedBox(height: 16),
-                  ..._buildBetterThanSummary(isCurrentUser),
-                  ..._buildBetterThanCount(isCurrentUser),
-                  _JourneyStatRow(
-                    firstStat: _JourneyStatCard(
-                      title: 'Dénivelé gains et pertes',
-                      stats: [
-                        _StatItem(
-                          icon: Icons.north_east_rounded,
-                          label:
-                              '${widget.journey.totalElevationGain?.round()} m',
-                          value: getBetterThan('total_elevation_gain'),
-                        ),
-                        _StatItem(
-                          icon: Icons.south_east_rounded,
-                          label:
-                              '${widget.journey.totalElevationLoss?.round()} m',
-                          value: getBetterThan('total_elevation_loss'),
-                        ),
-                      ],
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(context, isCurrentUser, isLoading),
+              const SizedBox(height: 14),
+              SingleChildScrollView(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _JourneyHeroCard(
+                      journey: widget.journey,
+                      subtitle:
+                          "Parcours terminé ${formatTimeDate(widget.journey.createdAt.toLocal())}",
                     ),
-                    secondStat: _JourneyStatCard(
-                      title: 'Vitesse maximale et moyenne',
-                      stats: [
-                        _StatItem(
+                    const SizedBox(height: 12),
+                    if (_hasBetterThan)
+                      _JourneyGamificationCard(
+                        isSolo: _isSolo,
+                        percentage: _betterPercentage,
+                        betterCount: _betterThanCount,
+                        title:
+                            isCurrentUser
+                                ? 'Votre score de rider'
+                                : 'Score de ${widget.user?.username}',
+                        summaryText:
+                            _isSolo
+                                ? _getIsBetterThanMeanSoloText(isCurrentUser)
+                                : "${_getIsBetterMeanText(isCurrentUser)} ${_betterPercentage.round()}%",
+                        bestText:
+                            _betterThanCount > 0
+                                ? _getIsBetterThanCountText(isCurrentUser)
+                                : null,
+                      ),
+                    if (_hasBetterThan) const SizedBox(height: 12),
+                    _JourneyStatGrid(
+                      cards: [
+                        _JourneyStatCardData(
+                          title: 'Dénivelé',
+                          icon: Icons.landscape_rounded,
+                          lines: [
+                            _JourneyStatLineData(
+                              icon: Icons.north_east_rounded,
+                              label: 'Gain',
+                              value:
+                                  '${widget.journey.totalElevationGain?.round() ?? 0} m',
+                              score: getBetterThan('total_elevation_gain'),
+                            ),
+                            _JourneyStatLineData(
+                              icon: Icons.south_east_rounded,
+                              label: 'Perte',
+                              value:
+                                  '${widget.journey.totalElevationLoss?.round() ?? 0} m',
+                              score: getBetterThan('total_elevation_loss'),
+                            ),
+                          ],
+                        ),
+                        _JourneyStatCardData(
+                          title: 'Vitesse',
                           icon: Icons.speed_rounded,
-                          label: widget.journey.maxSpeedLabel,
-                          value: getBetterThan('max_speed'),
+                          lines: [
+                            _JourneyStatLineData(
+                              icon: Icons.bolt_rounded,
+                              label: 'Max',
+                              value: widget.journey.maxSpeedLabel,
+                              score: getBetterThan('max_speed'),
+                            ),
+                            _JourneyStatLineData(
+                              icon: Icons.timelapse_rounded,
+                              label: 'Moy',
+                              value: widget.journey.avgSpeedLabel,
+                              score: getBetterThan('avg_speed'),
+                            ),
+                          ],
                         ),
-                        _StatItem(
-                          icon: Icons.speed_rounded,
-                          label: widget.journey.avgSpeedLabel,
-                          value: getBetterThan('avg_speed'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  _JourneyStatRow(
-                    firstStat: _JourneyStatCard(
-                      title: 'Altitude minimale et maximale',
-                      stats: [
-                        _StatItem(
-                          icon: Icons.vertical_align_bottom_rounded,
-                          label: '${widget.journey.minElevation?.round()} m',
-                          value: getBetterThan('min_elevation'),
-                        ),
-                        _StatItem(
+                        _JourneyStatCardData(
+                          title: 'Altitude',
                           icon: Icons.terrain_rounded,
-                          label: '${widget.journey.maxElevation?.round()} m',
-                          value: getBetterThan('max_elevation'),
+                          lines: [
+                            _JourneyStatLineData(
+                              icon: Icons.vertical_align_bottom_rounded,
+                              label: 'Min',
+                              value:
+                                  '${widget.journey.minElevation?.round() ?? 0} m',
+                              score: getBetterThan('min_elevation'),
+                            ),
+                            _JourneyStatLineData(
+                              icon: Icons.vertical_align_top_rounded,
+                              label: 'Max',
+                              value:
+                                  '${widget.journey.maxElevation?.round() ?? 0} m',
+                              score: getBetterThan('max_elevation'),
+                            ),
+                          ],
+                        ),
+                        _JourneyStatCardData(
+                          title: 'Accélération',
+                          icon: Icons.gps_fixed_rounded,
+                          lines: [
+                            _JourneyStatLineData(
+                              icon: Icons.rocket_launch_rounded,
+                              label: 'Max',
+                              value: widget.journey.maxGForceLabel,
+                              score: getBetterThan('max_g_force'),
+                            ),
+                            _JourneyStatLineData(
+                              icon: Icons.stacked_line_chart_rounded,
+                              label: 'Moy',
+                              value: widget.journey.avgGForceLabel,
+                              score: getBetterThan('avg_g_force'),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    secondStat: _JourneyStatCard(
-                      title: 'Accélération maximale et moyenne',
-                      stats: [
-                        _StatItem(
-                          icon: Icons.gps_fixed_rounded,
-                          label: widget.journey.maxGForceLabel,
-                          value: getBetterThan('max_g_force'),
-                        ),
-                        _StatItem(
-                          icon: Icons.gps_fixed_rounded,
-                          label: widget.journey.avgGForceLabel,
-                          value: getBetterThan('avg_g_force'),
-                        ),
-                      ],
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                ],
-              );
-            },
-          ),
-        ),
+                  ],
+                ),
+              ),
+            ],
+          );
+        },
       ),
     );
-  }
-
-  List<Widget> _buildBetterThanSummary(bool isCurrentUser) {
-    if (!_hasBetterThan) {
-      return [];
-    }
-
-    return [
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            GradientProgressBar(
-              animateStart: true,
-              maxValue: 100,
-              value: _betterPercentage,
-              colors: [
-                Colors.red.shade400,
-                Colors.yellow.shade400,
-                Colors.green.shade400,
-              ],
-            ),
-            const SizedBox(height: 8),
-            _getIsBetterLabel(isCurrentUser),
-          ],
-        ),
-      ),
-      const SizedBox(height: 16),
-    ];
-  }
-
-  List<Widget> _buildBetterThanCount(bool isCurrentUser) {
-    if (_betterThanCount == 0) {
-      return [];
-    }
-
-    return [
-      Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Theme.of(context).colorScheme.primaryContainer,
-          borderRadius: BorderRadius.circular(14),
-        ),
-        child: Row(
-          children: [
-            Lottie.asset(
-              "assets/lottie/lottie_medal.json",
-              width: 35,
-              repeat: true,
-            ),
-            const SizedBox(width: 16),
-            Flexible(
-              child: Text(
-                _getIsBetterThanCountText(isCurrentUser),
-                style: Theme.of(context).textTheme.bodyMedium,
-                softWrap: true,
-              ),
-            ),
-          ],
-        ),
-      ),
-      const SizedBox(height: 16),
-    ];
-  }
-
-  String _getIsBetterThanCountText(bool isCurrentUser) {
-    if (isCurrentUser) {
-      return 'Vous êtes le/la meilleur·e dans $_betterThanCount catégories !';
-    } else {
-      return '${widget.user?.username} est le/la meilleur·e dans $_betterThanCount catégories !';
-    }
   }
 
   double? getBetterThan(String key) {
     if (widget.journey.isBetterThan?.containsKey(key) == true) {
       return widget.journey.isBetterThan![key];
     }
-
     return null;
   }
 
-  Widget _getIsBetterLabel(bool isCurrentUser) {
-    return Text(
-      _isSolo
-          ? _getIsBetterThanMeanSoloText(isCurrentUser)
-          : "${_getIsBetterMeanText(isCurrentUser)} ${(_betterPercentage).round()}% !",
-      style: Theme.of(context).textTheme.bodyMedium,
-    );
+  String _getIsBetterThanCountText(bool isCurrentUser) {
+    if (isCurrentUser) {
+      return 'Top dans $_betterThanCount catégories';
+    } else {
+      return '${widget.user?.username} domine $_betterThanCount catégories';
+    }
   }
 
   String _getIsBetterThanMeanSoloText(bool isCurrentUser) {
     if (isCurrentUser) {
-      return 'Vous êtes le/la seul·e à avoir terminé le parcours !';
+      return 'Vous êtes le/la seul·e à avoir terminé ce parcours';
     } else {
-      return '${widget.user?.username} est le/la seul·e à avoir terminé le parcours !';
+      return '${widget.user?.username} est le/la seul·e à avoir terminé ce parcours';
     }
   }
 
   String _getIsBetterMeanText(bool isCurrentUser) {
     if (isCurrentUser) {
-      return 'Votre score global est de';
+      return 'Votre performance globale';
     } else {
-      return 'Le score global de ${widget.user?.username} est de';
+      return 'Performance globale de ${widget.user?.username}';
     }
   }
 
-  BoxDecoration _modalDecoration() {
-    return BoxDecoration(
-      color: Theme.of(context).colorScheme.primary,
-      borderRadius: const BorderRadius.only(
-        topLeft: Radius.circular(31),
-        topRight: Radius.circular(31),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context, bool isCurrentUser, isLoading) {
+  Widget _buildHeader(
+    BuildContext context,
+    bool isCurrentUser,
+    bool isLoading,
+  ) {
     return isCurrentUser
         ? _buildCurrentUserHeader(context, isLoading)
-        : _buildOtherUserHeader();
+        : _buildOtherUserHeader(context);
   }
 
   Widget _buildCurrentUserHeader(BuildContext context, bool isLoading) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Row(
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _buildActionButton(context, isLoading),
-        const Spacer(),
-        ElevatedButton(
-          onPressed:
-              () => {
-                context.router.push(
-                  UserJourneyMapRoute(
-                    fileUrl: widget.journey.file,
-                    title: _getTitle(),
-                  ),
-                ),
-              },
-          child: const Text('Voir sur la carte'),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(999),
+              color: scheme.onPrimary.withValues(alpha: 0.08),
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.12),
+              ),
+            ),
+            child: Text(
+              _getTitle(),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: scheme.onPrimary.withValues(alpha: 0.78),
+                fontSize: 12,
+                fontVariations: const [FontVariation.weight(620)],
+              ),
+            ),
+          ),
         ),
+        const SizedBox(width: 10),
+        _buildMapButton(context, scheme),
       ],
+    );
+  }
+
+  Widget _buildOtherUserHeader(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        GestureDetector(
+          onTap: () => Navigator.of(context).pop(),
+          child: Container(
+            padding: const EdgeInsets.all(7),
+            decoration: BoxDecoration(
+              color: scheme.primaryContainer.withValues(alpha: 0.55),
+              shape: BoxShape.circle,
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.12),
+                width: 1,
+              ),
+            ),
+            child: Icon(
+              Icons.close_rounded,
+              size: 16,
+              color: scheme.onPrimary.withValues(alpha: 0.65),
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Text(
+            'Parcours de ${widget.user?.username}',
+            style: TextStyle(
+              color: scheme.onPrimary,
+              fontSize: 16,
+              fontVariations: const [FontVariation.weight(700)],
+            ),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+        const SizedBox(width: 8),
+        _buildMapButton(context, scheme),
+      ],
+    );
+  }
+
+  Widget _buildMapButton(BuildContext context, ColorScheme scheme) {
+    return GestureDetector(
+      onTap:
+          () => context.router.push(
+            UserJourneyMapRoute(
+              fileUrl: widget.journey.file,
+              title: _getTitle(),
+            ),
+          ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: scheme.secondary.withValues(alpha: 0.15),
+          border: Border.all(
+            color: scheme.secondary.withValues(alpha: 0.40),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.map_outlined, size: 14, color: scheme.secondary),
+            const SizedBox(width: 6),
+            Text(
+              'Voir sur la carte',
+              style: TextStyle(
+                color: scheme.secondary,
+                fontSize: 12,
+                fontVariations: const [FontVariation.weight(650)],
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 
@@ -420,9 +455,10 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
 
   Widget _buildActionButton(BuildContext context, bool isLoading) {
     return SizedBox(
-      height: 40,
+      height: 50,
       child: AnimatedCrossFade(
-        firstChild: PopupMenuButton(
+        firstChild: GlassPopupMenuButton<JourneyModalAction>(
+          icon: const GlassPopupMenuTriggerIcon(icon: Icons.tune_rounded),
           onSelected: (action) => _handleModalAction(context, action),
           itemBuilder: (context) => _buildJourneyActions(),
         ),
@@ -443,60 +479,10 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
   void _handleModalAction(BuildContext context, JourneyModalAction action) {
     switch (action) {
       case JourneyModalAction.resetJourney:
-        showDialog<void>(
-          context: context,
-          builder: (_) {
-            return AlertDialog(
-              title: const Text('Êtes-vous sûr de réinitialiser le parcours ?'),
-              content: const Text(
-                'Le parcours sera dissocié de l\'événement, mais restera disponible dans votre historique.',
-              ),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Annuler'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.read<EventDetailsBloc>().add(ResetUserJourney());
-                  },
-                  child: const Text('Confirmer'),
-                ),
-              ],
-            );
-          },
-        );
+        _onResetJourney(context);
         break;
       case JourneyModalAction.deleteJourney:
-        showDialog<void>(
-          context: context,
-          builder: (_) {
-            return AlertDialog(
-              title: const Text('Êtes-vous sûr de supprimer le parcours ?'),
-              content: const Text('Le parcours sera définitivement supprimé.'),
-              actions: <Widget>[
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('Annuler'),
-                ),
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                    context.read<UserJourneyDetailsBloc>().add(
-                      DeleteUserJourney(),
-                    );
-                  },
-                  child: const Text('Confirmer'),
-                ),
-              ],
-            );
-          },
-        );
+        _onDeleteJourney(context);
         break;
       case JourneyModalAction.downloadJourney:
         context.read<UserJourneyDetailsBloc>().add(
@@ -506,225 +492,440 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
     }
   }
 
+  void _onResetJourney(BuildContext context) async {
+    final confirmed = await showGlassConfirmationDialog(
+      context: context,
+      title: 'Réinitialiser le parcours',
+      message:
+          'Le parcours sera dissocié de l\'événement, mais restera disponible dans votre historique.',
+      cancelLabel: 'Annuler',
+      confirmLabel: 'Confirmer',
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<EventDetailsBloc>().add(ResetUserJourney());
+    }
+  }
+
+  void _onDeleteJourney(BuildContext context) async {
+    final confirmed = await showGlassConfirmationDialog(
+      context: context,
+      title: 'Supprimer le parcours',
+      message: 'Le parcours sera définitivement supprimé.',
+      cancelLabel: 'Annuler',
+      confirmLabel: 'Confirmer',
+      destructiveConfirm: true,
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<UserJourneyDetailsBloc>().add(DeleteUserJourney());
+    }
+  }
+
   String _getJourneyFileName() {
     final date = DateFormat(
       'dd-MM-yyyy',
     ).format(widget.journey.createdAt.toLocal());
-
     final uniqueKey = DateTime.now().microsecondsSinceEpoch.toString();
-
     return 'parcours_${date}_$uniqueKey.gpx';
   }
 
-  Widget _buildOtherUserHeader() {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: const Icon(Icons.close),
-          onPressed: () {
-            Navigator.of(context).pop();
-          },
-        ),
-        const SizedBox(width: 16),
-        Flexible(
-          child: Text(
-            'Parcours de ${widget.user?.username}',
-            style: Theme.of(context).textTheme.titleMedium,
-            softWrap: true,
-          ),
-        ),
-      ],
-    );
-  }
-
-  List<PopupMenuItem> _buildJourneyActions() {
-    final actions = <PopupMenuItem>[];
+  List<PopupMenuItem<JourneyModalAction>> _buildJourneyActions() {
+    final actions = <PopupMenuItem<JourneyModalAction>>[];
 
     if (widget.isCurrentEvent) {
       actions.add(
-        const PopupMenuItem(
+        glassPopupMenuItem(
           value: JourneyModalAction.resetJourney,
-          child: Row(
-            children: [
-              Icon(Icons.restart_alt_rounded),
-              SizedBox(width: 8),
-              Text('Réinitialiser le parcours'),
-            ],
-          ),
+          icon: Icons.restart_alt_rounded,
+          label: 'Réinitialiser le parcours',
         ),
       );
     } else {
       actions.add(
-        const PopupMenuItem(
+        glassPopupMenuItem(
           value: JourneyModalAction.deleteJourney,
-          child: Row(
-            children: [
-              Icon(Icons.delete_rounded),
-              SizedBox(width: 8),
-              Text('Supprimer le parcours'),
-            ],
-          ),
+          icon: Icons.delete_rounded,
+          label: 'Supprimer le parcours',
         ),
       );
     }
 
     return [
       ...actions,
-      const PopupMenuItem(
+      glassPopupMenuItem(
         value: JourneyModalAction.downloadJourney,
-        child: Row(
-          children: [
-            Icon(Icons.download_rounded),
-            SizedBox(width: 8),
-            Text('Télécharger le parcours'),
-          ],
-        ),
+        icon: Icons.download_rounded,
+        label: 'Télécharger le parcours',
       ),
     ];
   }
-}
 
-class _JourneyInfoRow extends StatelessWidget {
-  final IconData icon;
-  final String text;
-  final TextStyle? titleStyle;
-  final TextStyle? bodyStyle;
-
-  const _JourneyInfoRow({
-    required this.icon,
-    required this.text,
-    this.titleStyle,
-    this.bodyStyle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Icon(icon),
-        const SizedBox(width: 8),
-        Text(text, style: titleStyle ?? Theme.of(context).textTheme.bodyMedium),
-      ],
-    );
+  T? _readOrNull<T>(BuildContext context) {
+    try {
+      return context.read<T>();
+    } on ProviderNotFoundException {
+      return null;
+    }
   }
 }
 
-class _JourneyStatRow extends StatelessWidget {
-  final Widget firstStat;
-  final Widget secondStat;
+class _JourneyHeroCard extends StatelessWidget {
+  final UserJourney journey;
+  final String subtitle;
 
-  const _JourneyStatRow({required this.firstStat, required this.secondStat});
-
-  @override
-  Widget build(BuildContext context) {
-    return IntrinsicHeight(
-      child: Row(
-        children: [
-          Flexible(child: firstStat),
-          const SizedBox(width: 16),
-          Flexible(child: secondStat),
-        ],
-      ),
-    );
-  }
-}
-
-class _JourneyStatCard extends StatelessWidget {
-  final String title;
-  final List<_StatItem> stats;
-
-  const _JourneyStatCard({required this.title, required this.stats});
+  const _JourneyHeroCard({required this.journey, required this.subtitle});
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
-      padding: const EdgeInsets.symmetric(vertical: 10),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(14),
+        borderRadius: BorderRadius.circular(22),
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.primaryContainer.withValues(alpha: 0.70),
+            scheme.primary.withValues(alpha: 0.52),
+          ],
+        ),
+        border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.14)),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Text(
-              title,
-              style: Theme.of(context).textTheme.bodySmall,
-              softWrap: true,
+          Text(
+            subtitle,
+            style: TextStyle(
+              color: scheme.onPrimary.withValues(alpha: 0.72),
+              fontSize: 12,
+              fontVariations: const [FontVariation.weight(560)],
             ),
           ),
-          const SizedBox(height: 8),
-          const Spacer(),
-          ...addSeparators(stats, const SizedBox(height: 8)),
+          const SizedBox(height: 10),
+          Row(
+            children: [
+              Expanded(
+                child: Text(
+                  journey.distanceLabel,
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontSize: 40,
+                    height: 0.95,
+                    fontVariations: const [FontVariation.weight(780)],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 10),
+              _MetricBadge(
+                icon: Icons.schedule_rounded,
+                label: journey.totalTimeLabel,
+              ),
+            ],
+          ),
         ],
       ),
     );
   }
 }
 
-class _StatItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final double? value;
+class _JourneyGamificationCard extends StatelessWidget {
+  final bool isSolo;
+  final double percentage;
+  final int betterCount;
+  final String title;
+  final String summaryText;
+  final String? bestText;
 
-  const _StatItem({
-    required this.icon,
-    required this.label,
-    required this.value,
+  const _JourneyGamificationCard({
+    required this.isSolo,
+    required this.percentage,
+    required this.betterCount,
+    required this.title,
+    required this.summaryText,
+    required this.bestText,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
-          child: Column(children: _getStats(context)),
-        ),
-        if (value == 100)
-          Positioned(
-            left: 9,
-            top: -2,
-            child: Lottie.asset(
-              "assets/lottie/lottie_medal.json",
-              width: 15,
-              repeat: true,
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: scheme.secondary.withValues(alpha: 0.12),
+        border: Border.all(color: scheme.secondary.withValues(alpha: 0.30)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.secondary.withValues(alpha: 0.20),
+                  border: Border.all(
+                    color: scheme.secondary.withValues(alpha: 0.40),
+                  ),
+                ),
+                child: Icon(
+                  isSolo
+                      ? Icons.emoji_events_rounded
+                      : Icons.sports_motorsports,
+                  color: scheme.secondary,
+                  size: 18,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontSize: 15,
+                    fontVariations: const [FontVariation.weight(720)],
+                  ),
+                ),
+              ),
+              if (betterCount > 0)
+                SizedBox(
+                  width: 32,
+                  child: Lottie.asset(
+                    "assets/lottie/lottie_medal.json",
+                    repeat: true,
+                  ),
+                ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          GradientProgressBar(
+            animateStart: true,
+            maxValue: 100,
+            value: percentage,
+            height: 7,
+            colors: [
+              Colors.red.shade400,
+              Colors.yellow.shade400,
+              Colors.green.shade400,
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            summaryText,
+            style: TextStyle(
+              color: scheme.onPrimary.withValues(alpha: 0.82),
+              fontSize: 13,
+              fontVariations: const [FontVariation.weight(580)],
             ),
           ),
+          if (bestText != null) ...[
+            const SizedBox(height: 6),
+            Text(
+              bestText!,
+              style: TextStyle(
+                color: scheme.secondary,
+                fontSize: 12,
+                fontVariations: const [FontVariation.weight(700)],
+              ),
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _JourneyStatGrid extends StatelessWidget {
+  final List<_JourneyStatCardData> cards;
+
+  const _JourneyStatGrid({required this.cards});
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final cardWidth = (constraints.maxWidth - 10) / 2;
+
+        return Wrap(
+          spacing: 10,
+          runSpacing: 10,
+          children: [
+            for (final card in cards)
+              SizedBox(width: cardWidth, child: _JourneyStatCard(data: card)),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _JourneyStatCardData {
+  final String title;
+  final IconData icon;
+  final List<_JourneyStatLineData> lines;
+
+  const _JourneyStatCardData({
+    required this.title,
+    required this.icon,
+    required this.lines,
+  });
+}
+
+class _JourneyStatLineData {
+  final IconData icon;
+  final String label;
+  final String value;
+  final double? score;
+
+  const _JourneyStatLineData({
+    required this.icon,
+    required this.label,
+    required this.value,
+    required this.score,
+  });
+}
+
+class _JourneyStatCard extends StatelessWidget {
+  final _JourneyStatCardData data;
+
+  const _JourneyStatCard({required this.data});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.fromLTRB(12, 10, 12, 10),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(16),
+        color: scheme.primaryContainer.withValues(alpha: 0.60),
+        border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.10)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(data.icon, size: 16, color: scheme.secondary),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  data.title,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontSize: 12,
+                    fontVariations: const [FontVariation.weight(690)],
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          for (int i = 0; i < data.lines.length; i++) ...[
+            _JourneyStatLine(line: data.lines[i]),
+            if (i < data.lines.length - 1) const SizedBox(height: 8),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _JourneyStatLine extends StatelessWidget {
+  final _JourneyStatLineData line;
+
+  const _JourneyStatLine({required this.line});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _statChip(scheme, line.icon, '${line.label} ${line.value}'),
+        if (line.score != null) ...[
+          const SizedBox(height: 4),
+          GradientProgressBar(
+            animateStart: true,
+            maxValue: 100,
+            value: line.score!,
+            height: 3.5,
+            colors: [
+              Colors.red.shade400,
+              Colors.yellow.shade400,
+              Colors.green.shade400,
+            ],
+          ),
+        ],
       ],
     );
   }
 
-  List<Widget> _getStats(BuildContext context) {
-    final widgets = <Widget>[
-      Row(
+  Widget _statChip(ColorScheme scheme, IconData icon, String label) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: scheme.onPrimary.withValues(alpha: 0.50)),
+        const SizedBox(width: 4),
+        Expanded(
+          child: Text(
+            label,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: TextStyle(
+              color: scheme.onPrimary.withValues(alpha: 0.70),
+              fontSize: 12,
+              fontVariations: const [FontVariation.weight(550)],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetricBadge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+
+  const _MetricBadge({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        color: scheme.secondary.withValues(alpha: 0.16),
+        border: Border.all(color: scheme.secondary.withValues(alpha: 0.36)),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 20),
-          const SizedBox(width: 4),
-          Text(label, style: Theme.of(context).textTheme.bodySmall),
+          Icon(icon, size: 14, color: scheme.secondary),
+          const SizedBox(width: 6),
+          Text(
+            label,
+            style: TextStyle(
+              color: scheme.secondary,
+              fontSize: 12,
+              fontVariations: const [FontVariation.weight(700)],
+            ),
+          ),
         ],
       ),
-    ];
-
-    if (value != null) {
-      widgets.addAll([
-        const SizedBox(height: 2),
-        GradientProgressBar(
-          animateStart: true,
-          maxValue: 100,
-          value: value!,
-          height: 3,
-          colors: [
-            Colors.red.shade400,
-            Colors.yellow.shade400,
-            Colors.green.shade400,
-          ],
-        ),
-      ]);
-    }
-
-    return widgets;
+    );
   }
 }

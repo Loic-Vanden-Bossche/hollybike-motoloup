@@ -13,55 +13,63 @@ class ImageGalleryDetailsEvent extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return Container(
-      height: 70,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.primaryContainer,
-        borderRadius: BorderRadius.circular(8),
+        borderRadius: BorderRadius.circular(14),
+        color: scheme.onPrimary.withValues(alpha: 0.06),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.12),
+          width: 1,
+        ),
       ),
       child: Stack(
         children: [
-          Opacity(
-            opacity: 0.2,
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(8),
-              child: Image(
-                width: double.infinity,
-                height: double.infinity,
-                image: event.imageProvider,
-                fit: BoxFit.cover,
+          Positioned.fill(
+            child: Opacity(
+              opacity: 0.16,
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: Image(image: event.imageProvider, fit: BoxFit.cover),
               ),
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(8),
+            padding: const EdgeInsets.all(12),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
                   Icons.event_rounded,
-                  color: Theme.of(context).colorScheme.onPrimary,
-                  size: 36,
+                  color: scheme.onPrimary.withValues(alpha: 0.72),
+                  size: 22,
                 ),
-                const SizedBox(width: 20),
-                Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      event.name,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      formatReadableDate(
-                        event.startDate.toLocal(),
-                      ).capitalize(),
-                      style: Theme.of(context).textTheme.bodySmall,
-                    ),
-                  ],
+                const SizedBox(width: 10),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        event.name,
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
+                          color: scheme.onPrimary.withValues(alpha: 0.86),
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        formatReadableDate(
+                          event.startDate.toLocal(),
+                        ).capitalize(),
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: scheme.onPrimary.withValues(alpha: 0.62),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

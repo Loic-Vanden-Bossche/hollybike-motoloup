@@ -2,6 +2,7 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -14,6 +15,8 @@ import 'package:hollybike/event/types/event_form_data.dart';
 import 'package:hollybike/event/types/minimal_event.dart';
 import 'package:hollybike/event/widgets/details/event_details_header.dart';
 import 'package:hollybike/event/widgets/details/event_edit_floating_button.dart';
+import 'package:hollybike/ui/widgets/bar/glass_tab_bar.dart';
+import 'package:hollybike/ui/widgets/buttons/glass_fab.dart';
 import 'package:hollybike/profile/services/profile_repository.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar_action_container.dart';
@@ -27,7 +30,6 @@ import '../../app/app_router.gr.dart';
 import '../../image/services/image_repository.dart';
 import '../../positions/bloc/user_positions/user_positions_bloc.dart';
 import '../../shared/widgets/app_toast.dart';
-import '../../shared/widgets/pinned_header_delegate.dart';
 import '../bloc/event_details_bloc/event_details_bloc.dart';
 import '../bloc/event_details_bloc/event_details_event.dart';
 import '../bloc/event_details_bloc/event_details_state.dart';
@@ -40,6 +42,13 @@ import '../widgets/details/event_details_actions_menu.dart';
 import '../widgets/images/show_event_images_picker.dart';
 
 enum EventDetailsTab { info, photos, myPhotos, map }
+
+const _kEventDetailsTabBarBodyHeight = 52.0;
+const _kEventDetailsTabBarHorizontalInset = 16.0;
+const _kEventDetailsTabBarVerticalInset = 0.0;
+const _kEventDetailsTopBarContentHeight = 56.0;
+const _kEventDetailsHeaderHeight = 260.0;
+const _kEventDetailsTopBarPinThreshold = 24.00;
 
 class Args {
   final MinimalEvent? event;
@@ -90,6 +99,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   late bool _animate = widget.animate;
 
   late final ScrollController _scrollController = ScrollController();
+  bool _interceptBackOnMap = false;
+  bool _isTabBarPinnedUnderTopBar = false;
 
   EventDetailsTab currentTab = EventDetailsTab.info;
 
@@ -105,169 +116,251 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         setState(() {
           currentTab = newTab;
         });
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _syncBackInterception();
+        });
       }
     });
 
+    _scrollController.addListener(_syncBackInterception);
     _refreshEventDetails();
   }
 
   @override
   void dispose() {
     _tabController.dispose();
+    _scrollController.removeListener(_syncBackInterception);
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<EventDetailsBloc, EventDetailsState>(
-      listener: (context, state) {
-        if (state is EventOperationFailure) {
-          Toast.showErrorToast(context, state.errorMessage);
-        } else if (state is EventDetailsLoadFailure) {
-          Toast.showErrorToast(context, state.errorMessage);
-        } else if (state is DeleteEventFailure) {
-          Toast.showErrorToast(context, state.errorMessage);
-        }
+    final statusBarInset = MediaQuery.viewPaddingOf(context).top;
+    final pinnedTopOffset = statusBarInset + _kEventDetailsTopBarContentHeight;
 
-        if (state is EventOperationSuccess) {
-          Toast.showSuccessToast(context, state.successMessage);
-        }
-
-        if (state is DeleteEventSuccess) {
-          Toast.showSuccessToast(context, "Événement supprimé");
-
-          setState(() {
-            _animate = false;
-          });
-
-          context.router.removeWhere((route) {
-            if (route.path == '/event-participations') {
-              final eventId =
-                  route
-                      .argsAs(
-                        orElse:
-                            () => EventParticipationsRouteArgs(
-                              eventDetails: EventDetails.empty(),
-                              participationPreview: [],
-                            ),
-                      )
-                      .eventDetails
-                      .event
-                      .id;
-
-              return eventId == widget.event.id;
-            }
-
-            if (route.path == "/event-details") {
-              final eventId =
-                  route
-                      .argsAs(
-                        orElse:
-                            () => EventDetailsRouteArgs(
-                              event: MinimalEvent.empty(),
-                            ),
-                      )
-                      .event
-                      .id;
-
-              return eventId == widget.event.id;
-            }
-
-            return false;
-          });
-        }
+    return PopScope(
+      canPop: !_interceptBackOnMap,
+      onPopInvokedWithResult: (didPop, result) async {
+        if (didPop) return;
+        if (!_interceptBackOnMap) return;
+        await _scrollController.animateTo(
+          0,
+          duration: const Duration(milliseconds: 280),
+          curve: Curves.easeOutCubic,
+        );
       },
-      child: BlocBuilder<EventDetailsBloc, EventDetailsState>(
-        builder: (context, state) {
-          return MultiBlocProvider(
-            providers: [
-              BlocProvider<EventImagesBloc>(
-                create:
-                    (context) => EventImagesBloc(
-                      eventId: widget.event.id,
-                      imageRepository: RepositoryProvider.of<ImageRepository>(
-                        context,
+      child: BlocListener<EventDetailsBloc, EventDetailsState>(
+        listener: (context, state) {
+          if (state is EventOperationFailure) {
+            Toast.showErrorToast(context, state.errorMessage);
+          } else if (state is EventDetailsLoadFailure) {
+            Toast.showErrorToast(context, state.errorMessage);
+          } else if (state is DeleteEventFailure) {
+            Toast.showErrorToast(context, state.errorMessage);
+          }
+
+          if (state is EventOperationSuccess) {
+            Toast.showSuccessToast(context, state.successMessage);
+          }
+
+          if (state is DeleteEventSuccess) {
+            Toast.showSuccessToast(context, "Événement supprimé");
+
+            setState(() {
+              _animate = false;
+            });
+
+            context.router.removeWhere((route) {
+              if (route.path == '/event-participations') {
+                final eventId =
+                    route
+                        .argsAs(
+                          orElse:
+                              () => EventParticipationsRouteArgs(
+                                eventDetails: EventDetails.empty(),
+                                participationPreview: [],
+                              ),
+                        )
+                        .eventDetails
+                        .event
+                        .id;
+
+                return eventId == widget.event.id;
+              }
+
+              if (route.path == "/event-details") {
+                final eventId =
+                    route
+                        .argsAs(
+                          orElse:
+                              () => EventDetailsRouteArgs(
+                                event: MinimalEvent.empty(),
+                              ),
+                        )
+                        .event
+                        .id;
+
+                return eventId == widget.event.id;
+              }
+
+              return false;
+            });
+          }
+        },
+        child: BlocBuilder<EventDetailsBloc, EventDetailsState>(
+          builder: (context, state) {
+            return MultiBlocProvider(
+              providers: [
+                BlocProvider<EventImagesBloc>(
+                  create:
+                      (context) => EventImagesBloc(
+                        eventId: widget.event.id,
+                        imageRepository: RepositoryProvider.of<ImageRepository>(
+                          context,
+                        ),
                       ),
-                    ),
-              ),
-              BlocProvider(
-                create:
-                    (context) => EventMyImagesBloc(
-                      eventId: widget.event.id,
-                      imageRepository: RepositoryProvider.of<ImageRepository>(
-                        context,
-                      ),
-                      eventRepository: RepositoryProvider.of<EventRepository>(
-                        context,
-                      ),
-                    ),
-              ),
-            ],
-            child: Hud(
-              appBar: TopBar(
-                prefix: TopBarActionIcon(
-                  onPressed: () => context.router.maybePop(),
-                  icon: Icons.arrow_back,
                 ),
-                title: const TopBarTitle("Détails"),
-                suffix: _renderActions(state),
-              ),
-              floatingActionButton: _getFloatingButton(),
-              body: NestedScrollView(
-                controller: _scrollController,
-                headerSliverBuilder: (
-                  BuildContext context,
-                  bool innerBoxIsScrolled,
-                ) {
-                  return <Widget>[
-                    SliverToBoxAdapter(
-                      child: EventDetailsHeader(
-                        event:
-                            state.eventDetails?.event.toMinimalEvent() ??
-                            widget.event,
-                        animate: _animate,
-                        uniqueKey: widget.uniqueKey,
+                BlocProvider(
+                  create:
+                      (context) => EventMyImagesBloc(
+                        eventId: widget.event.id,
+                        imageRepository: RepositoryProvider.of<ImageRepository>(
+                          context,
+                        ),
+                        eventRepository: RepositoryProvider.of<EventRepository>(
+                          context,
+                        ),
                       ),
-                    ),
-                    SliverOverlapAbsorber(
-                      handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
-                        context,
+                ),
+              ],
+              child: Hud(
+                appBar: TopBar(
+                  prefix: TopBarActionIcon(
+                    onPressed: _handleBackNavigation,
+                    icon: Icons.arrow_back,
+                  ),
+                  title: TopBarTitle(
+                    state.eventDetails?.event.name ?? widget.event.name,
+                  ),
+                  suffix: _renderActions(state),
+                ),
+                floatingActionButton: _getFloatingButton(),
+                body: NestedScrollView(
+                  controller: _scrollController,
+                  headerSliverBuilder: (BuildContext context, bool _) {
+                    return <Widget>[
+                      SliverToBoxAdapter(
+                        child: EventDetailsHeader(
+                          event:
+                              state.eventDetails?.event.toMinimalEvent() ??
+                              widget.event,
+                          animate: _animate,
+                          uniqueKey: widget.uniqueKey,
+                        ),
                       ),
-                      sliver: SliverPersistentHeader(
-                        pinned: true,
-                        delegate: PinnedHeaderDelegate(
-                          height: 50,
-                          child: Container(
-                            color: Theme.of(context).scaffoldBackgroundColor,
-                            child: TabBar(
+                      SliverOverlapAbsorber(
+                        handle: NestedScrollView.sliverOverlapAbsorberHandleFor(
+                          context,
+                        ),
+                        sliver: SliverPersistentHeader(
+                          pinned: true,
+                          delegate: _EventDetailsPinnedTabBarDelegate(
+                            height:
+                                _kEventDetailsTabBarBodyHeight +
+                                (_kEventDetailsTabBarVerticalInset * 2),
+                            pinnedTopOffset: pinnedTopOffset,
+                            isPinned: _isTabBarPinnedUnderTopBar,
+                            child: GlassTabBar(
                               controller: _tabController,
-                              labelColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              indicatorColor:
-                                  Theme.of(context).colorScheme.secondary,
-                              tabs: const [
-                                Tab(icon: Icon(Icons.info)),
-                                Tab(icon: Icon(Icons.photo_library_rounded)),
-                                Tab(
-                                  icon: Icon(Icons.add_photo_alternate_rounded),
+                              isScrollable: true,
+                              tabAlignment: TabAlignment.center,
+                              margin: EdgeInsets.zero,
+                              items: const [
+                                GlassTabItem(
+                                  icon: Icons.info_rounded,
+                                  label: 'Infos',
                                 ),
-                                Tab(icon: Icon(Icons.explore_rounded)),
+                                GlassTabItem(
+                                  icon: Icons.photo_library_rounded,
+                                  label: 'Photos',
+                                ),
+                                GlassTabItem(
+                                  icon: Icons.add_photo_alternate_rounded,
+                                  label: 'Mes photos',
+                                ),
+                                GlassTabItem(
+                                  icon: Icons.explore_rounded,
+                                  label: 'Carte',
+                                ),
                               ],
                             ),
                           ),
                         ),
                       ),
-                    ),
-                  ];
-                },
-                body: _tabTabContent(),
+                    ];
+                  },
+                  body: _tabTabContent(),
+                ),
               ),
-            ),
-          );
-        },
+            );
+          },
+        ),
       ),
     );
   }
+
+  Future<void> _handleBackNavigation() async {
+    if (_shouldScrollMapToTopFirst()) {
+      await _scrollController.animateTo(
+        0,
+        duration: const Duration(milliseconds: 280),
+        curve: Curves.easeOutCubic,
+      );
+      return;
+    }
+
+    if (!mounted) return;
+    context.router.maybePop();
+  }
+
+  bool _shouldScrollMapToTopFirst() {
+    if (currentTab != EventDetailsTab.map) return false;
+    if (!_scrollController.hasClients) return false;
+    return _scrollController.offset > 24;
+  }
+
+  void _syncBackInterception() {
+    final shouldIntercept = _shouldScrollMapToTopFirst();
+    final shouldPinTabBar = _shouldPinTabBarUnderTopBar();
+    final shouldUpdateMapInterception = shouldIntercept != _interceptBackOnMap;
+    final shouldUpdateTabPin = shouldPinTabBar != _isTabBarPinnedUnderTopBar;
+
+    if ((shouldUpdateMapInterception || shouldUpdateTabPin) && mounted) {
+      setState(() {
+        if (shouldUpdateMapInterception) {
+          _interceptBackOnMap = shouldIntercept;
+        }
+        if (shouldUpdateTabPin) {
+          _isTabBarPinnedUnderTopBar = shouldPinTabBar;
+        }
+      });
+    }
+  }
+
+  bool _shouldPinTabBarUnderTopBar() {
+    if (!_scrollController.hasClients || !mounted) return false;
+
+    final statusBarInset = MediaQuery.viewPaddingOf(context).top;
+    final topUiHeight = statusBarInset + _kEventDetailsTopBarContentHeight;
+    final triggerOffset =
+        _kEventDetailsHeaderHeight -
+        topUiHeight +
+        _kEventDetailsTopBarPinThreshold;
+
+    return _scrollController.offset >= triggerOffset;
+  }
+
+  // ── Tab content ────────────────────────────────────────────────────────────
 
   Widget _tabTabContent() {
     return BlocBuilder<EventDetailsBloc, EventDetailsState>(
@@ -340,16 +433,26 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         child: EventDetailsMap(
           eventId: eventDetails.event.id,
           journey: eventDetails.journey,
-          onMapLoaded: () {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeInOut,
-            );
-          },
+          onMapLoaded: _scrollMapToFullscreen,
+          onMapInteractionStart: _scrollMapToFullscreen,
         ),
       ),
     ];
+  }
+
+  void _scrollMapToFullscreen() {
+    if (!_scrollController.hasClients) return;
+
+    final target = _scrollController.position.maxScrollExtent;
+    final current = _scrollController.offset;
+
+    if ((target - current).abs() < 24) return;
+
+    _scrollController.animateTo(
+      target,
+      duration: const Duration(milliseconds: 280),
+      curve: Curves.easeOutCubic,
+    );
   }
 
   Future<void> _refreshEventDetails() {
@@ -395,20 +498,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
             return Builder(
               builder: (providerContext) {
-                return FloatingActionButton.extended(
+                return GlassFab(
+                  icon: Icons.add_a_photo_outlined,
+                  label: 'Ajouter des photos',
                   onPressed:
                       () => showEventImagesPicker(
                         providerContext,
                         eventDetails.event.id,
                         bloc: providerContext.read<EventMyImagesBloc>(),
                       ),
-                  label: Text(
-                    "Ajouter des photos",
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  icon: const Icon(Icons.add_a_photo),
                 );
               },
             );
@@ -456,5 +554,65 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     context.read<EventDetailsBloc>().add(EditEvent(formData: formData));
 
     Navigator.of(context).pop();
+  }
+}
+
+class _EventDetailsPinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final double height;
+  final double pinnedTopOffset;
+  final bool isPinned;
+  final Widget child;
+
+  const _EventDetailsPinnedTabBarDelegate({
+    required this.height,
+    required this.pinnedTopOffset,
+    required this.isPinned,
+    required this.child,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final topOffset = isPinned ? pinnedTopOffset : 0.0;
+
+    return SizedBox.expand(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(end: topOffset),
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutCubic,
+        builder: (context, animatedTopOffset, child) {
+          return Transform.translate(
+            offset: Offset(0, animatedTopOffset),
+            child: child,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            _kEventDetailsTabBarHorizontalInset,
+            _kEventDetailsTabBarVerticalInset,
+            _kEventDetailsTabBarHorizontalInset,
+            _kEventDetailsTabBarVerticalInset,
+          ),
+          child: SizedBox(height: _kEventDetailsTabBarBodyHeight, child: child),
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(covariant _EventDetailsPinnedTabBarDelegate oldDelegate) {
+    return oldDelegate.height != height ||
+        oldDelegate.pinnedTopOffset != pinnedTopOffset ||
+        oldDelegate.isPinned != isPinned ||
+        oldDelegate.child != child;
   }
 }

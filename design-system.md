@@ -3,6 +3,67 @@
 ## Aesthetic
 Apple Vision Pro / Glassmorphism aesthetic. Frosted glass surfaces, backdrop blur, soft gradient background blobs, layered translucent depth, generous rounded corners, smooth transitions.
 
+## Flutter Color Tokens
+
+These are the canonical color values used in `packages/app/lib/theme/bloc/theme_bloc.dart`.
+All Flutter widgets reference `Theme.of(context).colorScheme.*`.
+
+### Catppuccin Palette Mapping
+
+| Role | Catppuccin name | Dark (Mocha) | Light (Latte) |
+|------|-----------------|-------------|---------------|
+| App background | base | `#1e1e2e` | `#eff1f5` |
+| Card / surface bg | mantle | `#181825` | `#e6e9ef` |
+| Deep background | crust | `#11111b` | `#dce0e8` |
+| Primary text | text | `#cdd6f4` | `#4c4f69` |
+| Secondary text | subtext-0 | `#a6adc8` | `#6c6f85` |
+| Accent (teal) | teal | `#94e2d5` | `#179299` |
+| Error (red) | red | `#f38ba8` | `#d20f39` |
+
+### Flutter `ColorScheme` Fields
+
+| Field | Dark | Light | Semantic use |
+|-------|------|-------|--------------|
+| `primary` | `#1e1e2e` | `#eff1f5` | Main app background (Scaffold bg) |
+| `primaryContainer` | `#181825` | `#e6e9ef` | Card / glass surface base |
+| `onPrimary` | `#cdd6f4` | `#4c4f69` | **Primary text** — full opacity on `primary` bg |
+| `onPrimaryContainer` | `#a6adc8` | `#6c6f85` | Secondary text / icon color |
+| `surface` | `#11111b` | `#dce0e8` | Deepest background layer |
+| `onSurface` | `#bac2de` | `#4c4f69` | Text on surface |
+| `secondary` | `#94e2d5` | `#179299` | Teal accent — CTAs, badges, active states |
+| `error` | `#f38ba8` | `#d20f39` | Destructive actions, errors |
+
+### Alpha Usage Conventions
+
+Glass and hierarchy effects use `withValues(alpha:)` on `onPrimary`:
+
+| Alpha | Semantic use |
+|-------|-------------|
+| `1.0 – 0.80` | Primary text, active icons |
+| `0.55 – 0.65` | Secondary text, descriptions |
+| `0.30 – 0.45` | Tertiary labels, hints |
+| `0.10 – 0.14` | Borders, dividers |
+| `0.05 – 0.08` | Subtle fills |
+
+Glass surfaces use `primaryContainer.withValues(alpha: 0.60)` + `onPrimary/0.10` border.
+Teal pill buttons use `secondary.withValues(alpha: 0.15)` fill + `secondary/0.40` border.
+Ghost buttons use `primaryContainer/0.55` fill + `onPrimary/0.12` border.
+
+### Web (Tailwind/Catppuccin) ↔ Flutter Mapping
+
+| Web class | Flutter field |
+|-----------|--------------|
+| `bg-base` / `bg-mantle` | `primary` / `primaryContainer` |
+| `text-text` | `onPrimary` |
+| `text-subtext-0` | `onPrimaryContainer` |
+| `bg-crust` | `surface` |
+| `text-teal` / `bg-teal` | `secondary` |
+| `text-red` | `error` |
+| `bg-surface-0/30 backdrop-blur-xl` | `primaryContainer.withValues(alpha:0.60)` + `BackdropFilter.blur(18)` |
+| `border-surface-2/30` | `onPrimary.withValues(alpha:0.10)` border |
+
+---
+
 ## Reference Implementation
 
 ```tsx
