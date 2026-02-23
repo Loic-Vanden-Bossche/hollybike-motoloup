@@ -268,26 +268,30 @@ class _LoginScreenState extends State<LoginScreen>
                   opacity: _fadeIn,
                   child: SlideTransition(
                     position: _slideIn,
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(horizontal: 24),
-                      child: ConstrainedBox(
-                        constraints: BoxConstraints(
-                          minHeight:
-                              MediaQuery.of(context).size.height -
-                              MediaQuery.of(context).padding.top -
-                              MediaQuery.of(context).padding.bottom,
-                        ),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const SizedBox(height: 32),
-                            _buildLogo(context),
-                            const SizedBox(height: 36),
-                            _buildCard(context, isLoading, error),
-                            const SizedBox(height: 32),
-                          ],
-                        ),
-                      ),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        return SingleChildScrollView(
+                          padding: const EdgeInsets.symmetric(horizontal: 24),
+                          child: ConstrainedBox(
+                            // constraints.maxHeight shrinks when the keyboard
+                            // appears (Scaffold resizeToAvoidBottomInset:true),
+                            // so the column naturally scrolls to keep form visible
+                            constraints: BoxConstraints(
+                              minHeight: constraints.maxHeight,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                const SizedBox(height: 32),
+                                _buildLogo(context),
+                                const SizedBox(height: 36),
+                                _buildCard(context, isLoading, error),
+                                const SizedBox(height: 32),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),
