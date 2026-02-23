@@ -84,14 +84,9 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
                 padding: const EdgeInsets.all(8),
                 child: Row(
                   children: [
-                    SizedBox(
-                      width: 126,
-                      child: _buildMediaPane(context),
-                    ),
+                    SizedBox(width: 126, child: _buildMediaPane(context)),
                     const SizedBox(width: 12),
-                    Expanded(
-                      child: _buildDetailsPane(context, scheme),
-                    ),
+                    Expanded(child: _buildDetailsPane(context, scheme)),
                   ],
                 ),
               ),
@@ -112,6 +107,30 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
         if (_animate)
           Hero(
             tag: 'event-name-$_uniqueKey',
+            flightShuttleBuilder: (
+              flightContext,
+              animation,
+              flightDirection,
+              fromHeroContext,
+              toHeroContext,
+            ) {
+              final shuttle = (toHeroContext.widget as Hero).child;
+              return Material(
+                color: Colors.transparent,
+                child: ClipRect(
+                  child: SizedBox.expand(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: shuttle,
+                      ),
+                    ),
+                  ),
+                ),
+              );
+            },
             child: _buildTitle(context, scheme),
           ),
         if (!_animate) _buildTitle(context, scheme),
@@ -125,58 +144,44 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
   }
 
   Widget _buildMediaPane(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    final image =
+    final heroMedia =
         _animate
             ? Hero(
               tag: 'event-image-$_uniqueKey',
-              child: _buildImage(),
+              flightShuttleBuilder: (
+                flightContext,
+                animation,
+                flightDirection,
+                fromHeroContext,
+                toHeroContext,
+              ) {
+                final shuttle = (toHeroContext.widget as Hero).child;
+                return AnimatedBuilder(
+                  animation: animation,
+                  child: shuttle,
+                  builder: (context, child) {
+                    final progress =
+                        animation.status == AnimationStatus.reverse
+                            ? 1 - animation.value
+                            : animation.value;
+                    final radius =
+                        flightDirection == HeroFlightDirection.push
+                            ? lerpDouble(16, 0, progress)!
+                            : lerpDouble(0, 16, progress)!;
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(radius),
+                      child: child,
+                    );
+                  },
+                );
+              },
+              child: _buildMediaHeroLayer(context),
             )
-            : _buildImage();
+            : _buildMediaHeroLayer(context);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
-      child: Stack(
-        fit: StackFit.expand,
-        children: [
-          image,
-          DecoratedBox(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [
-                  Colors.black.withValues(alpha: 0.10),
-                  Colors.black.withValues(alpha: 0.48),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            left: 8,
-            bottom: 8,
-            child: _buildDateBadge(context),
-          ),
-          Positioned(
-            top: 8,
-            right: 8,
-            child: Container(
-              width: 18,
-              height: 18,
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: scheme.secondary.withValues(alpha: 0.8),
-              ),
-              child: Icon(
-                Icons.arrow_outward_rounded,
-                color: scheme.surface,
-                size: 11,
-              ),
-            ),
-          ),
-        ],
-      ),
+      child: Stack(fit: StackFit.expand, children: [heroMedia]),
     );
   }
 
@@ -290,6 +295,47 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
     );
   }
 
+  Widget _buildMediaHeroLayer(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        _buildImage(),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                Colors.black.withValues(alpha: 0.10),
+                Colors.black.withValues(alpha: 0.48),
+              ],
+            ),
+          ),
+        ),
+        Positioned(left: 8, bottom: 8, child: _buildDateBadge(context)),
+        Positioned(
+          top: 8,
+          right: 8,
+          child: Container(
+            width: 18,
+            height: 18,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: scheme.secondary.withValues(alpha: 0.8),
+            ),
+            child: Icon(
+              Icons.arrow_outward_rounded,
+              color: scheme.surface,
+              size: 11,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildMetaRow(BuildContext context, ColorScheme scheme) {
     return Row(
       children: [
@@ -369,7 +415,11 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
         children: [
           Row(
             children: [
-              Icon(icon, size: 11, color: scheme.onPrimary.withValues(alpha: 0.7)),
+              Icon(
+                icon,
+                size: 11,
+                color: scheme.onPrimary.withValues(alpha: 0.7),
+              ),
               const SizedBox(width: 4),
               Flexible(
                 child: Text(
@@ -413,10 +463,7 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(50),
           color: color.withValues(alpha: 0.2),
-          border: Border.all(
-            color: color.withValues(alpha: 0.24),
-            width: 1,
-          ),
+          border: Border.all(color: color.withValues(alpha: 0.24), width: 1),
         ),
         child: Row(
           mainAxisSize: MainAxisSize.min,

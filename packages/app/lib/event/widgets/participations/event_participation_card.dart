@@ -58,7 +58,7 @@ class EventParticipationCard extends StatelessWidget {
           child: Row(
             children: [
               Hero(
-                tag: "profile_picture_participation_${participation.user.id}",
+                tag: "user-${participation.user.id}-profile-picture",
                 child: UserProfilePicture(
                   url: participation.user.profilePicture,
                   profilePictureKey: participation.user.profilePictureKey,
@@ -73,15 +73,23 @@ class EventParticipationCard extends StatelessWidget {
                     Row(
                       children: [
                         Expanded(
-                          child: Text(
-                            participation.user.username,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: Theme.of(
-                              context,
-                            ).textTheme.titleSmall?.copyWith(
-                              color: scheme.onPrimary,
-                              fontVariations: const [FontVariation.weight(740)],
+                          child: Hero(
+                            tag: "user-${participation.user.id}-username",
+                            child: Material(
+                              color: Colors.transparent,
+                              child: Text(
+                                participation.user.username,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: Theme.of(
+                                  context,
+                                ).textTheme.titleSmall?.copyWith(
+                                  color: scheme.onPrimary,
+                                  fontVariations: const [
+                                    FontVariation.weight(740),
+                                  ],
+                                ),
+                              ),
                             ),
                           ),
                         ),

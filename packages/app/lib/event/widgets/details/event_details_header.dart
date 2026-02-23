@@ -34,42 +34,82 @@ class EventDetailsHeader extends StatelessWidget {
             enabled: animate,
             child: Hero(
               tag: "event-image-$uniqueKey",
-              child: Image(
-                image: event.imageProvider,
-                fit: BoxFit.cover,
-                width: double.infinity,
-                height: double.infinity,
-                errorBuilder: (context, error, stackTrace) => ColoredBox(
-                  color: scheme.primary.withValues(alpha: 0.3),
-                  child: Center(
-                    child: Icon(
-                      Icons.image_not_supported_rounded,
-                      color: scheme.onPrimary.withValues(alpha: 0.3),
-                      size: 48,
+              flightShuttleBuilder: (
+                flightContext,
+                animation,
+                flightDirection,
+                fromHeroContext,
+                toHeroContext,
+              ) {
+                final shuttle = (toHeroContext.widget as Hero).child;
+                return AnimatedBuilder(
+                  animation: animation,
+                  child: shuttle,
+                  builder: (context, child) {
+                    final progress =
+                        animation.status == AnimationStatus.reverse
+                            ? 1 - animation.value
+                            : animation.value;
+                    final radius =
+                        flightDirection == HeroFlightDirection.push
+                            ? lerpDouble(16, 0, progress)!
+                            : lerpDouble(0, 16, progress)!;
+                    return Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(radius),
+                          child: child,
+                        ),
+                        if (flightDirection == HeroFlightDirection.push)
+                          Positioned(
+                            left: 16,
+                            bottom: 82,
+                            child: IgnorePointer(
+                              child: _DateBadge(date: event.startDate),
+                            ),
+                          ),
+                      ],
+                    );
+                  },
+                );
+              },
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image(
+                    image: event.imageProvider,
+                    fit: BoxFit.cover,
+                    width: double.infinity,
+                    height: double.infinity,
+                    errorBuilder:
+                        (context, error, stackTrace) => ColoredBox(
+                          color: scheme.primary.withValues(alpha: 0.3),
+                          child: Center(
+                            child: Icon(
+                              Icons.image_not_supported_rounded,
+                              color: scheme.onPrimary.withValues(alpha: 0.3),
+                              size: 48,
+                            ),
+                          ),
+                        ),
+                  ),
+                  DecoratedBox(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        stops: const [0.0, 0.30, 0.65, 1.0],
+                        colors: [
+                          Colors.black.withValues(alpha: 0.35),
+                          Colors.transparent,
+                          scheme.primaryContainer.withValues(alpha: 0.50),
+                          scheme.primaryContainer,
+                        ],
+                      ),
                     ),
                   ),
-                ),
-              ),
-            ),
-          ),
-
-          // ── Gradient overlay ──────────────────────────────────────────
-          // Top dark vignette for TopBar readability,
-          // bottom fade into scaffold background for seamless transition.
-          Positioned.fill(
-            child: DecoratedBox(
-              decoration: BoxDecoration(
-                gradient: LinearGradient(
-                  begin: Alignment.topCenter,
-                  end: Alignment.bottomCenter,
-                  stops: const [0.0, 0.30, 0.65, 1.0],
-                  colors: [
-                    Colors.black.withValues(alpha: 0.35),
-                    Colors.transparent,
-                    scheme.primaryContainer.withValues(alpha: 0.50),
-                    scheme.primaryContainer,
-                  ],
-                ),
+                ],
               ),
             ),
           ),
@@ -91,6 +131,30 @@ class EventDetailsHeader extends StatelessWidget {
                   enabled: animate,
                   child: Hero(
                     tag: "event-name-$uniqueKey",
+                    flightShuttleBuilder: (
+                      flightContext,
+                      animation,
+                      flightDirection,
+                      fromHeroContext,
+                      toHeroContext,
+                    ) {
+                      final shuttle = (toHeroContext.widget as Hero).child;
+                      return Material(
+                        color: Colors.transparent,
+                        child: ClipRect(
+                          child: SizedBox.expand(
+                            child: Align(
+                              alignment: Alignment.centerLeft,
+                              child: FittedBox(
+                                fit: BoxFit.scaleDown,
+                                alignment: Alignment.centerLeft,
+                                child: shuttle,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                     child: Text(
                       event.name,
                       maxLines: 2,
@@ -129,39 +193,50 @@ class _DateBadge extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final maxBadgeWidth = MediaQuery.sizeOf(context).width - 64;
+
     return ClipRRect(
       borderRadius: BorderRadius.circular(50),
       child: BackdropFilter(
         filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
-            color: Colors.black.withValues(alpha: 0.32),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.18),
-              width: 1,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(maxWidth: maxBadgeWidth),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(50),
+              color: Colors.black.withValues(alpha: 0.32),
+              border: Border.all(
+                color: Colors.white.withValues(alpha: 0.18),
+                width: 1,
+              ),
             ),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(
-                Icons.calendar_today_rounded,
-                color: Colors.white70,
-                size: 11,
-              ),
-              const SizedBox(width: 6),
-              Text(
-                _formatDate(date),
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 11,
-                  fontVariations: [FontVariation.weight(650)],
-                  letterSpacing: 0.2,
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                const Icon(
+                  Icons.calendar_today_rounded,
+                  color: Colors.white70,
+                  size: 11,
                 ),
-              ),
-            ],
+                const SizedBox(width: 6),
+                Flexible(
+                  fit: FlexFit.loose,
+                  child: Text(
+                    _formatDate(date),
+                    maxLines: 1,
+                    softWrap: false,
+                    overflow: TextOverflow.ellipsis,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 11,
+                      fontVariations: [FontVariation.weight(650)],
+                      letterSpacing: 0.2,
+                    ),
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),

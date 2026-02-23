@@ -31,7 +31,7 @@ class EventParticipationModal extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Hero(
-                tag: "profile_picture_participation_${participation.user.id}",
+                tag: "user-${participation.user.id}-profile-picture",
                 child: UserProfilePicture(
                   url: participation.user.profilePicture,
                   profilePictureKey: participation.user.profilePictureKey,
@@ -43,13 +43,21 @@ class EventParticipationModal extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      participation.user.username,
-                      style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        color: scheme.onPrimary,
-                        fontVariations: const [FontVariation.weight(760)],
+                    Hero(
+                      tag: "user-${participation.user.id}-username",
+                      child: Material(
+                        color: Colors.transparent,
+                        child: Text(
+                          participation.user.username,
+                          style: Theme.of(
+                            context,
+                          ).textTheme.titleMedium?.copyWith(
+                            color: scheme.onPrimary,
+                            fontVariations: const [FontVariation.weight(760)],
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ),
-                      overflow: TextOverflow.ellipsis,
                     ),
                     const SizedBox(height: 3),
                     Text(
@@ -116,6 +124,10 @@ class EventParticipationModal extends StatelessWidget {
   }
 
   void _onOpenUserProfile(BuildContext context) {
-    context.router.pushPath("/profile/${participation.user.id}");
+    final router = context.router;
+    Navigator.of(context).pop();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      router.pushPath("/profile/${participation.user.id}");
+    });
   }
 }

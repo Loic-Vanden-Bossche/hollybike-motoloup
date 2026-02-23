@@ -31,6 +31,7 @@ class EventsSectionsList extends StatefulWidget {
   final ScrollController? controller;
   final ScrollPhysics physics;
   final bool prioritizeUpcomingFirst;
+  final double extraBottomPadding;
 
   const EventsSectionsList({
     super.key,
@@ -38,6 +39,7 @@ class EventsSectionsList extends StatefulWidget {
     required this.hasMore,
     this.controller,
     this.prioritizeUpcomingFirst = false,
+    this.extraBottomPadding = 0,
     this.physics = const BouncingScrollPhysics(
       parent: AlwaysScrollableScrollPhysics(),
     ),
@@ -64,6 +66,7 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
     // With Scaffold.extendBody: true, MediaQuery.padding.bottom inside the body
     // includes the floating BottomBar height.
     final bottomPadding = MediaQuery.of(context).padding.bottom;
+    final totalBottomPadding = bottomPadding + widget.extraBottomPadding;
 
     return NotificationListener<ScrollUpdateNotification>(
       onNotification: (notification) {
@@ -138,7 +141,7 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
             ),
           ),
 
-          SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
+          SliverToBoxAdapter(child: SizedBox(height: totalBottomPadding)),
         ],
       ),
     );

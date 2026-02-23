@@ -10,6 +10,7 @@ class TopBar extends StatelessWidget {
   final Widget? suffix;
   final Widget? title;
   final bool noPadding;
+  final bool useTitleContainer;
 
   const TopBar({
     super.key,
@@ -17,6 +18,7 @@ class TopBar extends StatelessWidget {
     this.suffix,
     this.title,
     this.noPadding = false,
+    this.useTitleContainer = true,
   });
 
   @override
@@ -69,13 +71,16 @@ class TopBar extends StatelessWidget {
                     child: Hero(
                       tag: "top_bar_title",
                       transitionOnUserGestures: true,
-                      child: BarContainer(
-                        alignment: Alignment.center,
-                        margin: EdgeInsets.symmetric(
-                          horizontal: noPadding ? 8 : 16,
-                        ),
-                        child: title,
-                      ),
+                      child:
+                          useTitleContainer
+                              ? BarContainer(
+                                alignment: Alignment.center,
+                                margin: EdgeInsets.symmetric(
+                                  horizontal: noPadding ? 8 : 16,
+                                ),
+                                child: title,
+                              )
+                              : title!,
                     ),
                   ),
                 ],

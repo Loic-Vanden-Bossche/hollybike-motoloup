@@ -2,7 +2,6 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
-import 'dart:ui';
 
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +15,7 @@ import 'package:hollybike/event/types/event_form_data.dart';
 import 'package:hollybike/event/types/minimal_event.dart';
 import 'package:hollybike/event/widgets/details/event_details_header.dart';
 import 'package:hollybike/event/widgets/details/event_edit_floating_button.dart';
+import 'package:hollybike/ui/widgets/bar/glass_tab_bar.dart';
 import 'package:hollybike/ui/widgets/buttons/glass_fab.dart';
 import 'package:hollybike/profile/services/profile_repository.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar.dart';
@@ -30,7 +30,6 @@ import '../../app/app_router.gr.dart';
 import '../../image/services/image_repository.dart';
 import '../../positions/bloc/user_positions/user_positions_bloc.dart';
 import '../../shared/widgets/app_toast.dart';
-import '../../shared/widgets/pinned_header_delegate.dart';
 import '../bloc/event_details_bloc/event_details_bloc.dart';
 import '../bloc/event_details_bloc/event_details_event.dart';
 import '../bloc/event_details_bloc/event_details_state.dart';
@@ -43,6 +42,13 @@ import '../widgets/details/event_details_actions_menu.dart';
 import '../widgets/images/show_event_images_picker.dart';
 
 enum EventDetailsTab { info, photos, myPhotos, map }
+
+const _kEventDetailsTabBarBodyHeight = 52.0;
+const _kEventDetailsTabBarHorizontalInset = 16.0;
+const _kEventDetailsTabBarVerticalInset = 0.0;
+const _kEventDetailsTopBarContentHeight = 56.0;
+const _kEventDetailsHeaderHeight = 260.0;
+const _kEventDetailsTopBarPinThreshold = 24.00;
 
 class Args {
   final MinimalEvent? event;
@@ -94,6 +100,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
   late final ScrollController _scrollController = ScrollController();
   bool _interceptBackOnMap = false;
+  bool _isTabBarPinnedUnderTopBar = false;
 
   EventDetailsTab currentTab = EventDetailsTab.info;
 
@@ -128,6 +135,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
   @override
   Widget build(BuildContext context) {
+    final statusBarInset = MediaQuery.viewPaddingOf(context).top;
+    final pinnedTopOffset = statusBarInset + _kEventDetailsTopBarContentHeight;
+
     return PopScope(
       canPop: !_interceptBackOnMap,
       onPopInvokedWithResult: (didPop, result) async {
@@ -237,10 +247,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                 floatingActionButton: _getFloatingButton(),
                 body: NestedScrollView(
                   controller: _scrollController,
-                  headerSliverBuilder: (
-                    BuildContext context,
-                    bool innerBoxIsScrolled,
-                  ) {
+                  headerSliverBuilder: (BuildContext context, bool _) {
                     return <Widget>[
                       SliverToBoxAdapter(
                         child: EventDetailsHeader(
@@ -257,9 +264,36 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                         ),
                         sliver: SliverPersistentHeader(
                           pinned: true,
-                          delegate: PinnedHeaderDelegate(
-                            height: 52,
-                            child: _buildGlassTabBar(context),
+                          delegate: _EventDetailsPinnedTabBarDelegate(
+                            height:
+                                _kEventDetailsTabBarBodyHeight +
+                                (_kEventDetailsTabBarVerticalInset * 2),
+                            pinnedTopOffset: pinnedTopOffset,
+                            isPinned: _isTabBarPinnedUnderTopBar,
+                            child: GlassTabBar(
+                              controller: _tabController,
+                              isScrollable: true,
+                              tabAlignment: TabAlignment.center,
+                              margin: EdgeInsets.zero,
+                              items: const [
+                                GlassTabItem(
+                                  icon: Icons.info_rounded,
+                                  label: 'Infos',
+                                ),
+                                GlassTabItem(
+                                  icon: Icons.photo_library_rounded,
+                                  label: 'Photos',
+                                ),
+                                GlassTabItem(
+                                  icon: Icons.add_photo_alternate_rounded,
+                                  label: 'Mes photos',
+                                ),
+                                GlassTabItem(
+                                  icon: Icons.explore_rounded,
+                                  label: 'Carte',
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
@@ -297,86 +331,33 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
   void _syncBackInterception() {
     final shouldIntercept = _shouldScrollMapToTopFirst();
+    final shouldPinTabBar = _shouldPinTabBarUnderTopBar();
+    final shouldUpdateMapInterception = shouldIntercept != _interceptBackOnMap;
+    final shouldUpdateTabPin = shouldPinTabBar != _isTabBarPinnedUnderTopBar;
 
-    if (shouldIntercept != _interceptBackOnMap && mounted) {
+    if ((shouldUpdateMapInterception || shouldUpdateTabPin) && mounted) {
       setState(() {
-        _interceptBackOnMap = shouldIntercept;
+        if (shouldUpdateMapInterception) {
+          _interceptBackOnMap = shouldIntercept;
+        }
+        if (shouldUpdateTabPin) {
+          _isTabBarPinnedUnderTopBar = shouldPinTabBar;
+        }
       });
     }
   }
 
-  // ── Glassmorphic pill tab bar ───────────────────────────────────────────────
+  bool _shouldPinTabBarUnderTopBar() {
+    if (!_scrollController.hasClients || !mounted) return false;
 
-  Widget _buildGlassTabBar(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
+    final statusBarInset = MediaQuery.viewPaddingOf(context).top;
+    final topUiHeight = statusBarInset + _kEventDetailsTopBarContentHeight;
+    final triggerOffset =
+        _kEventDetailsHeaderHeight -
+        topUiHeight +
+        _kEventDetailsTopBarPinThreshold;
 
-    return Container(
-      color: scheme.primaryContainer,
-      alignment: Alignment.center,
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(50),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
-          child: Container(
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              color: scheme.primary.withValues(alpha: 0.60),
-              border: Border.all(
-                color: scheme.onPrimary.withValues(alpha: 0.10),
-                width: 1,
-              ),
-            ),
-            child: TabBar(
-              controller: _tabController,
-              isScrollable: true,
-              tabAlignment: TabAlignment.center,
-              dividerColor: Colors.transparent,
-              padding: const EdgeInsets.symmetric(horizontal: 4),
-              indicatorSize: TabBarIndicatorSize.tab,
-              indicatorPadding: const EdgeInsets.symmetric(vertical: 5),
-              indicator: BoxDecoration(
-                borderRadius: BorderRadius.circular(50),
-                color: scheme.secondary.withValues(alpha: 0.20),
-                border: Border.all(
-                  color: scheme.secondary.withValues(alpha: 0.30),
-                  width: 1,
-                ),
-              ),
-              labelColor: scheme.secondary,
-              unselectedLabelColor: scheme.onPrimary.withValues(alpha: 0.55),
-              labelStyle: Theme.of(context).textTheme.titleSmall,
-              unselectedLabelStyle: Theme.of(context).textTheme.titleSmall,
-              overlayColor: WidgetStateProperty.all(Colors.transparent),
-              splashFactory: NoSplash.splashFactory,
-              tabs: [
-                _buildTab(Icons.info_rounded, 'Infos'),
-                _buildTab(Icons.photo_library_rounded, 'Photos'),
-                _buildTab(Icons.add_photo_alternate_rounded, 'Mes photos'),
-                _buildTab(Icons.explore_rounded, 'Carte'),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildTab(IconData icon, String label) {
-    return Tab(
-      height: 36,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 6),
-        child: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(icon, size: 14),
-            const SizedBox(width: 6),
-            Text(label),
-          ],
-        ),
-      ),
-    );
+    return _scrollController.offset >= triggerOffset;
   }
 
   // ── Tab content ────────────────────────────────────────────────────────────
@@ -573,5 +554,65 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     context.read<EventDetailsBloc>().add(EditEvent(formData: formData));
 
     Navigator.of(context).pop();
+  }
+}
+
+class _EventDetailsPinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final double height;
+  final double pinnedTopOffset;
+  final bool isPinned;
+  final Widget child;
+
+  const _EventDetailsPinnedTabBarDelegate({
+    required this.height,
+    required this.pinnedTopOffset,
+    required this.isPinned,
+    required this.child,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final topOffset = isPinned ? pinnedTopOffset : 0.0;
+
+    return SizedBox.expand(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(end: topOffset),
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutCubic,
+        builder: (context, animatedTopOffset, child) {
+          return Transform.translate(
+            offset: Offset(0, animatedTopOffset),
+            child: child,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            _kEventDetailsTabBarHorizontalInset,
+            _kEventDetailsTabBarVerticalInset,
+            _kEventDetailsTabBarHorizontalInset,
+            _kEventDetailsTabBarVerticalInset,
+          ),
+          child: SizedBox(height: _kEventDetailsTabBarBodyHeight, child: child),
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(covariant _EventDetailsPinnedTabBarDelegate oldDelegate) {
+    return oldDelegate.height != height ||
+        oldDelegate.pinnedTopOffset != pinnedTopOffset ||
+        oldDelegate.isPinned != isPinned ||
+        oldDelegate.child != child;
   }
 }

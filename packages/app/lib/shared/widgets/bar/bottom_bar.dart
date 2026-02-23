@@ -39,7 +39,7 @@ class _BottomBarState extends State<BottomBar> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = _getRouteIndex(context.router.current.name);
+    _currentIndex = _getRouteIndex(context.router.current.name) ?? 0;
 
     try {
       context.router.addListener(_routeListener);
@@ -62,7 +62,7 @@ class _BottomBarState extends State<BottomBar> {
 
       final index = _getRouteIndex(context.router.current.name);
 
-      if (index != -1) {
+      if (index != null && index != _currentIndex) {
         safeSetState(() {
           _currentIndex = index;
         });
@@ -72,12 +72,9 @@ class _BottomBarState extends State<BottomBar> {
     }
   }
 
-  int _getRouteIndex(String routeName) {
+  int? _getRouteIndex(String routeName) {
     try {
-      final currentRouteName = context.router.current.name;
-      final index = _routes.indexWhere(
-        (route) => route.routeName == currentRouteName,
-      );
+      final index = _routes.indexWhere((route) => route.routeName == routeName);
 
       if (index != -1) {
         return index;
@@ -86,7 +83,7 @@ class _BottomBarState extends State<BottomBar> {
       // ignore: avoid_print
     }
 
-    return 0;
+    return null;
   }
 
   @override

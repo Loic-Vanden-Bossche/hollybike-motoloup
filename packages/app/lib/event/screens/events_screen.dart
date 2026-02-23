@@ -11,6 +11,7 @@ import 'package:hollybike/profile/bloc/profile_bloc/profile_bloc.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar.dart';
 import 'package:hollybike/shared/widgets/bloc_provided_builder.dart';
 import 'package:hollybike/shared/widgets/hud/hud.dart';
+import 'package:hollybike/ui/widgets/bar/glass_tab_bar.dart';
 
 import '../../app/app_router.gr.dart';
 import '../../shared/types/tab_description.dart';
@@ -101,9 +102,20 @@ class _EventsScreenState extends State<EventsScreen>
           return Hud(
             appBar: TopBar(
               noPadding: true,
-              title: _EventPillTabs(
+              useTitleContainer: false,
+              title: GlassTabBar(
                 controller: _controller,
-                tabs: tabs,
+                isScrollable: true,
+                tabAlignment: TabAlignment.center,
+                margin: const EdgeInsets.symmetric(horizontal: 24),
+                tabBarPadding: const EdgeInsets.symmetric(horizontal: 8),
+                items:
+                    tabs
+                        .map(
+                          (tab) =>
+                              GlassTabItem(icon: tab.icon, label: tab.title),
+                        )
+                        .toList(),
               ),
             ),
             floatingActionButton: _getFloatingActionButton(),
@@ -152,60 +164,5 @@ class _EventsScreenState extends State<EventsScreen>
         _currentTab = newTab;
       });
     }
-  }
-}
-
-class _EventPillTabs extends StatelessWidget {
-  final TabController controller;
-  final List<TabDescription> tabs;
-
-  const _EventPillTabs({required this.controller, required this.tabs});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return TabBar(
-      controller: controller,
-      isScrollable: true,
-      tabAlignment: TabAlignment.center,
-      dividerColor: Colors.transparent,
-      padding: const EdgeInsets.symmetric(horizontal: 8),
-      indicatorSize: TabBarIndicatorSize.tab,
-      indicatorPadding: const EdgeInsets.symmetric(vertical: 6),
-      indicator: BoxDecoration(
-        borderRadius: BorderRadius.circular(50),
-        color: scheme.secondary.withValues(alpha: 0.2),
-        border: Border.all(
-          color: scheme.secondary.withValues(alpha: 0.3),
-          width: 1,
-        ),
-      ),
-      labelColor: scheme.secondary,
-      unselectedLabelColor: scheme.onPrimary.withValues(alpha: 0.55),
-      labelStyle: Theme.of(context).textTheme.titleSmall,
-      unselectedLabelStyle: Theme.of(context).textTheme.titleSmall,
-      overlayColor: WidgetStateProperty.all(Colors.transparent),
-      splashFactory: NoSplash.splashFactory,
-      tabs:
-          tabs
-              .map(
-                (tab) => Tab(
-                  height: 36,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 6),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(tab.icon, size: 14),
-                        const SizedBox(width: 6),
-                        Text(tab.title),
-                      ],
-                    ),
-                  ),
-                ),
-              )
-              .toList(),
-    );
   }
 }

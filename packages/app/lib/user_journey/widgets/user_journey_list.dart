@@ -16,6 +16,7 @@ class UserJourneyList extends StatelessWidget {
   final List<UserJourney> userJourneys;
   final MinimalUser user;
   final bool isNested;
+  final double bottomPadding;
   final void Function(UserJourney)? onJourneySelected;
 
   const UserJourneyList({
@@ -24,6 +25,7 @@ class UserJourneyList extends StatelessWidget {
     required this.userJourneys,
     required this.user,
     this.isNested = true,
+    this.bottomPadding = 0,
     this.onJourneySelected,
   });
 
@@ -81,6 +83,8 @@ class UserJourneyList extends StatelessWidget {
               ),
             ),
           ),
+        if (bottomPadding > 0)
+          SliverToBoxAdapter(child: SizedBox(height: bottomPadding)),
       ],
     );
   }

@@ -49,10 +49,7 @@ class EventParticipationsPreview extends StatelessWidget {
                 width: 1,
               ),
             ),
-            padding: const EdgeInsets.symmetric(
-              horizontal: 14,
-              vertical: 12,
-            ),
+            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
@@ -105,8 +102,7 @@ class EventParticipationsPreview extends StatelessWidget {
               final index = entry.key;
 
               final avatar = Hero(
-                tag:
-                    "profile_picture_participation_${participation.user.id}",
+                tag: "user-${participation.user.id}-profile-picture",
                 child: Container(
                   width: _avatarSize,
                   decoration: BoxDecoration(

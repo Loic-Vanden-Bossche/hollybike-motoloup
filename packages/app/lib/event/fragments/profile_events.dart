@@ -46,6 +46,8 @@ class _ProfileEventsState extends State<ProfileEvents> {
 
   @override
   Widget build(BuildContext context) {
+    final bottomPadding = 126 + MediaQuery.paddingOf(context).bottom;
+
     return ThemedRefreshIndicator(
       onRefresh: () => _refreshEvents(),
       child: BlocBuilder<UserEventsBloc, EventsState>(
@@ -59,6 +61,7 @@ class _ProfileEventsState extends State<ProfileEvents> {
             child: EventsSectionsList(
               events: state.events,
               hasMore: state.hasMore,
+              extraBottomPadding: bottomPadding,
               physics: const ClampingScrollPhysics(),
             ),
           );

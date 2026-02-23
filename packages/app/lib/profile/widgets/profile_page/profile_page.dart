@@ -15,15 +15,16 @@ import 'package:hollybike/profile/bloc/profile_images_bloc/profile_images_bloc.d
 import 'package:hollybike/profile/bloc/profile_journeys_bloc/profile_journeys_bloc.dart';
 import 'package:hollybike/profile/widgets/profile_banner/profile_banner.dart';
 import 'package:hollybike/profile/widgets/profile_page/placeholder_profile_page.dart';
-import 'package:hollybike/shared/widgets/pinned_header_delegate.dart';
+import 'package:hollybike/ui/widgets/bar/glass_tab_bar.dart';
 import 'package:hollybike/user/types/minimal_user.dart';
 import 'package:hollybike/user_journey/services/user_journey_repository.dart';
 
 import '../../widgets/profile_images.dart';
 import '../../widgets/profile_journeys.dart';
 
-// Tab bar height — must match the Padding(top:) applied to ProfileEvents
-const _kTabBarHeight = 52.0;
+const _kProfileTabBarBodyHeight = 52.0;
+const _kProfileTabBarHorizontalInset = 14.0;
+const _kProfileTabBarVerticalInset = 0.0;
 
 class ProfilePage extends StatefulWidget {
   final int? id;
@@ -62,6 +63,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
+    final statusBarInset = MediaQuery.viewPaddingOf(context).top;
+    final tabBarHeight =
+        _kProfileTabBarBodyHeight + (_kProfileTabBarVerticalInset * 2);
+
     if (widget.profileLoading) {
       return PlaceholderProfilePage(loadingProfileId: widget.id);
     }
@@ -71,16 +76,14 @@ class _ProfilePageState extends State<ProfilePage> {
         child: Text(
           'Une erreur est survenue lors de la récupération du profil.',
           style: TextStyle(
-            color: Theme.of(context).colorScheme.onPrimary.withValues(
-              alpha: 0.55,
-            ),
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.55),
           ),
           textAlign: TextAlign.center,
         ),
       );
     }
-
-    final scheme = Theme.of(context).colorScheme;
 
     return DefaultTabController(
       length: 3,
@@ -99,7 +102,6 @@ class _ProfilePageState extends State<ProfilePage> {
                   onSettings: widget.onSettings,
                 ),
               ),
-              const SliverToBoxAdapter(child: SizedBox(height: 12)),
 
               // ── Pinned glass pill tab bar ────────────────────────────────
               SliverOverlapAbsorber(
@@ -108,42 +110,27 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
                 sliver: SliverPersistentHeader(
                   pinned: true,
-                  delegate: PinnedHeaderDelegate(
-                    height: _kTabBarHeight,
-                    child: Container(
-                      color: scheme.primaryContainer,
-                      padding: const EdgeInsets.fromLTRB(14, 6, 14, 6),
-                      child: Container(
-                        decoration: BoxDecoration(
-                          color: scheme.primaryContainer.withValues(alpha: 0.60),
-                          borderRadius: BorderRadius.circular(50),
-                          border: Border.all(
-                            color: scheme.onPrimary.withValues(alpha: 0.08),
-                            width: 1,
-                          ),
+                  delegate: _ProfilePinnedTabBarDelegate(
+                    height: tabBarHeight,
+                    statusBarInset: statusBarInset,
+                    child: const GlassTabBar(
+                      isScrollable: true,
+                      tabAlignment: TabAlignment.center,
+                      margin: EdgeInsets.zero,
+                      items: [
+                        GlassTabItem(
+                          icon: Icons.event_rounded,
+                          label: 'Évènements',
                         ),
-                        child: TabBar(
-                          indicator: BoxDecoration(
-                            color: scheme.secondary.withValues(alpha: 0.15),
-                            borderRadius: BorderRadius.circular(50),
-                            border: Border.all(
-                              color: scheme.secondary.withValues(alpha: 0.35),
-                              width: 1,
-                            ),
-                          ),
-                          indicatorSize: TabBarIndicatorSize.tab,
-                          dividerColor: Colors.transparent,
-                          labelColor: scheme.secondary,
-                          unselectedLabelColor: scheme.onPrimary.withValues(
-                            alpha: 0.45,
-                          ),
-                          tabs: const [
-                            Tab(icon: Icon(Icons.event_rounded, size: 18)),
-                            Tab(icon: Icon(Icons.image_rounded, size: 18)),
-                            Tab(icon: Icon(Icons.route_rounded, size: 18)),
-                          ],
+                        GlassTabItem(
+                          icon: Icons.image_rounded,
+                          label: 'Photos',
                         ),
-                      ),
+                        GlassTabItem(
+                          icon: Icons.route_rounded,
+                          label: 'Trajets',
+                        ),
+                      ],
                     ),
                   ),
                 ),
@@ -208,13 +195,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
           return TabBarView(
             children: [
-              Padding(
-                padding: const EdgeInsets.only(top: _kTabBarHeight),
-                child: ProfileEvents(
-                  isMe: isMe,
-                  username: widget.profile!.username,
-                  scrollController: _scrollController,
-                ),
+              ProfileEvents(
+                isMe: isMe,
+                username: widget.profile!.username,
+                scrollController: _scrollController,
               ),
               ProfileImages(
                 isMe: isMe,
@@ -231,5 +215,62 @@ class _ProfilePageState extends State<ProfilePage> {
         },
       ),
     );
+  }
+}
+
+class _ProfilePinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
+  final double height;
+  final double statusBarInset;
+  final Widget child;
+
+  const _ProfilePinnedTabBarDelegate({
+    required this.height,
+    required this.statusBarInset,
+    required this.child,
+  });
+
+  @override
+  Widget build(
+    BuildContext context,
+    double shrinkOffset,
+    bool overlapsContent,
+  ) {
+    final topOffset = shrinkOffset > 0 ? statusBarInset : 0.0;
+
+    return SizedBox.expand(
+      child: TweenAnimationBuilder<double>(
+        tween: Tween<double>(end: topOffset),
+        duration: const Duration(milliseconds: 160),
+        curve: Curves.easeOutCubic,
+        builder: (context, animatedTopOffset, child) {
+          return Transform.translate(
+            offset: Offset(0, animatedTopOffset),
+            child: child,
+          );
+        },
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(
+            _kProfileTabBarHorizontalInset,
+            _kProfileTabBarVerticalInset,
+            _kProfileTabBarHorizontalInset,
+            _kProfileTabBarVerticalInset,
+          ),
+          child: SizedBox(height: _kProfileTabBarBodyHeight, child: child),
+        ),
+      ),
+    );
+  }
+
+  @override
+  double get maxExtent => height;
+
+  @override
+  double get minExtent => height;
+
+  @override
+  bool shouldRebuild(covariant _ProfilePinnedTabBarDelegate oldDelegate) {
+    return oldDelegate.height != height ||
+        oldDelegate.statusBarInset != statusBarInset ||
+        oldDelegate.child != child;
   }
 }
