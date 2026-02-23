@@ -2,8 +2,6 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
-import 'dart:ui';
-
 import 'package:flutter/material.dart';
 
 class JourneyPreviewCardContainer extends StatelessWidget {

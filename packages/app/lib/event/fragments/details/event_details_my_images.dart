@@ -10,7 +10,6 @@ import 'package:hollybike/event/widgets/images/event_images_visibility_dialog.da
 import 'package:hollybike/image/bloc/image_list_state.dart';
 import 'package:hollybike/image/widgets/image_gallery/image_gallery.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
-import 'package:lottie/lottie.dart';
 
 import '../../../app/app_router.gr.dart';
 import '../../../shared/widgets/app_toast.dart';
@@ -63,21 +62,22 @@ class EventDetailsMyImages extends StatelessWidget {
               scrollViewKey: 'event_details_my_images_$eventId',
               child: SliverMainAxisGroup(
                 slivers: [
-                  SliverToBoxAdapter(
-                    child: Padding(
-                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
-                      child: _MyImagesHeader(
-                        imageCount: imageCount,
-                        isImagesPublic: isImagesPublic,
-                        onVisibilityTap:
-                            () => showEventImagesVisibilityDialog(
-                              context,
-                              isImagesPublic: isImagesPublic,
-                              eventId: eventId,
-                            ),
+                  if (isParticipating)
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+                        child: _MyImagesHeader(
+                          imageCount: imageCount,
+                          isImagesPublic: isImagesPublic,
+                          onVisibilityTap:
+                              () => showEventImagesVisibilityDialog(
+                                context,
+                                isImagesPublic: isImagesPublic,
+                                eventId: eventId,
+                              ),
+                        ),
                       ),
                     ),
-                  ),
                   ImageGallery(
                     scrollController: scrollController,
                     contentPadding: EdgeInsets.fromLTRB(
@@ -121,22 +121,18 @@ class EventDetailsMyImages extends StatelessWidget {
     final message =
         isParticipating
             ? "Vous n'avez ajouté aucune photo"
-            : "Vous devez participer à l'évènement ajouter des photos";
+            : "Participez à l'évènement pour ajouter vos photos";
 
     final widgets = <Widget>[
-      Lottie.asset(
-        fit: BoxFit.cover,
-        'assets/lottie/lottie_images_placeholder.json',
-        repeat: false,
-        height: 150,
-      ),
+      const _PlaceholderIcon(),
+      const SizedBox(height: 12),
       Text(
         message,
         textAlign: TextAlign.center,
         style: TextStyle(
-          color: scheme.onPrimary,
-          fontSize: 15,
-          fontVariations: const [FontVariation.weight(650)],
+          color: scheme.onPrimary.withValues(alpha: 0.75),
+          fontSize: 14,
+          fontVariations: const [FontVariation.weight(550)],
         ),
       ),
     ];
@@ -144,20 +140,48 @@ class EventDetailsMyImages extends StatelessWidget {
     if (!isParticipating) {
       widgets.addAll([
         const SizedBox(height: 16),
-        ElevatedButton(
-          onPressed: () => _onJoin(context),
-          child: const Text("Rejoindre l'évènement"),
+        GestureDetector(
+          onTap: () => _onJoin(context),
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+            decoration: BoxDecoration(
+              color: scheme.secondary.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(
+                color: scheme.secondary.withValues(alpha: 0.40),
+                width: 1,
+              ),
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(
+                  Icons.group_add_rounded,
+                  size: 15,
+                  color: scheme.secondary,
+                ),
+                const SizedBox(width: 7),
+                Text(
+                  "Rejoindre l'évènement",
+                  style: TextStyle(
+                    color: scheme.secondary,
+                    fontSize: 13,
+                    fontVariations: const [FontVariation.weight(650)],
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
       ]);
     }
 
     return Container(
       width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
         color: scheme.primaryContainer.withValues(alpha: 0.50),
-        border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.12)),
       ),
       child: Column(mainAxisSize: MainAxisSize.min, children: widgets),
     );
@@ -242,19 +266,110 @@ class _MyImagesHeader extends StatelessWidget {
               ],
             ),
           ),
-          TextButton.icon(
-            onPressed: onVisibilityTap,
-            style: TextButton.styleFrom(
-              foregroundColor: isImagesPublic ? scheme.secondary : scheme.error,
-              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          GestureDetector(
+            onTap: onVisibilityTap,
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 11, vertical: 7),
+              decoration: BoxDecoration(
+                color: isImagesPublic
+                    ? scheme.secondary.withValues(alpha: 0.12)
+                    : scheme.error.withValues(alpha: 0.10),
+                borderRadius: BorderRadius.circular(50),
+                border: Border.all(
+                  color: isImagesPublic
+                      ? scheme.secondary.withValues(alpha: 0.35)
+                      : scheme.error.withValues(alpha: 0.30),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    isImagesPublic ? Icons.public_rounded : Icons.lock_outline_rounded,
+                    size: 14,
+                    color: isImagesPublic ? scheme.secondary : scheme.error,
+                  ),
+                  const SizedBox(width: 5),
+                  Text(
+                    isImagesPublic ? 'Public' : 'Privé',
+                    style: TextStyle(
+                      color: isImagesPublic ? scheme.secondary : scheme.error,
+                      fontSize: 12,
+                      fontVariations: const [FontVariation.weight(650)],
+                    ),
+                  ),
+                ],
+              ),
             ),
-            icon: Icon(
-              isImagesPublic ? Icons.public : Icons.lock_outline,
-              size: 18,
-            ),
-            label: Text(isImagesPublic ? 'Public' : 'Privé'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _PlaceholderIcon extends StatefulWidget {
+  const _PlaceholderIcon();
+
+  @override
+  State<_PlaceholderIcon> createState() => _PlaceholderIconState();
+}
+
+class _PlaceholderIconState extends State<_PlaceholderIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _scale;
+  late final Animation<double> _fade;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 700),
+    )..forward();
+    _scale = CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutBack,
+    );
+    _fade = CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.0, 0.55, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return FadeTransition(
+      opacity: _fade,
+      child: ScaleTransition(
+        scale: _scale,
+        child: Container(
+          width: 72,
+          height: 72,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scheme.secondary.withValues(alpha: 0.10),
+            border: Border.all(
+              color: scheme.secondary.withValues(alpha: 0.25),
+              width: 1.5,
+            ),
+          ),
+          child: Icon(
+            Icons.photo_library_outlined,
+            size: 30,
+            color: scheme.secondary.withValues(alpha: 0.75),
+          ),
+        ),
       ),
     );
   }

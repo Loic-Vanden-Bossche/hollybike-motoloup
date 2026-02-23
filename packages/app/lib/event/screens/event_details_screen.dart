@@ -16,6 +16,7 @@ import 'package:hollybike/event/types/event_form_data.dart';
 import 'package:hollybike/event/types/minimal_event.dart';
 import 'package:hollybike/event/widgets/details/event_details_header.dart';
 import 'package:hollybike/event/widgets/details/event_edit_floating_button.dart';
+import 'package:hollybike/ui/widgets/buttons/glass_fab.dart';
 import 'package:hollybike/profile/services/profile_repository.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar_action_container.dart';
@@ -516,20 +517,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
             return Builder(
               builder: (providerContext) {
-                return FloatingActionButton.extended(
+                return GlassFab(
+                  icon: Icons.add_a_photo_outlined,
+                  label: 'Ajouter des photos',
                   onPressed:
                       () => showEventImagesPicker(
                         providerContext,
                         eventDetails.event.id,
                         bloc: providerContext.read<EventMyImagesBloc>(),
                       ),
-                  label: Text(
-                    "Ajouter des photos",
-                    style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                      color: Theme.of(context).colorScheme.primary,
-                    ),
-                  ),
-                  icon: const Icon(Icons.add_a_photo),
                 );
               },
             );

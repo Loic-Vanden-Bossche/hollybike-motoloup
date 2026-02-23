@@ -13,6 +13,7 @@ import 'package:hollybike/event/bloc/event_participations_bloc/event_participati
 import 'package:hollybike/event/types/event_details.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar_action_icon.dart';
 import 'package:hollybike/shared/widgets/hud/hud.dart';
+import 'package:hollybike/ui/widgets/buttons/glass_fab.dart';
 
 import '../../../shared/widgets/app_toast.dart';
 import '../../../shared/widgets/bar/top_bar.dart';
@@ -130,19 +131,14 @@ class _EventParticipationsScreenState extends State<EventParticipationsScreen> {
               return const SizedBox();
             }
 
-            return FloatingActionButton.extended(
+            return GlassFab(
+              icon: Icons.group_add_rounded,
+              label: 'Ajouter',
               onPressed: () {
                 context.router.push(
                   EventCandidatesRoute(eventId: widget.eventDetails.event.id),
                 );
               },
-              label: Text(
-                'Ajouter',
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              icon: const Icon(Icons.group_add),
             );
           },
         ),

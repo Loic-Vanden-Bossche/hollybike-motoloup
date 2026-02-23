@@ -41,7 +41,7 @@ class EventDetailsActionsMenu extends StatelessWidget {
     if (actions.isEmpty) return const SizedBox();
 
     return GlassPopupMenuButton<EventDetailsAction>(
-      icon: const GlassPopupMenuTriggerIcon(icon: Icons.more_vert),
+      icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.primary),
       itemBuilder: (context) {
         return actions;
       },

@@ -55,7 +55,7 @@ class JourneyModalHeader extends StatelessWidget {
   Widget _buildEditMenu(BuildContext context, ColorScheme scheme) {
     return GlassPopupMenuButton<JourneyModalAction>(
       onSelected: (action) => _onActionsSelected(context, action),
-      icon: const GlassPopupMenuTriggerIcon(),
+      icon: const GlassPopupMenuTriggerIcon(icon: Icons.tune_rounded),
       itemBuilder:
           (context) => [
             glassPopupMenuItem(

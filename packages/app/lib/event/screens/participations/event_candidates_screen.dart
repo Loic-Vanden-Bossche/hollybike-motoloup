@@ -17,6 +17,7 @@ import '../../../shared/widgets/app_toast.dart';
 import '../../../shared/widgets/bar/top_bar.dart';
 import '../../../shared/widgets/bar/top_bar_title.dart';
 import '../../../shared/widgets/hud/hud.dart';
+import 'package:hollybike/ui/widgets/buttons/glass_fab.dart';
 import '../../services/event/event_repository.dart';
 import '../../services/participation/event_participation_repository.dart';
 import 'package:lottie/lottie.dart';
@@ -108,15 +109,10 @@ class _EventCandidatesScreenState extends State<EventCandidatesScreen> {
           Widget? floatingActionButton;
 
           if (_selectedCandidates.isNotEmpty) {
-            floatingActionButton = FloatingActionButton.extended(
+            floatingActionButton = GlassFab(
+              icon: Icons.person_add_rounded,
+              label: 'Ajouter ${_selectedCandidates.length} participants',
               onPressed: _addCandidates,
-              label: Text(
-                "Ajouter ${_selectedCandidates.length} participants",
-                style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                  color: Theme.of(context).colorScheme.primary,
-                ),
-              ),
-              icon: const Icon(Icons.add),
             );
           }
 

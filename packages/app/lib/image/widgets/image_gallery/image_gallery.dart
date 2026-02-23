@@ -95,10 +95,12 @@ class _ImageGalleryState extends State<ImageGallery> {
     if (widget.images.isEmpty) {
       return SliverFillRemaining(
         hasScrollBody: false,
-        child: Column(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [widget.emptyPlaceholder],
+        child: Align(
+          alignment: const Alignment(0, -0.4),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12),
+            child: widget.emptyPlaceholder,
+          ),
         ),
       );
     }

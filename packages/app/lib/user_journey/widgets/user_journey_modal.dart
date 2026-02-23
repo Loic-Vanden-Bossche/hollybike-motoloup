@@ -455,9 +455,10 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
 
   Widget _buildActionButton(BuildContext context, bool isLoading) {
     return SizedBox(
-      height: 40,
+      height: 50,
       child: AnimatedCrossFade(
         firstChild: GlassPopupMenuButton<JourneyModalAction>(
+          icon: const GlassPopupMenuTriggerIcon(icon: Icons.tune_rounded),
           onSelected: (action) => _handleModalAction(context, action),
           itemBuilder: (context) => _buildJourneyActions(),
         ),
