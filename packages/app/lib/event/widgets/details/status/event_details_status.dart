@@ -49,63 +49,60 @@ class EventDetailsStatusBadge extends StatelessWidget {
 
         return ClipRRect(
           borderRadius: BorderRadius.circular(22),
-          child: BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    statusColor.withValues(alpha: 0.16),
-                    scheme.primary.withValues(alpha: 0.45),
-                  ],
-                ),
-                border: Border.all(
-                  color: statusColor.withValues(alpha: 0.28),
-                  width: 1,
-                ),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 14,
-                    ),
-                    child: Row(
-                      children: [
-                        Expanded(child: _buildStatus(context, statusColor)),
-                        const SizedBox(width: 8),
-                        _buildAction(context, isLoading, statusColor),
-                      ],
-                    ),
-                  ),
-                  // Loading progress bar at the bottom of the card
-                  AnimatedCrossFade(
-                    duration: const Duration(milliseconds: 150),
-                    crossFadeState:
-                        isLoading
-                            ? CrossFadeState.showSecond
-                            : CrossFadeState.showFirst,
-                    firstChild: const SizedBox(height: 3, width: double.infinity),
-                    secondChild: ClipRRect(
-                      borderRadius: const BorderRadius.only(
-                        bottomLeft: Radius.circular(22),
-                        bottomRight: Radius.circular(22),
-                      ),
-                      child: LinearProgressIndicator(
-                        backgroundColor: statusColor.withValues(alpha: 0.15),
-                        valueColor: AlwaysStoppedAnimation<Color>(statusColor),
-                        minHeight: 3,
-                      ),
-                    ),
-                  ),
+          child: Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  statusColor.withValues(alpha: 0.16),
+                  scheme.primary.withValues(alpha: 0.45),
                 ],
               ),
+              border: Border.all(
+                color: statusColor.withValues(alpha: 0.28),
+                width: 1,
+              ),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  child: Row(
+                    children: [
+                      Expanded(child: _buildStatus(context, statusColor)),
+                      const SizedBox(width: 8),
+                      _buildAction(context, isLoading, statusColor),
+                    ],
+                  ),
+                ),
+                // Loading progress bar at the bottom of the card
+                AnimatedCrossFade(
+                  duration: const Duration(milliseconds: 150),
+                  crossFadeState:
+                  isLoading
+                      ? CrossFadeState.showSecond
+                      : CrossFadeState.showFirst,
+                  firstChild: const SizedBox(height: 3, width: double.infinity),
+                  secondChild: ClipRRect(
+                    borderRadius: const BorderRadius.only(
+                      bottomLeft: Radius.circular(22),
+                      bottomRight: Radius.circular(22),
+                    ),
+                    child: LinearProgressIndicator(
+                      backgroundColor: statusColor.withValues(alpha: 0.15),
+                      valueColor: AlwaysStoppedAnimation<Color>(statusColor),
+                      minHeight: 3,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
         );

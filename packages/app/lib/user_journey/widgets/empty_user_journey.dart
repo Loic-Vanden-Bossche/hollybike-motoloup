@@ -14,37 +14,44 @@ class EmptyUserJourney extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
     return DottedBorder(
       options: RoundedRectDottedBorderOptions(
-        strokeWidth: 2,
-        color: Theme.of(context).colorScheme.onPrimary.withValues(alpha: 0.3),
-        radius: const Radius.circular(14),
-        dashPattern: const [5, 5],
+        strokeWidth: 1.2,
+        color: scheme.onPrimary.withValues(alpha: 0.24),
+        radius: const Radius.circular(16),
+        dashPattern: const [4, 6],
       ),
       child: Container(
         height: double.infinity,
-        padding: const EdgeInsets.all(8),
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
           color: color,
-          borderRadius: BorderRadius.circular(14),
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.08)),
         ),
         child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          mainAxisAlignment: MainAxisAlignment.start,
           mainAxisSize: MainAxisSize.max,
           children: [
-            Flexible(
+            SizedBox(
+              width: 58,
+              height: 58,
               child: Lottie.asset(
                 'assets/lottie/lottie_journey.json',
                 repeat: false,
               ),
             ),
+            const SizedBox(width: 10),
             Expanded(
               child: Text(
                 _getMessage(),
                 softWrap: true,
-                textAlign: TextAlign.center,
+                textAlign: TextAlign.left,
                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                  color: Theme.of(context).colorScheme.onPrimary,
+                  color: scheme.onPrimary.withValues(alpha: 0.84),
+                  fontVariations: const [FontVariation.weight(560)],
                 ),
               ),
             ),

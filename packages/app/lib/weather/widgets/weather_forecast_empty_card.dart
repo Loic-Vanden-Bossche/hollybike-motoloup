@@ -26,44 +26,41 @@ class WeatherForecastEmptyCard extends StatelessWidget {
       ),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(21),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(21),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  scheme.primary.withValues(alpha: 0.48),
-                  scheme.primary.withValues(alpha: 0.32),
-                ],
-              ),
-            ),
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                SizedBox(
-                  width: 60,
-                  child: Lottie.asset('assets/lottie/lottie_earth.json'),
-                ),
-                const SizedBox(width: 12),
-                Flexible(
-                  child: Text(
-                    message,
-                    style: TextStyle(
-                      color: scheme.onPrimary.withValues(alpha: 0.65),
-                      fontSize: 11,
-                      fontVariations: const [FontVariation.weight(500)],
-                    ),
-                    softWrap: true,
-                  ),
-                ),
+        child: Container(
+          width: double.infinity,
+          height: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(21),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                scheme.primary.withValues(alpha: 0.48),
+                scheme.primary.withValues(alpha: 0.32),
               ],
             ),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: 60,
+                child: Lottie.asset('assets/lottie/lottie_earth.json'),
+              ),
+              const SizedBox(width: 12),
+              Flexible(
+                child: Text(
+                  message,
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.65),
+                    fontSize: 11,
+                    fontVariations: const [FontVariation.weight(500)],
+                  ),
+                  softWrap: true,
+                ),
+              ),
+            ],
           ),
         ),
       ),

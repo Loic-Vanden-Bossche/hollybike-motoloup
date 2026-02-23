@@ -10,6 +10,7 @@ import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_bloc.dart'
 import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_event.dart';
 import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_state.dart';
 import 'package:hollybike/event/types/event.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
 import 'package:hollybike/event/widgets/journey/journey_import_modal_from_type.dart';
 import 'package:hollybike/event/widgets/journey/upload_journey_menu.dart';
 
@@ -44,8 +45,7 @@ class JourneyModalHeader extends StatelessWidget {
 
     return Row(
       children: [
-        if (canEditJourney)
-          _buildEditMenu(context, scheme),
+        if (canEditJourney) _buildEditMenu(context, scheme),
         const Spacer(),
         _buildMapButton(context, scheme),
       ],
@@ -53,49 +53,30 @@ class JourneyModalHeader extends StatelessWidget {
   }
 
   Widget _buildEditMenu(BuildContext context, ColorScheme scheme) {
-    return PopupMenuButton<JourneyModalAction>(
+    return GlassPopupMenuButton<JourneyModalAction>(
       onSelected: (action) => _onActionsSelected(context, action),
-      icon: Container(
-        padding: const EdgeInsets.all(7),
-        decoration: BoxDecoration(
-          color: scheme.primaryContainer.withValues(alpha: 0.55),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: scheme.onPrimary.withValues(alpha: 0.12),
-            width: 1,
-          ),
-        ),
-        child: Icon(
-          Icons.more_horiz_rounded,
-          size: 16,
-          color: scheme.onPrimary.withValues(alpha: 0.65),
-        ),
-      ),
+      icon: const GlassPopupMenuTriggerIcon(),
       itemBuilder:
           (context) => [
-            PopupMenuItem(
+            glassPopupMenuItem(
               value: JourneyModalAction.update,
               child: UploadJourneyMenu(
                 event: event,
                 onSelection: (type) => _onUpdateJourney(context, type),
-                child: Row(
+                child: const Row(
                   children: [
-                    Icon(Icons.swap_calls_rounded, size: 18, color: scheme.onPrimary),
-                    const SizedBox(width: 8),
+                    Icon(Icons.swap_calls_rounded),
+                    SizedBox(width: 10),
                     Text('Changer de parcours'),
                   ],
                 ),
               ),
             ),
-            PopupMenuItem(
+            glassPopupMenuItem(
               value: JourneyModalAction.delete,
-              child: Row(
-                children: [
-                  Icon(Icons.remove_circle_outline_rounded, size: 18, color: scheme.error),
-                  const SizedBox(width: 8),
-                  Text('Retirer le parcours', style: TextStyle(color: scheme.error)),
-                ],
-              ),
+              icon: Icons.remove_circle_outline_rounded,
+              label: 'Retirer le parcours',
+              color: scheme.error,
             ),
           ],
     );

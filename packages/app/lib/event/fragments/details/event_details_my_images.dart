@@ -37,32 +37,60 @@ class EventDetailsMyImages extends StatelessWidget {
   Widget build(BuildContext context) {
     return ThemedRefreshIndicator(
       onRefresh: () => _refreshImages(context),
-      child: Stack(
-        children: [
-          BlocListener<EventMyImagesBloc, ImageListState>(
-            listener: (context, state) {
-              if (state is ImageListOperationFailure) {
-                Toast.showErrorToast(context, state.errorMessage);
-              }
+      child: BlocListener<EventMyImagesBloc, ImageListState>(
+        listener: (context, state) {
+          if (state is ImageListOperationFailure) {
+            Toast.showErrorToast(context, state.errorMessage);
+          }
 
-              if (state is ImageListOperationSuccess) {
-                if (state.successMessage != null) {
-                  Toast.showSuccessToast(context, state.successMessage!);
-                }
+          if (state is ImageListOperationSuccess) {
+            if (state.successMessage != null) {
+              Toast.showSuccessToast(context, state.successMessage!);
+            }
 
-                if (state.shouldRefresh) {
-                  _refreshImages(context);
-                }
-              }
-            },
-            child: BlocBuilder<EventMyImagesBloc, ImageListState>(
-              builder: (context, state) {
-                return EventDetailsTabScrollWrapper(
-                  sliverChild: true,
-                  scrollViewKey: 'event_details_my_images_$eventId',
-                  child: ImageGallery(
+            if (state.shouldRefresh) {
+              _refreshImages(context);
+            }
+          }
+        },
+        child: BlocBuilder<EventMyImagesBloc, ImageListState>(
+          builder: (context, state) {
+            final imageCount = state.images.length;
+            final bottomPadding = 126 + MediaQuery.paddingOf(context).bottom;
+
+            return EventDetailsTabScrollWrapper(
+              sliverChild: true,
+              scrollViewKey: 'event_details_my_images_$eventId',
+              child: SliverMainAxisGroup(
+                slivers: [
+                  SliverToBoxAdapter(
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(12, 12, 12, 10),
+                      child: _MyImagesHeader(
+                        imageCount: imageCount,
+                        isImagesPublic: isImagesPublic,
+                        onVisibilityTap:
+                            () => showEventImagesVisibilityDialog(
+                              context,
+                              isImagesPublic: isImagesPublic,
+                              eventId: eventId,
+                            ),
+                      ),
+                    ),
+                  ),
+                  ImageGallery(
                     scrollController: scrollController,
+                    contentPadding: EdgeInsets.fromLTRB(
+                      12,
+                      0,
+                      12,
+                      bottomPadding,
+                    ),
                     emptyPlaceholder: _buildPlaceholder(context),
+                    errorMessage:
+                        state is ImageListPageLoadFailure
+                            ? state.errorMessage
+                            : null,
                     onRefresh: () => _refreshImages(context),
                     onLoadNextPage: () => _loadNextPage(context),
                     images: state.images,
@@ -79,81 +107,17 @@ class EventDetailsMyImages extends StatelessWidget {
                       );
                     },
                   ),
-                );
-              },
-            ),
-          ),
-          Positioned.fill(
-            top: 60,
-            right: 10,
-            child: Align(
-              alignment: Alignment.topRight,
-              child: Stack(
-                children: [
-                  Container(
-                    constraints: BoxConstraints(
-                      maxWidth: MediaQuery.of(context).size.width * 0.9,
-                    ),
-                    decoration: BoxDecoration(
-                      color: Colors.black,
-                      borderRadius: BorderRadius.circular(5),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 10,
-                        vertical: 5,
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          Flexible(child: _buildVisibilityText(context)),
-                          const SizedBox(width: 7),
-                          _buildVisibilityIcon(context),
-                        ],
-                      ),
-                    ),
-                  ),
-                  Positioned.fill(
-                    child: Material(
-                      color: Colors.transparent,
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(5),
-                        onTap: () {
-                          showEventImagesVisibilityDialog(
-                            context,
-                            isImagesPublic: isImagesPublic,
-                            eventId: eventId,
-                          );
-                        },
-                      ),
-                    ),
-                  ),
                 ],
               ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildVisibilityIcon(BuildContext context) {
-    return Icon(
-      isImagesPublic ? Icons.public : Icons.lock_outline,
-      color: Theme.of(context).colorScheme.onPrimary,
-    );
-  }
-
-  Widget _buildVisibilityText(BuildContext context) {
-    return Text(
-      isImagesPublic ? "Vos images sont publiques" : "Vos images sont privées",
-      style: Theme.of(context).textTheme.titleSmall?.copyWith(
-        color: Theme.of(context).colorScheme.onPrimary,
+            );
+          },
+        ),
       ),
     );
   }
 
   Widget _buildPlaceholder(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
     final message =
         isParticipating
             ? "Vous n'avez ajouté aucune photo"
@@ -166,7 +130,15 @@ class EventDetailsMyImages extends StatelessWidget {
         repeat: false,
         height: 150,
       ),
-      Text(message, textAlign: TextAlign.center),
+      Text(
+        message,
+        textAlign: TextAlign.center,
+        style: TextStyle(
+          color: scheme.onPrimary,
+          fontSize: 15,
+          fontVariations: const [FontVariation.weight(650)],
+        ),
+      ),
     ];
 
     if (!isParticipating) {
@@ -179,7 +151,16 @@ class EventDetailsMyImages extends StatelessWidget {
       ]);
     }
 
-    return Column(mainAxisSize: MainAxisSize.min, children: widgets);
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 18),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: scheme.primaryContainer.withValues(alpha: 0.50),
+        border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.12)),
+      ),
+      child: Column(mainAxisSize: MainAxisSize.min, children: widgets),
+    );
   }
 
   Future<void> _refreshImages(BuildContext context) {
@@ -194,5 +175,87 @@ class EventDetailsMyImages extends StatelessWidget {
 
   void _onJoin(BuildContext context) {
     context.read<EventDetailsBloc>().add(JoinEvent());
+  }
+}
+
+class _MyImagesHeader extends StatelessWidget {
+  final int imageCount;
+  final bool isImagesPublic;
+  final VoidCallback onVisibilityTap;
+
+  const _MyImagesHeader({
+    required this.imageCount,
+    required this.isImagesPublic,
+    required this.onVisibilityTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final label = imageCount == 1 ? 'photo' : 'photos';
+
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        color: scheme.primaryContainer.withValues(alpha: 0.52),
+        border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.12)),
+      ),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: scheme.secondary.withValues(alpha: 0.18),
+              border: Border.all(
+                color: scheme.secondary.withValues(alpha: 0.36),
+              ),
+            ),
+            child: Icon(
+              Icons.photo_camera_back_outlined,
+              color: scheme.secondary,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Vos photos',
+                  style: TextStyle(
+                    color: scheme.onPrimary,
+                    fontSize: 15,
+                    fontVariations: const [FontVariation.weight(700)],
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  '$imageCount $label importées',
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.70),
+                    fontSize: 12,
+                    fontVariations: const [FontVariation.weight(540)],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          TextButton.icon(
+            onPressed: onVisibilityTap,
+            style: TextButton.styleFrom(
+              foregroundColor: isImagesPublic ? scheme.secondary : scheme.error,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+            ),
+            icon: Icon(
+              isImagesPublic ? Icons.public : Icons.lock_outline,
+              size: 18,
+            ),
+            label: Text(isImagesPublic ? 'Public' : 'Privé'),
+          ),
+        ],
+      ),
+    );
   }
 }

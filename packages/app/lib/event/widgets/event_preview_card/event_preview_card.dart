@@ -58,44 +58,41 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
       padding: const EdgeInsets.only(bottom: 12),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(22),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-          child: Container(
-            height: 166,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  scheme.primary.withValues(alpha: 0.56),
-                  scheme.primary.withValues(alpha: 0.42),
-                ],
-              ),
-              border: Border.all(
-                color: scheme.onPrimary.withValues(alpha: 0.12),
-                width: 1,
-              ),
+        child: Container(
+          height: 166,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                scheme.primary.withValues(alpha: 0.56),
+                scheme.primary.withValues(alpha: 0.42),
+              ],
             ),
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(22),
-                onTap: () => widget.onTap(_uniqueKey),
-                child: Padding(
-                  padding: const EdgeInsets.all(8),
-                  child: Row(
-                    children: [
-                      SizedBox(
-                        width: 126,
-                        child: _buildMediaPane(context),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildDetailsPane(context, scheme),
-                      ),
-                    ],
-                  ),
+            border: Border.all(
+              color: scheme.onPrimary.withValues(alpha: 0.12),
+              width: 1,
+            ),
+          ),
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              borderRadius: BorderRadius.circular(22),
+              onTap: () => widget.onTap(_uniqueKey),
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Row(
+                  children: [
+                    SizedBox(
+                      width: 126,
+                      child: _buildMediaPane(context),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: _buildDetailsPane(context, scheme),
+                    ),
+                  ],
                 ),
               ),
             ),
@@ -411,33 +408,30 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
   }) {
     return ClipRRect(
       borderRadius: BorderRadius.circular(50),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
-            color: color.withValues(alpha: 0.2),
-            border: Border.all(
-              color: color.withValues(alpha: 0.24),
-              width: 1,
-            ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: color.withValues(alpha: 0.2),
+          border: Border.all(
+            color: color.withValues(alpha: 0.24),
+            width: 1,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(icon, size: 11, color: color),
-              const SizedBox(width: 4),
-              Text(
-                text,
-                style: TextStyle(
-                  color: color,
-                  fontSize: 10,
-                  fontVariations: const [FontVariation.weight(650)],
-                ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(icon, size: 11, color: color),
+            const SizedBox(width: 4),
+            Text(
+              text,
+              style: TextStyle(
+                color: color,
+                fontSize: 10,
+                fontVariations: const [FontVariation.weight(650)],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

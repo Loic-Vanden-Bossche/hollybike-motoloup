@@ -38,57 +38,54 @@ class PlaceholderProfileBanner extends StatelessWidget {
               ),
             ),
           ),
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-            child: Container(
-              width: double.infinity,
-              padding: EdgeInsets.fromLTRB(16, topPadding + 12, 16, 22),
-              decoration: BoxDecoration(
-                border: Border(
-                  bottom: BorderSide(
-                    color: scheme.onPrimary.withValues(alpha: 0.10),
-                    width: 1,
-                  ),
+          Container(
+            width: double.infinity,
+            padding: EdgeInsets.fromLTRB(16, topPadding + 12, 16, 22),
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(
+                  color: scheme.onPrimary.withValues(alpha: 0.10),
+                  width: 1,
                 ),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Nav row placeholders
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      _shimmerCircle(scheme, 36),
-                      _shimmerCircle(scheme, 36),
-                    ],
-                  ),
-                  const SizedBox(height: 18),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                // Nav row placeholders
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    _shimmerCircle(scheme, 36),
+                    _shimmerCircle(scheme, 36),
+                  ],
+                ),
+                const SizedBox(height: 18),
 
-                  // Avatar placeholder
-                  Container(
-                    padding: const EdgeInsets.all(3),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      border: Border.all(
-                        color: scheme.secondary.withValues(alpha: 0.30),
-                        width: 2,
-                      ),
-                    ),
-                    child: LoadingProfilePicture(
-                      size: 80,
-                      loadingProfileId: loadingProfileId,
+                // Avatar placeholder
+                Container(
+                  padding: const EdgeInsets.all(3),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: scheme.secondary.withValues(alpha: 0.30),
+                      width: 2,
                     ),
                   ),
-                  const SizedBox(height: 12),
+                  child: LoadingProfilePicture(
+                    size: 80,
+                    loadingProfileId: loadingProfileId,
+                  ),
+                ),
+                const SizedBox(height: 12),
 
-                  // Username placeholder
-                  _shimmerPill(scheme, width: 130, height: 20, radius: 10),
-                  const SizedBox(height: 8),
+                // Username placeholder
+                _shimmerPill(scheme, width: 130, height: 20, radius: 10),
+                const SizedBox(height: 8),
 
-                  // Role chip placeholder
-                  _shimmerPill(scheme, width: 170, height: 26, radius: 50),
-                ],
-              ),
+                // Role chip placeholder
+                _shimmerPill(scheme, width: 170, height: 26, radius: 50),
+              ],
             ),
           ),
         ],

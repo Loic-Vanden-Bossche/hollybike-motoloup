@@ -8,6 +8,7 @@ import 'package:hollybike/event/types/event_status_state.dart';
 import 'package:hollybike/event/widgets/details/event_upload_image_modal.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_bloc.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_event.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
 import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 
 import '../../bloc/event_details_bloc/event_details_bloc.dart';
@@ -39,8 +40,8 @@ class EventDetailsActionsMenu extends StatelessWidget {
 
     if (actions.isEmpty) return const SizedBox();
 
-    return PopupMenuButton(
-      icon: Icon(Icons.more_vert, color: Theme.of(context).colorScheme.primary),
+    return GlassPopupMenuButton<EventDetailsAction>(
+      icon: const GlassPopupMenuTriggerIcon(icon: Icons.more_vert),
       itemBuilder: (context) {
         return actions;
       },
@@ -48,80 +49,55 @@ class EventDetailsActionsMenu extends StatelessWidget {
     );
   }
 
-  List<PopupMenuItem> _buildActions(BuildContext context) {
-    final actions = <PopupMenuItem>[];
+  List<PopupMenuItem<EventDetailsAction>> _buildActions(BuildContext context) {
+    final actions = <PopupMenuItem<EventDetailsAction>>[];
 
     if (isJoined && !isOwner) {
       actions.add(
-        const PopupMenuItem(
+        glassPopupMenuItem(
           value: EventDetailsAction.leave,
-          child: Row(
-            children: [
-              Icon(Icons.exit_to_app),
-              SizedBox(width: 10),
-              Text("Quitter l'événement"),
-            ],
-          ),
+          icon: Icons.exit_to_app,
+          label: "Quitter l'événement",
         ),
       );
     }
 
     if (isOrganizer) {
       actions.add(
-        PopupMenuItem(
+        glassPopupMenuItem(
           value: EventDetailsAction.uploadImage,
-          child: Row(
-            children: [
-              const Icon(Icons.image),
-              const SizedBox(width: 10),
-              Text(hasImage ? "Modifier l'image" : "Ajouter une image"),
-            ],
-          ),
+          icon: Icons.image,
+          label: hasImage ? "Modifier l'image" : "Ajouter une image",
         ),
       );
     }
 
     if (isOrganizer && status == EventStatusState.scheduled) {
       actions.add(
-        const PopupMenuItem(
+        glassPopupMenuItem(
           value: EventDetailsAction.cancel,
-          child: Row(
-            children: [
-              Icon(Icons.cancel),
-              SizedBox(width: 10),
-              Text("Annuler l'événement"),
-            ],
-          ),
+          icon: Icons.cancel,
+          label: "Annuler l'événement",
         ),
       );
     }
 
     if (isOrganizer && status == EventStatusState.now) {
       actions.add(
-        const PopupMenuItem(
+        glassPopupMenuItem(
           value: EventDetailsAction.finish,
-          child: Row(
-            children: [
-              Icon(Icons.flag),
-              SizedBox(width: 10),
-              Text("Terminer l'événement"),
-            ],
-          ),
+          icon: Icons.flag,
+          label: "Terminer l'événement",
         ),
       );
     }
 
     if (isOwner && status != EventStatusState.now) {
       actions.add(
-        const PopupMenuItem(
+        glassPopupMenuItem(
           value: EventDetailsAction.delete,
-          child: Row(
-            children: [
-              Icon(Icons.delete),
-              SizedBox(width: 10),
-              Text("Supprimer l'événement"),
-            ],
-          ),
+          icon: Icons.delete,
+          label: "Supprimer l'événement",
         ),
       );
     }

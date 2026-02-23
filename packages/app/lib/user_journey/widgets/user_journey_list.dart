@@ -40,6 +40,7 @@ class UserJourneyList extends StatelessWidget {
           sliver: SliverList.separated(
             itemBuilder: (context, index) {
               final journey = userJourneys[index];
+              final scheme = Theme.of(context).colorScheme;
 
               return TweenAnimationBuilder(
                 tween: Tween<double>(begin: 0, end: 1),
@@ -53,7 +54,7 @@ class UserJourneyList extends StatelessWidget {
                       child: UserJourneyCard(
                         showDate: true,
                         journey: journey,
-                        color: Theme.of(context).cardColor,
+                        color: scheme.secondary.withValues(alpha: 0.18),
                         user: user,
                         onJourneySelected: onJourneySelected,
                         onDeleted: () {

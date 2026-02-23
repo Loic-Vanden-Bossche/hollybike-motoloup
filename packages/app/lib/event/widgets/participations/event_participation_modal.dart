@@ -106,7 +106,7 @@ class EventParticipationModal extends StatelessWidget {
           UserJourneyCard(
             journey: participation.journey,
             user: participation.user,
-            color: scheme.primaryContainer.withValues(alpha: 0.7),
+            color: scheme.secondary.withValues(alpha: 0.18),
             isCurrentEvent: true,
           ),
           const SizedBox(height: 8),

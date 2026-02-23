@@ -30,33 +30,30 @@ class EventJoinButton extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(50),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(50),
-            color: scheme.secondary.withValues(alpha: 0.14),
-            border: Border.all(
-              color: scheme.secondary.withValues(alpha: 0.28),
-              width: 1,
-            ),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: scheme.secondary.withValues(alpha: 0.14),
+          border: Border.all(
+            color: scheme.secondary.withValues(alpha: 0.28),
+            width: 1,
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(Icons.check_circle_rounded, color: scheme.secondary, size: 14),
-              const SizedBox(width: 6),
-              Text(
-                'Inscrit',
-                style: TextStyle(
-                  color: scheme.secondary,
-                  fontSize: 12,
-                  fontVariations: const [FontVariation.weight(700)],
-                ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.check_circle_rounded, color: scheme.secondary, size: 14),
+            const SizedBox(width: 6),
+            Text(
+              'Inscrit',
+              style: TextStyle(
+                color: scheme.secondary,
+                fontSize: 12,
+                fontVariations: const [FontVariation.weight(700)],
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );
@@ -69,39 +66,36 @@ class EventJoinButton extends StatelessWidget {
       onTap: () => onJoin(context),
       child: ClipRRect(
         borderRadius: BorderRadius.circular(50),
-        child: BackdropFilter(
-          filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  scheme.secondary.withValues(alpha: 0.85),
-                  scheme.secondary.withValues(alpha: 0.65),
-                ],
-              ),
-              border: Border.all(
-                color: scheme.secondary.withValues(alpha: 0.45),
-                width: 1,
-              ),
-              boxShadow: [
-                BoxShadow(
-                  color: scheme.secondary.withValues(alpha: 0.28),
-                  blurRadius: 14,
-                  offset: const Offset(0, 4),
-                ),
+        child: Container(
+          padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 10),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(50),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                scheme.secondary.withValues(alpha: 0.85),
+                scheme.secondary.withValues(alpha: 0.65),
               ],
             ),
-            child: Text(
-              'Rejoindre',
-              style: TextStyle(
-                color: scheme.surface,
-                fontSize: 12,
-                fontVariations: const [FontVariation.weight(700)],
+            border: Border.all(
+              color: scheme.secondary.withValues(alpha: 0.45),
+              width: 1,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: scheme.secondary.withValues(alpha: 0.28),
+                blurRadius: 14,
+                offset: const Offset(0, 4),
               ),
+            ],
+          ),
+          child: Text(
+            'Rejoindre',
+            style: TextStyle(
+              color: scheme.surface,
+              fontSize: 12,
+              fontVariations: const [FontVariation.weight(700)],
             ),
           ),
         ),

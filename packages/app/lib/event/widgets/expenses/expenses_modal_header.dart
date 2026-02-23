@@ -8,6 +8,7 @@ import 'package:hollybike/event/bloc/event_expenses_bloc/event_expenses_bloc.dar
 import 'package:hollybike/event/bloc/event_expenses_bloc/event_expenses_event.dart';
 import 'package:hollybike/event/types/event_expense.dart';
 import 'package:hollybike/event/widgets/expenses/edit_budget_modal.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
 
 import 'add_expense_modal.dart';
 
@@ -39,23 +40,8 @@ class ExpensesModalHeader extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         // Options menu
-        PopupMenuButton(
-          icon: Container(
-            padding: const EdgeInsets.all(7),
-            decoration: BoxDecoration(
-              color: scheme.primaryContainer.withValues(alpha: 0.55),
-              shape: BoxShape.circle,
-              border: Border.all(
-                color: scheme.onPrimary.withValues(alpha: 0.12),
-                width: 1,
-              ),
-            ),
-            child: Icon(
-              Icons.tune_rounded,
-              size: 16,
-              color: scheme.onPrimary.withValues(alpha: 0.65),
-            ),
-          ),
+        GlassPopupMenuButton<ExpensesModalAction>(
+          icon: const GlassPopupMenuTriggerIcon(icon: Icons.tune_rounded),
           onSelected: (value) {
             _onModalActionSelected(context, value, budget, eventName);
           },
@@ -66,12 +52,13 @@ class ExpensesModalHeader extends StatelessWidget {
         const Spacer(),
         // Add expense button
         GestureDetector(
-          onTap: () => _onModalActionSelected(
-            context,
-            ExpensesModalAction.addExpense,
-            budget,
-            eventName,
-          ),
+          onTap:
+              () => _onModalActionSelected(
+                context,
+                ExpensesModalAction.addExpense,
+                budget,
+                eventName,
+              ),
           child: Container(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
             decoration: BoxDecoration(
@@ -169,7 +156,7 @@ class ExpensesModalHeader extends StatelessWidget {
     }
   }
 
-  List<PopupMenuItem> _buildBudgetActions(
+  List<PopupMenuItem<ExpensesModalAction>> _buildBudgetActions(
     BuildContext context,
     ColorScheme scheme,
     int? budget,
@@ -177,56 +164,37 @@ class ExpensesModalHeader extends StatelessWidget {
   ) {
     final hasBudget = budget != null;
 
-    final actions = <PopupMenuItem>[
+    final actions = <PopupMenuItem<ExpensesModalAction>>[
       hasBudget
-          ? PopupMenuItem(
+          ? glassPopupMenuItem(
             value: ExpensesModalAction.editBudget,
-            child: Row(
-              children: [
-                Icon(Icons.edit_outlined, size: 18, color: scheme.onPrimary),
-                const SizedBox(width: 8),
-                const Text('Modifier le budget'),
-              ],
-            ),
+            icon: Icons.edit_outlined,
+            label: 'Modifier le budget',
           )
-          : PopupMenuItem(
+          : glassPopupMenuItem(
             value: ExpensesModalAction.addBudget,
-            child: Row(
-              children: [
-                Icon(Icons.savings_outlined, size: 18, color: scheme.onPrimary),
-                const SizedBox(width: 8),
-                const Text('Ajouter un budget'),
-              ],
-            ),
+            icon: Icons.savings_outlined,
+            label: 'Ajouter un budget',
           ),
     ];
 
     if (hasBudget) {
       actions.add(
-        PopupMenuItem(
+        glassPopupMenuItem(
           value: ExpensesModalAction.removeBudget,
-          child: Row(
-            children: [
-              Icon(Icons.remove_circle_outline_rounded, size: 18, color: scheme.error),
-              const SizedBox(width: 8),
-              Text('Supprimer le budget', style: TextStyle(color: scheme.error)),
-            ],
-          ),
+          icon: Icons.remove_circle_outline_rounded,
+          label: 'Supprimer le budget',
+          color: scheme.error,
         ),
       );
     }
 
     if (expenses.isNotEmpty) {
       actions.add(
-        PopupMenuItem(
+        glassPopupMenuItem(
           value: ExpensesModalAction.downloadCSV,
-          child: Row(
-            children: [
-              Icon(Icons.download_outlined, size: 18, color: scheme.onPrimary),
-              const SizedBox(width: 8),
-              const Text('Télécharger le CSV'),
-            ],
-          ),
+          icon: Icons.download_outlined,
+          label: 'Télécharger le CSV',
         ),
       );
     }

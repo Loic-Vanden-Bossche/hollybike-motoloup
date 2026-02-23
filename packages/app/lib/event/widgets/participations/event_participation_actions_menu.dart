@@ -3,6 +3,7 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'package:flutter/material.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
 
 import '../../types/participation/event_participation.dart';
 import '../../types/participation/event_role.dart';
@@ -31,26 +32,11 @@ class EventParticipationActionsMenu extends StatelessWidget {
       return const SizedBox();
     }
 
-    final scheme = Theme.of(context).colorScheme;
-
-    return PopupMenuButton<EventParticipationAction>(
+    return GlassPopupMenuButton<EventParticipationAction>(
       tooltip: 'Actions participant',
-      icon: Container(
-        width: 32,
-        height: 32,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: scheme.onPrimary.withValues(alpha: 0.08),
-          border: Border.all(
-            color: scheme.onPrimary.withValues(alpha: 0.14),
-            width: 1,
-          ),
-        ),
-        child: Icon(
-          Icons.more_horiz_rounded,
-          size: 18,
-          color: scheme.onPrimary.withValues(alpha: 0.72),
-        ),
+      icon: const GlassPopupMenuTriggerIcon(
+        iconSize: 18,
+        padding: EdgeInsets.all(6),
       ),
       itemBuilder: (BuildContext context) {
         return _buildActions(context);
@@ -81,57 +67,29 @@ class EventParticipationActionsMenu extends StatelessWidget {
 
     if (participation.role == EventRole.organizer) {
       actions.add(
-        PopupMenuItem(
+        glassPopupMenuItem(
           value: EventParticipationAction.demote,
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_downward_rounded,
-                size: 18,
-                color: scheme.onPrimary,
-              ),
-              const SizedBox(width: 10),
-              const Text("Rétrograder membre"),
-            ],
-          ),
+          icon: Icons.arrow_downward_rounded,
+          label: "Rétrograder membre",
         ),
       );
     } else if (participation.role == EventRole.member) {
       actions.add(
-        PopupMenuItem(
+        glassPopupMenuItem(
           value: EventParticipationAction.promote,
-          child: Row(
-            children: [
-              Icon(
-                Icons.arrow_upward_rounded,
-                size: 18,
-                color: scheme.secondary,
-              ),
-              const SizedBox(width: 10),
-              const Text("Promouvoir organisateur"),
-            ],
-          ),
+          icon: Icons.arrow_upward_rounded,
+          label: "Promouvoir organisateur",
+          color: scheme.secondary,
         ),
       );
     }
 
     actions.add(
-      PopupMenuItem(
+      glassPopupMenuItem(
         value: EventParticipationAction.remove,
-        child: Row(
-          children: [
-            Icon(
-              Icons.person_remove_alt_1_rounded,
-              size: 18,
-              color: scheme.error,
-            ),
-            const SizedBox(width: 10),
-            Text(
-              "Retirer de l'événement",
-              style: TextStyle(color: scheme.error),
-            ),
-          ],
-        ),
+        icon: Icons.person_remove_alt_1_rounded,
+        label: "Retirer de l'événement",
+        color: scheme.error,
       ),
     );
 

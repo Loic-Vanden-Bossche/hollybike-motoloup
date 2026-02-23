@@ -33,56 +33,53 @@ class EventParticipationsPreview extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Stack(
-          children: [
-            Container(
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(22),
-                gradient: LinearGradient(
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                  colors: [
-                    scheme.primary.withValues(alpha: 0.56),
-                    scheme.primary.withValues(alpha: 0.42),
-                  ],
-                ),
-                border: Border.all(
-                  color: scheme.onPrimary.withValues(alpha: 0.12),
-                  width: 1,
-                ),
-              ),
-              padding: const EdgeInsets.symmetric(
-                horizontal: 14,
-                vertical: 12,
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  _buildAvatarStack(context, scheme),
-                  const SizedBox(width: 10),
-                  _buildCountText(scheme),
-                  const SizedBox(width: 4),
-                  Icon(
-                    Icons.chevron_right_rounded,
-                    color: scheme.onPrimary.withValues(alpha: 0.35),
-                    size: 16,
-                  ),
+      child: Stack(
+        children: [
+          Container(
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(22),
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  scheme.primary.withValues(alpha: 0.56),
+                  scheme.primary.withValues(alpha: 0.42),
                 ],
               ),
-            ),
-            Positioned.fill(
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  onTap: onTap,
-                  borderRadius: BorderRadius.circular(22),
-                ),
+              border: Border.all(
+                color: scheme.onPrimary.withValues(alpha: 0.12),
+                width: 1,
               ),
             ),
-          ],
-        ),
+            padding: const EdgeInsets.symmetric(
+              horizontal: 14,
+              vertical: 12,
+            ),
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _buildAvatarStack(context, scheme),
+                const SizedBox(width: 10),
+                _buildCountText(scheme),
+                const SizedBox(width: 4),
+                Icon(
+                  Icons.chevron_right_rounded,
+                  color: scheme.onPrimary.withValues(alpha: 0.35),
+                  size: 16,
+                ),
+              ],
+            ),
+          ),
+          Positioned.fill(
+            child: Material(
+              color: Colors.transparent,
+              child: InkWell(
+                onTap: onTap,
+                borderRadius: BorderRadius.circular(22),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }

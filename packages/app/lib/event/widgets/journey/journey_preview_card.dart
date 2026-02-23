@@ -123,26 +123,23 @@ class JourneyPreviewCard extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 18, sigmaY: 18),
-        child: Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(22),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                scheme.primary.withValues(alpha: 0.56),
-                scheme.primary.withValues(alpha: 0.42),
-              ],
-            ),
-            border: Border.all(
-              color: scheme.onPrimary.withValues(alpha: 0.12),
-              width: 1,
-            ),
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              scheme.primary.withValues(alpha: 0.56),
+              scheme.primary.withValues(alpha: 0.42),
+            ],
           ),
-          child: const Center(child: CircularProgressIndicator()),
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.12),
+            width: 1,
+          ),
         ),
+        child: const Center(child: CircularProgressIndicator()),
       ),
     );
   }
