@@ -12,6 +12,7 @@ import hollybike.api.types.journey.*
 import hollybike.api.types.user.EUserScope
 import hollybike.api.types.websocket.*
 import hollybike.api.utils.AccelPreprocess
+import hollybike.api.utils.EkfPositionSample
 import hollybike.api.utils.EkfJourney
 import hollybike.api.utils.PositionSample
 import hollybike.api.utils.search.SearchParam
@@ -277,7 +278,16 @@ class UserEventPositionService(
 			throw BadRequestException("Aucune position exploitable pour terminer le trajet")
 		}
 
-		val (smoothedStates, origin) = EkfJourney.smoothTrajectory(raw)
+		val ekfSamples = raw.map {
+			EkfPositionSample(
+				timeMillis = it.timeMillis,
+				lat = it.lat,
+				lon = it.lon,
+				accuracyM = it.accuracyM,
+				speedMps = it.speedMps
+			)
+		}
+		val (smoothedStates, origin) = EkfJourney.smoothTrajectory(ekfSamples)
 
 		val accelMetrics = AccelPreprocess.computeLinearAccelMetrics(
 			samples = raw,
