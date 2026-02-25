@@ -14,6 +14,14 @@ data class PositionSample(
 	val az: Double?           // m/s^2
 )
 
+data class EkfPositionSample(
+	val timeMillis: Long,
+	val lat: Double,
+	val lon: Double,
+	val accuracyM: Double,
+	val speedMps: Double?
+)
+
 data class EkfState(
 	val x: Double,  // meters (local)
 	val y: Double,  // meters (local)
@@ -60,6 +68,9 @@ object EkfJourney {
 
 	// --- Local tangent plane projection (equirectangular) ---
 	data class Origin(val lat0Rad: Double, val lon0Rad: Double, val cosLat0: Double)
+
+	private fun isValidLatLon(lat: Double, lon: Double): Boolean =
+		lat.isFinite() && lon.isFinite() && lat in -90.0..90.0 && lon in -180.0..180.0
 
 	fun originFrom(lat: Double, lon: Double): Origin {
 		val lat0Rad = Math.toRadians(lat)
@@ -108,6 +119,16 @@ object EkfJourney {
 	private fun mat4Sub(a: DoubleArray, b: DoubleArray): DoubleArray =
 		DoubleArray(16) { i -> a[i] - b[i] }
 
+	private fun symmetrize4(a: DoubleArray): DoubleArray {
+		val out = a.copyOf()
+		for (r in 0..3) for (c in r + 1..3) {
+			val v = 0.5 * (a[r * 4 + c] + a[c * 4 + r])
+			out[r * 4 + c] = v
+			out[c * 4 + r] = v
+		}
+		return out
+	}
+
 	private fun mat4Transpose(a: DoubleArray): DoubleArray {
 		val t = DoubleArray(16)
 		for (r in 0..3) for (c in 0..3) t[c*4+r] = a[r*4+c]
@@ -155,52 +176,68 @@ object EkfJourney {
 		return out
 	}
 
-	// Invert 2x2 / 3x3 (only what we need)
-	private fun inv2(s: Array<DoubleArray>): Array<DoubleArray> {
-		val a = s[0][0]; val b = s[0][1]
-		val c = s[1][0]; val d = s[1][1]
-		val det = a*d - b*c
-		require(abs(det) > 1e-12) { "Singular 2x2" }
-		val invDet = 1.0 / det
-		return arrayOf(
-			doubleArrayOf( d*invDet, -b*invDet),
-			doubleArrayOf(-c*invDet,  a*invDet)
-		)
-	}
+	private fun solveLinearSystem(a: Array<DoubleArray>, b: Array<DoubleArray>): Array<DoubleArray> {
+		val n = a.size
+		require(n > 0) { "Empty matrix" }
+		require(a.all { it.size == n }) { "Matrix must be square" }
+		require(b.size == n) { "RHS row count must match matrix size" }
 
-	private fun inv3(s: Array<DoubleArray>): Array<DoubleArray> {
-		val a = s[0][0]; val b = s[0][1]; val c = s[0][2]
-		val d = s[1][0]; val e = s[1][1]; val f = s[1][2]
-		val g = s[2][0]; val h = s[2][1]; val i = s[2][2]
+		val rhsCols = b[0].size
+		require(b.all { it.size == rhsCols }) { "RHS must be rectangular" }
 
-		val cofactors = arrayOf(
-			doubleArrayOf(e * i - f * h, -(d * i - f * g), d * h - e * g),
-			doubleArrayOf(-(b * i - c * h), a * i - c * g, -(a * h - b * g)),
-			doubleArrayOf(b * f - c * e, -(a * f - c * d), a * e - b * d)
-		)
-		val det = a * cofactors[0][0] + b * cofactors[0][1] + c * cofactors[0][2]
-		require(abs(det) > 1e-12) { "Singular 3x3" }
-		val invDet = 1.0 / det
-		return Array(3) { row -> DoubleArray(3) { col -> cofactors[row][col] * invDet } }
-	}
-
-	private fun mahaSquared(r: DoubleArray, sInv: Array<DoubleArray>): Double {
-		// r^T SInv r
-		val tmp = DoubleArray(r.size)
-		for (row in r.indices) {
-			var s = 0.0
-			for (col in r.indices) s += sInv[row][col] * r[col]
-			tmp[row] = s
+		val aug = Array(n) { r ->
+			DoubleArray(n + rhsCols).also { row ->
+				for (c in 0 until n) row[c] = a[r][c]
+				for (c in 0 until rhsCols) row[n + c] = b[r][c]
+			}
 		}
-		var out = 0.0
-		for (k in r.indices) out += r[k] * tmp[k]
-		return out
+
+		for (col in 0 until n) {
+			var pivotRow = col
+			var maxAbs = abs(aug[col][col])
+			for (r in col + 1 until n) {
+				val v = abs(aug[r][col])
+				if (v > maxAbs) {
+					maxAbs = v
+					pivotRow = r
+				}
+			}
+			require(maxAbs > 1e-12) { "Singular system" }
+			if (pivotRow != col) {
+				val tmp = aug[col]
+				aug[col] = aug[pivotRow]
+				aug[pivotRow] = tmp
+			}
+
+			val piv = aug[col][col]
+			for (c in col until n + rhsCols) aug[col][c] /= piv
+			for (r in 0 until n) {
+				if (r == col) continue
+				val factor = aug[r][col]
+				for (c in col until n + rhsCols) aug[r][c] -= factor * aug[col][c]
+			}
+		}
+
+		return Array(n) { r -> DoubleArray(rhsCols) { c -> aug[r][n + c] } }
 	}
+
+	private fun solveLinearSystemVec(a: Array<DoubleArray>, b: DoubleArray): DoubleArray {
+		val rhs = Array(b.size) { r -> doubleArrayOf(b[r]) }
+		val solved = solveLinearSystem(a, rhs)
+		return DoubleArray(b.size) { r -> solved[r][0] }
+	}
+
+	private fun rowMajor4ToMatrix(a: DoubleArray): Array<DoubleArray> =
+		Array(4) { r -> DoubleArray(4) { c -> a[r * 4 + c] } }
+
+	private fun matrixToRowMajor4(a: Array<DoubleArray>): DoubleArray =
+		DoubleArray(16) { i -> a[i / 4][i % 4] }
 
 	// --- EKF forward + RTS smoother ---
-	fun smoothTrajectory(samples: List<PositionSample>): Pair<List<EkfState>, Origin> {
+	fun smoothTrajectory(samples: List<EkfPositionSample>): Pair<List<EkfState>, Origin> {
 		require(samples.size >= 2)
 		val s0 = samples.first()
+		require(isValidLatLon(s0.lat, s0.lon)) { "First sample has invalid lat/lon" }
 		val origin = originFrom(s0.lat, s0.lon)
 
 		// Initial state from first sample; velocity unknown -> 0 (large covariance)
@@ -222,10 +259,14 @@ object EkfJourney {
 		for (idx in samples.indices) {
 			val s = samples[idx]
 			val t = s.timeMillis
-			val (zx, zy) = latLonToXY(origin, s.lat, s.lon)
 
 			// Predict
-			val dt = if (idx == 0) 0.0 else (t - samples[idx - 1].timeMillis).coerceAtLeast(1L) / 1000.0
+			val dt = if (idx == 0) {
+				0.0
+			} else {
+				val dtMillis = t - samples[idx - 1].timeMillis
+				if (dtMillis > 0L) dtMillis / 1000.0 else 0.0
+			}
 
 			val f = eye4().apply {
 				this[0*4+2] = dt
@@ -255,12 +296,32 @@ object EkfJourney {
 
 			val pPred = mat4Add(mat4Mul(mat4Mul(f, p), mat4Transpose(f)), q)
 
+			val hasValidPosition = isValidLatLon(s.lat, s.lon)
+			// Some devices/providers emit 0 or negative accuracy as placeholder values.
+			// Keep the sample if finite and let sigmaPos clamp handle the floor.
+			val hasValidAccuracy = s.accuracyM.isFinite()
+			if (!hasValidPosition || !hasValidAccuracy) {
+				steps += FilterStep(
+					tMillis = t,
+					xPred = xPred,
+					pPred = pPred,
+					xFilt = xPred,
+					pFilt = pPred,
+					f = f
+				)
+				x = xPred
+				p = pPred
+				continue
+			}
+
+			val (zx, zy) = latLonToXY(origin, s.lat, s.lon)
+
 			// Update (EKF): z = [x_gps, y_gps, speed]
 			// Measurement noise from accuracy
 			val sigmaPos = max(1.0, s.accuracyM) // clamp
 			val rPos2 = sigmaPos * sigmaPos
 
-			val useSpeed = (s.speedMps != null && s.speedMps.isFinite())
+			val useSpeed = (s.speedMps != null && s.speedMps.isFinite() && s.speedMps >= 0.0)
 			val m = if (useSpeed) 3 else 2
 
 			// h(x)
@@ -299,17 +360,12 @@ object EkfJourney {
 			val sCov = matMul2(hp, matTrans(hJacobian), m, m)
 			for (i in 0 until m) for (j in 0 until m) sCov[i][j] += rCov[i][j]
 
-			val sInv = when (m) {
-				2 -> inv2(sCov)
-				3 -> inv3(sCov)
-				else -> error("Unsupported m=$m")
-			}
-
 			// Robust gating (Chi-square)
 			// df=2: 95% ~ 5.99, 99% ~ 9.21
 			// df=3: 95% ~ 7.81, 99% ~ 11.34
 			val gate = if (m == 2) 9.21 else 11.34 // ~99% gate
-			val d2 = mahaSquared(r, sInv)
+			val sSolveR = solveLinearSystemVec(sCov, r)
+			val d2 = r.indices.sumOf { k -> r[k] * sSolveR[k] }
 
 			val xFilt: EkfState
 			val pFilt: DoubleArray
@@ -328,13 +384,9 @@ object EkfJourney {
 					for (k in 0..3) ssum += pPred[row*4+k] * hTransposed[k][col]
 					pht[row][col] = ssum
 				}
-				// K = PHt * SInv (4xm)
-				val kGain = Array(4) { DoubleArray(m) }
-				for (row in 0..3) for (col in 0 until m) {
-					var ssum = 0.0
-					for (k in 0 until m) ssum += pht[row][k] * sInv[k][col]
-					kGain[row][col] = ssum
-				}
+				// Solve S * X = PHt^T, then K = X^T
+				val solved = solveLinearSystem(sCov, matTrans(pht))
+				val kGain = matTrans(solved)
 
 				// x = xPred + K r
 				val dx = DoubleArray(4)
@@ -350,7 +402,8 @@ object EkfJourney {
 					vy = xPred.vy + dx[3]
 				)
 
-				// p = (I - K H) pPred
+				// Joseph form:
+				// p = (I - K H) pPred (I - K H)^T + K R K^T
 				val kh = Array(4) { DoubleArray(4) }
 				for (r0 in 0..3) for (c0 in 0..3) {
 					var ssum = 0.0
@@ -358,14 +411,38 @@ object EkfJourney {
 					kh[r0][c0] = ssum
 				}
 				val iMinusKh = Array(4) { r0 -> DoubleArray(4) { c0 -> (if (r0 == c0) 1.0 else 0.0) - kh[r0][c0] } }
-				// pFilt = (I-KH) pPred
-				val outP = DoubleArray(16)
+
+				// left = (I - K H) pPred
+				val left = DoubleArray(16)
 				for (r0 in 0..3) for (c0 in 0..3) {
 					var ssum = 0.0
 					for (k in 0..3) ssum += iMinusKh[r0][k] * pPred[k*4+c0]
-					outP[r0*4+c0] = ssum
+					left[r0*4+c0] = ssum
 				}
-				pFilt = outP
+
+				// term1 = left (I - K H)^T
+				val term1 = DoubleArray(16)
+				for (r0 in 0..3) for (c0 in 0..3) {
+					var ssum = 0.0
+					for (k in 0..3) ssum += left[r0*4+k] * iMinusKh[c0][k]
+					term1[r0*4+c0] = ssum
+				}
+
+				// term2 = K R K^T
+				val kTimesR = Array(4) { DoubleArray(m) }
+				for (r0 in 0..3) for (c0 in 0 until m) {
+					var ssum = 0.0
+					for (k in 0 until m) ssum += kGain[r0][k] * rCov[k][c0]
+					kTimesR[r0][c0] = ssum
+				}
+				val term2 = DoubleArray(16)
+				for (r0 in 0..3) for (c0 in 0..3) {
+					var ssum = 0.0
+					for (k in 0 until m) ssum += kTimesR[r0][k] * kGain[c0][k]
+					term2[r0*4+c0] = ssum
+				}
+
+				pFilt = symmetrize4(mat4Add(term1, term2))
 			}
 
 			steps += FilterStep(
@@ -396,9 +473,12 @@ object EkfJourney {
 			// Compute smoother gain: ck = pk f^T (pk+1_pred)^-1
 			// We’ll invert 4x4 with a simple Gauss-Jordan (since it’s only 4x4)
 			val pkfTranspose = mat4Mul(pk, mat4Transpose(fk1))
-			val invPk1Pred = inv4GaussJordan(pk1Pred)
-
-			val ck = mat4Mul(pkfTranspose, invPk1Pred)
+			// Solve pk1Pred^T * Ck^T = (pk f^T)^T for Ck^T, then transpose.
+			val ckT = solveLinearSystem(
+				rowMajor4ToMatrix(mat4Transpose(pk1Pred)),
+				rowMajor4ToMatrix(mat4Transpose(pkfTranspose))
+			)
+			val ck = matrixToRowMajor4(matTrans(ckT))
 
 			// xs = xf + ck (x_{k+1}^s - x_{k+1}^pred)
 			val xk = stepK.xFilt
@@ -423,41 +503,10 @@ object EkfJourney {
 			val psNext = ps
 			val middle = mat4Sub(psNext, pk1Pred)
 			val psNew = mat4Add(pk, mat4Mul(mat4Mul(ck, middle), mat4Transpose(ck)))
-			ps = psNew
+			ps = symmetrize4(psNew)
 		}
 
 		return smoothed to origin
 	}
 
-	private fun inv4GaussJordan(a: DoubleArray): DoubleArray {
-		// 4x4 inversion via Gauss-Jordan; A row-major
-		val m = Array(4) { DoubleArray(8) }
-		for (r in 0..3) {
-			for (c in 0..3) m[r][c] = a[r*4+c]
-			for (c in 0..3) m[r][4+c] = if (r == c) 1.0 else 0.0
-		}
-		for (col in 0..3) {
-			// pivot
-			var pivotRow = col
-			var maxAbs = abs(m[col][col])
-			for (r in col+1..3) {
-				val v = abs(m[r][col])
-				if (v > maxAbs) { maxAbs = v; pivotRow = r }
-			}
-			require(maxAbs > 1e-12) { "Singular 4x4" }
-			if (pivotRow != col) {
-				val tmp = m[col]; m[col] = m[pivotRow]; m[pivotRow] = tmp
-			}
-			val piv = m[col][col]
-			for (c in col until 8) m[col][c] /= piv
-			for (r in 0..3) {
-				if (r == col) continue
-				val f = m[r][col]
-				for (c in col until 8) m[r][c] -= f * m[col][c]
-			}
-		}
-		val inv = DoubleArray(16)
-		for (r in 0..3) for (c in 0..3) inv[r*4+c] = m[r][4+c]
-		return inv
-	}
 }
