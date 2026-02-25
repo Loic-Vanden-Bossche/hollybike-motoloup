@@ -297,7 +297,9 @@ object EkfJourney {
 			val pPred = mat4Add(mat4Mul(mat4Mul(f, p), mat4Transpose(f)), q)
 
 			val hasValidPosition = isValidLatLon(s.lat, s.lon)
-			val hasValidAccuracy = s.accuracyM.isFinite() && s.accuracyM > 0.0
+			// Some devices/providers emit 0 or negative accuracy as placeholder values.
+			// Keep the sample if finite and let sigmaPos clamp handle the floor.
+			val hasValidAccuracy = s.accuracyM.isFinite()
 			if (!hasValidPosition || !hasValidAccuracy) {
 				steps += FilterStep(
 					tMillis = t,
@@ -326,7 +328,7 @@ object EkfJourney {
 			val v = hypot(xPred.vx, xPred.vy)
 			val h = if (useSpeed) doubleArrayOf(xPred.x, xPred.y, v) else doubleArrayOf(xPred.x, xPred.y)
 
-			val z = if (useSpeed) doubleArrayOf(zx, zy, s.speedMps!!) else doubleArrayOf(zx, zy)
+			val z = if (useSpeed) doubleArrayOf(zx, zy, s.speedMps) else doubleArrayOf(zx, zy)
 			val r = vecSub(z, h)
 
 			// H = dh/dx

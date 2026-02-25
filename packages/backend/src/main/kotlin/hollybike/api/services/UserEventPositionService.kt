@@ -14,6 +14,7 @@ import hollybike.api.types.websocket.*
 import hollybike.api.utils.AccelPreprocess
 import hollybike.api.utils.EkfPositionSample
 import hollybike.api.utils.EkfJourney
+import hollybike.api.utils.EkfState
 import hollybike.api.utils.PositionSample
 import hollybike.api.utils.search.SearchParam
 import hollybike.api.utils.search.applyParam
@@ -22,6 +23,8 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.JsonArray
+import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.json.JsonNull
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import org.jetbrains.exposed.v1.core.*
@@ -31,6 +34,7 @@ import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import kotlin.math.abs
+import kotlin.math.atan2
 import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
@@ -246,38 +250,61 @@ class UserEventPositionService(
 		hasBest
 	}
 
+	private data class FilteringArtifacts(
+		val smoothedStates: List<EkfState>,
+		val origin: EkfJourney.Origin,
+		val accelMetrics: List<AccelPreprocess.AccelMetrics?>
+	)
+
+	private data class JourneyComputation(
+		val geoJson: Feature,
+		val avgSpeed: Double,
+		val totalElevationGain: Double,
+		val totalElevationLoss: Double,
+		val totalDistance: Double,
+		val minElevation: Double,
+		val maxElevation: Double,
+		val totalTime: Long,
+		val maxSpeed: Double,
+		val avgGForce: Double,
+		val maxGForce: Double
+	)
+
 	suspend fun terminateUserJourney(user: User, event: Event): UserJourney {
-		val raw = mutableListOf<PositionSample>()
-
-		transaction(db) {
-			UserEventPosition.find {
-				(UsersEventsPositions.user eq user.id) and
-					(UsersEventsPositions.event eq event.id)
-			}
-				.orderBy(UsersEventsPositions.time to SortOrder.ASC)
-				.forEach { pos ->
-					raw += PositionSample(
-						timeMillis = pos.time.toEpochMilliseconds(), // adapt if needed
-						lat = pos.latitude,
-						lon = pos.longitude,
-						alt = pos.altitude,
-						accuracyM = pos.accuracy,
-						speedMps = pos.speed,
-						ax = pos.accelerationX,
-						ay = pos.accelerationY,
-						az = pos.accelerationZ
-					)
-				}
-
-			UsersEventsPositions.deleteWhere {
-				(UsersEventsPositions.user eq user.id) and (UsersEventsPositions.event eq event.id)
-			}
-		}
-
+		val raw = loadRawJourneySamples(user, event)
 		if (raw.size < 2) {
 			throw BadRequestException("Aucune position exploitable pour terminer le trajet")
 		}
 
+		val filtering = computeFilteringArtifacts(raw)
+		val computed = buildJourneyComputation(raw, filtering.smoothedStates, filtering.origin, filtering.accelMetrics)
+		val file = uploadUserJourney(computed.geoJson, event.id.value, user.id.value)
+
+		return persistJourney(user, event, file, computed)
+	}
+
+	private fun loadRawJourneySamples(user: User, event: Event): List<PositionSample> = transaction(db) {
+		UserEventPosition.find {
+			(UsersEventsPositions.user eq user.id) and
+				(UsersEventsPositions.event eq event.id)
+		}
+			.orderBy(UsersEventsPositions.time to SortOrder.ASC)
+			.map { pos ->
+				PositionSample(
+					timeMillis = pos.time.toEpochMilliseconds(),
+					lat = pos.latitude,
+					lon = pos.longitude,
+					alt = pos.altitude,
+					accuracyM = pos.accuracy,
+					speedMps = pos.speed,
+					ax = pos.accelerationX,
+					ay = pos.accelerationY,
+					az = pos.accelerationZ
+				)
+			}
+	}
+
+	private fun computeFilteringArtifacts(raw: List<PositionSample>): FilteringArtifacts {
 		val ekfSamples = raw.map {
 			EkfPositionSample(
 				timeMillis = it.timeMillis,
@@ -288,27 +315,64 @@ class UserEventPositionService(
 			)
 		}
 		val (smoothedStates, origin) = EkfJourney.smoothTrajectory(ekfSamples)
-
 		val accelMetrics = AccelPreprocess.computeLinearAccelMetrics(
 			samples = raw,
 			gravityTauSeconds = 0.8,
 			linLowPassTauSeconds = 0.15,
 			spikeClampMS2 = 35.0
 		)
+		return FilteringArtifacts(smoothedStates, origin, accelMetrics)
+	}
 
+	private fun buildJourneyComputation(
+		raw: List<PositionSample>,
+		smoothedStates: List<EkfState>,
+		origin: EkfJourney.Origin,
+		accelMetrics: List<AccelPreprocess.AccelMetrics?>
+	): JourneyComputation {
 		val coord = mutableListOf<GeoJsonCoordinates>()
 		val times = mutableListOf<JsonPrimitive>()
 		val speedArr = mutableListOf<JsonPrimitive>()
+		val rawLatArr = mutableListOf<JsonPrimitive>()
+		val rawLonArr = mutableListOf<JsonPrimitive>()
+		val rawAltArr = mutableListOf<JsonPrimitive>()
+		val smoothedLatArr = mutableListOf<JsonPrimitive>()
+		val smoothedLonArr = mutableListOf<JsonPrimitive>()
+		val accuracyArr = mutableListOf<JsonPrimitive>()
+		val gpsSpeedArr = mutableListOf<JsonElement>()
+		val gpsSpeedValidArr = mutableListOf<JsonPrimitive>()
+		val speedSourceArr = mutableListOf<JsonPrimitive>()
+		val speedDeltaArr = mutableListOf<JsonElement>()
+		val vxArr = mutableListOf<JsonPrimitive>()
+		val vyArr = mutableListOf<JsonPrimitive>()
+		val ekfSpeedArr = mutableListOf<JsonPrimitive>()
+		val headingDegArr = mutableListOf<JsonPrimitive>()
+		val dtArr = mutableListOf<JsonPrimitive>()
+		val segmentDistanceArr = mutableListOf<JsonPrimitive>()
+		val cumulativeDistanceArr = mutableListOf<JsonPrimitive>()
+		val elevationDeltaArr = mutableListOf<JsonPrimitive>()
+		val cumulativeElevationGainArr = mutableListOf<JsonPrimitive>()
+		val cumulativeElevationLossArr = mutableListOf<JsonPrimitive>()
+		val linAccelArr = mutableListOf<JsonElement>()
+		val gForceArr = mutableListOf<JsonElement>()
+		val jerkArr = mutableListOf<JsonElement>()
+		val hasAccelMetricsArr = mutableListOf<JsonPrimitive>()
 
 		var elevationGain = 0.0
 		var elevationLoss = 0.0
 		var minElevation = Double.POSITIVE_INFINITY
 		var maxElevation = Double.NEGATIVE_INFINITY
 		var prevAltitude: Double? = null
+		var prevTimeMillis: Long? = null
+		var prevState: EkfState? = null
+		var cumulativeDistance = 0.0
 
 		var maxSpeed = Double.NEGATIVE_INFINITY
 		var totalSpeed = 0.0
 		var speedCount = 0
+		var gpsSpeedCount = 0
+		var totalAccuracy = 0.0
+		var accuracyCount = 0
 
 		var maxGForce = Double.NEGATIVE_INFINITY
 		var totalGForce = 0.0
@@ -321,19 +385,55 @@ class UserEventPositionService(
 			val st = smoothedStates[i]
 
 			val (latS, lonS) = EkfJourney.xyToLatLon(origin, st.x, st.y)
+			rawLatArr.add(JsonPrimitive(s.lat))
+			rawLonArr.add(JsonPrimitive(s.lon))
+			rawAltArr.add(JsonPrimitive(s.alt))
+			smoothedLatArr.add(JsonPrimitive(latS))
+			smoothedLonArr.add(JsonPrimitive(lonS))
+			accuracyArr.add(JsonPrimitive(s.accuracyM))
+			if (s.accuracyM.isFinite()) {
+				totalAccuracy += s.accuracyM
+				accuracyCount++
+			}
 
 			coord.add(listOf(lonS, latS, s.alt))
-
 			times.add(JsonPrimitive(Instant.fromEpochMilliseconds(s.timeMillis).toString()))
 
-			val v = (s.speedMps?.takeIf { it.isFinite() && it >= 0.0 }) ?: hypot(st.vx, st.vy)
-			speedArr.add(JsonPrimitive(v))
+			val gpsSpeed = s.speedMps?.takeIf { it.isFinite() && it >= 0.0 }
+			val gpsSpeedValid = gpsSpeed != null
+			if (gpsSpeedValid) gpsSpeedCount++
 
+			val ekfSpeed = hypot(st.vx, st.vy)
+			val v = gpsSpeed ?: ekfSpeed
+			speedArr.add(JsonPrimitive(v))
+			gpsSpeedArr.add(if (gpsSpeedValid) JsonPrimitive(gpsSpeed) else JsonNull)
+			gpsSpeedValidArr.add(JsonPrimitive(gpsSpeedValid))
+			speedSourceArr.add(JsonPrimitive(if (gpsSpeedValid) "gps" else "ekf"))
+			speedDeltaArr.add(if (gpsSpeedValid) JsonPrimitive(gpsSpeed - ekfSpeed) else JsonNull)
+			vxArr.add(JsonPrimitive(st.vx))
+			vyArr.add(JsonPrimitive(st.vy))
+			ekfSpeedArr.add(JsonPrimitive(ekfSpeed))
+			headingDegArr.add(JsonPrimitive(Math.toDegrees(atan2(st.vy, st.vx))))
+
+			val dtSeconds = if (prevTimeMillis == null) 0.0 else max(0.0, (s.timeMillis - prevTimeMillis!!).toDouble() / 1000.0)
+			dtArr.add(JsonPrimitive(dtSeconds))
+			prevTimeMillis = s.timeMillis
+
+			val segmentDistance = if (prevState == null) 0.0 else hypot(st.x - prevState!!.x, st.y - prevState!!.y)
+			segmentDistanceArr.add(JsonPrimitive(segmentDistance))
+			cumulativeDistance += segmentDistance
+			cumulativeDistanceArr.add(JsonPrimitive(cumulativeDistance))
+			prevState = st
+
+			val elevationDelta = if (prevAltitude == null) 0.0 else s.alt - prevAltitude
+			elevationDeltaArr.add(JsonPrimitive(elevationDelta))
 			if (prevAltitude != null) {
 				val dh = s.alt - prevAltitude
 				if (dh >= 0) elevationGain += dh else elevationLoss += -dh
 			}
 			prevAltitude = s.alt
+			cumulativeElevationGainArr.add(JsonPrimitive(elevationGain))
+			cumulativeElevationLossArr.add(JsonPrimitive(elevationLoss))
 			minElevation = min(minElevation, s.alt)
 			maxElevation = max(maxElevation, s.alt)
 
@@ -350,6 +450,16 @@ class UserEventPositionService(
 
 				val jerkAbs = abs(am.jerk)
 				maxJerk = max(maxJerk, jerkAbs)
+
+				linAccelArr.add(JsonPrimitive(am.linMag))
+				gForceArr.add(JsonPrimitive(g))
+				jerkArr.add(JsonPrimitive(am.jerk))
+				hasAccelMetricsArr.add(JsonPrimitive(true))
+			} else {
+				linAccelArr.add(JsonNull)
+				gForceArr.add(JsonNull)
+				jerkArr.add(JsonNull)
+				hasAccelMetricsArr.add(JsonPrimitive(false))
 			}
 		}
 
@@ -360,23 +470,84 @@ class UserEventPositionService(
 		val avgSpeed = if (speedCount > 0) totalSpeed / speedCount else 0.0
 		val avgGForce = if (gCount > 0) totalGForce / gCount else 0.0
 		val maxGForceSafe = if (maxGForce.isFinite()) maxGForce else 0.0
+		val maxJerkSafe = if (maxJerk.isFinite()) maxJerk else 0.0
+		val meanAccuracy = if (accuracyCount > 0) totalAccuracy / accuracyCount else 0.0
 
 		val totalTime = (Instant.parse(times.last().content) - Instant.parse(times.first().content)).inWholeSeconds
+		val totalDistance = calculateDistance(coord)
 
 		val geoJson = Feature(
 			geometry = LineString(coord),
 			properties = JsonObject(
 				mapOf(
 					"coordTimes" to JsonArray(times),
-					"speed" to JsonArray(speedArr)
+					"speed" to JsonArray(speedArr),
+					"rawLatitude" to JsonArray(rawLatArr),
+					"rawLongitude" to JsonArray(rawLonArr),
+					"rawAltitude" to JsonArray(rawAltArr),
+					"smoothedLatitude" to JsonArray(smoothedLatArr),
+					"smoothedLongitude" to JsonArray(smoothedLonArr),
+					"accuracyM" to JsonArray(accuracyArr),
+					"gpsSpeedMps" to JsonArray(gpsSpeedArr),
+					"gpsSpeedValid" to JsonArray(gpsSpeedValidArr),
+					"speedSource" to JsonArray(speedSourceArr),
+					"speedDeltaGpsMinusEkfMps" to JsonArray(speedDeltaArr),
+					"ekfVxMps" to JsonArray(vxArr),
+					"ekfVyMps" to JsonArray(vyArr),
+					"ekfSpeedMps" to JsonArray(ekfSpeedArr),
+					"headingDeg" to JsonArray(headingDegArr),
+					"dtSeconds" to JsonArray(dtArr),
+					"segmentDistanceM" to JsonArray(segmentDistanceArr),
+					"cumulativeDistanceM" to JsonArray(cumulativeDistanceArr),
+					"elevationDeltaM" to JsonArray(elevationDeltaArr),
+					"cumulativeElevationGainM" to JsonArray(cumulativeElevationGainArr),
+					"cumulativeElevationLossM" to JsonArray(cumulativeElevationLossArr),
+					"linearAccelerationMps2" to JsonArray(linAccelArr),
+					"gForce" to JsonArray(gForceArr),
+					"jerkMps3" to JsonArray(jerkArr),
+					"hasAccelMetrics" to JsonArray(hasAccelMetricsArr),
+					"summary" to JsonObject(
+						mapOf(
+							"pointCount" to JsonPrimitive(coord.size),
+							"totalTimeSeconds" to JsonPrimitive(totalTime),
+							"totalDistanceMeters" to JsonPrimitive(totalDistance),
+							"totalDistanceFromStateMeters" to JsonPrimitive(cumulativeDistance),
+							"averageSpeedMps" to JsonPrimitive(avgSpeed),
+							"maxSpeedMps" to JsonPrimitive(maxSpeed),
+							"meanAccuracyM" to JsonPrimitive(meanAccuracy),
+							"samplesWithValidGpsSpeed" to JsonPrimitive(gpsSpeedCount),
+							"samplesWithAccelMetrics" to JsonPrimitive(gCount),
+							"totalElevationGainM" to JsonPrimitive(elevationGain),
+							"totalElevationLossM" to JsonPrimitive(elevationLoss),
+							"minElevationM" to JsonPrimitive(minElevation),
+							"maxElevationM" to JsonPrimitive(maxElevation),
+							"averageGForce" to JsonPrimitive(avgGForce),
+							"maxGForce" to JsonPrimitive(maxGForceSafe),
+							"maxAbsJerkMps3" to JsonPrimitive(maxJerkSafe)
+						)
+					)
 				)
 			)
 		).apply {
 			bbox = getBoundingBox()
 		}
 
-		val file = uploadUserJourney(geoJson, event.id.value, user.id.value)
+		return JourneyComputation(
+			geoJson = geoJson,
+			avgSpeed = avgSpeed,
+			totalElevationGain = elevationGain,
+			totalElevationLoss = elevationLoss,
+			totalDistance = totalDistance,
+			minElevation = minElevation,
+			maxElevation = maxElevation,
+			totalTime = totalTime,
+			maxSpeed = maxSpeed,
+			avgGForce = avgGForce,
+			maxGForce = maxGForceSafe
+		)
+	}
 
+	private fun persistJourney(user: User, event: Event, file: String, computed: JourneyComputation): UserJourney {
 		return transaction(db) {
 			val participation = EventParticipation.find {
 				(EventParticipations.user eq user.id) and (EventParticipations.event eq event.id)
@@ -384,21 +555,25 @@ class UserEventPositionService(
 
 			UserJourney.new {
 				this.journey = file
-				this.avgSpeed = avgSpeed
-				this.totalElevationGain = elevationGain
-				this.totalElevationLoss = elevationLoss
-				this.totalDistance = calculateDistance(coord) // uses smoothed geometry now
-				this.minElevation = minElevation
-				this.maxElevation = maxElevation
-				this.totalTime = totalTime
-				this.maxSpeed = maxSpeed
+				this.avgSpeed = computed.avgSpeed
+				this.totalElevationGain = computed.totalElevationGain
+				this.totalElevationLoss = computed.totalElevationLoss
+				this.totalDistance = computed.totalDistance
+				this.minElevation = computed.minElevation
+				this.maxElevation = computed.maxElevation
+				this.totalTime = computed.totalTime
+				this.maxSpeed = computed.maxSpeed
 
-				this.avgGForce = avgGForce
-				this.maxGForce = maxGForceSafe
+				this.avgGForce = computed.avgGForce
+				this.maxGForce = computed.maxGForce
 
 				this.user = user
 			}.apply {
 				participation.journey = this
+
+				UsersEventsPositions.deleteWhere {
+					(UsersEventsPositions.user eq user.id) and (UsersEventsPositions.event eq event.id)
+				}
 			}
 		}
 	}
