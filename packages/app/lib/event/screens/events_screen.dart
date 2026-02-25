@@ -57,7 +57,7 @@ class _EventsScreenState extends State<EventsScreen>
         BlocListener<FutureEventsBloc, EventsState>(
           listener: (context, state) {
             if (state is EventCreationSuccess) {
-              Toast.showSuccessToast(context, '�v�nement cr��');
+              Toast.showSuccessToast(context, 'évènement créé');
 
               Future.delayed(const Duration(milliseconds: 50), () {
                 if (!context.mounted) return;

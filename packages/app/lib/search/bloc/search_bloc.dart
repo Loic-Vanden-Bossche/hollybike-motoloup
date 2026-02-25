@@ -24,6 +24,7 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     on<LoadEventsSearchNextPage>(_onLoadEventsSearchNextPage);
     on<LoadProfilesSearchNextPage>(_onLoadProfilesSearchNextPage);
     on<RefreshSearch>(_onRefreshSearch);
+    on<ResetSearch>(_onResetSearch);
   }
 
   Future<void> _onSubscribeToEventsSearch(
@@ -148,6 +149,10 @@ class SearchBloc extends Bloc<SearchEvent, SearchState> {
     } catch (e) {
       emit(handleError(e, 'Error while refreshing search'));
     }
+  }
+
+  void _onResetSearch(ResetSearch event, Emitter<SearchState> emit) {
+    emit(SearchInitial());
   }
 
   SearchState handleError(Object e, String logMessage) {
