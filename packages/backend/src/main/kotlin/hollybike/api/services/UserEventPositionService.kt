@@ -415,11 +415,11 @@ class UserEventPositionService(
 			ekfSpeedArr.add(JsonPrimitive(ekfSpeed))
 			headingDegArr.add(JsonPrimitive(Math.toDegrees(atan2(st.vy, st.vx))))
 
-			val dtSeconds = if (prevTimeMillis == null) 0.0 else max(0.0, (s.timeMillis - prevTimeMillis!!).toDouble() / 1000.0)
+			val dtSeconds = if (prevTimeMillis == null) 0.0 else max(0.0, (s.timeMillis - prevTimeMillis).toDouble() / 1000.0)
 			dtArr.add(JsonPrimitive(dtSeconds))
 			prevTimeMillis = s.timeMillis
 
-			val segmentDistance = if (prevState == null) 0.0 else hypot(st.x - prevState!!.x, st.y - prevState!!.y)
+			val segmentDistance = if (prevState == null) 0.0 else hypot(st.x - prevState.x, st.y - prevState.y)
 			segmentDistanceArr.add(JsonPrimitive(segmentDistance))
 			cumulativeDistance += segmentDistance
 			cumulativeDistanceArr.add(JsonPrimitive(cumulativeDistance))
