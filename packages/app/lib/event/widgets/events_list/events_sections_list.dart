@@ -49,8 +49,6 @@ class EventsSectionsList extends StatefulWidget {
 }
 
 class _EventsSectionsListState extends State<EventsSectionsList> {
-  bool _hasScrolled = false;
-
   @override
   Widget build(BuildContext context) {
     final sections = getEventSections(widget.events);
@@ -67,82 +65,72 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
     final bottomPadding = MediaQuery.of(context).padding.bottom;
     final totalBottomPadding = bottomPadding + widget.extraBottomPadding;
 
-    return NotificationListener<ScrollUpdateNotification>(
-      onNotification: (notification) {
-        final hasScrolledNow = notification.metrics.pixels > 0;
-        if (hasScrolledNow != _hasScrolled) {
-          setState(() => _hasScrolled = hasScrolledNow);
-        }
-        return false;
-      },
-      child: CustomScrollView(
-        controller: widget.controller,
-        physics: widget.physics,
-        slivers: [
-          // ── Phantom header ────────────────────────────────────────────────
-          // Transparent, pinned — reserves the top-bar area so section headers
-          // cannot creep behind the glass pill.
-          SliverPersistentHeader(
-            pinned: true,
-            delegate: _PhantomHeaderDelegate(height: topInset),
-          ),
+    return CustomScrollView(
+      controller: widget.controller,
+      physics: widget.physics,
+      slivers: [
+        // ── Phantom header ────────────────────────────────────────────────
+        // Transparent, pinned — reserves the top-bar area so section headers
+        // cannot creep behind the glass pill.
+        SliverPersistentHeader(
+          pinned: true,
+          delegate: _PhantomHeaderDelegate(height: topInset),
+        ),
 
           // ── Month sections ────────────────────────────────────────────────
-          ...sections.map(
-            (section) => SliverMainAxisGroup(
-              slivers: [
-                SliverPersistentHeader(
-                  pinned: true,
-                  delegate: _AnimatedMonthHeaderDelegate(
-                    title: section.title,
-                    colorScheme: scheme,
-                    hasScrolled: _hasScrolled,
-                  ),
+        ...sections.map(
+          (section) => SliverMainAxisGroup(
+            slivers: [
+              SliverPersistentHeader(
+                pinned: true,
+                delegate: _AnimatedMonthHeaderDelegate(
+                  title: section.title,
+                  colorScheme: scheme,
                 ),
-                SliverList(
-                  delegate: SliverChildBuilderDelegate((context, index) {
-                    final event = section.events[index];
+              ),
+              SliverList(
+                delegate: SliverChildBuilderDelegate((context, index) {
+                  final event = section.events[index];
 
-                    return TweenAnimationBuilder(
-                      tween: Tween<double>(begin: 0, end: 1),
-                      duration: const Duration(milliseconds: 300),
-                      curve: Curves.easeInOut,
-                      builder: (context, double value, child) {
-                        return Transform.translate(
-                          offset: Offset(30 * (1 - value), 0),
-                          child: Opacity(
-                            opacity: value,
-                            child: EventPreviewCard(
-                              event: event,
-                              onTap:
-                                  (uniqueKey) => _navigateToEventDetails(
-                                    context,
-                                    event,
-                                    uniqueKey,
-                                  ),
-                            ),
+                  return TweenAnimationBuilder(
+                    tween: Tween<double>(begin: 0, end: 1),
+                    duration: const Duration(milliseconds: 300),
+                    curve: Curves.easeInOut,
+                    builder: (context, double value, child) {
+                      return Transform.translate(
+                        offset: Offset(30 * (1 - value), 0),
+                        child: Opacity(
+                          opacity: value,
+                          child: EventPreviewCard(
+                            event: event,
+                            onTap:
+                                (uniqueKey) => _navigateToEventDetails(
+                                  context,
+                                  event,
+                                  uniqueKey,
+                                ),
                           ),
-                        );
-                      },
-                    );
-                  }, childCount: section.events.length),
-                ),
-                if (widget.hasMore && section == sections.last)
-                  const SliverToBoxAdapter(
-                    child: Center(
-                      child: Padding(
-                        padding: EdgeInsets.symmetric(vertical: 16.0),
-                        child: CircularProgressIndicator(),
-                      ),
+                        ),
+                      );
+                    },
+                  );
+                }, childCount: section.events.length),
+              ),
+              if (widget.hasMore && section == sections.last)
+                const SliverToBoxAdapter(
+                  child: Center(
+                    child: Padding(
+                      padding: EdgeInsets.symmetric(vertical: 16.0),
+                      child: CircularProgressIndicator(),
                     ),
                   ),
-              ],
-            ),
+                ),
+            ],
           ),
+        ),
 
-          SliverToBoxAdapter(child: SizedBox(height: totalBottomPadding)),
-        ],
-      ),
+        SliverToBoxAdapter(child: SizedBox(height: totalBottomPadding)),
+      ],
     );
   }
 
@@ -187,12 +175,10 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
 class _AnimatedMonthHeaderDelegate extends SliverPersistentHeaderDelegate {
   final String title;
   final ColorScheme colorScheme;
-  final bool hasScrolled;
 
   const _AnimatedMonthHeaderDelegate({
     required this.title,
     required this.colorScheme,
-    required this.hasScrolled,
   });
 
   @override
@@ -201,7 +187,7 @@ class _AnimatedMonthHeaderDelegate extends SliverPersistentHeaderDelegate {
     double shrinkOffset,
     bool overlapsContent,
   ) {
-    final target = hasScrolled ? 1.0 : 0.0;
+    final target = (shrinkOffset > 0 || overlapsContent) ? 1.0 : 0.0;
 
     return SizedBox.expand(
       child: TweenAnimationBuilder<double>(
@@ -275,8 +261,7 @@ class _AnimatedMonthHeaderDelegate extends SliverPersistentHeaderDelegate {
   @override
   bool shouldRebuild(covariant _AnimatedMonthHeaderDelegate oldDelegate) {
     return oldDelegate.title != title ||
-        oldDelegate.colorScheme != colorScheme ||
-        oldDelegate.hasScrolled != hasScrolled;
+        oldDelegate.colorScheme != colorScheme;
   }
 }
 
