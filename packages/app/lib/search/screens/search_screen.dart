@@ -134,6 +134,7 @@ class _SearchScreenState extends State<SearchScreen> {
                           badgeText: '${state.events.length}',
                           colorScheme: Theme.of(context).colorScheme,
                           height: _kSectionHeaderHeight,
+                          baseHorizontalMargin: 16,
                         ),
                       ),
                       SliverPadding(
@@ -246,6 +247,7 @@ class _SearchScreenState extends State<SearchScreen> {
               badgeText: '${profiles.length}',
               colorScheme: Theme.of(context).colorScheme,
               height: _kSectionHeaderHeight,
+              baseHorizontalMargin: 16,
             ),
           ),
           SliverToBoxAdapter(

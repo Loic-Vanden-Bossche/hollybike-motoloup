@@ -7,12 +7,14 @@ class GlassSectionHeaderDelegate extends SliverPersistentHeaderDelegate {
   final ColorScheme colorScheme;
   final String? badgeText;
   final double height;
+  final double baseHorizontalMargin;
 
   const GlassSectionHeaderDelegate({
     required this.title,
     required this.colorScheme,
     this.badgeText,
     this.height = 52,
+    this.baseHorizontalMargin = 0,
   });
 
   @override
@@ -29,7 +31,7 @@ class GlassSectionHeaderDelegate extends SliverPersistentHeaderDelegate {
         duration: const Duration(milliseconds: 220),
         curve: Curves.easeOutCubic,
         builder: (context, t, child) {
-          final horizontalMargin = lerpDouble(0, 16, t)!;
+          final horizontalMargin = baseHorizontalMargin + lerpDouble(0, 16, t)!;
           final verticalMargin = lerpDouble(0, 4, t)!;
           final radius = lerpDouble(0, 50, t)!;
           final blur = lerpDouble(0, 20, t)!;
@@ -126,7 +128,8 @@ class GlassSectionHeaderDelegate extends SliverPersistentHeaderDelegate {
     return oldDelegate.title != title ||
         oldDelegate.badgeText != badgeText ||
         oldDelegate.colorScheme != colorScheme ||
-        oldDelegate.height != height;
+        oldDelegate.height != height ||
+        oldDelegate.baseHorizontalMargin != baseHorizontalMargin;
   }
 }
 
