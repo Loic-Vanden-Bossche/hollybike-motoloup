@@ -2,10 +2,9 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
-import 'dart:ui';
-
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:hollybike/ui/widgets/slivers/glass_sliver_headers.dart';
 
 import '../../../app/app_router.gr.dart';
 import '../../../shared/utils/dates.dart';
@@ -14,8 +13,7 @@ import '../event_preview_card/event_preview_card.dart';
 
 // Height of the visible TopBar content (see shared/widgets/bar/top_bar.dart).
 const _kTopBarContentHeight = 5;
-const _kMonthHeaderMinHeight = 44.0;
-const _kMonthHeaderMaxHeight = 52.0;
+const _kMonthHeaderHeight = 52.0;
 
 class EventSection {
   String title;
@@ -74,18 +72,19 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
         // cannot creep behind the glass pill.
         SliverPersistentHeader(
           pinned: true,
-          delegate: _PhantomHeaderDelegate(height: topInset),
+          delegate: PinnedSpacerHeaderDelegate(height: topInset),
         ),
 
-          // ── Month sections ────────────────────────────────────────────────
+        // ── Month sections ────────────────────────────────────────────────
         ...sections.map(
           (section) => SliverMainAxisGroup(
             slivers: [
               SliverPersistentHeader(
                 pinned: true,
-                delegate: _AnimatedMonthHeaderDelegate(
+                delegate: GlassSectionHeaderDelegate(
                   title: section.title,
                   colorScheme: scheme,
+                  height: _kMonthHeaderHeight,
                 ),
               ),
               SliverList(
@@ -170,123 +169,4 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
       EventDetailsRoute(event: event, animate: true, uniqueKey: uniqueKey),
     );
   }
-}
-
-class _AnimatedMonthHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final String title;
-  final ColorScheme colorScheme;
-
-  const _AnimatedMonthHeaderDelegate({
-    required this.title,
-    required this.colorScheme,
-  });
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) {
-    final target = (shrinkOffset > 0 || overlapsContent) ? 1.0 : 0.0;
-
-    return SizedBox.expand(
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(begin: 0, end: target),
-        duration: const Duration(milliseconds: 220),
-        curve: Curves.easeOutCubic,
-        builder: (context, t, child) {
-          final horizontalMargin = lerpDouble(0, 16, t)!;
-          final verticalMargin = lerpDouble(0, 4, t)!;
-          final radius = lerpDouble(0, 50, t)!;
-          final blur = lerpDouble(0, 20, t)!;
-
-          return Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: horizontalMargin,
-              vertical: verticalMargin,
-            ),
-            child: ClipRRect(
-              borderRadius: BorderRadius.circular(radius),
-              child: BackdropFilter(
-                filter: ImageFilter.blur(sigmaX: blur, sigmaY: blur),
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.symmetric(horizontal: 14),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(radius),
-                    color: colorScheme.primary.withValues(alpha: 0.6 * t),
-                    border: Border.all(
-                      color: colorScheme.onPrimary.withValues(alpha: 0.1 * t),
-                      width: 1,
-                    ),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      Container(
-                        width: 3,
-                        height: 14,
-                        margin: const EdgeInsets.only(right: 10),
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(2),
-                          color: colorScheme.secondary,
-                        ),
-                      ),
-                      Text(
-                        title,
-                        style: Theme.of(context).textTheme.titleSmall?.copyWith(
-                          letterSpacing: 0.3,
-                          color: colorScheme.onPrimary.withValues(
-                            alpha: lerpDouble(0.65, 0.75, t)!,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
-  @override
-  double get maxExtent => _kMonthHeaderMaxHeight;
-
-  @override
-  double get minExtent => _kMonthHeaderMinHeight;
-
-  @override
-  bool shouldRebuild(covariant _AnimatedMonthHeaderDelegate oldDelegate) {
-    return oldDelegate.title != title ||
-        oldDelegate.colorScheme != colorScheme;
-  }
-}
-
-// Invisible pinned sliver that reserves the top-bar area.
-// Section headers stack below it; event cards render through it
-// and get blurred by the AppBar's BackdropFilter.
-class _PhantomHeaderDelegate extends SliverPersistentHeaderDelegate {
-  final double height;
-
-  const _PhantomHeaderDelegate({required this.height});
-
-  @override
-  Widget build(
-    BuildContext context,
-    double shrinkOffset,
-    bool overlapsContent,
-  ) => SizedBox(height: height, width: double.infinity);
-
-  @override
-  double get maxExtent => height;
-
-  @override
-  double get minExtent => height;
-
-  @override
-  bool shouldRebuild(covariant _PhantomHeaderDelegate old) =>
-      old.height != height;
 }
