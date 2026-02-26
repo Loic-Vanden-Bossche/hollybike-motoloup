@@ -12,6 +12,7 @@ import 'package:hollybike/image/widgets/image_gallery/image_gallery.dart';
 import 'package:hollybike/profile/bloc/profile_images_bloc/profile_images_bloc.dart';
 import 'package:hollybike/profile/bloc/profile_images_bloc/profile_images_event.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
+import 'package:hollybike/ui/widgets/placeholders/empty_state_placeholder.dart';
 
 class ProfileImages extends StatelessWidget {
   final ScrollController scrollController;
@@ -63,35 +64,13 @@ class ProfileImages extends StatelessWidget {
   }
 
   Widget _buildPlaceholder(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
     final message =
         isMe
             ? "Vous n'avez ajouté aucune photo"
             : "$username n'a ajouté aucune photo";
 
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: scheme.primaryContainer.withValues(alpha: 0.50),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          const _ProfileImagesPlaceholderIcon(),
-          const SizedBox(height: 12),
-          Text(
-            message,
-            textAlign: TextAlign.center,
-            style: TextStyle(
-              color: scheme.onPrimary.withValues(alpha: 0.75),
-              fontSize: 14,
-              fontVariations: const [FontVariation.weight(550)],
-            ),
-          ),
-        ],
-      ),
+    return EmptyStatePlaceholder(
+      title: message,
     );
   }
 
@@ -103,70 +82,5 @@ class ProfileImages extends StatelessWidget {
 
   void _loadNextPage(BuildContext context) {
     context.read<ProfileImagesBloc>().add(LoadProfileImagesNextPage());
-  }
-}
-
-class _ProfileImagesPlaceholderIcon extends StatefulWidget {
-  const _ProfileImagesPlaceholderIcon();
-
-  @override
-  State<_ProfileImagesPlaceholderIcon> createState() =>
-      _ProfileImagesPlaceholderIconState();
-}
-
-class _ProfileImagesPlaceholderIconState
-    extends State<_ProfileImagesPlaceholderIcon>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scale;
-  late final Animation<double> _fade;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    )..forward();
-    _scale = CurvedAnimation(parent: _controller, curve: Curves.easeOutBack);
-    _fade = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.55, curve: Curves.easeOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return FadeTransition(
-      opacity: _fade,
-      child: ScaleTransition(
-        scale: _scale,
-        child: Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: scheme.secondary.withValues(alpha: 0.10),
-            border: Border.all(
-              color: scheme.secondary.withValues(alpha: 0.25),
-              width: 1.5,
-            ),
-          ),
-          child: Icon(
-            Icons.photo_library_outlined,
-            size: 30,
-            color: scheme.secondary.withValues(alpha: 0.75),
-          ),
-        ),
-      ),
-    );
   }
 }

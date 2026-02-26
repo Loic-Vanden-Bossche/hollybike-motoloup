@@ -345,6 +345,26 @@ class EventTest : IntegrationSpec({
 	}
 
 	context("Get participating events") {
+		test("Should sort participating events with upcoming first then past by most recent date") {
+			onPremiseTestApp {
+				it.get("/api/events/participating?page=0&per_page=20&sort=start_date_time.ASC") {
+					auth(UserStore.user1)
+				}.apply {
+					status shouldBe HttpStatusCode.OK
+
+					val body = body<TLists<TEventPartial>>()
+					val eventIds = body.data.map { event -> event.id }
+
+					eventIds shouldBe listOf(
+						EventStore.event2Asso1User1.id,
+						EventStore.event1Asso1User1.id,
+						EventStore.event3Asso1User1.id,
+						EventStore.event4Asso1User1.id
+					)
+				}
+			}
+		}
+
 		test("Should get only events where caller participates including finished ones") {
 			onPremiseTestApp {
 				it.get("/api/events/participating?page=0&per_page=20") {

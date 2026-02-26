@@ -10,6 +10,7 @@ import 'package:hollybike/event/widgets/images/event_images_visibility_dialog.da
 import 'package:hollybike/image/bloc/image_list_state.dart';
 import 'package:hollybike/image/widgets/image_gallery/image_gallery.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
+import 'package:hollybike/ui/widgets/placeholders/empty_state_placeholder.dart';
 
 import '../../../app/app_router.gr.dart';
 import '../../../shared/widgets/app_toast.dart';
@@ -117,73 +118,14 @@ class EventDetailsMyImages extends StatelessWidget {
   }
 
   Widget _buildPlaceholder(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    final message =
-        isParticipating
-            ? "Vous n'avez ajouté aucune photo"
-            : "Participez à l'évènement pour ajouter vos photos";
-
-    final widgets = <Widget>[
-      const _PlaceholderIcon(),
-      const SizedBox(height: 12),
-      Text(
-        message,
-        textAlign: TextAlign.center,
-        style: TextStyle(
-          color: scheme.onPrimary.withValues(alpha: 0.75),
-          fontSize: 14,
-          fontVariations: const [FontVariation.weight(550)],
-        ),
-      ),
-    ];
-
-    if (!isParticipating) {
-      widgets.addAll([
-        const SizedBox(height: 16),
-        GestureDetector(
-          onTap: () => _onJoin(context),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-            decoration: BoxDecoration(
-              color: scheme.secondary.withValues(alpha: 0.15),
-              borderRadius: BorderRadius.circular(50),
-              border: Border.all(
-                color: scheme.secondary.withValues(alpha: 0.40),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Icon(
-                  Icons.group_add_rounded,
-                  size: 15,
-                  color: scheme.secondary,
-                ),
-                const SizedBox(width: 7),
-                Text(
-                  "Rejoindre l'évènement",
-                  style: TextStyle(
-                    color: scheme.secondary,
-                    fontSize: 13,
-                    fontVariations: const [FontVariation.weight(650)],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ]);
-    }
-
-    return Container(
-      width: double.infinity,
-      padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 22),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(20),
-        color: scheme.primaryContainer.withValues(alpha: 0.50),
-      ),
-      child: Column(mainAxisSize: MainAxisSize.min, children: widgets),
+    return EmptyStatePlaceholder(
+      title:
+          isParticipating
+              ? "Vous n'avez ajouté aucune photo"
+              : "Participez à l'évènement pour ajouter vos photos",
+      actionLabel: isParticipating ? null : "Rejoindre l'évènement",
+      onAction: isParticipating ? null : () => _onJoin(context),
+      actionIcon: Icons.group_add_rounded,
     );
   }
 
@@ -304,72 +246,6 @@ class _MyImagesHeader extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _PlaceholderIcon extends StatefulWidget {
-  const _PlaceholderIcon();
-
-  @override
-  State<_PlaceholderIcon> createState() => _PlaceholderIconState();
-}
-
-class _PlaceholderIconState extends State<_PlaceholderIcon>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _controller;
-  late final Animation<double> _scale;
-  late final Animation<double> _fade;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 700),
-    )..forward();
-    _scale = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeOutBack,
-    );
-    _fade = CurvedAnimation(
-      parent: _controller,
-      curve: const Interval(0.0, 0.55, curve: Curves.easeOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    return FadeTransition(
-      opacity: _fade,
-      child: ScaleTransition(
-        scale: _scale,
-        child: Container(
-          width: 72,
-          height: 72,
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: scheme.secondary.withValues(alpha: 0.10),
-            border: Border.all(
-              color: scheme.secondary.withValues(alpha: 0.25),
-              width: 1.5,
-            ),
-          ),
-          child: Icon(
-            Icons.photo_library_outlined,
-            size: 30,
-            color: scheme.secondary.withValues(alpha: 0.75),
-          ),
-        ),
       ),
     );
   }

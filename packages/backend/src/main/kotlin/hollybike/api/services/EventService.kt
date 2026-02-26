@@ -150,9 +150,12 @@ class EventService(
 	}
 
 	private fun participatingEventsQuery(caller: User, searchParam: SearchParam, pagination: Boolean = true): Query {
-		val callerParticipation = EventParticipations.alias("caller_participation")
 		val participation = EventParticipations.alias("participation")
 		val participant = Users.alias("participant")
+		val searchParamWithoutSort = searchParam.copy(sort = emptyList())
+		val sortBucket = participatingEventSortBucket()
+		val upcomingSortDate = participatingUpcomingSortDate()
+		val pastSortDate = participatingPastSortDate()
 
 		val eventsQuery = Events.innerJoin(
 			Associations,
@@ -162,14 +165,6 @@ class EventService(
 			Users,
 			{ Events.owner },
 			{ Users.id }
-		).innerJoin(
-			callerParticipation,
-			{ callerParticipation[EventParticipations.event] },
-			{ Events.id },
-			{
-				(callerParticipation[EventParticipations.user] eq caller.id) and
-					(callerParticipation[EventParticipations.isJoined] eq true)
-			}
 		).leftJoin(
 			participation,
 			{ participation[EventParticipations.event] },
@@ -179,8 +174,15 @@ class EventService(
 			{ participant[Users.id] },
 			{ participation[EventParticipations.user] },
 			{ participation[EventParticipations.isJoined] eq true }
-		).select(Events.columns + Users.columns + Associations.columns)
-			.applyParam(searchParam, pagination).withDistinct()
+		).select(Events.columns + Users.columns + Associations.columns + listOf(sortBucket, upcomingSortDate, pastSortDate))
+			.applyParam(searchParamWithoutSort, pagination)
+			.withDistinct()
+			.orderBy(
+				sortBucket to SortOrder.ASC,
+				upcomingSortDate to SortOrder.ASC,
+				pastSortDate to SortOrder.DESC,
+				Events.id to SortOrder.ASC
+			)
 
 		if (caller.scope != EUserScope.Root) {
 			eventsQuery.andWhere {
@@ -189,6 +191,53 @@ class EventService(
 		}
 
 		return eventsQuery
+	}
+
+	private fun participatingEventSortBucket() = object : ExpressionWithColumnType<Int>() {
+		override val columnType: IColumnType<Int>
+			get() = IntegerColumnType()
+
+		override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+			queryBuilder.append("CASE WHEN ")
+			queryBuilder.append(
+				Events.status,
+				" NOT IN (",
+				EEventStatus.Cancelled.value.toString(),
+				", ",
+				EEventStatus.Finished.value.toString(),
+				")"
+			)
+			queryBuilder.append(" AND (")
+			queryBuilder.append(Events.startDateTime, " >= ", now())
+			queryBuilder.append(" OR (")
+			queryBuilder.append(Events.status, " = ", EEventStatus.Scheduled.value.toString())
+			queryBuilder.append(" AND ((")
+			queryBuilder.append(Events.endDateTime, " IS NOT NULL AND ", Events.endDateTime, " >= ", now())
+			queryBuilder.append(") OR (")
+			queryBuilder.append(Events.endDateTime, " IS NULL AND ", addtime(Events.startDateTime, 4.hours), " >= ", now())
+			queryBuilder.append(")))")
+			queryBuilder.append(") THEN 0 ELSE 1 END")
+		}
+	}
+
+	private fun participatingUpcomingSortDate() = object : Expression<Instant?>() {
+		override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+			queryBuilder.append("CASE WHEN ", participatingEventSortBucket(), " = 0 THEN ", Events.startDateTime, " ELSE NULL END")
+		}
+	}
+
+	private fun participatingPastSortDate() = object : Expression<Instant?>() {
+		override fun toQueryBuilder(queryBuilder: QueryBuilder) {
+			queryBuilder.append(
+				"CASE WHEN ",
+				participatingEventSortBucket(),
+				" = 1 THEN COALESCE(",
+				Events.endDateTime,
+				", ",
+				Events.startDateTime,
+				") ELSE NULL END"
+			)
+		}
 	}
 
 	suspend fun handleEventExceptions(exception: Throwable, call: ApplicationCall) {

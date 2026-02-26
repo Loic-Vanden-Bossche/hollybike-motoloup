@@ -10,7 +10,6 @@ import 'package:flutter/material.dart';
 import '../../../app/app_router.gr.dart';
 import '../../../shared/utils/dates.dart';
 import '../../types/minimal_event.dart';
-import '../../types/event_status_state.dart';
 import '../event_preview_card/event_preview_card.dart';
 
 // Height of the visible TopBar content (see shared/widgets/bar/top_bar.dart).
@@ -148,8 +147,7 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
   }
 
   List<EventSection> getEventSections(List<MinimalEvent> events) {
-    final sortedEvents =
-        widget.prioritizeUpcomingFirst ? _sortUpcomingFirst(events) : events;
+    final sortedEvents = events;
 
     final sections = <EventSection>[];
     List<List<MinimalEvent>> groupedEvents = [];
@@ -173,41 +171,6 @@ class _EventsSectionsListState extends State<EventsSectionsList> {
     }
 
     return sections;
-  }
-
-  List<MinimalEvent> _sortUpcomingFirst(List<MinimalEvent> events) {
-    final now = DateTime.now();
-    final upcoming = <MinimalEvent>[];
-    final past = <MinimalEvent>[];
-
-    for (final event in events) {
-      if (_isUpcoming(event, now)) {
-        upcoming.add(event);
-      } else {
-        past.add(event);
-      }
-    }
-
-    past.sort((a, b) => _pastSortDate(b).compareTo(_pastSortDate(a)));
-
-    return [...upcoming, ...past];
-  }
-
-  bool _isUpcoming(MinimalEvent event, DateTime now) {
-    if (event.status == EventStatusState.finished ||
-        event.status == EventStatusState.canceled) {
-      return false;
-    }
-
-    if (event.status == EventStatusState.now) {
-      return true;
-    }
-
-    return !event.startDate.isBefore(now);
-  }
-
-  DateTime _pastSortDate(MinimalEvent event) {
-    return event.endDate ?? event.startDate;
   }
 
   void _navigateToEventDetails(

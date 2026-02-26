@@ -87,7 +87,9 @@ class EventRepository {
     String? query,
   }) async {
     final streamKey =
-        requestType == "participating" ? participatingStreamKey : userId;
+        requestType == "participating"
+            ? (userId ?? participatingStreamKey)
+            : null;
 
     final pageResult = await eventApi.getEvents(
       requestType,
@@ -137,7 +139,9 @@ class EventRepository {
     }
 
     final streamKey =
-        requestType == "participating" ? participatingStreamKey : userId;
+    requestType == "participating"
+        ? (userId ?? participatingStreamKey)
+        : null;
 
     final pageResult = await eventApi.getEvents(
       requestType,
