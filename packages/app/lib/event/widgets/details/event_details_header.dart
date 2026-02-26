@@ -29,7 +29,7 @@ class EventDetailsHeader extends StatelessWidget {
       child: Stack(
         fit: StackFit.expand,
         children: [
-          // ── Hero image ────────────────────────────────────────────────
+          // ── Hero image (badge lives inside so it's in the shuttle overlay) ──
           HeroMode(
             enabled: animate,
             child: Hero(
@@ -54,22 +54,9 @@ class EventDetailsHeader extends StatelessWidget {
                         flightDirection == HeroFlightDirection.push
                             ? lerpDouble(16, 0, progress)!
                             : lerpDouble(0, 16, progress)!;
-                    return Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(radius),
-                          child: child,
-                        ),
-                        if (flightDirection == HeroFlightDirection.push)
-                          Positioned(
-                            left: 16,
-                            bottom: 82,
-                            child: IgnorePointer(
-                              child: _DateBadge(date: event.startDate),
-                            ),
-                          ),
-                      ],
+                    return ClipRRect(
+                      borderRadius: BorderRadius.circular(radius),
+                      child: child,
                     );
                   },
                 );
@@ -109,73 +96,74 @@ class EventDetailsHeader extends StatelessWidget {
                       ),
                     ),
                   ),
+                  // Badge inside the Hero so it's present in the shuttle
+                  // during flight and at the same position when it lands.
+                  // bottom: 18 (Positioned) + 10 (spacer) + 26*1.1 (1-line title) ≈ 57
+                  Positioned(
+                    left: 16,
+                    bottom: 57,
+                    child: Material(
+                      color: Colors.transparent,
+                      child: _DateBadge(date: event.startDate),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
 
-          // ── Date badge + event name ───────────────────────────────────
+          // ── Event name Hero ───────────────────────────────────────────────
           Positioned(
             left: 16,
             right: 16,
             bottom: 18,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _DateBadge(date: event.startDate),
-                const SizedBox(height: 10),
-
-                // Event name with Hero transition
-                HeroMode(
-                  enabled: animate,
-                  child: Hero(
-                    tag: "event-name-$uniqueKey",
-                    flightShuttleBuilder: (
-                      flightContext,
-                      animation,
-                      flightDirection,
-                      fromHeroContext,
-                      toHeroContext,
-                    ) {
-                      final shuttle = (toHeroContext.widget as Hero).child;
-                      return Material(
-                        color: Colors.transparent,
-                        child: ClipRect(
-                          child: SizedBox.expand(
-                            child: Align(
-                              alignment: Alignment.centerLeft,
-                              child: FittedBox(
-                                fit: BoxFit.scaleDown,
-                                alignment: Alignment.centerLeft,
-                                child: shuttle,
-                              ),
-                            ),
+            child: HeroMode(
+              enabled: animate,
+              child: Hero(
+                tag: "event-name-$uniqueKey",
+                flightShuttleBuilder: (
+                  flightContext,
+                  animation,
+                  flightDirection,
+                  fromHeroContext,
+                  toHeroContext,
+                ) {
+                  final shuttle = (toHeroContext.widget as Hero).child;
+                  return Material(
+                    color: Colors.transparent,
+                    child: ClipRect(
+                      child: SizedBox.expand(
+                        child: Align(
+                          alignment: Alignment.centerLeft,
+                          child: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            alignment: Alignment.centerLeft,
+                            child: shuttle,
                           ),
                         ),
-                      );
-                    },
-                    child: Text(
-                      event.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 26,
-                        fontVariations: [FontVariation.weight(800)],
-                        height: 1.1,
-                        shadows: [
-                          Shadow(
-                            offset: Offset(0, 2),
-                            blurRadius: 12,
-                            color: Colors.black54,
-                          ),
-                        ],
                       ),
                     ),
+                  );
+                },
+                child: Text(
+                  event.name,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 26,
+                    fontVariations: [FontVariation.weight(800)],
+                    height: 1.1,
+                    shadows: [
+                      Shadow(
+                        offset: Offset(0, 2),
+                        blurRadius: 12,
+                        color: Colors.black54,
+                      ),
+                    ],
                   ),
                 ),
-              ],
+              ),
             ),
           ),
         ],
@@ -232,6 +220,7 @@ class _DateBadge extends StatelessWidget {
                       fontSize: 11,
                       fontVariations: [FontVariation.weight(650)],
                       letterSpacing: 0.2,
+                      decoration: TextDecoration.none,
                     ),
                   ),
                 ),

@@ -261,6 +261,7 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
                   fontSize: 9,
                   fontVariations: [FontVariation.weight(700)],
                   letterSpacing: 0.5,
+                  decoration: TextDecoration.none,
                 ),
               ),
               Text(
@@ -270,6 +271,7 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
                   fontSize: 16,
                   fontVariations: [FontVariation.weight(800)],
                   height: 1.1,
+                  decoration: TextDecoration.none,
                 ),
               ),
             ],
@@ -314,7 +316,14 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
             ),
           ),
         ),
-        Positioned(left: 8, bottom: 8, child: _buildDateBadge(context)),
+        Positioned(
+          left: 8,
+          bottom: 8,
+          child: Material(
+            color: Colors.transparent,
+            child: _buildDateBadge(context),
+          ),
+        ),
         Positioned(
           top: 8,
           right: 8,

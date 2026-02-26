@@ -16,7 +16,7 @@ class UserEventsBloc extends EventsBloc {
   static const int _participatingKey = -1;
 
   UserEventsBloc({required super.eventRepository, this.userId})
-    : super(requestType: userId == null ? "participating" : "future") {
+    : super(requestType: "participating") {
     on<RefreshUserEvents>(_onRefreshUserEvents);
   }
 

@@ -7,6 +7,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/event/bloc/events_bloc/events_bloc.dart';
 import 'package:hollybike/event/widgets/events_list/events_list_placeholder.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
+import 'package:hollybike/ui/widgets/placeholders/empty_state_placeholder.dart';
 import 'package:lottie/lottie.dart';
 
 import '../../auth/bloc/auth_bloc.dart';
@@ -144,30 +145,12 @@ class _EventsListFragmentState<T extends EventsBloc>
       case EventStatus.success:
         return ScrollablePlaceholder(
           padding: MediaQuery.of(context).size.width * 0.2,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Lottie.asset(
-                fit: BoxFit.cover,
-                'assets/lottie/lottie_calendar_placeholder.json',
-                repeat: false,
-              ),
-              const SizedBox(height: 16),
-              Text(
-                widget.placeholderText,
-                style: Theme.of(context).textTheme.bodyMedium,
-                textAlign: TextAlign.center,
-              ),
-              if (widget.emptyActionLabel != null &&
-                  widget.onEmptyActionPressed != null) ...[
-                const SizedBox(height: 18),
-                FilledButton.icon(
-                  onPressed: widget.onEmptyActionPressed,
-                  icon: const Icon(Icons.event_rounded, size: 16),
-                  label: Text(widget.emptyActionLabel!),
-                ),
-              ],
-            ],
+          child: EmptyStatePlaceholder(
+            icon: Icons.calendar_month_rounded,
+            title: widget.placeholderText,
+            actionLabel: widget.emptyActionLabel,
+            onAction: widget.onEmptyActionPressed,
+            actionIcon: Icons.event_rounded,
           ),
         );
       default:

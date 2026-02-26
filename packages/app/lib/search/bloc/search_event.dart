@@ -24,3 +24,7 @@ class RefreshSearch extends SearchEvent {
 
   RefreshSearch({required this.query});
 }
+
+class ResetSearch extends SearchEvent {
+  ResetSearch();
+}

@@ -3,7 +3,6 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'package:flutter/material.dart';
-import 'package:lottie/lottie.dart';
 
 class EmptySearchPlaceholder extends StatelessWidget {
   final String? lastSearch;
@@ -12,34 +11,51 @@ class EmptySearchPlaceholder extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16),
-      child: ConstrainedBox(
-        constraints: const BoxConstraints(minWidth: double.infinity),
+    final scheme = Theme.of(context).colorScheme;
+
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Lottie.asset(
-              fit: BoxFit.cover,
-              'assets/lottie/lottie_empty_data.json',
-              height: 150,
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: scheme.primaryContainer.withValues(alpha: 0.40),
+                border: Border.all(
+                  color: scheme.onPrimary.withValues(alpha: 0.10),
+                  width: 1.5,
+                ),
+              ),
+              child: Icon(
+                Icons.search_off_rounded,
+                size: 36,
+                color: scheme.onPrimaryContainer,
+              ),
             ),
-            const SizedBox.square(dimension: 16),
+            const SizedBox(height: 24),
             ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 300),
               child: RichText(
                 textAlign: TextAlign.center,
                 text: TextSpan(
-                  style: Theme.of(context).textTheme.bodyMedium,
+                  style: TextStyle(
+                    color: scheme.onPrimaryContainer,
+                    fontSize: 14,
+                    height: 1.5,
+                    fontVariations: const [FontVariation.weight(450)],
+                  ),
                   children: [
-                    const TextSpan(
-                      text:
-                          "Aucun évènement ou utilisateurs trouvé pour la recherche ",
-                    ),
+                    const TextSpan(text: 'Aucun résultat pour '),
                     TextSpan(
-                      text: '"$lastSearch"',
-                      style: Theme.of(context).textTheme.titleMedium,
+                      text: '«$lastSearch»',
+                      style: TextStyle(
+                        color: scheme.secondary,
+                        fontVariations: const [FontVariation.weight(700)],
+                      ),
                     ),
                   ],
                 ),

@@ -18,13 +18,18 @@ import 'package:hollybike/shared/utils/add_separators.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar.dart';
 import 'package:hollybike/shared/widgets/bar/top_bar_search_input.dart';
 import 'package:hollybike/shared/widgets/hud/hud.dart';
+import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
+import 'package:hollybike/ui/widgets/slivers/glass_sliver_headers.dart';
 import 'package:hollybike/user/types/minimal_user.dart';
 
 import '../../app/app_router.gr.dart';
 import '../../event/types/minimal_event.dart';
-import '../../shared/widgets/pinned_header_delegate.dart';
 import '../bloc/search_bloc.dart';
 import '../bloc/search_state.dart';
+
+const _kTopBarContentHeight = 5.0;
+const _kRefreshTopInsetHeight = 46.0;
+const _kSectionHeaderHeight = 52.0;
 
 @RoutePage()
 class SearchScreen extends StatefulWidget {
@@ -35,13 +40,22 @@ class SearchScreen extends StatefulWidget {
 }
 
 class _SearchScreenState extends State<SearchScreen> {
+  static const double _pageTriggerRatio = 0.78;
+  static const double _horizontalInset = 16;
+
   String? _lastSearch;
   late final ScrollController _verticalScrollController;
   late final ScrollController _horizontalScrollController;
   late final FocusNode focusNode;
+  bool _isRequestingMoreEvents = false;
+  bool _isRequestingMoreProfiles = false;
+  bool get _isSearchReset => (_lastSearch ?? '').trim().isEmpty;
 
   @override
   Widget build(BuildContext context) {
+    final refreshTopInset =
+        MediaQuery.of(context).padding.top + _kRefreshTopInsetHeight;
+
     return Hud(
       appBar: TopBar(
         title: TopBarSearchInput(
@@ -49,87 +63,120 @@ class _SearchScreenState extends State<SearchScreen> {
           focusNode: focusNode,
           onSearchRequested: _handleSearchRequest,
         ),
+        useTitleContainer: false,
         noPadding: true,
       ),
-      body: BlocListener<AuthBloc, AuthState>(
-        listener: (context, state) {
-          _refreshSearch(context, _lastSearch ?? "");
-        },
-        child: BlocBuilder<SearchBloc, SearchState>(
-          builder: (context, state) {
-            if (state.status == SearchStatus.initial) {
-              return InitialSearchPlaceholder(
-                onButtonTap: () {
-                  focusNode.requestFocus();
-                },
-              );
-            } else if (state.status == SearchStatus.fullLoading) {
-              return const LoadingSearchPlaceholder();
-            } else if (state.events.isEmpty && state.profiles.isEmpty) {
-              return EmptySearchPlaceholder(lastSearch: _lastSearch as String);
-            }
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<AuthBloc, AuthState>(
+            listener: (context, state) {
+              _refreshSearch(context, _lastSearch ?? '');
+            },
+          ),
+          BlocListener<SearchBloc, SearchState>(
+            listener: (context, state) {
+              if (state.status != SearchStatus.loadingEvents) {
+                _isRequestingMoreEvents = false;
+              }
+              if (state.status != SearchStatus.loadingProfiles) {
+                _isRequestingMoreProfiles = false;
+              }
+            },
+          ),
+        ],
+        child: ThemedRefreshIndicator(
+          onRefresh: _refreshCurrentSearch,
+          edgeOffset: refreshTopInset,
+          displacement: refreshTopInset + 28,
+          child: BlocBuilder<SearchBloc, SearchState>(
+            builder: (context, state) {
+              if (_isSearchReset || state.status == SearchStatus.initial) {
+                return InitialSearchPlaceholder(
+                  onButtonTap: () {
+                    focusNode.requestFocus();
+                  },
+                );
+              }
 
-            return CustomScrollView(
-              controller: _verticalScrollController,
-              slivers:
-                  _renderProfilesList(state.profiles, state) +
-                  [
-                    SliverPadding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      sliver: SliverMainAxisGroup(
-                        slivers: [
-                          SliverPersistentHeader(
-                            pinned: true,
-                            delegate: PinnedHeaderDelegate(
-                              height: 50,
-                              animationDuration: 300,
-                              child: Container(
-                                width: double.infinity,
-                                color:
-                                    Theme.of(context).scaffoldBackgroundColor,
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 12,
-                                  ),
-                                  child: Text(
-                                    "Évènements",
-                                    style:
-                                        Theme.of(context).textTheme.titleMedium,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                          SliverList.list(
-                            children:
-                                state.events
-                                    .map<Widget>(
-                                      (event) => EventPreviewCard(
-                                        event: event,
-                                        onTap: (uniqueKey) {
-                                          _navigateToEventDetails(
-                                            context,
-                                            event,
-                                            uniqueKey,
-                                          );
-                                        },
-                                      ),
-                                    )
-                                    .toList() +
-                                (state.status == SearchStatus.loadingEvents
-                                    ? [
-                                      const PlaceholderEventPreviewCard(),
-                                      const PlaceholderEventPreviewCard(),
-                                      const PlaceholderEventPreviewCard(),
-                                    ]
-                                    : []),
-                          ),
-                        ],
-                      ),
+              if (state.status == SearchStatus.fullLoading) {
+                return const LoadingSearchPlaceholder();
+              }
+
+              if (state.events.isEmpty && state.profiles.isEmpty) {
+                return EmptySearchPlaceholder(lastSearch: _lastSearch ?? '');
+              }
+
+              return CustomScrollView(
+                controller: _verticalScrollController,
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                slivers: [
+                  SliverPersistentHeader(
+                    pinned: true,
+                    delegate: PinnedSpacerHeaderDelegate(
+                      height:
+                          MediaQuery.of(context).padding.top +
+                          _kTopBarContentHeight,
                     ),
-                  ],
-            );
-          },
+                  ),
+                  ..._renderProfilesList(state.profiles, state),
+                  if (state.profiles.isNotEmpty)
+                    const SliverToBoxAdapter(child: SizedBox(height: 12)),
+                  SliverMainAxisGroup(
+                    slivers: [
+                      SliverPersistentHeader(
+                        pinned: true,
+                        delegate: GlassSectionHeaderDelegate(
+                          title: 'Évènements',
+                          badgeText: '${state.events.length}',
+                          colorScheme: Theme.of(context).colorScheme,
+                          height: _kSectionHeaderHeight,
+                          baseHorizontalMargin: 16,
+                        ),
+                      ),
+                      SliverPadding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: _horizontalInset,
+                        ),
+                        sliver: SliverList.list(
+                          children:
+                              state.events
+                                  .map<Widget>(
+                                    (event) => EventPreviewCard(
+                                      event: event,
+                                      onTap: (uniqueKey) {
+                                        _navigateToEventDetails(
+                                          context,
+                                          event,
+                                          uniqueKey,
+                                        );
+                                      },
+                                    ),
+                                  )
+                                  .toList() +
+                              (state.status == SearchStatus.loadingEvents
+                                  ? [
+                                    const PlaceholderEventPreviewCard(),
+                                    const PlaceholderEventPreviewCard(),
+                                    const PlaceholderEventPreviewCard(),
+                                  ]
+                                  : []),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SliverToBoxAdapter(
+                    child: SizedBox(
+                      height: MediaQuery.of(context).padding.bottom,
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
         ),
       ),
       displayNavBar: true,
@@ -144,21 +191,34 @@ class _SearchScreenState extends State<SearchScreen> {
 
     _verticalScrollController = ScrollController();
     _verticalScrollController.addListener(() {
-      var nextPageTrigger =
-          0.8 * _verticalScrollController.position.maxScrollExtent;
+      if (!_verticalScrollController.hasClients || _isRequestingMoreEvents) {
+        return;
+      }
 
-      if (_verticalScrollController.position.pixels > nextPageTrigger) {
-        BlocProvider.of<SearchBloc>(context).add(LoadEventsSearchNextPage());
+      if (_isNearEnd(_verticalScrollController)) {
+        final state = BlocProvider.of<SearchBloc>(context).state;
+        if (state.hasMoreEvents && state.lastSearchQuery != null) {
+          _isRequestingMoreEvents = true;
+          BlocProvider.of<SearchBloc>(context).add(LoadEventsSearchNextPage());
+        }
       }
     });
 
     _horizontalScrollController = ScrollController();
     _horizontalScrollController.addListener(() {
-      var nextPageTrigger =
-          0.8 * _horizontalScrollController.position.maxScrollExtent;
+      if (!_horizontalScrollController.hasClients ||
+          _isRequestingMoreProfiles) {
+        return;
+      }
 
-      if (_horizontalScrollController.position.pixels > nextPageTrigger) {
-        BlocProvider.of<SearchBloc>(context).add(LoadProfilesSearchNextPage());
+      if (_isNearEnd(_horizontalScrollController)) {
+        final state = BlocProvider.of<SearchBloc>(context).state;
+        if (state.hasMoreProfiles && state.lastSearchQuery != null) {
+          _isRequestingMoreProfiles = true;
+          BlocProvider.of<SearchBloc>(
+            context,
+          ).add(LoadProfilesSearchNextPage());
+        }
       }
     });
   }
@@ -176,38 +236,35 @@ class _SearchScreenState extends State<SearchScreen> {
     SearchState state,
   ) {
     if (profiles.isEmpty) return <Widget>[];
+
     return <Widget>[
       SliverMainAxisGroup(
         slivers: [
-          SliverPadding(
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            sliver: SliverPersistentHeader(
-              pinned: true,
-              delegate: PinnedHeaderDelegate(
-                height: 50,
-                animationDuration: 300,
-                child: Container(
-                  width: double.infinity,
-                  color: Theme.of(context).scaffoldBackgroundColor,
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 12),
-                    child: Text(
-                      "Profiles",
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                  ),
-                ),
-              ),
+          SliverPersistentHeader(
+            pinned: true,
+            delegate: GlassSectionHeaderDelegate(
+              title: 'Profils',
+              badgeText: '${profiles.length}',
+              colorScheme: Theme.of(context).colorScheme,
+              height: _kSectionHeaderHeight,
+              baseHorizontalMargin: 16,
             ),
           ),
           SliverToBoxAdapter(
             child: SizedBox(
-              height: 100,
+              height: 130,
               child: ListView(
                 controller: _horizontalScrollController,
                 scrollDirection: Axis.horizontal,
+                physics: const BouncingScrollPhysics(
+                  parent: AlwaysScrollableScrollPhysics(),
+                ),
+                keyboardDismissBehavior:
+                    ScrollViewKeyboardDismissBehavior.onDrag,
                 children:
-                    <Widget>[const SizedBox.square(dimension: 16)] +
+                    <Widget>[
+                      const SizedBox.square(dimension: _horizontalInset),
+                    ] +
                     addSeparators(
                       profiles
                               .map<Widget>(
@@ -224,7 +281,9 @@ class _SearchScreenState extends State<SearchScreen> {
                               : []),
                       const SizedBox.square(dimension: 8),
                     ) +
-                    <Widget>[const SizedBox.square(dimension: 16)],
+                    <Widget>[
+                      const SizedBox.square(dimension: _horizontalInset),
+                    ],
               ),
             ),
           ),
@@ -244,13 +303,35 @@ class _SearchScreenState extends State<SearchScreen> {
   }
 
   void _handleSearchRequest(String query) {
-    if (query == _lastSearch) return;
+    final normalizedQuery = query.trim();
+    final nextSearch = normalizedQuery.isEmpty ? null : normalizedQuery;
 
-    _refreshSearch(context, query);
-    setState(() => _lastSearch = query);
+    if (nextSearch == _lastSearch) return;
+
+    if (nextSearch != null) {
+      _refreshSearch(context, nextSearch);
+    } else {
+      BlocProvider.of<SearchBloc>(context).add(ResetSearch());
+    }
+    setState(() => _lastSearch = nextSearch);
   }
 
   void _refreshSearch(BuildContext context, String query) {
-    BlocProvider.of<SearchBloc>(context).add(RefreshSearch(query: query));
+    if (query.trim().isEmpty) return;
+    BlocProvider.of<SearchBloc>(
+      context,
+    ).add(RefreshSearch(query: query.trim()));
+  }
+
+  Future<void> _refreshCurrentSearch() async {
+    final query = _lastSearch?.trim();
+    if (query == null || query.isEmpty) return;
+    _refreshSearch(context, query);
+  }
+
+  bool _isNearEnd(ScrollController controller) {
+    final position = controller.position;
+    final trigger = position.maxScrollExtent * _pageTriggerRatio;
+    return position.pixels > trigger;
   }
 }

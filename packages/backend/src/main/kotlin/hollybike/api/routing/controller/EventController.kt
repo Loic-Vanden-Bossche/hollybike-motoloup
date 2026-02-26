@@ -16,6 +16,8 @@ import hollybike.api.types.lists.TLists
 import hollybike.api.types.user.EUserScope
 import hollybike.api.utils.checkContentType
 import hollybike.api.utils.get
+import hollybike.api.utils.search.Filter
+import hollybike.api.utils.search.FilterMode
 import hollybike.api.utils.search.getMapperData
 import hollybike.api.utils.search.getSearchParam
 import io.ktor.http.*
@@ -95,6 +97,17 @@ class EventController(
 	private fun Route.getParticipatingEvents() {
 		get<Events.Participating> {
 			val searchParam = call.request.queryParameters.getSearchParam(mapper)
+			val participantColumn = searchParam.mapper["participant_id"]
+
+			if (participantColumn != null && searchParam.filter.none { it.column == participantColumn }) {
+				searchParam.filter.add(
+					Filter(
+						column = participantColumn,
+						value = call.user.id.value.toString(),
+						mode = FilterMode.EQUAL
+					)
+				)
+			}
 
 			val events = eventService.getParticipatingEvents(call.user, searchParam)
 			val totalEvents = eventService.countParticipatingEvents(call.user, searchParam)
