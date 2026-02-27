@@ -154,7 +154,21 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
                 flightDirection,
                 fromHeroContext,
                 toHeroContext,
-              ) => _buildMediaHeroLayer(flightContext, enableDateBlur: false),
+              ) {
+                final shuttle = _buildMediaHeroLayer(
+                  flightContext,
+                  enableDateBlur: false,
+                );
+
+                if (flightDirection == HeroFlightDirection.pop) {
+                  return ClipRRect(
+                    borderRadius: BorderRadius.circular(16),
+                    child: shuttle,
+                  );
+                }
+
+                return shuttle;
+              },
               child: _buildMediaHeroLayer(context, enableDateBlur: true),
             )
             : _buildMediaHeroLayer(context, enableDateBlur: true);
