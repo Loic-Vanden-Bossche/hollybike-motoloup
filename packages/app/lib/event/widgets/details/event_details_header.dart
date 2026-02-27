@@ -36,78 +36,19 @@ class EventDetailsHeader extends StatelessWidget {
               tag: "event-image-$uniqueKey",
               flightShuttleBuilder: (
                 flightContext,
-                animation,
-                flightDirection,
-                fromHeroContext,
-                toHeroContext,
-              ) {
-                final shuttle = (toHeroContext.widget as Hero).child;
-                return AnimatedBuilder(
-                  animation: animation,
-                  child: shuttle,
-                  builder: (context, child) {
-                    final progress =
-                        animation.status == AnimationStatus.reverse
-                            ? 1 - animation.value
-                            : animation.value;
-                    final radius =
-                        flightDirection == HeroFlightDirection.push
-                            ? lerpDouble(16, 0, progress)!
-                            : lerpDouble(0, 16, progress)!;
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(radius),
-                      child: child,
-                    );
-                  },
-                );
-              },
-              child: Stack(
-                fit: StackFit.expand,
-                children: [
-                  Image(
-                    image: event.imageProvider,
-                    fit: BoxFit.cover,
-                    width: double.infinity,
-                    height: double.infinity,
-                    errorBuilder:
-                        (context, error, stackTrace) => ColoredBox(
-                          color: scheme.primary.withValues(alpha: 0.3),
-                          child: Center(
-                            child: Icon(
-                              Icons.image_not_supported_rounded,
-                              color: scheme.onPrimary.withValues(alpha: 0.3),
-                              size: 48,
-                            ),
-                          ),
-                        ),
-                  ),
-                  DecoratedBox(
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topCenter,
-                        end: Alignment.bottomCenter,
-                        stops: const [0.0, 0.30, 0.65, 1.0],
-                        colors: [
-                          Colors.black.withValues(alpha: 0.35),
-                          Colors.transparent,
-                          scheme.primaryContainer.withValues(alpha: 0.50),
-                          scheme.primaryContainer,
-                        ],
-                      ),
-                    ),
-                  ),
-                  // Badge inside the Hero so it's present in the shuttle
-                  // during flight and at the same position when it lands.
-                  // bottom: 18 (Positioned) + 10 (spacer) + 26*1.1 (1-line title) ≈ 57
-                  Positioned(
-                    left: 16,
-                    bottom: 57,
-                    child: Material(
-                      color: Colors.transparent,
-                      child: _DateBadge(date: event.startDate),
-                    ),
-                  ),
-                ],
+                _,
+                _,
+                _,
+                _,
+              ) => _EventImageHeroContent(
+                event: event,
+                scheme: Theme.of(flightContext).colorScheme,
+                enableBadgeBlur: false,
+              ),
+              child: _EventImageHeroContent(
+                event: event,
+                scheme: scheme,
+                enableBadgeBlur: true,
               ),
             ),
           ),
@@ -172,63 +113,136 @@ class EventDetailsHeader extends StatelessWidget {
   }
 }
 
+class _EventImageHeroContent extends StatelessWidget {
+  final MinimalEvent event;
+  final ColorScheme scheme;
+  final bool enableBadgeBlur;
+
+  const _EventImageHeroContent({
+    required this.event,
+    required this.scheme,
+    required this.enableBadgeBlur,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        Image(
+          image: event.imageProvider,
+          fit: BoxFit.cover,
+          width: double.infinity,
+          height: double.infinity,
+          errorBuilder:
+              (context, error, stackTrace) => ColoredBox(
+                color: scheme.primary.withValues(alpha: 0.3),
+                child: Center(
+                  child: Icon(
+                    Icons.image_not_supported_rounded,
+                    color: scheme.onPrimary.withValues(alpha: 0.3),
+                    size: 48,
+                  ),
+                ),
+              ),
+        ),
+        DecoratedBox(
+          decoration: BoxDecoration(
+            gradient: LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              stops: const [0.0, 0.30, 0.65, 1.0],
+              colors: [
+                Colors.black.withValues(alpha: 0.35),
+                Colors.transparent,
+                scheme.primaryContainer.withValues(alpha: 0.50),
+                scheme.primaryContainer,
+              ],
+            ),
+          ),
+        ),
+        // Badge inside the Hero so it's present in the shuttle
+        // during flight and at the same position when it lands.
+        // bottom: 18 (Positioned) + 10 (spacer) + 26*1.1 (1-line title) ≈ 57
+        Positioned(
+          left: 16,
+          bottom: 57,
+          child: Material(
+            color: Colors.transparent,
+            child: _DateBadge(
+              date: event.startDate,
+              enableBlur: enableBadgeBlur,
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
 // ── Date glass pill ────────────────────────────────────────────────────────────
 
 class _DateBadge extends StatelessWidget {
   final DateTime date;
+  final bool enableBlur;
 
-  const _DateBadge({required this.date});
+  const _DateBadge({required this.date, required this.enableBlur});
 
   @override
   Widget build(BuildContext context) {
     final maxBadgeWidth = MediaQuery.sizeOf(context).width - 64;
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(50),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: ConstrainedBox(
-          constraints: BoxConstraints(maxWidth: maxBadgeWidth),
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(50),
-              color: Colors.black.withValues(alpha: 0.32),
-              border: Border.all(
-                color: Colors.white.withValues(alpha: 0.18),
-                width: 1,
-              ),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const Icon(
-                  Icons.calendar_today_rounded,
-                  color: Colors.white70,
-                  size: 11,
-                ),
-                const SizedBox(width: 6),
-                Flexible(
-                  fit: FlexFit.loose,
-                  child: Text(
-                    _formatDate(date),
-                    maxLines: 1,
-                    softWrap: false,
-                    overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontSize: 11,
-                      fontVariations: [FontVariation.weight(650)],
-                      letterSpacing: 0.2,
-                      decoration: TextDecoration.none,
-                    ),
-                  ),
-                ),
-              ],
-            ),
+    final badgeContent = ConstrainedBox(
+      constraints: BoxConstraints(maxWidth: maxBadgeWidth),
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: Colors.black.withValues(alpha: 0.32),
+          border: Border.all(
+            color: Colors.white.withValues(alpha: 0.18),
+            width: 1,
           ),
         ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(
+              Icons.calendar_today_rounded,
+              color: Colors.white70,
+              size: 11,
+            ),
+            const SizedBox(width: 6),
+            Flexible(
+              fit: FlexFit.loose,
+              child: Text(
+                _formatDate(date),
+                maxLines: 1,
+                softWrap: false,
+                overflow: TextOverflow.ellipsis,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 11,
+                  fontVariations: [FontVariation.weight(650)],
+                  letterSpacing: 0.2,
+                  decoration: TextDecoration.none,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(50),
+      child:
+          enableBlur
+              ? BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: badgeContent,
+              )
+              : badgeContent,
     );
   }
 

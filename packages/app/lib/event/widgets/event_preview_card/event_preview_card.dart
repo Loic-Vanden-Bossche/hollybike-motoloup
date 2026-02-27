@@ -154,30 +154,10 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
                 flightDirection,
                 fromHeroContext,
                 toHeroContext,
-              ) {
-                final shuttle = (toHeroContext.widget as Hero).child;
-                return AnimatedBuilder(
-                  animation: animation,
-                  child: shuttle,
-                  builder: (context, child) {
-                    final progress =
-                        animation.status == AnimationStatus.reverse
-                            ? 1 - animation.value
-                            : animation.value;
-                    final radius =
-                        flightDirection == HeroFlightDirection.push
-                            ? lerpDouble(16, 0, progress)!
-                            : lerpDouble(0, 16, progress)!;
-                    return ClipRRect(
-                      borderRadius: BorderRadius.circular(radius),
-                      child: child,
-                    );
-                  },
-                );
-              },
-              child: _buildMediaHeroLayer(context),
+              ) => _buildMediaHeroLayer(flightContext, enableDateBlur: false),
+              child: _buildMediaHeroLayer(context, enableDateBlur: true),
             )
-            : _buildMediaHeroLayer(context);
+            : _buildMediaHeroLayer(context, enableDateBlur: true);
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(16),
@@ -232,52 +212,54 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
     );
   }
 
-  Widget _buildDateBadge(BuildContext context) {
+  Widget _buildDateBadge(BuildContext context, {required bool enableBlur}) {
     final date = widget.event.startDate;
     final day = getMinimalDay(date);
     final dayNum = date.day.toString();
 
-    return ClipRRect(
-      borderRadius: BorderRadius.circular(10),
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            color: Colors.black.withValues(alpha: 0.35),
-            border: Border.all(
-              color: Colors.white.withValues(alpha: 0.15),
-              width: 1,
+    final badgeContent = Container(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 5),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        color: Colors.black.withValues(alpha: 0.35),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.15), width: 1),
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            day,
+            style: const TextStyle(
+              color: Colors.white70,
+              fontSize: 9,
+              fontVariations: [FontVariation.weight(700)],
+              letterSpacing: 0.5,
+              decoration: TextDecoration.none,
             ),
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(
-                day,
-                style: const TextStyle(
-                  color: Colors.white70,
-                  fontSize: 9,
-                  fontVariations: [FontVariation.weight(700)],
-                  letterSpacing: 0.5,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-              Text(
-                dayNum,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 16,
-                  fontVariations: [FontVariation.weight(800)],
-                  height: 1.1,
-                  decoration: TextDecoration.none,
-                ),
-              ),
-            ],
+          Text(
+            dayNum,
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontVariations: [FontVariation.weight(800)],
+              height: 1.1,
+              decoration: TextDecoration.none,
+            ),
           ),
-        ),
+        ],
       ),
+    );
+
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(10),
+      child:
+          enableBlur
+              ? BackdropFilter(
+                filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                child: badgeContent,
+              )
+              : badgeContent,
     );
   }
 
@@ -297,7 +279,10 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
     );
   }
 
-  Widget _buildMediaHeroLayer(BuildContext context) {
+  Widget _buildMediaHeroLayer(
+    BuildContext context, {
+    required bool enableDateBlur,
+  }) {
     final scheme = Theme.of(context).colorScheme;
 
     return Stack(
@@ -321,7 +306,7 @@ class _EventPreviewCardState extends State<EventPreviewCard> {
           bottom: 8,
           child: Material(
             color: Colors.transparent,
-            child: _buildDateBadge(context),
+            child: _buildDateBadge(context, enableBlur: enableDateBlur),
           ),
         ),
         Positioned(
