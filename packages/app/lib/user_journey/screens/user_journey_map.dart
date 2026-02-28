@@ -208,6 +208,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
 
           final metricSource = GeoJsonSource(
             id: _metricSourceId,
+            tolerance: 0,
             data:
                 initialMetric?.sourceData ??
                 jsonEncode({'type': 'FeatureCollection', 'features': const []}),
@@ -256,7 +257,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
                     initialMetric == null
                         ? Visibility.NONE
                         : Visibility.VISIBLE,
-                lineColorExpression: _bucketColorExpression(),
+                lineColorExpression: _metricColorExpression(),
               ),
               LayerPosition(above: _tracksLayerId),
             ),
@@ -398,17 +399,8 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     });
   }
 
-  List<Object> _bucketColorExpression() {
-    final expression = <Object>[
-      'match',
-      ['get', 'bucket'],
-    ];
-    for (var index = 0; index < _bucketColors.length; index++) {
-      expression.add(index);
-      expression.add(_styleColor(_bucketColors[index]));
-    }
-    expression.add(_styleColor(_bucketColors.last));
-    return expression;
+  List<Object> _metricColorExpression() {
+    return <Object>['get', 'color'];
   }
 
   String _styleColor(int color) {
@@ -532,18 +524,24 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
         continue;
       }
 
-      features.add({
-        'type': 'Feature',
-        'properties': {
-          'metricKey': key,
-          'metricValue': value,
-          'bucket': _bucketIndex(value, minValue, maxValue),
-        },
-        'geometry': {
-          'type': 'LineString',
-          'coordinates': [coordinates[index], coordinates[index + 1]],
-        },
-      });
+      final startValueIndex =
+          supportsPointAlignedValues
+              ? index
+              : math.max(0, math.min(index - 1, values.length - 1));
+      final startValue = values[startValueIndex];
+      final startMetricValue = startValue.isFinite ? startValue : value;
+      features.addAll(
+        _buildGradientFeatures(
+          start: coordinates[index],
+          end: coordinates[index + 1],
+          startValue: startMetricValue,
+          endValue: value,
+          metricKey: key,
+          metricValue: value,
+          minValue: minValue,
+          maxValue: maxValue,
+        ),
+      );
     }
 
     if (features.isEmpty) {
@@ -573,6 +571,91 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     );
     final bucket = (normalized * (_bucketColors.length - 1)).floor();
     return bucket.clamp(0, _bucketColors.length - 1);
+  }
+
+  List<Map<String, dynamic>> _buildGradientFeatures({
+    required List<double> start,
+    required List<double> end,
+    required double startValue,
+    required double endValue,
+    required String metricKey,
+    required double metricValue,
+    required double minValue,
+    required double maxValue,
+  }) {
+    const subdivisions = 6;
+    final features = <Map<String, dynamic>>[];
+
+    for (var index = 0; index < subdivisions; index++) {
+      final t0 = index / subdivisions;
+      final t1 = (index + 1) / subdivisions;
+      final subStart = _interpolateCoordinate(start, end, t0);
+      final subEnd = _interpolateCoordinate(start, end, t1);
+      final subValue = startValue + ((endValue - startValue) * ((t0 + t1) / 2));
+
+      features.add({
+        'type': 'Feature',
+        'properties': {
+          'metricKey': metricKey,
+          'metricValue': metricValue,
+          'bucket': _bucketIndex(subValue, minValue, maxValue),
+          'color': _interpolatedMetricColor(subValue, minValue, maxValue),
+        },
+        'geometry': {
+          'type': 'LineString',
+          'coordinates': [subStart, subEnd],
+        },
+      });
+    }
+
+    return features;
+  }
+
+  List<double> _interpolateCoordinate(
+    List<double> start,
+    List<double> end,
+    double t,
+  ) {
+    return <double>[
+      start[0] + ((end[0] - start[0]) * t),
+      start[1] + ((end[1] - start[1]) * t),
+    ];
+  }
+
+  String _interpolatedMetricColor(
+    double value,
+    double minValue,
+    double maxValue,
+  ) {
+    if (maxValue <= minValue) {
+      return _styleColor(_bucketColors.first);
+    }
+
+    final normalized = ((value - minValue) / (maxValue - minValue)).clamp(
+      0.0,
+      1.0,
+    );
+    final scaled = normalized * (_bucketColors.length - 1);
+    final lowerIndex = scaled.floor().clamp(0, _bucketColors.length - 1);
+    final upperIndex = scaled.ceil().clamp(0, _bucketColors.length - 1);
+    final t = scaled - lowerIndex;
+
+    final lowerColor = _bucketColors[lowerIndex];
+    final upperColor = _bucketColors[upperIndex];
+
+    final lowerRed = (lowerColor >> 16) & 0xFF;
+    final lowerGreen = (lowerColor >> 8) & 0xFF;
+    final lowerBlue = lowerColor & 0xFF;
+
+    final upperRed = (upperColor >> 16) & 0xFF;
+    final upperGreen = (upperColor >> 8) & 0xFF;
+    final upperBlue = upperColor & 0xFF;
+
+    final red = (lowerRed + ((upperRed - lowerRed) * t)).round();
+    final green = (lowerGreen + ((upperGreen - lowerGreen) * t)).round();
+    final blue = (lowerBlue + ((upperBlue - lowerBlue) * t)).round();
+
+    return _styleColor((red << 16) | (green << 8) | blue);
   }
 
   List<List<double>> _parseCoordinates(dynamic rawCoordinates) {
