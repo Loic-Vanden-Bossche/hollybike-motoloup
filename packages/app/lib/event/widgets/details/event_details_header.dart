@@ -36,15 +36,53 @@ class EventDetailsHeader extends StatelessWidget {
               tag: "event-image-$uniqueKey",
               flightShuttleBuilder: (
                 flightContext,
-                _,
-                _,
-                _,
-                _,
-              ) => _EventImageHeroContent(
-                event: event,
-                scheme: Theme.of(flightContext).colorScheme,
-                enableBadgeBlur: false,
-              ),
+                animation,
+                flightDirection,
+                fromHeroContext,
+                toHeroContext,
+              ) {
+                final shuttle = _EventImageHeroContent(
+                  event: event,
+                  scheme: Theme.of(flightContext).colorScheme,
+                  enableBadgeBlur: false,
+                );
+
+                if (flightDirection != HeroFlightDirection.push) {
+                  return shuttle;
+                }
+
+                final isDark =
+                    Theme.of(flightContext).brightness == Brightness.dark;
+                final scrimAlpha = isDark ? 0.8 : 0.38;
+                final topScrimHeight = MediaQuery.viewPaddingOf(flightContext).top + 28;
+
+                return Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    shuttle,
+                    Positioned(
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      child: IgnorePointer(
+                        child: Container(
+                          height: topScrimHeight,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.black.withValues(alpha: scrimAlpha),
+                                Colors.black.withValues(alpha: 0),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              },
               child: _EventImageHeroContent(
                 event: event,
                 scheme: scheme,
