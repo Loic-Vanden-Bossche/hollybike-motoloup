@@ -240,8 +240,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     icon: Icons.arrow_back,
                   ),
                   title: TopBarTitle(
-                    state.eventDetails?.event.name ?? widget.event.name,
+                    "",
                   ),
+                  useTitleContainer: false,
                   suffix: _renderActions(state),
                 ),
                 floatingActionButton: _getFloatingButton(),
