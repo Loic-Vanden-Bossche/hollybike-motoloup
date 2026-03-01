@@ -39,6 +39,8 @@ class UserJourneyMapScreen extends StatefulWidget {
 
 class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   static const _topOverlayOffset = 62.0;
+  static const _metricSourceId = 'track-metric-source';
+  static const _metricLayerId = 'track-metric-layer';
   static const _bucketColors = <int>[
     0xFF2DC4B2,
     0xFF3BB3C3,
@@ -78,7 +80,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   bool _mapError = false;
   MapboxMap? _map;
   PolylineAnnotationManager? _trackAnnotationManager;
-  PolylineAnnotationManager? _metricAnnotationManager;
+  GeoJsonSource? _metricSource;
   List<_MetricLayer> _metricLayers = const [];
   List<List<double>> _trackCoordinates = const [];
   String? _selectedMetricKey;
@@ -247,20 +249,40 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
               ),
               buildingLayerPosition,
             ),
+            map.style.addSource(
+              GeoJsonSource(
+                id: _metricSourceId,
+                data: _emptyFeatureCollection(),
+                tolerance: 0,
+                lineMetrics: true,
+              ),
+            ),
+            map.style.addLayerAt(
+              LineLayer(
+                id: _metricLayerId,
+                sourceId: _metricSourceId,
+                lineJoin: LineJoin.ROUND,
+                lineCap: LineCap.ROUND,
+                lineWidth: 6,
+                lineEmissiveStrength: 1,
+                visibility:
+                    initialMetric == null
+                        ? Visibility.NONE
+                        : Visibility.VISIBLE,
+                lineGradientExpression:
+                    initialMetric?.gradientExpression ?? _fallbackGradient(),
+              ),
+              _layerPositionBelow(labelLayerId),
+            ),
           ]);
+
+          _metricSource = await map.style.getSource(_metricSourceId) as GeoJsonSource?;
 
           _trackAnnotationManager ??=
               await map.annotations.createPolylineAnnotationManager(
                 below: labelLayerId,
               );
-          _metricAnnotationManager ??=
-              await map.annotations.createPolylineAnnotationManager(
-                below: labelLayerId,
-              );
-          await Future.wait([
-            _trackAnnotationManager!.setLineCap(LineCap.ROUND),
-            _metricAnnotationManager!.setLineCap(LineCap.ROUND),
-          ]);
+          await _trackAnnotationManager!.setLineCap(LineCap.ROUND);
           await _refreshTraceAnnotations(
             coordinates: coordinates,
             metric: initialMetric,
@@ -394,30 +416,39 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     required _MetricLayer? metric,
   }) async {
     final trackAnnotationManager = _trackAnnotationManager;
-    final metricAnnotationManager = _metricAnnotationManager;
-    if (trackAnnotationManager == null || metricAnnotationManager == null) {
+    final metricSource = _metricSource;
+    final map = _map;
+    if (trackAnnotationManager == null || metricSource == null || map == null) {
       return;
     }
 
-    await Future.wait([
-      trackAnnotationManager.deleteAll(),
-      metricAnnotationManager.deleteAll(),
-    ]);
+    await trackAnnotationManager.deleteAll();
 
     await trackAnnotationManager.create(
       PolylineAnnotationOptions(
         geometry: LineString(coordinates: _toPositions(coordinates)),
         lineColor: 0xFF3457D5,
         lineJoin: LineJoin.ROUND,
-        lineWidth: metric == null ? 5 : 4,
-        lineOpacity: metric == null ? 1 : 0.35,
+        lineWidth: 5,
+        lineOpacity: metric == null ? 1 : 0,
         lineEmissiveStrength: 1,
       ),
     );
 
-    final metricAnnotations = metric?.annotations ?? const [];
-    if (metricAnnotations.isNotEmpty) {
-      await metricAnnotationManager.createMulti(metricAnnotations);
+    await metricSource.updateGeoJSON(
+      metric?.gradientSourceData ?? _emptyFeatureCollection(),
+    );
+    await map.style.setStyleLayerProperty(
+      _metricLayerId,
+      'visibility',
+      metric == null ? 'none' : 'visible',
+    );
+    if (metric != null) {
+      await map.style.setStyleLayerProperty(
+        _metricLayerId,
+        'line-gradient',
+        metric.gradientExpression,
+      );
     }
   }
 
@@ -586,10 +617,25 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       label: _metricLabels[key] ?? _prettifyMetricKey(key),
       minValue: minValue,
       maxValue: maxValue,
-      annotations: _buildMetricAnnotations(features),
-      sourceData: jsonEncode({
+      gradientExpression: _buildMetricGradientExpression(
+        coordinates: coordinates,
+        values: values,
+        minValue: minValue,
+        maxValue: maxValue,
+        supportsPointAlignedValues: supportsPointAlignedValues,
+      ),
+      gradientSourceData: jsonEncode({
         'type': 'FeatureCollection',
-        'features': features,
+        'features': [
+          {
+            'type': 'Feature',
+            'properties': {'metricKey': key},
+            'geometry': {
+              'type': 'LineString',
+              'coordinates': coordinates,
+            },
+          },
+        ],
       }),
     );
   }
@@ -692,76 +738,84 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     return _styleColor((red << 16) | (green << 8) | blue);
   }
 
-  List<PolylineAnnotationOptions> _buildMetricAnnotations(
-    List<Map<String, dynamic>> features,
-  ) {
-    final annotations = <PolylineAnnotationOptions>[];
-    List<List<double>>? currentCoordinates;
-    int? currentBucket;
-
-    for (final feature in features) {
-      final geometry = _asMap(feature['geometry']);
-      final properties = _asMap(feature['properties']);
-      if (geometry == null || properties == null) {
-        continue;
-      }
-
-      final coordinates = _parseCoordinates(geometry['coordinates']);
-      if (coordinates.length < 2) {
-        continue;
-      }
-
-      final bucketValue = properties['bucket'];
-      if (bucketValue is! int) {
-        continue;
-      }
-
-      if (currentCoordinates == null || currentBucket != bucketValue) {
-        _appendMetricAnnotation(
-          annotations,
-          currentCoordinates,
-          currentBucket,
-        );
-        currentBucket = bucketValue;
-        currentCoordinates = [coordinates.first, coordinates.last];
-        continue;
-      }
-
-      if (_sameCoordinate(currentCoordinates.last, coordinates.first)) {
-        currentCoordinates.add(coordinates.last);
-        continue;
-      }
-
-      _appendMetricAnnotation(
-        annotations,
-        currentCoordinates,
-        currentBucket,
-      );
-      currentCoordinates = [coordinates.first, coordinates.last];
+  List<Object> _buildMetricGradientExpression({
+    required List<List<double>> coordinates,
+    required List<double> values,
+    required double minValue,
+    required double maxValue,
+    required bool supportsPointAlignedValues,
+  }) {
+    final pointValues = <double>[];
+    for (var index = 0; index < coordinates.length; index++) {
+      final valueIndex =
+          supportsPointAlignedValues
+              ? index
+              : math.min(index, values.length - 1);
+      pointValues.add(values[valueIndex]);
     }
 
-    _appendMetricAnnotation(annotations, currentCoordinates, currentBucket);
-    return annotations;
+    final progressStops = _buildLineProgressStops(coordinates);
+    final expression = <Object>[
+      'interpolate',
+      ['linear'],
+      ['line-progress'],
+    ];
+
+    for (var index = 0; index < progressStops.length; index++) {
+      final value = pointValues[index];
+      expression.add(progressStops[index]);
+      expression.add(_interpolatedMetricColor(value, minValue, maxValue));
+    }
+
+    return expression;
   }
 
-  void _appendMetricAnnotation(
-    List<PolylineAnnotationOptions> annotations,
-    List<List<double>>? coordinates,
-    int? bucket,
-  ) {
-    if (coordinates == null || coordinates.length < 2 || bucket == null) {
-      return;
+  List<double> _buildLineProgressStops(List<List<double>> coordinates) {
+    if (coordinates.length < 2) {
+      return const [0, 1];
     }
 
-    annotations.add(
-      PolylineAnnotationOptions(
-        geometry: LineString(coordinates: _toPositions(coordinates)),
-        lineColor: _bucketColors[bucket.clamp(0, _bucketColors.length - 1)],
-        lineJoin: LineJoin.ROUND,
-        lineWidth: 6,
-        lineEmissiveStrength: 1,
-      ),
-    );
+    final cumulative = <double>[0];
+    var totalDistance = 0.0;
+    for (var index = 1; index < coordinates.length; index++) {
+      totalDistance += _coordinateDistance(
+        coordinates[index - 1],
+        coordinates[index],
+      );
+      cumulative.add(totalDistance);
+    }
+
+    if (totalDistance <= 0) {
+      return List<double>.generate(
+        coordinates.length,
+        (index) => index == coordinates.length - 1 ? 1 : 0,
+      );
+    }
+
+    return cumulative.map((value) => value / totalDistance).toList();
+  }
+
+  double _coordinateDistance(List<double> start, List<double> end) {
+    final dx = end[0] - start[0];
+    final dy = end[1] - start[1];
+    return math.sqrt((dx * dx) + (dy * dy));
+  }
+
+  String _emptyFeatureCollection() {
+    return jsonEncode({'type': 'FeatureCollection', 'features': const []});
+  }
+
+  List<Object> _fallbackGradient() {
+    final color = _styleColor(_bucketColors.first);
+    return <Object>[
+      'interpolate',
+      ['linear'],
+      ['line-progress'],
+      0,
+      color,
+      1,
+      color,
+    ];
   }
 
   List<List<double>> _parseCoordinates(dynamic rawCoordinates) {
@@ -827,13 +881,6 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     return coordinates
         .map((coordinate) => Position(coordinate[0], coordinate[1]))
         .toList();
-  }
-
-  bool _sameCoordinate(List<double> a, List<double> b) {
-    return a.length >= 2 &&
-        b.length >= 2 &&
-        a[0] == b[0] &&
-        a[1] == b[1];
   }
 
   String _prettifyMetricKey(String key) {
@@ -965,7 +1012,7 @@ class _MetricLegend extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                _formatMetricValue(metric.minValue),
+                _formatMetricValue(metric.key, metric.minValue),
                 style: textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
@@ -973,7 +1020,7 @@ class _MetricLegend extends StatelessWidget {
                 ),
               ),
               Text(
-                _formatMetricValue(metric.maxValue),
+                _formatMetricValue(metric.key, metric.maxValue),
                 style: textTheme.bodySmall?.copyWith(
                   color: Theme.of(
                     context,
@@ -987,16 +1034,84 @@ class _MetricLegend extends StatelessWidget {
     );
   }
 
-  String _formatMetricValue(double value) {
-    if (value.abs() >= 100 || value == value.roundToDouble()) {
-      return value.toStringAsFixed(0);
+  String _formatMetricValue(String key, double value) {
+    switch (key) {
+      case 'speed':
+      case 'gpsSpeedMps':
+      case 'speedDeltaGpsMinusEkfMps':
+      case 'ekfVxMps':
+      case 'ekfVyMps':
+      case 'ekfSpeedMps':
+        return _formatSpeed(value);
+      case 'accuracyM':
+      case 'segmentDistanceM':
+      case 'cumulativeDistanceM':
+      case 'elevationDeltaM':
+      case 'cumulativeElevationGainM':
+      case 'cumulativeElevationLossM':
+      case 'rawAltitude':
+        return _formatDistance(value);
+      case 'headingDeg':
+        return '${_formatNumber(value, decimals: value.abs() >= 100 ? 0 : 1)}°';
+      case 'dtSeconds':
+        return _formatDuration(value);
+      case 'linearAccelerationMps2':
+        return '${_formatNumber(value)} m/s²';
+      case 'jerkMps3':
+        return '${_formatNumber(value)} m/s³';
+      case 'gForce':
+        return '${_formatNumber(value)} G';
+      case 'rawLatitude':
+      case 'rawLongitude':
+      case 'smoothedLatitude':
+      case 'smoothedLongitude':
+        return '${value.toStringAsFixed(5)}°';
+      default:
+        return _formatNumber(value);
+    }
+  }
+
+  String _formatSpeed(double value) {
+    return '${_formatNumber(value * 3.6)} km/h';
+  }
+
+  String _formatDistance(double value) {
+    final absoluteValue = value.abs();
+    if (absoluteValue >= 1000) {
+      return '${_formatNumber(value / 1000, decimals: 1)} km';
     }
 
-    if (value.abs() >= 10) {
-      return value.toStringAsFixed(1);
+    return '${_formatNumber(value, decimals: absoluteValue >= 100 ? 0 : 1)} m';
+  }
+
+  String _formatDuration(double value) {
+    final absoluteValue = value.abs();
+    if (absoluteValue >= 3600) {
+      return '${_formatNumber(value / 3600, decimals: 1)} h';
     }
 
-    return value.toStringAsFixed(2);
+    if (absoluteValue >= 60) {
+      return '${_formatNumber(value / 60, decimals: 1)} min';
+    }
+
+    return '${_formatNumber(value, decimals: absoluteValue >= 10 ? 0 : 1)} s';
+  }
+
+  String _formatNumber(double value, {int? decimals}) {
+    final resolvedDecimals =
+        decimals ??
+        (value.abs() >= 100
+            ? 0
+            : value.abs() >= 10
+            ? 1
+            : 2);
+    var formatted = value.toStringAsFixed(resolvedDecimals);
+
+    if (formatted.contains('.')) {
+      formatted = formatted.replaceFirst(RegExp(r'\.?0+$'), '');
+    }
+
+    return formatted;
   }
 }
 
@@ -1054,15 +1169,15 @@ class _MetricLayer {
   final String label;
   final double minValue;
   final double maxValue;
-  final List<PolylineAnnotationOptions> annotations;
-  final String sourceData;
+  final List<Object> gradientExpression;
+  final String gradientSourceData;
 
   const _MetricLayer({
     required this.key,
     required this.label,
     required this.minValue,
     required this.maxValue,
-    required this.annotations,
-    required this.sourceData,
+    required this.gradientExpression,
+    required this.gradientSourceData,
   });
 }
