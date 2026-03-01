@@ -5,7 +5,7 @@
 import 'dart:convert';
 import 'dart:developer';
 import 'dart:math' as math;
-import 'dart:ui';
+import 'dart:ui' as ui;
 
 import 'package:auto_route/auto_route.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -556,9 +556,9 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   Future<Uint8List> _buildCursorMarkerImage(Color primaryColor) async {
     const size = 56.0;
     const outerRadius = 14.0;
-    final recorder = PictureRecorder();
+    final recorder = ui.PictureRecorder();
     final canvas = Canvas(recorder);
-    final center = const Offset(size / 2, size / 2);
+    final center = const ui.Offset(size / 2, size / 2);
 
     canvas.drawCircle(
       center,
@@ -570,7 +570,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       size.toInt(),
       size.toInt(),
     );
-    final bytes = await image.toByteData(format: ImageByteFormat.png);
+    final bytes = await image.toByteData(format: ui.ImageByteFormat.png);
     return bytes!.buffer.asUint8List();
   }
 
@@ -1340,6 +1340,7 @@ class _MetricPicker extends StatelessWidget {
               child: _MetricOptionLabel(
                 label: 'Trace de base',
                 paletteColors: [_UserJourneyMapScreenState._baseTraceColor],
+                chartSpots: [],
               ),
             ),
             ...dropdownMetrics.map(
@@ -1348,6 +1349,7 @@ class _MetricPicker extends StatelessWidget {
                 child: _MetricOptionLabel(
                   label: metric.label,
                   paletteColors: metric.paletteColors,
+                  chartSpots: metric.chartSpots,
                 ),
               ),
             ),
@@ -1417,12 +1419,14 @@ class _MetricPicker extends StatelessWidget {
                 const _MetricOptionLabel(
                   label: 'Trace de base',
                   paletteColors: [_UserJourneyMapScreenState._baseTraceColor],
+                  chartSpots: [],
                   selected: true,
                 ),
                 ...dropdownMetrics.map(
                   (metric) => _MetricOptionLabel(
                     label: metric.label,
                     paletteColors: metric.paletteColors,
+                    chartSpots: metric.chartSpots,
                     selected: true,
                   ),
                 ),
@@ -1441,11 +1445,13 @@ class _MetricPicker extends StatelessWidget {
 class _MetricOptionLabel extends StatelessWidget {
   final String label;
   final List<int>? paletteColors;
+  final List<FlSpot>? chartSpots;
   final bool selected;
 
   const _MetricOptionLabel({
     required this.label,
     this.paletteColors,
+    this.chartSpots,
     this.selected = false,
   });
 
@@ -1454,7 +1460,10 @@ class _MetricOptionLabel extends StatelessWidget {
     return Row(
       children: [
         if (paletteColors != null) ...[
-          _MetricPalettePreview(colors: paletteColors!),
+          _MetricGraphPreview(
+            colors: paletteColors!,
+            spots: chartSpots ?? const [],
+          ),
           const SizedBox(width: 10),
         ],
         Expanded(
@@ -1472,24 +1481,110 @@ class _MetricOptionLabel extends StatelessWidget {
   }
 }
 
-class _MetricPalettePreview extends StatelessWidget {
+class _MetricGraphPreview extends StatelessWidget {
   final List<int> colors;
+  final List<FlSpot> spots;
 
-  const _MetricPalettePreview({required this.colors});
+  const _MetricGraphPreview({
+    required this.colors,
+    required this.spots,
+  });
 
   @override
   Widget build(BuildContext context) {
-    final palette = colors.isEmpty ? const [0xFFFFFFFF] : colors;
-    return Container(
-      width: 32,
-      height: 10,
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(999),
-        gradient: LinearGradient(
-          colors: palette.map((color) => Color(color)).toList(),
+    final palette =
+        colors.isEmpty
+            ? const [0xFFFFFFFF, 0xFFFFFFFF]
+            : colors.length == 1
+            ? [colors.first, colors.first]
+            : colors;
+    return SizedBox(
+      width: 36,
+      height: 18,
+      child: CustomPaint(
+        painter: _MetricGraphPreviewPainter(
+          colors: palette,
+          spots: spots,
         ),
       ),
     );
+  }
+}
+
+class _MetricGraphPreviewPainter extends CustomPainter {
+  final List<int> colors;
+  final List<FlSpot> spots;
+
+  const _MetricGraphPreviewPainter({
+    required this.colors,
+    required this.spots,
+  });
+
+  @override
+  void paint(Canvas canvas, ui.Size size) {
+    final borderRadius = Radius.circular(size.height / 2);
+    final clipPath =
+        Path()
+          ..addRRect(
+            RRect.fromRectAndRadius(
+              Offset.zero & size,
+              borderRadius,
+            ),
+          );
+    canvas.save();
+    canvas.clipPath(clipPath);
+
+    final backgroundPaint =
+        Paint()
+          ..color = const Color(0xFFFFFFFF).withValues(alpha: 0.08);
+    canvas.drawRect(Offset.zero & size, backgroundPaint);
+
+    final previewSpots =
+        spots.length >= 2
+            ? spots
+            : const [FlSpot(0, 0.4), FlSpot(0.33, 0.6), FlSpot(0.66, 0.45), FlSpot(1, 0.7)];
+
+    final minX = previewSpots.first.x;
+    final maxX = previewSpots.last.x;
+    final minY = previewSpots
+        .map((spot) => spot.y)
+        .reduce((value, element) => math.min(value, element));
+    final maxY = previewSpots
+        .map((spot) => spot.y)
+        .reduce((value, element) => math.max(value, element));
+    final xRange = maxX - minX == 0 ? 1.0 : maxX - minX;
+    final yRange = maxY - minY == 0 ? 1.0 : maxY - minY;
+
+    final path = Path();
+    for (var index = 0; index < previewSpots.length; index++) {
+      final spot = previewSpots[index];
+      final dx = ((spot.x - minX) / xRange) * size.width;
+      final dy = size.height - (((spot.y - minY) / yRange) * (size.height - 4)) - 2;
+      if (index == 0) {
+        path.moveTo(dx, dy);
+      } else {
+        path.lineTo(dx, dy);
+      }
+    }
+
+    final strokePaint =
+        Paint()
+          ..shader = LinearGradient(
+            begin: Alignment.bottomCenter,
+            end: Alignment.topCenter,
+            colors: colors.map((color) => Color(color)).toList(),
+          ).createShader(Offset.zero & size)
+          ..style = PaintingStyle.stroke
+          ..strokeWidth = 2
+          ..strokeCap = StrokeCap.round
+          ..strokeJoin = StrokeJoin.round;
+    canvas.drawPath(path, strokePaint);
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(covariant _MetricGraphPreviewPainter oldDelegate) {
+    return oldDelegate.colors != colors || oldDelegate.spots != spots;
   }
 }
 
@@ -1895,7 +1990,7 @@ class _GlassPanel extends StatelessWidget {
     return ClipRRect(
       borderRadius: BorderRadius.circular(borderRadius),
       child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 20, sigmaY: 20),
+        filter: ui.ImageFilter.blur(sigmaX: 20, sigmaY: 20),
         child: DecoratedBox(
           decoration: BoxDecoration(
             gradient: LinearGradient(
