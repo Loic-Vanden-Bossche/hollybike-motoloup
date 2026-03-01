@@ -39,10 +39,6 @@ class UserJourneyMapScreen extends StatefulWidget {
 
 class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   static const _topOverlayOffset = 62.0;
-  static const _tracksSourceId = 'tracks';
-  static const _tracksLayerId = 'tracks-layer';
-  static const _metricSourceId = 'track-metric-segments';
-  static const _metricLayerId = 'track-metric-layer';
   static const _bucketColors = <int>[
     0xFF2DC4B2,
     0xFF3BB3C3,
@@ -81,8 +77,10 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   bool _mapLoading = true;
   bool _mapError = false;
   MapboxMap? _map;
-  GeoJsonSource? _metricSource;
+  PolylineAnnotationManager? _trackAnnotationManager;
+  PolylineAnnotationManager? _metricAnnotationManager;
   List<_MetricLayer> _metricLayers = const [];
+  List<List<double>> _trackCoordinates = const [];
   String? _selectedMetricKey;
 
   @override
@@ -197,7 +195,10 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
         )
         .then((values) async {
           final (_, geoJsonRaw) = values;
+          final coordinates = _extractCoordinatesFromGeoJson(geoJsonRaw);
           final metrics = _buildMetricLayers(geoJsonRaw);
+          final labelLayerId = await _resolveFirstTextSymbolLayerId(map);
+          final buildingLayerPosition = _layerPositionBelow(labelLayerId);
           final initialMetric =
               metrics.isEmpty
                   ? null
@@ -206,21 +207,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
                     orElse: () => metrics.first,
                   );
 
-          final metricSource = GeoJsonSource(
-            id: _metricSourceId,
-            tolerance: 0,
-            data:
-                initialMetric?.sourceData ??
-                jsonEncode({'type': 'FeatureCollection', 'features': const []}),
-          );
-
-          _metricSource = metricSource;
-
           await Future.wait([
-            map.style.addSource(
-              GeoJsonSource(id: _tracksSourceId, data: geoJsonRaw),
-            ),
-            map.style.addSource(metricSource),
             map.style.setLights(
               AmbientLight(id: 'ambient-light', intensity: isDark ? 0.5 : 1),
               DirectionalLight(
@@ -231,35 +218,6 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
                 color: 0XFFEC9F53,
                 direction: [0, 90],
               ),
-            ),
-            map.style.addLayerAt(
-              LineLayer(
-                id: _tracksLayerId,
-                sourceId: _tracksSourceId,
-                lineJoin: LineJoin.ROUND,
-                lineCap: LineCap.ROUND,
-                lineColor: 0xFF3457D5,
-                lineOpacity: metrics.isEmpty ? 1 : 0.35,
-                lineWidth: metrics.isEmpty ? 5 : 4,
-                lineEmissiveStrength: 1,
-              ),
-              LayerPosition(above: 'traffic-bridge-road-link-navigation'),
-            ),
-            map.style.addLayerAt(
-              LineLayer(
-                id: _metricLayerId,
-                sourceId: _metricSourceId,
-                lineJoin: LineJoin.ROUND,
-                lineCap: LineCap.ROUND,
-                lineWidth: 6,
-                lineEmissiveStrength: 1,
-                visibility:
-                    initialMetric == null
-                        ? Visibility.NONE
-                        : Visibility.VISIBLE,
-                lineColorExpression: _metricColorExpression(),
-              ),
-              LayerPosition(above: _tracksLayerId),
             ),
             map.style.addLayerAt(
               FillExtrusionLayer(
@@ -287,9 +245,26 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
                   ["get", "min_height"],
                 ],
               ),
-              LayerPosition(above: _metricLayerId),
+              buildingLayerPosition,
             ),
           ]);
+
+          _trackAnnotationManager ??=
+              await map.annotations.createPolylineAnnotationManager(
+                below: labelLayerId,
+              );
+          _metricAnnotationManager ??=
+              await map.annotations.createPolylineAnnotationManager(
+                below: labelLayerId,
+              );
+          await Future.wait([
+            _trackAnnotationManager!.setLineCap(LineCap.ROUND),
+            _metricAnnotationManager!.setLineCap(LineCap.ROUND),
+          ]);
+          await _refreshTraceAnnotations(
+            coordinates: coordinates,
+            metric: initialMetric,
+          );
 
           final bbox = GeoJSON.fromJsonString(geoJsonRaw).dynamicBBox();
 
@@ -323,6 +298,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
 
           setState(() {
             _metricLayers = metrics;
+            _trackCoordinates = coordinates;
             _selectedMetricKey = initialMetric?.key;
             _mapLoading = false;
           });
@@ -348,6 +324,38 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
         });
   }
 
+  Future<String?> _resolveFirstTextSymbolLayerId(MapboxMap map) async {
+    final layers = await map.style.getStyleLayers();
+
+    for (final layer in layers) {
+      if (layer == null || layer.type != 'symbol') {
+        continue;
+      }
+
+      try {
+        final textField = await map.style.getStyleLayerProperty(
+          layer.id,
+          'text-field',
+        );
+        if (textField.value != null) {
+          return layer.id;
+        }
+      } catch (_) {
+        continue;
+      }
+    }
+
+    return null;
+  }
+
+  LayerPosition _layerPositionBelow(String? layerId) {
+    if (layerId != null) {
+      return LayerPosition(below: layerId);
+    }
+
+    return LayerPosition();
+  }
+
   Future<String> _getGeoJsonData(String fileUrl) async {
     final response = await http.get(Uri.parse(fileUrl));
     return response.body;
@@ -363,31 +371,13 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       orElse: () => null,
     );
 
-    final metricSource = _metricSource;
-    final map = _map;
-    if (metricSource == null || map == null) {
+    if (_map == null || _trackCoordinates.length < 2) {
       return;
     }
 
-    await metricSource.updateGeoJSON(
-      metric?.sourceData ??
-          jsonEncode({'type': 'FeatureCollection', 'features': const []}),
-    );
-
-    await map.style.setStyleLayerProperty(
-      _metricLayerId,
-      'visibility',
-      metric == null ? 'none' : 'visible',
-    );
-    await map.style.setStyleLayerProperty(
-      _tracksLayerId,
-      'line-opacity',
-      metric == null ? 1 : 0.35,
-    );
-    await map.style.setStyleLayerProperty(
-      _tracksLayerId,
-      'line-width',
-      metric == null ? 5 : 4,
+    await _refreshTraceAnnotations(
+      coordinates: _trackCoordinates,
+      metric: metric,
     );
 
     if (!mounted) {
@@ -399,8 +389,36 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     });
   }
 
-  List<Object> _metricColorExpression() {
-    return <Object>['get', 'color'];
+  Future<void> _refreshTraceAnnotations({
+    required List<List<double>> coordinates,
+    required _MetricLayer? metric,
+  }) async {
+    final trackAnnotationManager = _trackAnnotationManager;
+    final metricAnnotationManager = _metricAnnotationManager;
+    if (trackAnnotationManager == null || metricAnnotationManager == null) {
+      return;
+    }
+
+    await Future.wait([
+      trackAnnotationManager.deleteAll(),
+      metricAnnotationManager.deleteAll(),
+    ]);
+
+    await trackAnnotationManager.create(
+      PolylineAnnotationOptions(
+        geometry: LineString(coordinates: _toPositions(coordinates)),
+        lineColor: 0xFF3457D5,
+        lineJoin: LineJoin.ROUND,
+        lineWidth: metric == null ? 5 : 4,
+        lineOpacity: metric == null ? 1 : 0.35,
+        lineEmissiveStrength: 1,
+      ),
+    );
+
+    final metricAnnotations = metric?.annotations ?? const [];
+    if (metricAnnotations.isNotEmpty) {
+      await metricAnnotationManager.createMulti(metricAnnotations);
+    }
   }
 
   String _styleColor(int color) {
@@ -451,6 +469,21 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
 
     metrics.sort((a, b) => a.label.compareTo(b.label));
     return metrics;
+  }
+
+  List<List<double>> _extractCoordinatesFromGeoJson(String geoJsonRaw) {
+    final decoded = jsonDecode(geoJsonRaw);
+    final root =
+        decoded is Map<String, dynamic>
+            ? decoded
+            : Map<String, dynamic>.from(decoded as Map);
+    final feature = _extractFeature(root);
+    final geometry = feature == null ? null : _asMap(feature['geometry']);
+    if (geometry == null) {
+      return const [];
+    }
+
+    return _parseCoordinates(geometry['coordinates']);
   }
 
   Map<String, dynamic>? _extractFeature(Map<String, dynamic> root) {
@@ -553,6 +586,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       label: _metricLabels[key] ?? _prettifyMetricKey(key),
       minValue: minValue,
       maxValue: maxValue,
+      annotations: _buildMetricAnnotations(features),
       sourceData: jsonEncode({
         'type': 'FeatureCollection',
         'features': features,
@@ -658,6 +692,78 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     return _styleColor((red << 16) | (green << 8) | blue);
   }
 
+  List<PolylineAnnotationOptions> _buildMetricAnnotations(
+    List<Map<String, dynamic>> features,
+  ) {
+    final annotations = <PolylineAnnotationOptions>[];
+    List<List<double>>? currentCoordinates;
+    int? currentBucket;
+
+    for (final feature in features) {
+      final geometry = _asMap(feature['geometry']);
+      final properties = _asMap(feature['properties']);
+      if (geometry == null || properties == null) {
+        continue;
+      }
+
+      final coordinates = _parseCoordinates(geometry['coordinates']);
+      if (coordinates.length < 2) {
+        continue;
+      }
+
+      final bucketValue = properties['bucket'];
+      if (bucketValue is! int) {
+        continue;
+      }
+
+      if (currentCoordinates == null || currentBucket != bucketValue) {
+        _appendMetricAnnotation(
+          annotations,
+          currentCoordinates,
+          currentBucket,
+        );
+        currentBucket = bucketValue;
+        currentCoordinates = [coordinates.first, coordinates.last];
+        continue;
+      }
+
+      if (_sameCoordinate(currentCoordinates.last, coordinates.first)) {
+        currentCoordinates.add(coordinates.last);
+        continue;
+      }
+
+      _appendMetricAnnotation(
+        annotations,
+        currentCoordinates,
+        currentBucket,
+      );
+      currentCoordinates = [coordinates.first, coordinates.last];
+    }
+
+    _appendMetricAnnotation(annotations, currentCoordinates, currentBucket);
+    return annotations;
+  }
+
+  void _appendMetricAnnotation(
+    List<PolylineAnnotationOptions> annotations,
+    List<List<double>>? coordinates,
+    int? bucket,
+  ) {
+    if (coordinates == null || coordinates.length < 2 || bucket == null) {
+      return;
+    }
+
+    annotations.add(
+      PolylineAnnotationOptions(
+        geometry: LineString(coordinates: _toPositions(coordinates)),
+        lineColor: _bucketColors[bucket.clamp(0, _bucketColors.length - 1)],
+        lineJoin: LineJoin.ROUND,
+        lineWidth: 6,
+        lineEmissiveStrength: 1,
+      ),
+    );
+  }
+
   List<List<double>> _parseCoordinates(dynamic rawCoordinates) {
     if (rawCoordinates is! List) {
       return const [];
@@ -715,6 +821,19 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     }
 
     return null;
+  }
+
+  List<Position> _toPositions(List<List<double>> coordinates) {
+    return coordinates
+        .map((coordinate) => Position(coordinate[0], coordinate[1]))
+        .toList();
+  }
+
+  bool _sameCoordinate(List<double> a, List<double> b) {
+    return a.length >= 2 &&
+        b.length >= 2 &&
+        a[0] == b[0] &&
+        a[1] == b[1];
   }
 
   String _prettifyMetricKey(String key) {
@@ -935,6 +1054,7 @@ class _MetricLayer {
   final String label;
   final double minValue;
   final double maxValue;
+  final List<PolylineAnnotationOptions> annotations;
   final String sourceData;
 
   const _MetricLayer({
@@ -942,6 +1062,7 @@ class _MetricLayer {
     required this.label,
     required this.minValue,
     required this.maxValue,
+    required this.annotations,
     required this.sourceData,
   });
 }
