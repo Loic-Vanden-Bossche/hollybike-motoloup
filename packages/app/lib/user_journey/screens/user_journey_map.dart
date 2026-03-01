@@ -42,7 +42,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   static const _topOverlayOffset = 62.0;
   static const _metricSourceId = 'track-metric-source';
   static const _metricLayerId = 'track-metric-layer';
-  static const _bucketColors = <int>[
+  static const _defaultBucketColors = <int>[
     0xFF2DC4B2,
     0xFF3BB3C3,
     0xFF669EC4,
@@ -76,18 +76,21 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     'smoothedLatitude': 'Latitude lissee',
     'smoothedLongitude': 'Longitude lissée',
   };
+  static const _baseTraceColor = 0xFF3457D5;
 
   bool _mapLoading = true;
   bool _mapError = false;
   MapboxMap? _map;
   PolylineAnnotationManager? _trackAnnotationManager;
   PointAnnotationManager? _cursorAnnotationManager;
+  PointAnnotation? _cursorAnnotation;
   Uint8List? _cursorMarkerImage;
   GeoJsonSource? _metricSource;
   List<_MetricLayer> _metricLayers = const [];
   List<List<double>> _trackCoordinates = const [];
   int? _selectedChartPointIndex;
   String? _selectedMetricKey;
+  int _chartSelectionRequestId = 0;
 
   @override
   Widget build(BuildContext context) {
@@ -131,32 +134,22 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
                 ),
                 if (!_mapLoading && _metricLayers.isNotEmpty) ...[
                   Positioned(
-                    top: 0,
+                    left: 16,
                     right: 16,
+                    bottom: 0,
                     child: SafeArea(
-                      minimum: const EdgeInsets.only(top: _topOverlayOffset),
-                      child: _MetricPicker(
-                        selectedMetricKey: _selectedMetricKey,
+                      top: false,
+                      minimum: const EdgeInsets.only(bottom: 24),
+                      child: _MetricLegend(
+                        metric: _selectedMetric,
                         metrics: _metricLayers,
-                        onChanged: _setSelectedMetric,
+                        selectedMetricKey: _selectedMetricKey,
+                        onMetricChanged: _setSelectedMetric,
+                        selectedChartPointIndex: _selectedChartPointIndex,
+                        onChartPointSelected: _setSelectedChartPointIndex,
                       ),
                     ),
                   ),
-                  if (_selectedMetric != null)
-                    Positioned(
-                      left: 16,
-                      right: 16,
-                      bottom: 0,
-                      child: SafeArea(
-                        top: false,
-                        minimum: const EdgeInsets.only(bottom: 24),
-                        child: _MetricLegend(
-                          metric: _selectedMetric!,
-                          selectedChartPointIndex: _selectedChartPointIndex,
-                          onChartPointSelected: _setSelectedChartPointIndex,
-                        ),
-                      ),
-                    ),
                 ],
                 AnimatedOpacity(
                   opacity: _mapLoading ? 1 : 0,
@@ -444,7 +437,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     await trackAnnotationManager.create(
       PolylineAnnotationOptions(
         geometry: LineString(coordinates: _toPositions(coordinates)),
-        lineColor: 0xFF3457D5,
+        lineColor: _baseTraceColor,
         lineJoin: LineJoin.ROUND,
         lineWidth: 5,
         lineOpacity: metric == null ? 1 : 0,
@@ -470,6 +463,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   }
 
   Future<void> _setSelectedChartPointIndex(int? chartPointIndex) async {
+    final requestId = ++_chartSelectionRequestId;
     final metric = _selectedMetric;
     final cursorAnnotationManager = _cursorAnnotationManager;
     final cursorMarkerImage = _cursorMarkerImage;
@@ -479,11 +473,18 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       return;
     }
 
-    await cursorAnnotationManager.deleteAll();
-
     if (chartPointIndex == null ||
         chartPointIndex < 0 ||
         chartPointIndex >= metric.chartCoordinateIndices.length) {
+      final cursorAnnotation = _cursorAnnotation;
+      if (cursorAnnotation != null) {
+        _cursorAnnotation = null;
+        await cursorAnnotationManager.delete(cursorAnnotation);
+        if (requestId != _chartSelectionRequestId) {
+          return;
+        }
+      }
+
       if (!mounted) {
         return;
       }
@@ -500,16 +501,48 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     }
 
     final coordinate = _trackCoordinates[coordinateIndex];
-    await cursorAnnotationManager.create(
-      PointAnnotationOptions(
-        geometry: Point(coordinates: Position(coordinate[0], coordinate[1])),
-        image: cursorMarkerImage,
-        iconSize: 1,
-      ),
-    );
-    await _followCursorIfZoomed(
-      Point(coordinates: Position(coordinate[0], coordinate[1])),
-    );
+    final point = Point(coordinates: Position(coordinate[0], coordinate[1]));
+    final existingCursorAnnotation = _cursorAnnotation;
+    if (existingCursorAnnotation == null) {
+      final createdAnnotation = await cursorAnnotationManager.create(
+        PointAnnotationOptions(
+          geometry: point,
+          image: cursorMarkerImage,
+          iconSize: 1,
+        ),
+      );
+      if (requestId != _chartSelectionRequestId) {
+        await cursorAnnotationManager.delete(createdAnnotation);
+        return;
+      }
+      _cursorAnnotation = createdAnnotation;
+    } else {
+      try {
+        existingCursorAnnotation.geometry = point;
+        await cursorAnnotationManager.update(existingCursorAnnotation);
+        if (requestId != _chartSelectionRequestId) {
+          return;
+        }
+      } catch (_) {
+        final recreatedAnnotation = await cursorAnnotationManager.create(
+          PointAnnotationOptions(
+            geometry: point,
+            image: cursorMarkerImage,
+            iconSize: 1,
+          ),
+        );
+        if (requestId != _chartSelectionRequestId) {
+          await cursorAnnotationManager.delete(recreatedAnnotation);
+          return;
+        }
+        _cursorAnnotation = recreatedAnnotation;
+      }
+    }
+
+    await _followCursorIfNeeded(point);
+    if (requestId != _chartSelectionRequestId) {
+      return;
+    }
 
     if (!mounted) {
       return;
@@ -541,7 +574,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     return bytes!.buffer.asUint8List();
   }
 
-  Future<void> _followCursorIfZoomed(Point point) async {
+  Future<void> _followCursorIfNeeded(Point point) async {
     final map = _map;
     if (map == null || !mounted) {
       return;
@@ -666,6 +699,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     required List<List<double>> coordinates,
     required List<double> timeValues,
   }) {
+    final palette = _paletteForMetric(key);
     final segmentCount = coordinates.length - 1;
     if (segmentCount <= 0) {
       return null;
@@ -732,6 +766,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
           metricValue: value,
           minValue: minValue,
           maxValue: maxValue,
+          palette: palette,
         ),
       );
     }
@@ -764,7 +799,9 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
         minValue: minValue,
         maxValue: maxValue,
         supportsPointAlignedValues: supportsPointAlignedValues,
+        palette: palette,
       ),
+      paletteColors: palette,
       gradientSourceData: jsonEncode({
         'type': 'FeatureCollection',
         'features': [
@@ -806,7 +843,12 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     return times;
   }
 
-  int _bucketIndex(double value, double minValue, double maxValue) {
+  int _bucketIndexForPalette(
+    double value,
+    double minValue,
+    double maxValue,
+    List<int> palette,
+  ) {
     if (maxValue <= minValue) {
       return 0;
     }
@@ -815,8 +857,8 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       0.0,
       1.0,
     );
-    final bucket = (normalized * (_bucketColors.length - 1)).floor();
-    return bucket.clamp(0, _bucketColors.length - 1);
+    final bucket = (normalized * (palette.length - 1)).floor();
+    return bucket.clamp(0, palette.length - 1);
   }
 
   List<Map<String, dynamic>> _buildGradientFeatures({
@@ -828,6 +870,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     required double metricValue,
     required double minValue,
     required double maxValue,
+    required List<int> palette,
   }) {
     const subdivisions = 6;
     final features = <Map<String, dynamic>>[];
@@ -844,8 +887,13 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
         'properties': {
           'metricKey': metricKey,
           'metricValue': metricValue,
-          'bucket': _bucketIndex(subValue, minValue, maxValue),
-          'color': _interpolatedMetricColor(subValue, minValue, maxValue),
+          'bucket': _bucketIndexForPalette(subValue, minValue, maxValue, palette),
+          'color': _interpolatedMetricColor(
+            subValue,
+            minValue,
+            maxValue,
+            palette,
+          ),
         },
         'geometry': {
           'type': 'LineString',
@@ -872,22 +920,23 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     double value,
     double minValue,
     double maxValue,
+    List<int> palette,
   ) {
     if (maxValue <= minValue) {
-      return _styleColor(_bucketColors.first);
+      return _styleColor(palette.first);
     }
 
     final normalized = ((value - minValue) / (maxValue - minValue)).clamp(
       0.0,
       1.0,
     );
-    final scaled = normalized * (_bucketColors.length - 1);
-    final lowerIndex = scaled.floor().clamp(0, _bucketColors.length - 1);
-    final upperIndex = scaled.ceil().clamp(0, _bucketColors.length - 1);
+    final scaled = normalized * (palette.length - 1);
+    final lowerIndex = scaled.floor().clamp(0, palette.length - 1);
+    final upperIndex = scaled.ceil().clamp(0, palette.length - 1);
     final t = scaled - lowerIndex;
 
-    final lowerColor = _bucketColors[lowerIndex];
-    final upperColor = _bucketColors[upperIndex];
+    final lowerColor = palette[lowerIndex];
+    final upperColor = palette[upperIndex];
 
     final lowerRed = (lowerColor >> 16) & 0xFF;
     final lowerGreen = (lowerColor >> 8) & 0xFF;
@@ -910,6 +959,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     required double minValue,
     required double maxValue,
     required bool supportsPointAlignedValues,
+    required List<int> palette,
   }) {
     final pointValues = <double>[];
     for (var index = 0; index < coordinates.length; index++) {
@@ -930,7 +980,9 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     for (var index = 0; index < progressStops.length; index++) {
       final value = pointValues[index];
       expression.add(progressStops[index]);
-      expression.add(_interpolatedMetricColor(value, minValue, maxValue));
+      expression.add(
+        _interpolatedMetricColor(value, minValue, maxValue, palette),
+      );
     }
 
     return expression;
@@ -972,7 +1024,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   }
 
   List<Object> _fallbackGradient() {
-    final color = _styleColor(_bucketColors.first);
+    final color = _styleColor(_defaultBucketColors.first);
     return <Object>[
       'interpolate',
       ['linear'],
@@ -982,6 +1034,81 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       1,
       color,
     ];
+  }
+
+  List<int> _paletteForMetric(String key) {
+    switch (key) {
+      case 'speed':
+      case 'gpsSpeedMps':
+      case 'ekfSpeedMps':
+        return const [
+          0xFF2DC4B2,
+          0xFF3BB3C3,
+          0xFF669EC4,
+          0xFF8B88B6,
+          0xFFA2719B,
+          0xFFAA5E79,
+          0xFFB44A57,
+          0xFFD83A2E,
+        ];
+      case 'rawAltitude':
+        return const [
+          0xFF1B4332,
+          0xFF2D6A4F,
+          0xFF40916C,
+          0xFF74C69D,
+          0xFFB7E4C7,
+          0xFFE9C46A,
+          0xFFBC6C25,
+          0xFFF8F9FA,
+        ];
+      case 'gForce':
+        return const [
+          0xFFFEF3C7,
+          0xFFFDE68A,
+          0xFFFBBF24,
+          0xFFF59E0B,
+          0xFFF97316,
+          0xFFEF4444,
+          0xFFDC2626,
+          0xFF991B1B,
+        ];
+      case 'cumulativeElevationGainM':
+        return const [
+          0xFFE8F5E9,
+          0xFFC8E6C9,
+          0xFFA5D6A7,
+          0xFF81C784,
+          0xFF66BB6A,
+          0xFF43A047,
+          0xFF2E7D32,
+          0xFF1B5E20,
+        ];
+      case 'cumulativeElevationLossM':
+        return const [
+          0xFFE3F2FD,
+          0xFFBBDEFB,
+          0xFF90CAF9,
+          0xFF64B5F6,
+          0xFF42A5F5,
+          0xFF1E88E5,
+          0xFF1565C0,
+          0xFF0D47A1,
+        ];
+      case 'linearAccelerationMps2':
+        return const [
+          0xFFF3E8FF,
+          0xFFE9D5FF,
+          0xFFD8B4FE,
+          0xFFC084FC,
+          0xFFA855F7,
+          0xFF9333EA,
+          0xFF7E22CE,
+          0xFF581C87,
+        ];
+      default:
+        return _defaultBucketColors;
+    }
   }
 
   List<FlSpot> _buildChartSpots({
@@ -1135,6 +1262,15 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
 }
 
 class _MetricPicker extends StatelessWidget {
+  static const _primaryMetricKeys = <String>{
+    'rawAltitude',
+    'cumulativeElevationGainM',
+    'cumulativeElevationLossM',
+    'speed',
+    'gForce',
+  };
+  static const _moreOptionValue = '__more_metrics__';
+
   final String? selectedMetricKey;
   final List<_MetricLayer> metrics;
   final ValueChanged<String?> onChanged;
@@ -1147,47 +1283,210 @@ class _MetricPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _GlassPanel(
-      padding: const EdgeInsets.symmetric(horizontal: 14),
-      child: Theme(
-        data: Theme.of(
-          context,
-        ).copyWith(canvasColor: Theme.of(context).colorScheme.primary),
-        child: DropdownButtonHideUnderline(
-          child: DropdownButton<String?>(
-            value: selectedMetricKey,
-            borderRadius: BorderRadius.circular(16),
-            dropdownColor: Theme.of(context).colorScheme.primary,
+    final primaryMetrics =
+        metrics
+            .where((metric) => _primaryMetricKeys.contains(metric.key))
+            .toList();
+    final hiddenMetrics =
+        metrics
+            .where((metric) => !_primaryMetricKeys.contains(metric.key))
+            .toList();
+    final selectedHiddenMetric =
+        hiddenMetrics.cast<_MetricLayer?>().firstWhere(
+          (metric) => metric?.key == selectedMetricKey,
+          orElse: () => null,
+        );
+    final dropdownMetrics = [
+      ...primaryMetrics,
+      if (selectedHiddenMetric != null) selectedHiddenMetric,
+    ];
+
+    return Theme(
+      data: Theme.of(
+        context,
+      ).copyWith(canvasColor: Theme.of(context).colorScheme.primary),
+      child: DropdownButtonHideUnderline(
+        child: DropdownButton<String?>(
+          value:
+              selectedMetricKey == null ||
+                      dropdownMetrics.any(
+                        (metric) => metric.key == selectedMetricKey,
+                      )
+                  ? selectedMetricKey
+                  : null,
+          isExpanded: true,
+          borderRadius: BorderRadius.circular(16),
+          dropdownColor: Theme.of(context).colorScheme.primary,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+            color: Theme.of(
+              context,
+            ).colorScheme.onPrimary.withValues(alpha: 0.92),
+            fontWeight: FontWeight.w700,
+          ),
+          iconEnabledColor: Theme.of(
+            context,
+          ).colorScheme.onPrimary.withValues(alpha: 0.88),
+          hint: Text(
+            'Couche metrique',
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
               color: Theme.of(
                 context,
-              ).colorScheme.onPrimary.withValues(alpha: 0.92),
+              ).colorScheme.onPrimary.withValues(alpha: 0.88),
             ),
-            iconEnabledColor: Theme.of(
-              context,
-            ).colorScheme.onPrimary.withValues(alpha: 0.88),
-            hint: Text(
-              'Couche metrique',
-              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: Theme.of(
-                  context,
-                ).colorScheme.onPrimary.withValues(alpha: 0.88),
+          ),
+          items: [
+            const DropdownMenuItem<String?>(
+              value: null,
+              child: _MetricOptionLabel(
+                label: 'Trace de base',
+                paletteColors: [_UserJourneyMapScreenState._baseTraceColor],
               ),
             ),
-            items: [
-              const DropdownMenuItem<String?>(
-                value: null,
-                child: Text('Trace de base'),
-              ),
-              ...metrics.map(
-                (metric) => DropdownMenuItem<String?>(
-                  value: metric.key,
-                  child: Text(metric.label),
+            ...dropdownMetrics.map(
+              (metric) => DropdownMenuItem<String?>(
+                value: metric.key,
+                child: _MetricOptionLabel(
+                  label: metric.label,
+                  paletteColors: metric.paletteColors,
                 ),
               ),
-            ],
-            onChanged: onChanged,
+            ),
+            if (hiddenMetrics.isNotEmpty)
+              const DropdownMenuItem<String?>(
+                value: _moreOptionValue,
+                child: Text('Plus...'),
+              ),
+          ],
+          onChanged: (value) async {
+            if (value != _moreOptionValue) {
+              onChanged(value);
+              return;
+            }
+
+            final selectedMetric = await showModalBottomSheet<String>(
+              context: context,
+              backgroundColor: Theme.of(context).colorScheme.primary,
+              shape: const RoundedRectangleBorder(
+                borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+              ),
+              builder:
+                  (context) => SafeArea(
+                    top: false,
+                    child: ListView(
+                      shrinkWrap: true,
+                      children: [
+                        Padding(
+                          padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                          child: Text(
+                            'Plus de metriques',
+                            style: Theme.of(context).textTheme.titleMedium
+                                ?.copyWith(
+                                  color: Theme.of(context).colorScheme.onPrimary,
+                                  fontWeight: FontWeight.w700,
+                                ),
+                          ),
+                        ),
+                        ...hiddenMetrics.map(
+                          (metric) => ListTile(
+                            title: Text(
+                              metric.label,
+                              style: Theme.of(context).textTheme.bodyLarge
+                                  ?.copyWith(
+                                    color:
+                                        Theme.of(context).colorScheme.onPrimary,
+                                    fontWeight:
+                                        selectedMetricKey == metric.key
+                                            ? FontWeight.w700
+                                            : FontWeight.w500,
+                                  ),
+                            ),
+                            onTap: () => Navigator.of(context).pop(metric.key),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+            );
+
+            if (selectedMetric != null) {
+              onChanged(selectedMetric);
+            }
+          },
+          selectedItemBuilder:
+              (context) => [
+                const _MetricOptionLabel(
+                  label: 'Trace de base',
+                  paletteColors: [_UserJourneyMapScreenState._baseTraceColor],
+                  selected: true,
+                ),
+                ...dropdownMetrics.map(
+                  (metric) => _MetricOptionLabel(
+                    label: metric.label,
+                    paletteColors: metric.paletteColors,
+                    selected: true,
+                  ),
+                ),
+                if (hiddenMetrics.isNotEmpty)
+                  const _MetricOptionLabel(
+                    label: 'Plus...',
+                    selected: true,
+                  ),
+              ],
+        ),
+      ),
+    );
+  }
+}
+
+class _MetricOptionLabel extends StatelessWidget {
+  final String label;
+  final List<int>? paletteColors;
+  final bool selected;
+
+  const _MetricOptionLabel({
+    required this.label,
+    this.paletteColors,
+    this.selected = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        if (paletteColors != null) ...[
+          _MetricPalettePreview(colors: paletteColors!),
+          const SizedBox(width: 10),
+        ],
+        Expanded(
+          child: Text(
+            label,
+            overflow: TextOverflow.ellipsis,
+            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+              color: Theme.of(context).colorScheme.onPrimary,
+              fontWeight: selected ? FontWeight.w700 : null,
+            ),
           ),
+        ),
+      ],
+    );
+  }
+}
+
+class _MetricPalettePreview extends StatelessWidget {
+  final List<int> colors;
+
+  const _MetricPalettePreview({required this.colors});
+
+  @override
+  Widget build(BuildContext context) {
+    final palette = colors.isEmpty ? const [0xFFFFFFFF] : colors;
+    return Container(
+      width: 32,
+      height: 10,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(999),
+        gradient: LinearGradient(
+          colors: palette.map((color) => Color(color)).toList(),
         ),
       ),
     );
@@ -1195,12 +1494,18 @@ class _MetricPicker extends StatelessWidget {
 }
 
 class _MetricLegend extends StatelessWidget {
-  final _MetricLayer metric;
+  final _MetricLayer? metric;
+  final List<_MetricLayer> metrics;
+  final String? selectedMetricKey;
+  final ValueChanged<String?> onMetricChanged;
   final int? selectedChartPointIndex;
   final ValueChanged<int?> onChartPointSelected;
 
   const _MetricLegend({
     required this.metric,
+    required this.metrics,
+    required this.selectedMetricKey,
+    required this.onMetricChanged,
     required this.selectedChartPointIndex,
     required this.onChartPointSelected,
   });
@@ -1216,64 +1521,56 @@ class _MetricLegend extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text(
-            metric.label,
-            style: textTheme.titleSmall?.copyWith(
-              color: Theme.of(
-                context,
-              ).colorScheme.onPrimary.withValues(alpha: 0.92),
-            ),
+          _MetricPicker(
+            selectedMetricKey: selectedMetricKey,
+            metrics: metrics,
+            onChanged: onMetricChanged,
           ),
-          const SizedBox(height: 8),
-          Container(
-            height: 10,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(999),
-              gradient: LinearGradient(
-                colors: [
-                  Color(_UserJourneyMapScreenState._bucketColors[0]),
-                  Color(_UserJourneyMapScreenState._bucketColors[1]),
-                  Color(_UserJourneyMapScreenState._bucketColors[2]),
-                  Color(_UserJourneyMapScreenState._bucketColors[3]),
-                  Color(_UserJourneyMapScreenState._bucketColors[4]),
-                  Color(_UserJourneyMapScreenState._bucketColors[5]),
-                  Color(_UserJourneyMapScreenState._bucketColors[6]),
-                  Color(_UserJourneyMapScreenState._bucketColors[7]),
-                ],
-              ),
-            ),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                _formatMetricValue(metric.key, metric.minValue),
-                style: textTheme.bodySmall?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onPrimary.withValues(alpha: 0.82),
+          if (metric != null) ...[
+            const SizedBox(height: 8),
+            Container(
+              height: 10,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(999),
+                gradient: LinearGradient(
+                  colors: metric!.paletteColors
+                      .map((color) => Color(color))
+                      .toList(),
                 ),
               ),
-              Text(
-                _formatMetricValue(metric.key, metric.maxValue),
-                style: textTheme.bodySmall?.copyWith(
-                  color: Theme.of(
-                    context,
-                  ).colorScheme.onPrimary.withValues(alpha: 0.82),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          SizedBox(
-            height: 150,
-            child: _MetricChart(
-              metric: metric,
-              selectedChartPointIndex: selectedChartPointIndex,
-              onPointSelected: onChartPointSelected,
             ),
-          ),
+            const SizedBox(height: 8),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  _formatMetricValue(metric!.key, metric!.minValue),
+                  style: textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.82),
+                  ),
+                ),
+                Text(
+                  _formatMetricValue(metric!.key, metric!.maxValue),
+                  style: textTheme.bodySmall?.copyWith(
+                    color: Theme.of(
+                      context,
+                    ).colorScheme.onPrimary.withValues(alpha: 0.82),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 14),
+            SizedBox(
+              height: 150,
+              child: _MetricChart(
+                metric: metric!,
+                selectedChartPointIndex: selectedChartPointIndex,
+                onPointSelected: onChartPointSelected,
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -1491,10 +1788,9 @@ class _MetricChart extends StatelessWidget {
             gradient: LinearGradient(
               begin: Alignment.bottomCenter,
               end: Alignment.topCenter,
-              colors:
-                  _UserJourneyMapScreenState._bucketColors
-                      .map((color) => Color(color))
-                      .toList(),
+              colors: metric.paletteColors
+                  .map((color) => Color(color))
+                  .toList(),
             ),
             barWidth: 2.5,
             isStrokeCapRound: true,
@@ -1505,12 +1801,8 @@ class _MetricChart extends StatelessWidget {
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
                 colors: [
-                  Color(
-                    _UserJourneyMapScreenState._bucketColors.last,
-                  ).withValues(alpha: 0.22),
-                  Color(
-                    _UserJourneyMapScreenState._bucketColors.first,
-                  ).withValues(alpha: 0),
+                  Color(metric.paletteColors.last).withValues(alpha: 0.22),
+                  Color(metric.paletteColors.first).withValues(alpha: 0),
                 ],
               ),
             ),
@@ -1639,6 +1931,7 @@ class _MetricLayer {
   final String label;
   final double minValue;
   final double maxValue;
+  final List<int> paletteColors;
   final List<FlSpot> chartSpots;
   final List<int> chartCoordinateIndices;
   final double chartMaxX;
@@ -1650,6 +1943,7 @@ class _MetricLayer {
     required this.label,
     required this.minValue,
     required this.maxValue,
+    required this.paletteColors,
     required this.chartSpots,
     required this.chartCoordinateIndices,
     required this.chartMaxX,
