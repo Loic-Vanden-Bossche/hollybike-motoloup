@@ -8,6 +8,7 @@ import 'dart:math' as math;
 import 'dart:ui';
 
 import 'package:auto_route/auto_route.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart' hide Visibility;
@@ -80,9 +81,12 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   bool _mapError = false;
   MapboxMap? _map;
   PolylineAnnotationManager? _trackAnnotationManager;
+  PointAnnotationManager? _cursorAnnotationManager;
+  Uint8List? _cursorMarkerImage;
   GeoJsonSource? _metricSource;
   List<_MetricLayer> _metricLayers = const [];
   List<List<double>> _trackCoordinates = const [];
+  int? _selectedChartPointIndex;
   String? _selectedMetricKey;
 
   @override
@@ -146,7 +150,11 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
                       child: SafeArea(
                         top: false,
                         minimum: const EdgeInsets.only(bottom: 24),
-                        child: _MetricLegend(metric: _selectedMetric!),
+                        child: _MetricLegend(
+                          metric: _selectedMetric!,
+                          selectedChartPointIndex: _selectedChartPointIndex,
+                          onChartPointSelected: _setSelectedChartPointIndex,
+                        ),
                       ),
                     ),
                 ],
@@ -186,6 +194,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
   void _onMapCreated(MapboxMap map) {
     _map = map;
     final isDark = BlocProvider.of<ThemeBloc>(context).state.isDark;
+    final primaryColor = Theme.of(context).colorScheme.primary;
 
     waitConcurrently(
           map.loadStyleURI(
@@ -282,6 +291,13 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
               await map.annotations.createPolylineAnnotationManager(
                 below: labelLayerId,
               );
+          _cursorAnnotationManager ??=
+              await map.annotations.createPointAnnotationManager(
+                below: labelLayerId,
+              );
+          _cursorMarkerImage ??= await _buildCursorMarkerImage(primaryColor);
+          await _cursorAnnotationManager!.setIconAllowOverlap(true);
+          await _cursorAnnotationManager!.setIconIgnorePlacement(true);
           await _trackAnnotationManager!.setLineCap(LineCap.ROUND);
           await _refreshTraceAnnotations(
             coordinates: coordinates,
@@ -401,6 +417,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       coordinates: _trackCoordinates,
       metric: metric,
     );
+    await _setSelectedChartPointIndex(null);
 
     if (!mounted) {
       return;
@@ -452,6 +469,113 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     }
   }
 
+  Future<void> _setSelectedChartPointIndex(int? chartPointIndex) async {
+    final metric = _selectedMetric;
+    final cursorAnnotationManager = _cursorAnnotationManager;
+    final cursorMarkerImage = _cursorMarkerImage;
+    if (metric == null ||
+        cursorAnnotationManager == null ||
+        cursorMarkerImage == null) {
+      return;
+    }
+
+    await cursorAnnotationManager.deleteAll();
+
+    if (chartPointIndex == null ||
+        chartPointIndex < 0 ||
+        chartPointIndex >= metric.chartCoordinateIndices.length) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        _selectedChartPointIndex = null;
+      });
+      return;
+    }
+
+    final coordinateIndex = metric.chartCoordinateIndices[chartPointIndex];
+    if (coordinateIndex < 0 || coordinateIndex >= _trackCoordinates.length) {
+      return;
+    }
+
+    final coordinate = _trackCoordinates[coordinateIndex];
+    await cursorAnnotationManager.create(
+      PointAnnotationOptions(
+        geometry: Point(coordinates: Position(coordinate[0], coordinate[1])),
+        image: cursorMarkerImage,
+        iconSize: 1,
+      ),
+    );
+    await _followCursorIfZoomed(
+      Point(coordinates: Position(coordinate[0], coordinate[1])),
+    );
+
+    if (!mounted) {
+      return;
+    }
+
+    setState(() {
+      _selectedChartPointIndex = chartPointIndex;
+    });
+  }
+
+  Future<Uint8List> _buildCursorMarkerImage(Color primaryColor) async {
+    const size = 56.0;
+    const outerRadius = 14.0;
+    final recorder = PictureRecorder();
+    final canvas = Canvas(recorder);
+    final center = const Offset(size / 2, size / 2);
+
+    canvas.drawCircle(
+      center,
+      outerRadius,
+      Paint()..color = const Color(0xFFFFFFFF),
+    );
+
+    final image = await recorder.endRecording().toImage(
+      size.toInt(),
+      size.toInt(),
+    );
+    final bytes = await image.toByteData(format: ImageByteFormat.png);
+    return bytes!.buffer.asUint8List();
+  }
+
+  Future<void> _followCursorIfZoomed(Point point) async {
+    final map = _map;
+    if (map == null || !mounted) {
+      return;
+    }
+
+    final screenSize = MediaQuery.sizeOf(context);
+    final pixel = await map.pixelForCoordinate(point);
+    final leftInset = 24.0;
+    final rightInset = 180.0;
+    final topInset = _topOverlayOffset + 36;
+    final bottomInset = 240.0;
+    final isVisible =
+        pixel.x >= leftInset &&
+        pixel.x <= (screenSize.width - rightInset) &&
+        pixel.y >= topInset &&
+        pixel.y <= (screenSize.height - bottomInset);
+
+    if (isVisible) {
+      return;
+    }
+
+    final cameraState = await map.getCameraState();
+    await map.easeTo(
+      CameraOptions(
+        center: point,
+        zoom: cameraState.zoom,
+        bearing: cameraState.bearing,
+        pitch: cameraState.pitch,
+        padding: cameraState.padding,
+      ),
+      MapAnimationOptions(duration: 180),
+    );
+  }
+
   String _styleColor(int color) {
     final rgb = color & 0x00FFFFFF;
     return '#${rgb.toRadixString(16).padLeft(6, '0').toUpperCase()}';
@@ -480,6 +604,8 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       return const [];
     }
 
+    final timeValues = _buildTimeValues(properties, coordinates.length);
+
     final metrics = <_MetricLayer>[];
     for (final entry in properties.entries) {
       final values = _parseNumericArray(entry.value);
@@ -491,6 +617,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
         key: entry.key,
         values: values,
         coordinates: coordinates,
+        timeValues: timeValues,
       );
 
       if (metric != null) {
@@ -537,6 +664,7 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     required String key,
     required List<double> values,
     required List<List<double>> coordinates,
+    required List<double> timeValues,
   }) {
     final segmentCount = coordinates.length - 1;
     if (segmentCount <= 0) {
@@ -617,6 +745,19 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
       label: _metricLabels[key] ?? _prettifyMetricKey(key),
       minValue: minValue,
       maxValue: maxValue,
+      chartSpots: _buildChartSpots(
+        values: values,
+        timeValues: timeValues,
+        pointCount: coordinates.length,
+        supportsPointAlignedValues: supportsPointAlignedValues,
+      ),
+      chartCoordinateIndices: _buildChartCoordinateIndices(
+        values: values,
+        timeValues: timeValues,
+        pointCount: coordinates.length,
+        supportsPointAlignedValues: supportsPointAlignedValues,
+      ),
+      chartMaxX: timeValues.isEmpty ? 0 : timeValues.last,
       gradientExpression: _buildMetricGradientExpression(
         coordinates: coordinates,
         values: values,
@@ -638,6 +779,31 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
         ],
       }),
     );
+  }
+
+  List<double> _buildTimeValues(
+    Map<String, dynamic> properties,
+    int pointCount,
+  ) {
+    final rawDtSeconds = _parseNumericArray(properties['dtSeconds']);
+    if (rawDtSeconds == null || rawDtSeconds.isEmpty) {
+      return List<double>.generate(pointCount, (index) => index.toDouble());
+    }
+
+    final times = <double>[0];
+    var total = 0.0;
+    final targetCount = math.max(1, pointCount - 1);
+    for (var index = 0; index < targetCount; index++) {
+      final dt = rawDtSeconds[math.min(index, rawDtSeconds.length - 1)];
+      total += dt.isFinite ? math.max(0, dt) : 0;
+      times.add(total);
+    }
+
+    while (times.length < pointCount) {
+      times.add(times.isEmpty ? 0 : times.last);
+    }
+
+    return times;
   }
 
   int _bucketIndex(double value, double minValue, double maxValue) {
@@ -818,6 +984,70 @@ class _UserJourneyMapScreenState extends State<UserJourneyMapScreen> {
     ];
   }
 
+  List<FlSpot> _buildChartSpots({
+    required List<double> values,
+    required List<double> timeValues,
+    required int pointCount,
+    required bool supportsPointAlignedValues,
+  }) {
+    if (timeValues.isEmpty || pointCount <= 0) {
+      return const [];
+    }
+
+    final spots = <FlSpot>[];
+    final count =
+        supportsPointAlignedValues
+            ? math.min(pointCount, values.length)
+            : math.min(pointCount - 1, values.length);
+
+    for (var index = 0; index < count; index++) {
+      final valueIndex =
+          supportsPointAlignedValues ? index : math.min(index, values.length - 1);
+      final xIndex =
+          supportsPointAlignedValues ? index : math.min(index + 1, timeValues.length - 1);
+      final value = values[valueIndex];
+      if (!value.isFinite) {
+        continue;
+      }
+
+      spots.add(FlSpot(timeValues[xIndex], value));
+    }
+
+    return spots;
+  }
+
+  List<int> _buildChartCoordinateIndices({
+    required List<double> values,
+    required List<double> timeValues,
+    required int pointCount,
+    required bool supportsPointAlignedValues,
+  }) {
+    if (timeValues.isEmpty || pointCount <= 0) {
+      return const [];
+    }
+
+    final coordinateIndices = <int>[];
+    final count =
+        supportsPointAlignedValues
+            ? math.min(pointCount, values.length)
+            : math.min(pointCount - 1, values.length);
+
+    for (var index = 0; index < count; index++) {
+      final valueIndex =
+          supportsPointAlignedValues ? index : math.min(index, values.length - 1);
+      final xIndex =
+          supportsPointAlignedValues ? index : math.min(index + 1, timeValues.length - 1);
+      final value = values[valueIndex];
+      if (!value.isFinite) {
+        continue;
+      }
+
+      coordinateIndices.add(xIndex);
+    }
+
+    return coordinateIndices;
+  }
+
   List<List<double>> _parseCoordinates(dynamic rawCoordinates) {
     if (rawCoordinates is! List) {
       return const [];
@@ -966,8 +1196,14 @@ class _MetricPicker extends StatelessWidget {
 
 class _MetricLegend extends StatelessWidget {
   final _MetricLayer metric;
+  final int? selectedChartPointIndex;
+  final ValueChanged<int?> onChartPointSelected;
 
-  const _MetricLegend({required this.metric});
+  const _MetricLegend({
+    required this.metric,
+    required this.selectedChartPointIndex,
+    required this.onChartPointSelected,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -1028,6 +1264,15 @@ class _MetricLegend extends StatelessWidget {
                 ),
               ),
             ],
+          ),
+          const SizedBox(height: 14),
+          SizedBox(
+            height: 150,
+            child: _MetricChart(
+              metric: metric,
+              selectedChartPointIndex: selectedChartPointIndex,
+              onPointSelected: onChartPointSelected,
+            ),
           ),
         ],
       ),
@@ -1115,6 +1360,231 @@ class _MetricLegend extends StatelessWidget {
   }
 }
 
+class _MetricChart extends StatelessWidget {
+  final _MetricLayer metric;
+  final int? selectedChartPointIndex;
+  final ValueChanged<int?> onPointSelected;
+
+  const _MetricChart({
+    required this.metric,
+    required this.selectedChartPointIndex,
+    required this.onPointSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final spots = metric.chartSpots;
+    if (spots.length < 2) {
+      return Center(
+        child: Text(
+          'Pas assez de donnees pour le graphe',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+            color: scheme.onPrimary.withValues(alpha: 0.72),
+          ),
+        ),
+      );
+    }
+
+    final minX = spots.first.x;
+    final maxX = metric.chartMaxX <= minX ? spots.last.x : metric.chartMaxX;
+    final minY = spots
+        .map((spot) => spot.y)
+        .reduce((value, element) => math.min(value, element));
+    final maxY = spots
+        .map((spot) => spot.y)
+        .reduce((value, element) => math.max(value, element));
+    final yPadding = minY == maxY ? math.max(1, minY.abs() * 0.1) : (maxY - minY) * 0.12;
+
+    return LineChart(
+      LineChartData(
+        minX: minX,
+        maxX: maxX,
+        minY: minY - yPadding,
+        maxY: maxY + yPadding,
+        gridData: FlGridData(
+          show: true,
+          drawVerticalLine: false,
+          horizontalInterval: (maxY - minY).abs() <= 0 ? 1 : (maxY - minY).abs() / 4,
+          getDrawingHorizontalLine:
+              (_) => FlLine(
+                color: scheme.onPrimary.withValues(alpha: 0.12),
+                strokeWidth: 1,
+              ),
+        ),
+        titlesData: FlTitlesData(
+          topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          leftTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 48,
+              interval: (maxY - minY).abs() <= 0 ? 1 : (maxY - minY).abs() / 2,
+              getTitlesWidget:
+                  (value, meta) => Padding(
+                    padding: const EdgeInsets.only(right: 8),
+                    child: Text(
+                      _formatAxisValue(metric.key, value),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: scheme.onPrimary.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+            ),
+          ),
+          bottomTitles: AxisTitles(
+            sideTitles: SideTitles(
+              showTitles: true,
+              reservedSize: 24,
+              interval: maxX <= minX ? 1 : (maxX - minX) / 2,
+              getTitlesWidget:
+                  (value, meta) => Padding(
+                    padding: const EdgeInsets.only(top: 6),
+                    child: Text(
+                      _formatTimeAxis(value),
+                      style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                        color: scheme.onPrimary.withValues(alpha: 0.7),
+                      ),
+                    ),
+                  ),
+            ),
+          ),
+        ),
+        borderData: FlBorderData(show: false),
+        lineTouchData: LineTouchData(
+          handleBuiltInTouches: true,
+          touchCallback: (event, response) {
+            if (!event.isInterestedForInteractions) {
+              onPointSelected(null);
+              return;
+            }
+
+            final lineBarSpots = response?.lineBarSpots;
+            if (lineBarSpots == null || lineBarSpots.isEmpty) {
+              onPointSelected(null);
+              return;
+            }
+
+            onPointSelected(lineBarSpots.first.spotIndex);
+          },
+          touchTooltipData: LineTouchTooltipData(
+            getTooltipColor: (_) => scheme.primary.withValues(alpha: 0.94),
+            getTooltipItems:
+                (touchedSpots) =>
+                    touchedSpots.map((spot) {
+                      return LineTooltipItem(
+                        '${_formatTimeAxis(spot.x)}\n${_formatAxisValue(metric.key, spot.y)}',
+                        Theme.of(context).textTheme.labelSmall!.copyWith(
+                          color: scheme.onPrimary,
+                        ),
+                      );
+                    }).toList(),
+          ),
+        ),
+        lineBarsData: [
+          LineChartBarData(
+            spots: spots,
+            showingIndicators:
+                selectedChartPointIndex == null ? const [] : [selectedChartPointIndex!],
+            isCurved: true,
+            curveSmoothness: 0.18,
+            gradient: LinearGradient(
+              begin: Alignment.bottomCenter,
+              end: Alignment.topCenter,
+              colors:
+                  _UserJourneyMapScreenState._bucketColors
+                      .map((color) => Color(color))
+                      .toList(),
+            ),
+            barWidth: 2.5,
+            isStrokeCapRound: true,
+            dotData: const FlDotData(show: false),
+            belowBarData: BarAreaData(
+              show: true,
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(
+                    _UserJourneyMapScreenState._bucketColors.last,
+                  ).withValues(alpha: 0.22),
+                  Color(
+                    _UserJourneyMapScreenState._bucketColors.first,
+                  ).withValues(alpha: 0),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  String _formatAxisValue(String key, double value) {
+    switch (key) {
+      case 'speed':
+      case 'gpsSpeedMps':
+      case 'speedDeltaGpsMinusEkfMps':
+      case 'ekfVxMps':
+      case 'ekfVyMps':
+      case 'ekfSpeedMps':
+        return '${_formatNumber(value * 3.6)} km/h';
+      case 'accuracyM':
+      case 'segmentDistanceM':
+      case 'cumulativeDistanceM':
+      case 'elevationDeltaM':
+      case 'cumulativeElevationGainM':
+      case 'cumulativeElevationLossM':
+      case 'rawAltitude':
+        return value.abs() >= 1000
+            ? '${_formatNumber(value / 1000, decimals: 1)} km'
+            : '${_formatNumber(value, decimals: value.abs() >= 100 ? 0 : 1)} m';
+      case 'headingDeg':
+        return '${_formatNumber(value, decimals: 0)}°';
+      case 'linearAccelerationMps2':
+        return '${_formatNumber(value)} m/s²';
+      case 'jerkMps3':
+        return '${_formatNumber(value)} m/s³';
+      case 'gForce':
+        return '${_formatNumber(value)} G';
+      default:
+        return _formatNumber(value);
+    }
+  }
+
+  String _formatTimeAxis(double seconds) {
+    final absoluteSeconds = seconds.abs();
+    if (absoluteSeconds >= 3600) {
+      final hours = (seconds / 3600).floor();
+      final minutes = ((seconds.abs() % 3600) / 60).round();
+      return '${hours}h${minutes.toString().padLeft(2, '0')}';
+    }
+
+    if (absoluteSeconds >= 60) {
+      final minutes = (seconds / 60).floor();
+      final remainingSeconds = (seconds.abs() % 60).round();
+      return '${minutes}m${remainingSeconds.toString().padLeft(2, '0')}';
+    }
+
+    return '${seconds.round()}s';
+  }
+
+  String _formatNumber(double value, {int? decimals}) {
+    final resolvedDecimals =
+        decimals ??
+        (value.abs() >= 100
+            ? 0
+            : value.abs() >= 10
+            ? 1
+            : 2);
+    var formatted = value.toStringAsFixed(resolvedDecimals);
+    if (formatted.contains('.')) {
+      formatted = formatted.replaceFirst(RegExp(r'\.?0+$'), '');
+    }
+    return formatted;
+  }
+}
+
 class _GlassPanel extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
@@ -1169,6 +1639,9 @@ class _MetricLayer {
   final String label;
   final double minValue;
   final double maxValue;
+  final List<FlSpot> chartSpots;
+  final List<int> chartCoordinateIndices;
+  final double chartMaxX;
   final List<Object> gradientExpression;
   final String gradientSourceData;
 
@@ -1177,6 +1650,9 @@ class _MetricLayer {
     required this.label,
     required this.minValue,
     required this.maxValue,
+    required this.chartSpots,
+    required this.chartCoordinateIndices,
+    required this.chartMaxX,
     required this.gradientExpression,
     required this.gradientSourceData,
   });
