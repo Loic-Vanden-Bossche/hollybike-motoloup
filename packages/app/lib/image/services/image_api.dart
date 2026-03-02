@@ -12,8 +12,10 @@ import 'package:hollybike/shared/http/downloader.dart';
 import 'package:http_parser/http_parser.dart';
 
 import '../../shared/http/dio_client.dart';
+import '../../shared/types/json_map.dart';
 import '../../shared/types/paginated_list.dart';
 import '../type/event_image.dart';
+import '../type/geolocated_event_image.dart';
 
 class ImageApi {
   final DioClient client;
@@ -140,6 +142,16 @@ class ImageApi {
     if (response.statusCode != 204) {
       throw Exception("Failed to delete event images");
     }
+  }
+
+  Future<List<GeolocatedEventImage>> getGeolocatedEventImages(
+    int eventId,
+  ) async {
+    final response = await client.dio.get('/events/$eventId/images/geolocated');
+
+    return (response.data as List)
+        .map((json) => GeolocatedEventImage.fromJson(json as JsonMap))
+        .toList();
   }
 
   Future<void> downloadImage(String url, int imgId) {

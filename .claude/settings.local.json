@@ -13,7 +13,11 @@
       "Bash(which python || which python3 || where python 2>/dev/null || where python3 2>/dev/null)",
       "Bash(node --version 2>/dev/null || dart --version 2>/dev/null)",
       "Bash(node:*)",
-      "Bash(printf:*)"
+      "Bash(printf:*)",
+      "Bash(dart run:*)",
+      "Bash(ls:*)",
+      "mcp__plugin_context7_context7__resolve-library-id",
+      "mcp__plugin_context7_context7__query-docs"
     ]
   }
 }

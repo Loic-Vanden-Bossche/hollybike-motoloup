@@ -39,6 +39,7 @@ class EventImageController(
 			authenticate {
 				getImages()
 				getMyImages()
+				getGeolocatedImages()
 				uploadImages()
 				deleteImage()
 				deleteImages()
@@ -133,6 +134,15 @@ class EventImageController(
 					call.respond(image)
 				}
 			}
+		}
+	}
+
+	private fun Route.getGeolocatedImages() {
+		get<Events.Id.Images.Geolocated> { data ->
+			val searchParam = call.request.queryParameters.getSearchParam(mapper)
+
+			val images = eventImageService.getGeolocatedImages(call.user, data.images.event.id, searchParam)
+			call.respond(images.map { TGeolocatedEventImage(it) })
 		}
 	}
 

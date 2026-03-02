@@ -116,6 +116,15 @@ class EventImageService(
 		}
 	}
 
+	fun getGeolocatedImages(caller: User, eventId: Int, searchParam: SearchParam): List<EventImage> = transaction(db) {
+		searchParam.filter.add(Filter(EventImages.event, eventId.toString(), FilterMode.EQUAL))
+
+		EventImage.wrapRows(
+			eventImagesRequest(caller, searchParam, withPagination = false)
+				.andWhere { EventImages.position.isNotNull() }
+		).with(EventImage::position).toList()
+	}
+
 	fun countImages(caller: User, searchParam: SearchParam): Long = transaction(db) {
 		eventImagesRequest(caller, searchParam, withPagination = false).count()
 	}
