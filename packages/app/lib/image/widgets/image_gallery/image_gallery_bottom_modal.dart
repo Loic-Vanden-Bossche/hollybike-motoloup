@@ -49,9 +49,6 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
 
   @override
   Widget build(BuildContext context) {
-    final screenHeight = MediaQuery.of(context).size.height;
-    final dynamicContentHeight = (screenHeight * 0.44).clamp(300.0, 420.0);
-
     return BlocListener<EventImageDetailsBloc, EventImageDetailsState>(
       listener: (context, state) {
         if (state is DeleteImageSuccess) {
@@ -72,28 +69,19 @@ class _ImageGalleryBottomModalState extends State<ImageGalleryBottomModal> {
           Toast.showErrorToast(context, state.errorMessage);
         }
       },
-      child: Padding(
-        padding: EdgeInsets.only(
-          bottom: MediaQuery.of(context).viewInsets.bottom,
-        ),
-        child: GlassBottomModal(
-          maxContentHeight: dynamicContentHeight,
-          contentPadding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
-          child: SingleChildScrollView(
-            physics: const BouncingScrollPhysics(),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                _buildHeader(context),
-                const SizedBox(height: 10),
-                _buildMetaRow(context),
-                const SizedBox(height: 10),
-                _buildActions(context),
-                const SizedBox(height: 10),
-                _buildDetailsPanel(context),
-              ],
-            ),
-          ),
+      child: GlassBottomModal(
+        contentPadding: const EdgeInsets.fromLTRB(14, 10, 14, 8),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            _buildHeader(context),
+            const SizedBox(height: 10),
+            _buildMetaRow(context),
+            const SizedBox(height: 10),
+            _buildActions(context),
+            const SizedBox(height: 10),
+            _buildDetailsPanel(context),
+          ],
         ),
       ),
     );

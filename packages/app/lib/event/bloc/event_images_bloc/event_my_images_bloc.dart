@@ -31,6 +31,7 @@ class EventMyImagesBloc extends ImageListBloc<EventMyImagesEvent> {
     on<RefreshMyEventImages>(_onRefreshMyEventImages);
     on<UploadEventImages>(_onUploadEventImages);
     on<UpdateImagesVisibility>(_onUpdateImagesVisibility);
+    on<DeleteMyEventImages>(_onDeleteMyEventImages);
   }
 
   Future<void> _onLoadMyEventImagesNextPage(
@@ -151,6 +152,38 @@ class EventMyImagesBloc extends ImageListBloc<EventMyImagesEvent> {
         ),
       );
       return;
+    }
+  }
+
+  Future<void> _onDeleteMyEventImages(
+    DeleteMyEventImages event,
+    Emitter<ImageListState> emit,
+  ) async {
+    emit(ImageListOperationInProgress(state));
+
+    try {
+      await imageRepository.deleteImages(event.imageIds);
+
+      final updatedImages = state.images
+          .where((img) => !event.imageIds.contains(img.id))
+          .toList();
+
+      final count = event.imageIds.length;
+      emit(
+        ImageListOperationSuccess(
+          state.copyWith(images: updatedImages),
+          successMessage:
+              count == 1 ? 'Photo supprimée' : '$count photos supprimées',
+        ),
+      );
+    } catch (e) {
+      log('Error while deleting images', error: e);
+      emit(
+        ImageListOperationFailure(
+          state,
+          errorMessage: 'Une erreur est survenue.',
+        ),
+      );
     }
   }
 }

@@ -76,9 +76,6 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
   @override
   Widget build(BuildContext context) {
     final currentImage = this.currentImage;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final dynamicModalHeight =
-        (screenHeight * 0.58).clamp(420.0, 560.0).round();
 
     if (currentImage == null) {
       return Container(color: Colors.black);
@@ -109,7 +106,6 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
                   modalOpened = opened;
                 });
               },
-              maxModalHeight: dynamicModalHeight,
               enableDrag: !isZoomed && !_blockModalDrag,
               modalContent: ImageGalleryBottomModal(
                 image: widget.images[currentPage],
@@ -143,6 +139,30 @@ class _ImageGalleryPageViewState extends State<ImageGalleryPageView> {
                       index == currentPage
                           ? PhotoViewHeroAttributes(
                             tag: 'event_image_${image.id}',
+                            flightShuttleBuilder: (
+                              flightContext,
+                              animation,
+                              direction,
+                              fromContext,
+                              toContext,
+                            ) {
+                              final child = Image(
+                                image: CachedNetworkImageProvider(
+                                  image.url,
+                                  cacheKey: image.key,
+                                ),
+                                fit: BoxFit.cover,
+                              );
+
+                              if (direction == HeroFlightDirection.pop) {
+                                return ClipRRect(
+                                  borderRadius: BorderRadius.circular(16),
+                                  child: child,
+                                );
+                              }
+
+                              return child;
+                            },
                           )
                           : null;
 

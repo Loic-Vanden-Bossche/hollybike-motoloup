@@ -8,7 +8,6 @@ class ContentShrinkBottomModal extends StatefulWidget {
   final Widget modalContent;
   final Widget child;
   final bool enableDrag;
-  final int maxModalHeight;
   final bool modalOpened;
   final Color backgroundColor;
   final bool showAppBar;
@@ -22,7 +21,6 @@ class ContentShrinkBottomModal extends StatefulWidget {
     required this.modalOpened,
     this.onStatusChanged,
     this.enableDrag = true,
-    this.maxModalHeight = 300,
     this.backgroundColor = Colors.black,
     this.showAppBar = true,
     this.appBarOpacity = 1,
@@ -33,32 +31,103 @@ class ContentShrinkBottomModal extends StatefulWidget {
       _ContentShrinkBottomModalState();
 }
 
-class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
-  static const double _contentVisibilityThreshold = 20.0;
+class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller = AnimationController(
+    vsync: this,
+    duration: const Duration(milliseconds: 260),
+  );
+  late final CurvedAnimation _animation = CurvedAnimation(
+    parent: _controller,
+    curve: Curves.fastOutSlowIn,
+  );
 
-  late final double _bottomContainerMaxHeight =
-      widget.maxModalHeight.toDouble();
-  double _bottomContainerHeight = 0;
+  // Key to measure content's natural height for drag calculations.
+  final GlobalKey _contentKey = GlobalKey();
 
-  bool _animate = false;
+  // Tracks the fully-open state (animation completed), used to hide the
+  // "more" button in the AppBar and to notify the parent.
   bool _modalOpened = false;
 
-  bool get modalOpened => _bottomContainerHeight == _bottomContainerMaxHeight;
+  bool get _isOpen => _controller.value >= 1.0;
 
-  bool get modalOpening => _bottomContainerHeight > _contentVisibilityThreshold;
+  // Returns the content's natural (unclipped) height for drag-to-fraction maths.
+  // SizeTransition lays out the child at full natural size even when sizeFactor < 1,
+  // so this is always accurate after the first frame.
+  double get _contentNaturalHeight {
+    final box = _contentKey.currentContext?.findRenderObject() as RenderBox?;
+    final h = box?.size.height ?? 0.0;
+    return h > 0.0 ? h : 400.0;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addStatusListener(_onAnimationStatusChanged);
+  }
+
+  @override
+  void dispose() {
+    _controller.removeStatusListener(_onAnimationStatusChanged);
+    _animation.dispose();
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(covariant ContentShrinkBottomModal oldWidget) {
     super.didUpdateWidget(oldWidget);
-
-    if (modalOpened != widget.modalOpened) {
+    // Respond to programmatic open/close from the parent (e.g. image deleted).
+    if (_isOpen != widget.modalOpened) {
       if (widget.modalOpened) {
-        _onOpened();
+        _openModal();
       } else {
-        _onClosed();
+        _closeModal();
       }
     }
   }
+
+  void _onAnimationStatusChanged(AnimationStatus status) {
+    final isNowOpen = status == AnimationStatus.completed;
+    final isNowClosed = status == AnimationStatus.dismissed;
+    if (!isNowOpen && !isNowClosed) return;
+    if (_modalOpened == isNowOpen) return;
+    setState(() => _modalOpened = isNowOpen);
+    widget.onStatusChanged?.call(isNowOpen);
+  }
+
+  void _openModal() => _controller.forward();
+  void _closeModal() => _controller.reverse();
+
+  // ── Drag handlers ───────────────────────────────────────────────────────────
+
+  void _onVerticalDragUpdate(DragUpdateDetails details) {
+    // Convert pixel delta to a 0–1 fraction of natural content height.
+    final contentH = _contentNaturalHeight;
+    _controller.value =
+        (_controller.value - details.delta.dy / contentH).clamp(0.0, 1.0);
+  }
+
+  void _onVerticalDragEnd(DragEndDetails details) {
+    final velocity = details.primaryVelocity ?? 0;
+    if (velocity > 10) {
+      _closeModal();
+    } else if (velocity < -10) {
+      _openModal();
+    } else if (_controller.value > 0.5) {
+      _openModal();
+    } else {
+      _closeModal();
+    }
+  }
+
+  void _onTapImage() => _closeModal();
+
+  void _onPopInvokedWithResult(bool didPop, Object? result) {
+    if (!didPop) _closeModal();
+  }
+
+  // ── Build ────────────────────────────────────────────────────────────────────
 
   @override
   Widget build(BuildContext context) {
@@ -72,14 +141,13 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
                 backgroundColor: Colors.transparent,
                 elevation: 0,
                 automaticallyImplyLeading: false,
-                leading: _buildLeading(widget.appBarOpacity.clamp(0, 1)),
-                actions: _buildActions(widget.appBarOpacity.clamp(0, 1)),
+                leading: _buildLeading(widget.appBarOpacity.clamp(0.0, 1.0)),
+                actions: _buildActions(widget.appBarOpacity.clamp(0.0, 1.0)),
               )
               : null,
       body: GestureDetector(
         onVerticalDragUpdate: widget.enableDrag ? _onVerticalDragUpdate : null,
         onVerticalDragEnd: widget.enableDrag ? _onVerticalDragEnd : null,
-        onVerticalDragStart: widget.enableDrag ? _onVerticalDragStart : null,
         child: Container(
           color: widget.backgroundColor,
           height: MediaQuery.of(context).size.height,
@@ -87,26 +155,25 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
             children: [
               Flexible(
                 child: GestureDetector(
-                  onTap: modalOpened ? _onTapImage : null,
+                  onTap: _isOpen ? _onTapImage : null,
                   child: widget.child,
                 ),
               ),
-              AnimatedContainer(
-                duration:
-                    _animate
-                        ? const Duration(milliseconds: 250)
-                        : Duration.zero,
-                curve: Curves.fastOutSlowIn,
-                height: _bottomContainerHeight,
-                onEnd: _onAnimateEnd,
-                width: double.infinity,
+              // SizeTransition internally wraps the child in
+              // ClipRect > Align(heightFactor: sizeFactor.value).
+              // The child is always laid out at its full natural height, so
+              // _contentKey measurement is always accurate regardless of the
+              // current animation fraction.
+              SizeTransition(
+                sizeFactor: _animation,
+                axisAlignment: -1.0,
                 child: PopScope(
-                  canPop: !modalOpened,
+                  canPop: !_isOpen,
                   onPopInvokedWithResult: _onPopInvokedWithResult,
-                  child:
-                      modalOpening
-                          ? widget.modalContent
-                          : const SizedBox.shrink(),
+                  child: KeyedSubtree(
+                    key: _contentKey,
+                    child: widget.modalContent,
+                  ),
                 ),
               ),
             ],
@@ -116,11 +183,12 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
     );
   }
 
+  // ── AppBar helpers ───────────────────────────────────────────────────────────
+
   Widget? _buildLeading(double opacity) {
     if (!Navigator.of(context).canPop()) {
       return null;
     }
-
     return IgnorePointer(
       ignoring: opacity <= 0.01,
       child: AnimatedOpacity(
@@ -128,9 +196,7 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
         curve: Curves.easeOut,
         opacity: opacity,
         child: BackButton(
-          onPressed: () {
-            Navigator.of(context).maybePop();
-          },
+          onPressed: () => Navigator.of(context).maybePop(),
         ),
       ),
     );
@@ -140,7 +206,6 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
     if (_modalOpened || !widget.enableDrag) {
       return null;
     }
-
     return [
       IgnorePointer(
         ignoring: opacity <= 0.01,
@@ -149,80 +214,11 @@ class _ContentShrinkBottomModalState extends State<ContentShrinkBottomModal> {
           curve: Curves.easeOut,
           opacity: opacity,
           child: IconButton(
-            onPressed: () {
-              _onOpened();
-            },
+            onPressed: _openModal,
             icon: const Icon(Icons.more_vert_rounded),
           ),
         ),
       ),
     ];
-  }
-
-  void _onOpened() {
-    _onChangeHeight(_bottomContainerMaxHeight);
-  }
-
-  void _onClosed() {
-    _onChangeHeight(1);
-  }
-
-  void _onChangeHeight(double height) {
-    setState(() {
-      _bottomContainerHeight = height;
-    });
-
-    if (widget.onStatusChanged != null) {
-      if (_modalOpened != modalOpened) {
-        widget.onStatusChanged!(modalOpened);
-
-        setState(() {
-          _modalOpened = modalOpened;
-        });
-      }
-    }
-  }
-
-  void _onVerticalDragUpdate(DragUpdateDetails details) {
-    final delta = _bottomContainerHeight - details.delta.dy;
-    _onChangeHeight(delta.clamp(0, _bottomContainerMaxHeight));
-  }
-
-  void _onVerticalDragEnd(DragEndDetails details) {
-    if (details.primaryVelocity! > 10) {
-      _onClosed();
-    } else if (details.primaryVelocity! < -10) {
-      _onOpened();
-    } else if (_bottomContainerHeight > _bottomContainerMaxHeight / 2) {
-      _onOpened();
-    } else {
-      _onClosed();
-    }
-
-    setState(() {
-      _animate = true;
-    });
-  }
-
-  void _onVerticalDragStart(DragStartDetails details) {
-    setState(() {
-      _animate = false;
-    });
-  }
-
-  void _onTapImage() {
-    _onClosed();
-  }
-
-  void _onPopInvokedWithResult(bool didPop, Object? result) {
-    if (!didPop) {
-      _onClosed();
-    }
-  }
-
-  void _onAnimateEnd() {
-    if (_bottomContainerHeight == 1.0) {
-      _onChangeHeight(0);
-    }
   }
 }

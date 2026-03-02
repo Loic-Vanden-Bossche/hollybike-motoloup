@@ -12,7 +12,7 @@ class GlassBottomModal extends StatelessWidget {
   const GlassBottomModal({
     super.key,
     required this.child,
-    this.maxContentHeight = 440,
+    this.maxContentHeight = double.infinity,
     this.margin = const EdgeInsets.fromLTRB(10, 0, 10, 0),
     this.contentPadding = const EdgeInsets.fromLTRB(14, 10, 14, 6),
     this.showGrabber = true,

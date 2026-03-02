@@ -131,6 +131,17 @@ class ImageApi {
     }
   }
 
+  Future<void> deleteImages(List<int> imageIds) async {
+    final response = await client.dio.delete(
+      '/events/images',
+      data: {'imageIds': imageIds},
+    );
+
+    if (response.statusCode != 204) {
+      throw Exception("Failed to delete event images");
+    }
+  }
+
   Future<void> downloadImage(String url, int imgId) {
     final uniqueKey = DateTime.now().millisecondsSinceEpoch;
 

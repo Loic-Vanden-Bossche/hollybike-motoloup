@@ -198,6 +198,41 @@ class EventImageService(
 
 		return Result.success(Unit)
 	}
+
+	suspend fun deleteImages(caller: User, imageIds: List<Int>): Result<Unit> {
+		if (imageIds.isEmpty()) {
+			return Result.success(Unit)
+		}
+
+		val distinctImageIds = imageIds.distinct()
+		val images = transaction(db) {
+			EventImage.find {
+				EventImages.id inList distinctImageIds
+			}.with(EventImage::owner).toList()
+		}
+
+		if (images.size != distinctImageIds.size) {
+			val foundIds = images.map { it.id.value }.toSet()
+			val missingImageId = distinctImageIds.first { it !in foundIds }
+			return Result.failure(EventNotFoundException("Image $missingImageId introuvable"))
+		}
+
+		if (images.any { it.owner.id != caller.id }) {
+			return Result.failure(EventActionDeniedException("Vous n'êtes pas le propriétaire de l'image"))
+		}
+
+		val imagePaths = images.map { it.path }
+
+		transaction(db) {
+			images.forEach { image -> image.delete() }
+		}
+
+		imagePaths.forEach { path ->
+			storageService.delete(path)
+		}
+
+		return Result.success(Unit)
+	}
 }
 
 
