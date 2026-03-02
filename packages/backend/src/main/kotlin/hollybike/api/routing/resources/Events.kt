@@ -101,7 +101,10 @@ class Events(val api: API = API()) {
 		}
 
 		@Resource("images")
-		class Images(val event: Id)
+		class Images(val event: Id) {
+			@Resource("geolocated")
+			class Geolocated(val images: Images)
+		}
 	}
 
 	@Resource("meta-data")

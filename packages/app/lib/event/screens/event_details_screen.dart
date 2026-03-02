@@ -35,6 +35,8 @@ import '../bloc/event_details_bloc/event_details_event.dart';
 import '../bloc/event_details_bloc/event_details_state.dart';
 import '../bloc/event_images_bloc/event_images_bloc.dart';
 import '../bloc/event_images_bloc/event_my_images_bloc.dart';
+import '../bloc/event_map_images/event_map_images_bloc.dart';
+import '../bloc/event_map_images/event_map_images_event.dart';
 import '../fragments/details/event_details_my_images.dart';
 import '../services/event/event_repository.dart';
 import '../types/event_details.dart';
@@ -273,6 +275,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                                 (_kEventDetailsTabBarVerticalInset * 2),
                             pinnedTopOffset: pinnedTopOffset,
                             isPinned: _isTabBarPinnedUnderTopBar,
+                            isHidden:
+                                _isTabBarPinnedUnderTopBar &&
+                                currentTab == EventDetailsTab.map,
                             child: GlassTabBar(
                               controller: _tabController,
                               isScrollable: true,
@@ -422,23 +427,38 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
             eventDetails.callerParticipation?.isImagesPublic ?? false,
         eventId: eventDetails.event.id,
       ),
-      BlocProvider(
-        create:
-            (context) => UserPositionsBloc(
-              authPersistence: Provider.of<AuthPersistence>(
-                context,
-                listen: false,
-              ),
-              profileRepository: RepositoryProvider.of<ProfileRepository>(
-                context,
-              ),
-              canSeeUserPositions: eventDetails.isParticipating,
-            ),
+      MultiBlocProvider(
+        providers: [
+          BlocProvider(
+            create:
+                (context) => UserPositionsBloc(
+                  authPersistence: Provider.of<AuthPersistence>(
+                    context,
+                    listen: false,
+                  ),
+                  profileRepository: RepositoryProvider.of<ProfileRepository>(
+                    context,
+                  ),
+                  canSeeUserPositions: eventDetails.isParticipating,
+                ),
+          ),
+          BlocProvider(
+            create:
+                (context) => EventMapImagesBloc(
+                  eventId: eventDetails.event.id,
+                  imageRepository: RepositoryProvider.of<ImageRepository>(
+                    context,
+                  ),
+                )..add(LoadEventMapImages()),
+          ),
+        ],
         child: EventDetailsMap(
           eventId: eventDetails.event.id,
           journey: eventDetails.journey,
           onMapLoaded: _scrollMapToFullscreen,
           onMapInteractionStart: _scrollMapToFullscreen,
+          isMapFullscreen: _isTabBarPinnedUnderTopBar,
+          onRequestFullscreen: _scrollMapToFullscreen,
         ),
       ),
     ];
@@ -571,12 +591,14 @@ class _EventDetailsPinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
   final double height;
   final double pinnedTopOffset;
   final bool isPinned;
+  final bool isHidden;
   final Widget child;
 
   const _EventDetailsPinnedTabBarDelegate({
     required this.height,
     required this.pinnedTopOffset,
     required this.isPinned,
+    required this.isHidden,
     required this.child,
   });
 
@@ -599,14 +621,25 @@ class _EventDetailsPinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
             child: child,
           );
         },
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(
-            _kEventDetailsTabBarHorizontalInset,
-            _kEventDetailsTabBarVerticalInset,
-            _kEventDetailsTabBarHorizontalInset,
-            _kEventDetailsTabBarVerticalInset,
+        child: AnimatedOpacity(
+          opacity: isHidden ? 0.0 : 1.0,
+          duration: const Duration(milliseconds: 220),
+          curve: Curves.easeInOutCubic,
+          child: IgnorePointer(
+            ignoring: isHidden,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(
+                _kEventDetailsTabBarHorizontalInset,
+                _kEventDetailsTabBarVerticalInset,
+                _kEventDetailsTabBarHorizontalInset,
+                _kEventDetailsTabBarVerticalInset,
+              ),
+              child: SizedBox(
+                height: _kEventDetailsTabBarBodyHeight,
+                child: child,
+              ),
+            ),
           ),
-          child: SizedBox(height: _kEventDetailsTabBarBodyHeight, child: child),
         ),
       ),
     );
@@ -623,6 +656,7 @@ class _EventDetailsPinnedTabBarDelegate extends SliverPersistentHeaderDelegate {
     return oldDelegate.height != height ||
         oldDelegate.pinnedTopOffset != pinnedTopOffset ||
         oldDelegate.isPinned != isPinned ||
+        oldDelegate.isHidden != isHidden ||
         oldDelegate.child != child;
   }
 }

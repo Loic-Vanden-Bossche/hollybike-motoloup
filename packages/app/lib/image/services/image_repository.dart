@@ -6,6 +6,7 @@ import 'dart:io';
 
 import 'package:hollybike/image/type/event_image.dart';
 import 'package:hollybike/image/type/event_image_details.dart';
+import 'package:hollybike/image/type/geolocated_event_image.dart';
 
 import '../../../image/services/image_api.dart';
 import '../../../shared/types/paginated_list.dart';
@@ -112,6 +113,12 @@ class ImageRepository {
 
   Future<void> deleteImages(List<int> imageIds) async {
     await imageApi.deleteImages(imageIds);
+  }
+
+  Future<List<GeolocatedEventImage>> fetchGeolocatedEventImages(
+    int eventId,
+  ) async {
+    return imageApi.getGeolocatedEventImages(eventId);
   }
 
   Future<void> downloadImage(String imageUrl, int imgId) async {
