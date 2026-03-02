@@ -32,6 +32,16 @@ class ImagePickerModal extends StatefulWidget {
 
 class _ImagePickerModalState extends State<ImagePickerModal> {
   final _selectedImages = <Img>[];
+  bool _isSubmittingSelection = false;
+
+  @override
+  void didUpdateWidget(covariant ImagePickerModal oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (oldWidget.isLoading && !widget.isLoading) {
+      _isSubmittingSelection = false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,9 +55,6 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
         children: [
           ImagePickerModalHeader(
             onClose: widget.onClose,
-            onSubmit: _onSubmit,
-            canSubmit: _selectedImages.isNotEmpty && !widget.isLoading,
-            selectedCount: _selectedImages.length,
           ),
           const SizedBox(height: 14),
 
@@ -96,7 +103,6 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
               opacity: 0.5,
               child: ImagePickerSelectedImagesList(
                 selectedImages: _selectedImages,
-                onDeleteIndex: (_) {},
               ),
             ),
           ),
@@ -143,28 +149,32 @@ class _ImagePickerModalState extends State<ImagePickerModal> {
           ? const SizedBox.shrink()
           : ImagePickerSelectedImagesList(
               selectedImages: _selectedImages,
-              onDeleteIndex: _onImageIndexDeleted,
             ),
     );
   }
 
   void _onSubmit() async {
+    if (_selectedImages.isEmpty || _isSubmittingSelection) {
+      return;
+    }
+
+    _isSubmittingSelection = true;
     final files = _selectedImages.map((img) => img.file).toList();
     widget.onSubmit(files);
   }
 
-  void _onImageIndexDeleted(int index) {
-    setState(() {
-      _selectedImages.removeAt(index);
-    });
-  }
-
   void _onImagesSelected(List<Img> images) {
+    if (images.isEmpty || widget.isLoading || _isSubmittingSelection) {
+      return;
+    }
+
     setState(() {
       if (widget.mode == ImagePickerMode.single) {
         _selectedImages.clear();
       }
       _selectedImages.addAll(images);
     });
+
+    _onSubmit();
   }
 }
