@@ -110,6 +110,10 @@ class ImageRepository {
     await imageApi.deleteImage(imageId);
   }
 
+  Future<void> deleteImages(List<int> imageIds) async {
+    await imageApi.deleteImages(imageIds);
+  }
+
   Future<void> downloadImage(String imageUrl, int imgId) async {
     await imageApi.downloadImage(imageUrl, imgId);
   }

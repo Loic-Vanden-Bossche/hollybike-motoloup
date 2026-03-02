@@ -9,12 +9,10 @@ import 'image_picker_selected_image.dart';
 
 class ImagePickerSelectedImagesList extends StatelessWidget {
   final List<Img> selectedImages;
-  final void Function(int) onDeleteIndex;
 
   const ImagePickerSelectedImagesList({
     super.key,
     required this.selectedImages,
-    required this.onDeleteIndex,
   });
 
   @override
@@ -35,7 +33,6 @@ class ImagePickerSelectedImagesList extends StatelessWidget {
                 aspectRatio: 1,
                 child: ImagePickerSelectedImage(
                   child: selectedImages[index].image,
-                  onDelete: () => onDeleteIndex(index),
                 ),
               );
             },

@@ -19,6 +19,8 @@ class ImageGallery extends StatefulWidget {
   final Widget emptyPlaceholder;
   final EdgeInsetsGeometry contentPadding;
   final String? errorMessage;
+  final Set<int>? selectedImageIds;
+  final void Function(EventImage)? onLongPress;
 
   const ImageGallery({
     super.key,
@@ -32,6 +34,8 @@ class ImageGallery extends StatefulWidget {
     required this.emptyPlaceholder,
     this.contentPadding = const EdgeInsets.all(4),
     this.errorMessage,
+    this.selectedImageIds,
+    this.onLongPress,
   });
 
   @override
@@ -117,9 +121,11 @@ class _ImageGalleryState extends State<ImageGallery> {
 
           return EventImageWithLoader(
             image: image,
-            onTap: () {
-              widget.onImageTap(image);
-            },
+            isSelected: widget.selectedImageIds?.contains(image.id) ?? false,
+            onTap: () => widget.onImageTap(image),
+            onLongPress: widget.onLongPress != null
+                ? () => widget.onLongPress!(image)
+                : null,
           );
         },
       ),

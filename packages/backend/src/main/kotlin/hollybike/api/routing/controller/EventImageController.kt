@@ -41,6 +41,7 @@ class EventImageController(
 				getMyImages()
 				uploadImages()
 				deleteImage()
+				deleteImages()
 				getImageDetails()
 				getMetaData()
 			}
@@ -102,6 +103,18 @@ class EventImageController(
 	private fun Route.deleteImage() {
 		delete<Events.Images.ImageId> { data ->
 			eventImageService.deleteImage(call.user, data.imageId).onSuccess {
+				call.respond(HttpStatusCode.NoContent)
+			}.onFailure {
+				eventImageService.handleEventExceptions(it, call)
+			}
+		}
+	}
+
+	private fun Route.deleteImages() {
+		delete<Events.Images> {
+			val imageIds = call.receive<TDeleteEventImages>().imageIds
+
+			eventImageService.deleteImages(call.user, imageIds).onSuccess {
 				call.respond(HttpStatusCode.NoContent)
 			}.onFailure {
 				eventImageService.handleEventExceptions(it, call)

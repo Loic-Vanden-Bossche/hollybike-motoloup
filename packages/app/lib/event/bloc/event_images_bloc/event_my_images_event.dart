@@ -28,3 +28,9 @@ class UpdateImagesVisibility extends EventMyImagesEvent {
 
   UpdateImagesVisibility({required this.isPublic});
 }
+
+class DeleteMyEventImages extends EventMyImagesEvent {
+  final List<int> imageIds;
+
+  DeleteMyEventImages({required this.imageIds});
+}

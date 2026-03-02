@@ -99,6 +99,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   late bool _animate = widget.animate;
 
   late final ScrollController _scrollController = ScrollController();
+  final ValueNotifier<bool> _myImagesSelectionActive = ValueNotifier(false);
   bool _interceptBackOnMap = false;
   bool _isTabBarPinnedUnderTopBar = false;
 
@@ -130,6 +131,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   void dispose() {
     _tabController.dispose();
     _scrollController.removeListener(_syncBackInterception);
+    _myImagesSelectionActive.dispose();
     super.dispose();
   }
 
@@ -415,6 +417,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       EventDetailsMyImages(
         scrollController: _scrollController,
         isParticipating: eventDetails.isParticipating,
+        selectionNotifier: _myImagesSelectionActive,
         isImagesPublic:
             eventDetails.callerParticipation?.isImagesPublic ?? false,
         eventId: eventDetails.event.id,
@@ -486,28 +489,34 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       case EventDetailsTab.photos:
         return null;
       case EventDetailsTab.myPhotos:
-        return BlocBuilder<EventDetailsBloc, EventDetailsState>(
-          builder: (context, state) {
-            if (state is EventDetailsLoadFailure ||
-                state is EventDetailsLoadInProgress ||
-                state.eventDetails == null ||
-                state.eventDetails?.isParticipating == false) {
-              return const SizedBox();
-            }
+        return ValueListenableBuilder<bool>(
+          valueListenable: _myImagesSelectionActive,
+          builder: (context, selectionActive, _) {
+            if (selectionActive) return const SizedBox();
 
-            final eventDetails = state.eventDetails!;
+            return BlocBuilder<EventDetailsBloc, EventDetailsState>(
+              builder: (context, state) {
+                if (state is EventDetailsLoadFailure ||
+                    state is EventDetailsLoadInProgress ||
+                    state.eventDetails == null ||
+                    state.eventDetails?.isParticipating == false) {
+                  return const SizedBox();
+                }
 
-            return Builder(
-              builder: (providerContext) {
-                return GlassFab(
-                  icon: Icons.add_a_photo_outlined,
-                  label: 'Ajouter des photos',
-                  onPressed:
-                      () => showEventImagesPicker(
+                final eventDetails = state.eventDetails!;
+
+                return Builder(
+                  builder: (providerContext) {
+                    return GlassFab(
+                      icon: Icons.add_a_photo_outlined,
+                      label: 'Ajouter des photos',
+                      onPressed: () => showEventImagesPicker(
                         providerContext,
                         eventDetails.event.id,
                         bloc: providerContext.read<EventMyImagesBloc>(),
                       ),
+                    );
+                  },
                 );
               },
             );

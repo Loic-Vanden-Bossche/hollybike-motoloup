@@ -32,7 +32,7 @@ class ImageGalleryDetailsTime extends StatelessWidget {
       child: Padding(
         padding: const EdgeInsets.all(12),
         child: Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Icon(
               Icons.access_time_rounded,

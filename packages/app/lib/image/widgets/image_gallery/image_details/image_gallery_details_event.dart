@@ -39,7 +39,7 @@ class ImageGalleryDetailsEvent extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(12),
             child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Icon(
                   Icons.event_rounded,
