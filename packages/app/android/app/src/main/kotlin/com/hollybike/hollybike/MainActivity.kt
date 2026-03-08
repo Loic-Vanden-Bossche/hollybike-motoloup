@@ -65,6 +65,7 @@ class MainActivity : FlutterActivity() {
 	// instead of onCreate because FLAG_ACTIVITY_SINGLE_TOP is set on the PendingIntent.
 	override fun onNewIntent(intent: Intent) {
 		super.onNewIntent(intent)
+		setIntent(intent)
 		val eventId = intent
 			.getIntExtra(TrackingForegroundService.EXTRA_TRACKING_EVENT_ID, -1)
 			.takeIf { it != -1 } ?: return
@@ -74,7 +75,10 @@ class MainActivity : FlutterActivity() {
 
 		// Push straight to Dart if the channel is ready, otherwise hold for pull.
 		navChannel?.invokeMethod(method, eventId)
-			?: run { pendingNavEventId = eventId }
+			?: run {
+				pendingNavEventId = eventId
+				pendingNavMethod = method
+			}
 	}
 
 	override fun configureFlutterEngine(flutterEngine: FlutterEngine) {

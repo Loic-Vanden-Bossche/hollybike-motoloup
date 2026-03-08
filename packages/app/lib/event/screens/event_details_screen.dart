@@ -3,6 +3,8 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -112,6 +114,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   // Set to true when the screen is opened via the "Terminer le parcours"
   // notification action.  Cleared after the confirmation dialog is shown once.
   bool _pendingAutoTerminate = false;
+  StreamSubscription<int>? _trackingNavSubscription;
 
   EventDetailsTab currentTab = EventDetailsTab.info;
 
@@ -143,10 +146,29 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     if (pendingTerminateId == widget.event.id) {
       _pendingAutoTerminate = true;
     }
+
+    _trackingNavSubscription = TrackingNavIntent.stream.listen((eventId) {
+      if (!mounted || eventId != widget.event.id) return;
+
+      final pendingTerminateId = TrackingNavIntent.consumePendingTerminate();
+      if (pendingTerminateId != widget.event.id) return;
+
+      final detailsState = context.read<EventDetailsBloc>().state;
+      final details = detailsState.eventDetails;
+
+      if (details != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _autoTriggerTerminate(context, details);
+        });
+      } else {
+        _pendingAutoTerminate = true;
+      }
+    });
   }
 
   @override
   void dispose() {
+    _trackingNavSubscription?.cancel();
     _tabController.dispose();
     _scrollController.removeListener(_syncBackInterception);
     _myImagesSelectionActive.dispose();
