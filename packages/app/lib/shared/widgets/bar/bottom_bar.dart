@@ -8,7 +8,6 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/profile/widgets/profile_bottom_bar_button.dart';
-import 'package:hollybike/shared/utils/safe_set_state.dart';
 
 import '../../../app/app_router.gr.dart';
 import '../../../profile/bloc/profile_bloc/profile_bloc.dart';
@@ -39,51 +38,21 @@ class _BottomBarState extends State<BottomBar> {
   @override
   void initState() {
     super.initState();
-    _currentIndex = _getRouteIndex(context.router.current.name) ?? 0;
-
-    try {
-      context.router.addListener(_routeListener);
-    } catch (e) {
-      // ignore: avoid_print
-    }
-  }
-
-  @override
-  void dispose() {
-    if (context.mounted) {
-      context.router.removeListener(_routeListener);
-    }
-    super.dispose();
-  }
-
-  void _routeListener() {
-    try {
-      if (!context.mounted) return;
-
-      final index = _getRouteIndex(context.router.current.name);
-
-      if (index != null && index != _currentIndex) {
-        safeSetState(() {
-          _currentIndex = index;
-        });
-      }
-    } catch (e) {
-      // ignore: avoid_print
-    }
+    // context.routeData.name is provided by auto_route's RouteDataScope — an
+    // InheritedWidget set up for every page.  It always gives the name of the
+    // route that THIS screen belongs to, which is the reliable source of truth
+    // for which tab should be highlighted.
+    //
+    // The previous approach (context.router.current.name + addListener) was
+    // unreliable because context.router can resolve to the page-scoped router
+    // rather than the root StackRouter, making current.name stale and the
+    // ChangeNotifier listener silently receive no root-stack events.
+    _currentIndex = _getRouteIndex(context.routeData.name) ?? 0;
   }
 
   int? _getRouteIndex(String routeName) {
-    try {
-      final index = _routes.indexWhere((route) => route.routeName == routeName);
-
-      if (index != -1) {
-        return index;
-      }
-    } catch (e) {
-      // ignore: avoid_print
-    }
-
-    return null;
+    final index = _routes.indexWhere((route) => route.routeName == routeName);
+    return index != -1 ? index : null;
   }
 
   @override
