@@ -284,12 +284,14 @@ class _MyAppState extends State<MyApp> {
 
 @pragma('vm:entry-point')
 Future<void> locationServiceMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final service = LocationBackgroundRunner();
   await service.initialize();
 }
 
 @pragma('vm:entry-point')
 Future<void> realtimeServiceMain() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final service = RealtimeBackgroundRunner();
   await service.initialize();
 }
