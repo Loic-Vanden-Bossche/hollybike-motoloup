@@ -3,6 +3,8 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 
+import 'dart:async';
+
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -28,6 +30,9 @@ import 'package:provider/provider.dart';
 
 import '../../app/app_router.gr.dart';
 import '../../image/services/image_repository.dart';
+import '../../positions/background/tracking_nav_intent.dart';
+import '../../positions/bloc/my_position/my_position_bloc.dart';
+import '../../positions/bloc/my_position/my_position_event.dart';
 import '../../positions/bloc/user_positions/user_positions_bloc.dart';
 import '../../shared/widgets/app_toast.dart';
 import '../bloc/event_details_bloc/event_details_bloc.dart';
@@ -42,6 +47,7 @@ import '../services/event/event_repository.dart';
 import '../types/event_details.dart';
 import '../widgets/details/event_details_actions_menu.dart';
 import '../widgets/images/show_event_images_picker.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 
 enum EventDetailsTab { info, photos, myPhotos, map }
 
@@ -105,6 +111,11 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   bool _interceptBackOnMap = false;
   bool _isTabBarPinnedUnderTopBar = false;
 
+  // Set to true when the screen is opened via the "Terminer le parcours"
+  // notification action.  Cleared after the confirmation dialog is shown once.
+  bool _pendingAutoTerminate = false;
+  StreamSubscription<int>? _trackingNavSubscription;
+
   EventDetailsTab currentTab = EventDetailsTab.info;
 
   @override
@@ -127,10 +138,37 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
 
     _scrollController.addListener(_syncBackInterception);
     _refreshEventDetails();
+
+    // If this screen was opened from the "Terminer le parcours" notification
+    // action, mark that we should auto-trigger the confirmation dialog once
+    // the event details have finished loading.
+    final pendingTerminateId = TrackingNavIntent.consumePendingTerminate();
+    if (pendingTerminateId == widget.event.id) {
+      _pendingAutoTerminate = true;
+    }
+
+    _trackingNavSubscription = TrackingNavIntent.stream.listen((eventId) {
+      if (!mounted || eventId != widget.event.id) return;
+
+      final pendingTerminateId = TrackingNavIntent.consumePendingTerminate();
+      if (pendingTerminateId != widget.event.id) return;
+
+      final detailsState = context.read<EventDetailsBloc>().state;
+      final details = detailsState.eventDetails;
+
+      if (details != null) {
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          _autoTriggerTerminate(context, details);
+        });
+      } else {
+        _pendingAutoTerminate = true;
+      }
+    });
   }
 
   @override
   void dispose() {
+    _trackingNavSubscription?.cancel();
     _tabController.dispose();
     _scrollController.removeListener(_syncBackInterception);
     _myImagesSelectionActive.dispose();
@@ -155,6 +193,15 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
       },
       child: BlocListener<EventDetailsBloc, EventDetailsState>(
         listener: (context, state) {
+          // Auto-trigger terminate dialog once event details have loaded,
+          // when the screen was opened from the notification action button.
+          if (_pendingAutoTerminate && state is EventDetailsLoadSuccess) {
+            _pendingAutoTerminate = false;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              _autoTriggerTerminate(context, state.eventDetails);
+            });
+          }
+
           if (state is EventOperationFailure) {
             Toast.showErrorToast(context, state.errorMessage);
           } else if (state is EventDetailsLoadFailure) {
@@ -483,6 +530,33 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     context.read<EventDetailsBloc>().add(LoadEventDetails());
 
     return context.read<EventDetailsBloc>().firstWhenNotLoading;
+  }
+
+  // Called once after the event details load when the screen was opened via
+  // the "Terminer le parcours" notification action.  Reuses the same
+  // confirmation dialog and BLoC events as EventNowStatus / EventFinishedStatus.
+  Future<void> _autoTriggerTerminate(BuildContext context, EventDetails? details) async {
+    if (details == null) return;
+    if (!mounted) return;
+
+    final canTerminate =
+        details.callerParticipation?.journey == null &&
+        details.callerParticipation?.hasRecordedPositions == true;
+    if (!canTerminate) return;
+
+    final confirmed = await showGlassConfirmationDialog(
+      context: context,
+      title: "Terminer le parcours",
+      message:
+          "Êtes-vous sûr de vouloir terminer le parcours ? Vous ne pourrez plus partager votre position en temps réel.",
+      cancelLabel: "Annuler",
+      confirmLabel: "Terminer",
+    );
+
+    if (confirmed == true && context.mounted) {
+      context.read<EventDetailsBloc>().add(TerminateUserJourney());
+      context.read<MyPositionBloc>().add(DisableSendPositions());
+    }
   }
 
   Widget? _getFloatingButton() {

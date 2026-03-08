@@ -1,51 +1,68 @@
 package com.hollybike.hollybike.tracking
 
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
 import android.content.Intent
 import android.os.Build
+import android.os.Handler
 import android.os.IBinder
+import android.os.Looper
 import androidx.core.app.NotificationCompat
 import com.hollybike.hollybike.MainActivity
 import com.hollybike.hollybike.R
-import com.hollybike.hollybike.realtime.RealtimeForegroundService
 import io.flutter.FlutterInjector
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.plugin.common.MethodChannel
-import android.os.Handler
-import android.os.Looper
+import java.util.Locale
 
+@SuppressLint("InlinedApi")
 class TrackingForegroundService : Service() {
 
 	companion object {
 		private const val CHANNEL_ID = "tracking_channel"
 		private const val NOTIF_ID = 444
+		private const val NOTIF_REQ_OPEN = 444
+		private const val NOTIF_REQ_TERMINATE = 445
 
 		const val EXTRA_TOKEN = "token"
 		const val EXTRA_HOST = "host"
 		const val EXTRA_EVENT_ID = "eventId"
+		const val EXTRA_TRACKING_EVENT_ID = "tracking_event_id"
+		const val EXTRA_AUTO_TERMINATE = "auto_terminate"
 		private const val DART_ENTRYPOINT = "locationServiceMain"
-		private const val LOC_CHANNEL = "com.hollybike/location_service"   // from service Dart
-		private const val UI_BRIDGE_CHANNEL = "com.hollybike/location_bridge" // to UI Dart
+		private const val LOC_CHANNEL = "com.hollybike/location_service"
+		private const val UI_BRIDGE_CHANNEL = "com.hollybike/location_bridge"
 	}
 
 	private var engine: FlutterEngine? = null
 	private var fromServiceChannel: MethodChannel? = null
 
+	// Stored so updateNotification() can mutate and re-post without rebuilding from scratch.
+	private lateinit var notificationManager: NotificationManager
+	private lateinit var notificationBuilder: NotificationCompat.Builder
+
 	override fun onCreate() {
 		super.onCreate()
 		ensureChannel()
 
-		val notif = NotificationCompat.Builder(this, CHANNEL_ID)
+		// Use the string-key overload (API 1+) instead of the typed overload (API 23+).
+		notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+
+		notificationBuilder = NotificationCompat.Builder(this, CHANNEL_ID)
 			.setSmallIcon(R.drawable.ic_stat_hollybike)
 			.setContentTitle("HollyBike")
 			.setContentText("Localisation en arrière-plan active")
+			// setOngoing(true) prevents the user from swiping the notification away.
+			// Note: on Android 14+ the OS may still allow a temporary dismiss via
+			// long-press — this is system policy and cannot be overridden by apps.
 			.setOngoing(true)
 			.setPriority(NotificationCompat.PRIORITY_LOW)
-			.build()
-		startForeground(NOTIF_ID, notif)
+
+		startForeground(NOTIF_ID, notificationBuilder.build())
 
 		val loader = FlutterInjector.instance().flutterLoader()
 		loader.startInitialization(applicationContext)
@@ -60,18 +77,25 @@ class TrackingForegroundService : Service() {
 		val entrypoint = DartExecutor.DartEntrypoint(loader.findAppBundlePath(), DART_ENTRYPOINT)
 		engine!!.dartExecutor.executeDartEntrypoint(entrypoint)
 
-		// 👇 Receive 'position' from the headless Dart (service engine)
 		fromServiceChannel = MethodChannel(engine!!.dartExecutor.binaryMessenger, LOC_CHANNEL)
 		fromServiceChannel!!.setMethodCallHandler { call, result ->
-			if (call.method == "position") {
-				val args = call.arguments  // Map<String, Any?>
-				// Forward to UI engine if it's alive
-				MainActivity.uiMessenger?.let { messenger ->
-					MethodChannel(messenger, UI_BRIDGE_CHANNEL).invokeMethod("position", args)
+			when (call.method) {
+				"position" -> {
+					// Forward raw position to the UI engine if it's alive.
+					val args = call.arguments
+					MainActivity.uiMessenger?.let { messenger ->
+						MethodChannel(messenger, UI_BRIDGE_CHANNEL).invokeMethod("position", args)
+					}
+					result.success(null)
 				}
-				result.success(null)
-			} else {
-				result.notImplemented()
+				"updateNotification" -> {
+					val args = call.arguments as? Map<*, *>
+					val speed = (args?.get("speed") as? Double) ?: 0.0
+					val distance = (args?.get("distance") as? Double) ?: 0.0
+					updateNotification(speed, distance)
+					result.success(null)
+				}
+				else -> result.notImplemented()
 			}
 		}
 	}
@@ -79,7 +103,38 @@ class TrackingForegroundService : Service() {
 	override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
 		val token = intent?.getStringExtra(EXTRA_TOKEN) ?: ""
 		val host  = intent?.getStringExtra(EXTRA_HOST) ?: ""
-		val eventId  = intent?.getIntExtra(EXTRA_EVENT_ID, 0) ?: ""
+		val eventId = intent?.getIntExtra(EXTRA_EVENT_ID, 0) ?: 0
+
+		// Tap on notification body → open event details.
+		// Use addFlags() instead of assigning the flags property to avoid
+		// shadowing the 'flags: Int' parameter of onStartCommand.
+		val openIntent = Intent(this, MainActivity::class.java)
+			.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+			.putExtra(EXTRA_TRACKING_EVENT_ID, eventId)
+
+		val openPendingIntent = PendingIntent.getActivity(
+			this, NOTIF_REQ_OPEN, openIntent,
+			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+		)
+
+		// "Terminer" action button → open event details and trigger the
+		// terminate-journey confirmation dialog.
+		val terminateIntent = Intent(this, MainActivity::class.java)
+			.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP)
+			.putExtra(EXTRA_TRACKING_EVENT_ID, eventId)
+			.putExtra(EXTRA_AUTO_TERMINATE, true)
+
+		val terminatePendingIntent = PendingIntent.getActivity(
+			this, NOTIF_REQ_TERMINATE, terminateIntent,
+			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+		)
+
+		notificationBuilder
+			.setContentIntent(openPendingIntent)
+			.clearActions()
+			.addAction(0, "Terminer le parcours", terminatePendingIntent)
+		notificationManager.notify(NOTIF_ID, notificationBuilder.build())
+
 		fromServiceChannel?.invokeMethod("start", mapOf("token" to token, "host" to host, "eventId" to eventId))
 		return START_STICKY
 	}
@@ -100,11 +155,20 @@ class TrackingForegroundService : Service() {
 
 	override fun onBind(intent: Intent?): IBinder? = null
 
+	private fun updateNotification(speed: Double, distance: Double) {
+		val speedStr = "${speed.toInt()} km/h"
+		val distanceStr = "${String.format(Locale.ROOT, "%.1f", distance).replace('.', ',')} km"
+		notificationBuilder.setContentText("$speedStr  •  $distanceStr")
+		notificationManager.notify(NOTIF_ID, notificationBuilder.build())
+	}
+
 	private fun ensureChannel() {
 		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			val nm = getSystemService(NotificationManager::class.java)
+			val nm = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
 			if (nm.getNotificationChannel(CHANNEL_ID) == null) {
-				nm.createNotificationChannel(NotificationChannel(CHANNEL_ID, "Location tracking", NotificationManager.IMPORTANCE_LOW))
+				nm.createNotificationChannel(
+					NotificationChannel(CHANNEL_ID, "Location tracking", NotificationManager.IMPORTANCE_LOW)
+				)
 			}
 		}
 	}

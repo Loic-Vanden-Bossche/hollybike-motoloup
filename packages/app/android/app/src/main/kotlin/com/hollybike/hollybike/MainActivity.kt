@@ -21,6 +21,8 @@ import io.flutter.plugin.common.MethodChannel
 import java.io.File
 import java.io.FileOutputStream
 
+private const val NAV_INTENT_CHANNEL = "com.hollybike/nav_intent"
+
 class MainActivity : FlutterActivity() {
 	private val channel = "com.hollybike/fgs_control"
 	private val mediaPickerChannel = "com.hollybike/media_picker"
@@ -32,6 +34,14 @@ class MainActivity : FlutterActivity() {
 	private var pendingLocationStart: Intent? = null
 	private var pendingMediaPickerResult: MethodChannel.Result? = null
 
+	// Nav intent: delivers the tracking event ID to Flutter when the user taps
+	// the foreground-service notification.  pendingNavEventId holds the value
+	// for cold-start taps (app was not running); warm-start taps are pushed
+	// directly via navChannel.invokeMethod once the channel is ready.
+	private var navChannel: MethodChannel? = null
+	private var pendingNavEventId: Int? = null
+	private var pendingNavMethod: String = "openTrackingEvent"
+
 	companion object {
 		@JvmStatic
 		var uiMessenger: BinaryMessenger? = null
@@ -40,11 +50,58 @@ class MainActivity : FlutterActivity() {
 	override fun onCreate(savedInstanceState: Bundle?) {
 		super.onCreate(savedInstanceState)
 		WindowCompat.setDecorFitsSystemWindows(window, false)
+		// Cold-start tap: the launch intent may carry the tracking event ID.
+		val coldEventId = intent
+			?.getIntExtra(TrackingForegroundService.EXTRA_TRACKING_EVENT_ID, -1)
+			?.takeIf { it != -1 }
+		pendingNavEventId = coldEventId
+		if (coldEventId != null) {
+			val autoTerminate = intent?.getBooleanExtra(TrackingForegroundService.EXTRA_AUTO_TERMINATE, false) ?: false
+			pendingNavMethod = if (autoTerminate) "terminateTrackingJourney" else "openTrackingEvent"
+		}
+	}
+
+	// Warm-start tap: the activity is already running; Android calls onNewIntent
+	// instead of onCreate because FLAG_ACTIVITY_SINGLE_TOP is set on the PendingIntent.
+	override fun onNewIntent(intent: Intent) {
+		super.onNewIntent(intent)
+		setIntent(intent)
+		val eventId = intent
+			.getIntExtra(TrackingForegroundService.EXTRA_TRACKING_EVENT_ID, -1)
+			.takeIf { it != -1 } ?: return
+
+		val autoTerminate = intent.getBooleanExtra(TrackingForegroundService.EXTRA_AUTO_TERMINATE, false)
+		val method = if (autoTerminate) "terminateTrackingJourney" else "openTrackingEvent"
+
+		// Push straight to Dart if the channel is ready, otherwise hold for pull.
+		navChannel?.invokeMethod(method, eventId)
+			?: run {
+				pendingNavEventId = eventId
+				pendingNavMethod = method
+			}
 	}
 
 	override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
 		super.configureFlutterEngine(flutterEngine)
 		uiMessenger = flutterEngine.dartExecutor.binaryMessenger
+
+		// Flutter calls getPendingNavEventId once on startup to handle cold-start
+		// notification taps.  Warm-start taps are pushed via invokeMethod in onNewIntent.
+		navChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, NAV_INTENT_CHANNEL)
+		navChannel!!.setMethodCallHandler { call, result ->
+			when (call.method) {
+				"getPendingNavIntent" -> {
+					if (pendingNavEventId != null) {
+						result.success(mapOf("eventId" to pendingNavEventId, "method" to pendingNavMethod))
+					} else {
+						result.success(null)
+					}
+					pendingNavEventId = null
+					pendingNavMethod = "openTrackingEvent"
+				}
+				else -> result.notImplemented()
+			}
+		}
 
 		MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channel)
 			.setMethodCallHandler { call, result ->
