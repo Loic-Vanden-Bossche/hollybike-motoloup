@@ -190,6 +190,6 @@ class AuthInterceptor extends Interceptor {
       options: Options(extra: {'skipAuthRefresh': true}),
       data: {'device': oldSession.deviceId, 'token': oldSession.refreshToken},
     );
-    return AuthSession.fromResponseJson(oldSession.host, response.data);
+    return AuthSession.fromResponseJson(oldSession.host, oldSession.email, response.data);
   }
 }
