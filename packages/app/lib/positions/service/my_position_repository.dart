@@ -41,6 +41,7 @@ class MyPositionServiceRepository {
   String _refreshToken = '';
   String _deviceId = '';
   String _host = '';
+  String _email = '';
   int _eventId = -1;
 
   double accelerationX = 0;
@@ -149,6 +150,7 @@ class MyPositionServiceRepository {
             host: _host,
             deviceId: _deviceId,
             refreshToken: _refreshToken,
+            email: _email,
           ),
           authPersistence: _authPersistence,
         ).connect();
@@ -294,6 +296,7 @@ class MyPositionServiceRepository {
     _refreshToken = session.refreshToken;
     _deviceId = session.deviceId;
     _host = session.host;
+    _email = session.email;
   }
 
   bool _isAuthWebsocketError(String message) {

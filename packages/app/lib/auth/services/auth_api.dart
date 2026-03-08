@@ -13,7 +13,7 @@ class AuthApi {
       host: host,
     ).dio.post("$host/api/auth/login", data: dto.asJson());
 
-    return AuthSession.fromResponseJson(host, response.data);
+    return AuthSession.fromResponseJson(host, dto.email, response.data);
   }
 
   Future<AuthSession> signup(String host, SignupDto dto) async {
@@ -21,6 +21,6 @@ class AuthApi {
       host: host,
     ).dio.post("$host/api/auth/signin", data: dto.asJson());
 
-    return AuthSession.fromResponseJson(host, response.data);
+    return AuthSession.fromResponseJson(host, dto.email, response.data);
   }
 }

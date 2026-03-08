@@ -11,12 +11,14 @@ class AuthSession {
   String refreshToken;
   String deviceId;
   String host;
+  String email;
 
   AuthSession({
     required this.token,
     required this.host,
     required this.refreshToken,
     required this.deviceId,
+    required this.email,
   });
 
   Map<String, dynamic> asMap() {
@@ -25,6 +27,7 @@ class AuthSession {
       "refresh_token": refreshToken,
       "device_id": deviceId,
       "host": host,
+      "email": email,
     };
   }
 
@@ -34,7 +37,7 @@ class AuthSession {
 
   @override
   int get hashCode {
-    return Object.hash(token, refreshToken, deviceId, host);
+    return Object.hash(token, refreshToken, deviceId, host, email);
   }
 
   @override
@@ -42,7 +45,8 @@ class AuthSession {
     return host == other.host &&
         token == other.token &&
         refreshToken == other.refreshToken &&
-        deviceId == other.deviceId;
+        deviceId == other.deviceId &&
+        email == other.email;
   }
 
   int? getIndexInList(List<AuthSession> list) {
@@ -73,11 +77,16 @@ class AuthSession {
       refreshToken: object["refresh_token"] as String,
       deviceId: object["device_id"] as String,
       host: object["host"] as String,
+      // Backward-compatible: sessions persisted before this field was added
+      // will not have "email"; default to empty string so the deduplication
+      // logic can fall back to deviceId for those legacy entries.
+      email: object["email"] as String? ?? '',
     );
   }
 
   factory AuthSession.fromResponseJson(
     String hostSource,
+    String emailSource,
     Map<String, dynamic> json,
   ) {
     verifyObjectAttributesNotNull(json, ["token", "refresh_token", "deviceId"]);
@@ -87,6 +96,7 @@ class AuthSession {
       refreshToken: json["refresh_token"] as String,
       deviceId: json["deviceId"] as String,
       host: hostSource,
+      email: emailSource,
     );
   }
 }

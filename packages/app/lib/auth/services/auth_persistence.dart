@@ -210,6 +210,14 @@ class AuthPersistence {
       return false;
     }
 
+    // Primary key: host + email.  Two sessions for the same account (same
+    // email on the same host) are always the same slot regardless of which
+    // token or deviceId the server handed out.
+    if (left.email.isNotEmpty && right.email.isNotEmpty) {
+      return left.email == right.email;
+    }
+
+    // Fallback for legacy persisted sessions that predate the email field.
     if (left.deviceId.isNotEmpty && right.deviceId.isNotEmpty) {
       return left.deviceId == right.deviceId;
     }

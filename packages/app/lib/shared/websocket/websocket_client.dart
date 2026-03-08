@@ -331,7 +331,7 @@ class WebsocketClient {
       data: {"device": oldSession.deviceId, "token": oldSession.refreshToken},
     );
 
-    return AuthSession.fromResponseJson(oldSession.host, newSessionResponse.data);
+    return AuthSession.fromResponseJson(oldSession.host, oldSession.email, newSessionResponse.data);
   }
 
   void _applySessionUpdate(AuthSession newSession) {

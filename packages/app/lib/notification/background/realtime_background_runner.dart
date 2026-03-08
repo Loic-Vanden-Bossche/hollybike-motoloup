@@ -34,6 +34,7 @@ class RealtimeBackgroundRunner {
   String _host = '';
   String _refreshToken = '';
   String _deviceId = '';
+  String _email = '';
 
   WebsocketClient? _ws;
   StreamSubscription<AuthSession>? _sessionExpiredSubscription;
@@ -112,6 +113,7 @@ class RealtimeBackgroundRunner {
         host: _host,
         refreshToken: _refreshToken,
         deviceId: _deviceId,
+        email: _email,
       ),
       authPersistence: _authPersistence,
     );
@@ -298,6 +300,7 @@ class RealtimeBackgroundRunner {
     _host = session.host;
     _refreshToken = session.refreshToken;
     _deviceId = session.deviceId;
+    _email = session.email;
   }
 
   bool _isAuthWebsocketError(String message) {
