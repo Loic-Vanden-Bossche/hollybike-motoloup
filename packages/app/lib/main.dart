@@ -42,6 +42,7 @@ import 'journey/service/journey_repository.dart';
 import 'package:flutter_displaymode/flutter_displaymode.dart';
 
 import 'positions/background/background_location_facade.dart';
+import 'positions/background/tracking_nav_intent.dart';
 import 'notification/background/notif_facade.dart';
 import 'notification/background/realtime_background_runner.dart';
 
@@ -61,6 +62,8 @@ void main() async {
   await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
 
   FlutterNativeSplash.remove();
+
+  TrackingNavIntent.initialize();
 
   runApp(const MyApp());
 }

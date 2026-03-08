@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 import 'dart:ui';
 
 import 'package:flutter/widgets.dart';
@@ -13,12 +14,17 @@ class LocationBackgroundRunner {
   static const _methodStart = 'start';
   static const _methodStop = 'stop';
   static const _methodPosition = 'position';
+  static const _methodUpdateNotification = 'updateNotification';
 
   final MethodChannel _locChannel = const MethodChannel(_locChannelName);
   final MyPositionServiceRepository _positionRepository =
       MyPositionServiceRepository();
 
   StreamSubscription<Position>? _positionSubscription;
+
+  // Cumulative distance tracking — reset on each new tracking session.
+  double _totalDistanceMeters = 0.0;
+  Position? _lastPosition;
 
   Future<void> initialize() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -54,6 +60,9 @@ class LocationBackgroundRunner {
   }) async {
     await AppNotifications.init();
 
+    _totalDistanceMeters = 0.0;
+    _lastPosition = null;
+
     final settings = AndroidSettings(
       accuracy: LocationAccuracy.best,
       distanceFilter: 10,
@@ -75,6 +84,31 @@ class LocationBackgroundRunner {
       (position) async {
         await _positionRepository.callback(position);
 
+        // Accumulate distance from the previous fix.
+        final prev = _lastPosition;
+        _lastPosition = position;
+        if (prev != null) {
+          _totalDistanceMeters += Geolocator.distanceBetween(
+            prev.latitude,
+            prev.longitude,
+            position.latitude,
+            position.longitude,
+          );
+        }
+
+        // Update the foreground service notification with live metrics.
+        final speedKmh = max(0.0, position.speed) * 3.6;
+        final distanceKm = _totalDistanceMeters / 1000.0;
+        try {
+          await _locChannel.invokeMethod(_methodUpdateNotification, {
+            'speed': speedKmh,
+            'distance': distanceKm,
+          });
+        } catch (_) {
+          // Best effort — Kotlin service may not be ready yet.
+        }
+
+        // Forward raw position to the UI isolate.
         try {
           await _locChannel.invokeMethod(_methodPosition, {
             'lat': position.latitude,
@@ -96,6 +130,8 @@ class LocationBackgroundRunner {
     await _positionRepository.dispose();
     await _positionSubscription?.cancel();
     _positionSubscription = null;
+    _totalDistanceMeters = 0.0;
+    _lastPosition = null;
   }
 
   _StartArgs _parseStartArgs(dynamic arguments) {

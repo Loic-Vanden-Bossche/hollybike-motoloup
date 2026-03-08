@@ -2,6 +2,8 @@
   Hollybike Mobile Flutter application
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -10,7 +12,10 @@ import 'package:hollybike/app/app_router.dart';
 import 'package:hollybike/auth/bloc/auth_bloc.dart';
 import 'package:hollybike/auth/services/auth_persistence.dart';
 import 'package:hollybike/auth/guards/auth_stream.dart';
+import 'package:hollybike/event/services/event/event_repository.dart';
+import 'app_router.gr.dart';
 import 'package:hollybike/notification/bloc/notification_bloc.dart';
+import 'package:hollybike/positions/background/tracking_nav_intent.dart';
 import 'package:hollybike/theme/bloc/theme_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
@@ -28,6 +33,8 @@ class App extends StatefulWidget {
 class _AppState extends State<App> {
   late final AppRouter appRouter;
   late final AuthStream authChangeNotifier;
+  late final EventRepository _eventRepository;
+  StreamSubscription<int>? _navSubscription;
 
   @override
   void initState() {
@@ -51,6 +58,33 @@ class _AppState extends State<App> {
       SystemUiMode.edgeToEdge,
       overlays: [SystemUiOverlay.top],
     );
+
+    _eventRepository = RepositoryProvider.of<EventRepository>(context);
+
+    // Warm-start: navigate whenever the tracking notification is tapped while
+    // the app is already running.
+    _navSubscription = TrackingNavIntent.stream.listen(_navigateToTrackingEvent);
+
+    // Cold-start: pull any event ID stored by MainActivity before Dart started.
+    // Deferred to post-frame so the router has settled on its initial route.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      TrackingNavIntent.checkPendingNavIntent();
+    });
+  }
+
+  @override
+  void dispose() {
+    _navSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _navigateToTrackingEvent(int eventId) async {
+    try {
+      final details = await _eventRepository.fetchEventDetails(eventId);
+      appRouter.navigate(EventDetailsRoute(event: details.event.toMinimalEvent()));
+    } catch (_) {
+      // Best effort — if the fetch fails, the user stays on the current screen.
+    }
   }
 
   @override
