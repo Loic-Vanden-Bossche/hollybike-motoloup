@@ -11,10 +11,13 @@ import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:hollybike/app/app_router.dart';
 import 'package:hollybike/auth/bloc/auth_bloc.dart';
 import 'package:hollybike/auth/services/auth_persistence.dart';
+import 'package:hollybike/auth/types/auth_session.dart';
 import 'package:hollybike/auth/guards/auth_stream.dart';
 import 'package:hollybike/event/services/event/event_repository.dart';
 import 'app_router.gr.dart';
 import 'package:hollybike/notification/bloc/notification_bloc.dart';
+import 'package:hollybike/positions/bloc/my_position/my_position_bloc.dart';
+import 'package:hollybike/positions/bloc/my_position/my_position_event.dart';
 import 'package:hollybike/positions/background/tracking_nav_intent.dart';
 import 'package:hollybike/theme/bloc/theme_bloc.dart';
 import 'package:intl/date_symbol_data_local.dart';
@@ -35,6 +38,7 @@ class _AppState extends State<App> {
   late final AuthStream authChangeNotifier;
   late final EventRepository _eventRepository;
   StreamSubscription<int>? _navSubscription;
+  AuthSession? _lastAuthSession;
 
   @override
   void initState() {
@@ -60,6 +64,7 @@ class _AppState extends State<App> {
     );
 
     _eventRepository = RepositoryProvider.of<EventRepository>(context);
+    _lastAuthSession = context.read<AuthBloc>().state.authSession;
 
     // Warm-start: navigate whenever the tracking notification is tapped while
     // the app is already running.
@@ -91,14 +96,37 @@ class _AppState extends State<App> {
   Widget build(BuildContext context) {
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
-        if (state.authSession != null) {
-          context.read<NotificationBloc>().add(
-            StartNotificationService(state.authSession!),
-          );
+        final previousSession = _lastAuthSession;
+        final currentSession = state.authSession;
+
+        final disconnected = currentSession == null;
+        final switchedAccount =
+            previousSession != null &&
+            currentSession != null &&
+            _sessionIdentity(previousSession) != _sessionIdentity(currentSession);
+
+        if (disconnected) {
+          _stopAllBackgroundServices(context);
+          _lastAuthSession = currentSession;
           return;
         }
 
-        context.read<NotificationBloc>().add(StopNotificationService());
+        if (switchedAccount) {
+          _stopAllBackgroundServices(context);
+          context.read<NotificationBloc>().add(
+            StartNotificationService(currentSession),
+          );
+          _lastAuthSession = currentSession;
+          return;
+        }
+
+        if (previousSession == null) {
+          context.read<NotificationBloc>().add(
+            StartNotificationService(currentSession),
+          );
+        }
+
+        _lastAuthSession = currentSession;
       },
       child: BlocBuilder<ThemeBloc, ThemeState>(
         builder: (context, state) {
@@ -128,4 +156,11 @@ class _AppState extends State<App> {
       ),
     );
   }
+
+  void _stopAllBackgroundServices(BuildContext context) {
+    context.read<NotificationBloc>().add(StopNotificationService());
+    context.read<MyPositionBloc>().add(DisableSendPositions());
+  }
+
+  String _sessionIdentity(AuthSession session) => '${session.host}|${session.email}';
 }

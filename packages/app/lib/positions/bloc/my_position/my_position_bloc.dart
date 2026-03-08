@@ -19,6 +19,7 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
   final BackgroundLocationFacade locationFacade;
   final AuthPersistence authPersistence;
   StreamSubscription<void>? _positionSubscription;
+  int? _trackedEventId;
 
   int posCount = 0;
 
@@ -56,6 +57,7 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
         ),
       ),
     );
+    _trackedEventId = isRunning ? eventId : null;
 
     posCount = 0;
 
@@ -64,8 +66,9 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
         .getPositionStream()
         .listen((_) {
           posCount++;
-          if (posCount >= 2 && (eventId != null)) {
-            eventRepository.onUserPositionSent(eventId);
+          final trackedEventId = _trackedEventId;
+          if (posCount >= 2 && trackedEventId != null) {
+            eventRepository.onUserPositionSent(trackedEventId);
           }
         });
   }
@@ -78,6 +81,7 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
 
     final SharedPreferences prefs = await SharedPreferences.getInstance();
     await prefs.setInt('tracking_event_id', event.eventId);
+    _trackedEventId = event.eventId;
 
     if (state.isRunning) {
       await locationFacade.stop();
@@ -121,6 +125,7 @@ class MyPositionBloc extends Bloc<MyPositionEvent, MyPositionState> {
     emit(MyPositionLoading(state));
 
     await locationFacade.stop();
+    _trackedEventId = null;
 
     final running = await locationFacade.backgroundService.isTrackingRunning();
     posCount = 0;
