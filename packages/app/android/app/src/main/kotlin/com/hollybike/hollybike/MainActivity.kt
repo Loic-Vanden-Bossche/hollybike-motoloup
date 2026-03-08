@@ -40,6 +40,7 @@ class MainActivity : FlutterActivity() {
 	// directly via navChannel.invokeMethod once the channel is ready.
 	private var navChannel: MethodChannel? = null
 	private var pendingNavEventId: Int? = null
+	private var pendingNavMethod: String = "openTrackingEvent"
 
 	companion object {
 		@JvmStatic
@@ -50,9 +51,14 @@ class MainActivity : FlutterActivity() {
 		super.onCreate(savedInstanceState)
 		WindowCompat.setDecorFitsSystemWindows(window, false)
 		// Cold-start tap: the launch intent may carry the tracking event ID.
-		pendingNavEventId = intent
+		val coldEventId = intent
 			?.getIntExtra(TrackingForegroundService.EXTRA_TRACKING_EVENT_ID, -1)
 			?.takeIf { it != -1 }
+		pendingNavEventId = coldEventId
+		if (coldEventId != null) {
+			val autoTerminate = intent?.getBooleanExtra(TrackingForegroundService.EXTRA_AUTO_TERMINATE, false) ?: false
+			pendingNavMethod = if (autoTerminate) "terminateTrackingJourney" else "openTrackingEvent"
+		}
 	}
 
 	// Warm-start tap: the activity is already running; Android calls onNewIntent
@@ -63,8 +69,11 @@ class MainActivity : FlutterActivity() {
 			.getIntExtra(TrackingForegroundService.EXTRA_TRACKING_EVENT_ID, -1)
 			.takeIf { it != -1 } ?: return
 
+		val autoTerminate = intent.getBooleanExtra(TrackingForegroundService.EXTRA_AUTO_TERMINATE, false)
+		val method = if (autoTerminate) "terminateTrackingJourney" else "openTrackingEvent"
+
 		// Push straight to Dart if the channel is ready, otherwise hold for pull.
-		navChannel?.invokeMethod("openTrackingEvent", eventId)
+		navChannel?.invokeMethod(method, eventId)
 			?: run { pendingNavEventId = eventId }
 	}
 
@@ -77,9 +86,14 @@ class MainActivity : FlutterActivity() {
 		navChannel = MethodChannel(flutterEngine.dartExecutor.binaryMessenger, NAV_INTENT_CHANNEL)
 		navChannel!!.setMethodCallHandler { call, result ->
 			when (call.method) {
-				"getPendingNavEventId" -> {
-					result.success(pendingNavEventId)
+				"getPendingNavIntent" -> {
+					if (pendingNavEventId != null) {
+						result.success(mapOf("eventId" to pendingNavEventId, "method" to pendingNavMethod))
+					} else {
+						result.success(null)
+					}
 					pendingNavEventId = null
+					pendingNavMethod = "openTrackingEvent"
 				}
 				else -> result.notImplemented()
 			}

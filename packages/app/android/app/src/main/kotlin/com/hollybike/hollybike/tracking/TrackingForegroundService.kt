@@ -22,11 +22,14 @@ class TrackingForegroundService : Service() {
 	companion object {
 		private const val CHANNEL_ID = "tracking_channel"
 		private const val NOTIF_ID = 444
+		private const val NOTIF_REQ_OPEN = 444
+		private const val NOTIF_REQ_TERMINATE = 445
 
 		const val EXTRA_TOKEN = "token"
 		const val EXTRA_HOST = "host"
 		const val EXTRA_EVENT_ID = "eventId"
 		const val EXTRA_TRACKING_EVENT_ID = "tracking_event_id"
+		const val EXTRA_AUTO_TERMINATE = "auto_terminate"
 		private const val DART_ENTRYPOINT = "locationServiceMain"
 		private const val LOC_CHANNEL = "com.hollybike/location_service"
 		private const val UI_BRIDGE_CHANNEL = "com.hollybike/location_bridge"
@@ -97,21 +100,32 @@ class TrackingForegroundService : Service() {
 		val host  = intent?.getStringExtra(EXTRA_HOST) ?: ""
 		val eventId = intent?.getIntExtra(EXTRA_EVENT_ID, 0) ?: 0
 
-		// Attach a tap action to the notification so the user lands on the event
-		// details page when they tap it.  Uses FLAG_ACTIVITY_SINGLE_TOP so that
-		// if the app is already in the foreground, onNewIntent is called rather
-		// than creating a new Activity instance.
-		val tapIntent = Intent(this, MainActivity::class.java).apply {
+		// Tap on notification body → open event details.
+		val openIntent = Intent(this, MainActivity::class.java).apply {
 			flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
 			putExtra(EXTRA_TRACKING_EVENT_ID, eventId)
 		}
-		val pendingIntent = PendingIntent.getActivity(
-			this,
-			NOTIF_ID,
-			tapIntent,
+		val openPendingIntent = PendingIntent.getActivity(
+			this, NOTIF_REQ_OPEN, openIntent,
 			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
 		)
-		notificationBuilder.setContentIntent(pendingIntent)
+
+		// "Terminer" action button → open event details and trigger the
+		// terminate-journey confirmation dialog.
+		val terminateIntent = Intent(this, MainActivity::class.java).apply {
+			flags = Intent.FLAG_ACTIVITY_SINGLE_TOP
+			putExtra(EXTRA_TRACKING_EVENT_ID, eventId)
+			putExtra(EXTRA_AUTO_TERMINATE, true)
+		}
+		val terminatePendingIntent = PendingIntent.getActivity(
+			this, NOTIF_REQ_TERMINATE, terminateIntent,
+			PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE,
+		)
+
+		notificationBuilder
+			.setContentIntent(openPendingIntent)
+			.clearActions()
+			.addAction(0, "Terminer le parcours", terminatePendingIntent)
 		notificationManager.notify(NOTIF_ID, notificationBuilder.build())
 
 		fromServiceChannel?.invokeMethod("start", mapOf("token" to token, "host" to host, "eventId" to eventId))
