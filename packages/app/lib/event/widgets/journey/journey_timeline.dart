@@ -539,7 +539,11 @@ class _CurrentStepCard extends StatelessWidget {
   List<Widget> _buildUserJourneySection(
       BuildContext context, ColorScheme scheme) {
     final sj = stepJourney;
-    final journey = sj?.journey;
+
+    // No participation record for this user — suppress the section entirely
+    if (sj == null) return [];
+
+    final journey = sj.journey;
 
     // Divider with "MON TRAJET" label
     final divider = <Widget>[
@@ -654,7 +658,7 @@ class _CurrentStepCard extends StatelessWidget {
     }
 
     // No journey yet
-    if (sj != null && sj.hasRecordedPositions) {
+    if (sj.hasRecordedPositions) {
       return [
         ...divider,
         FilledButton.tonal(
@@ -814,6 +818,7 @@ class _StepActionsMenu extends StatelessWidget {
             ],
           ),
         );
+        controller.dispose();
         if (name == null || name.isEmpty || !context.mounted) return;
         context.read<EventJourneyBloc>().add(
               RenameJourneyStepInEvent(
