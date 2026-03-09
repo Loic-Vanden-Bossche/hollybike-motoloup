@@ -16,7 +16,9 @@ import 'package:hollybike/event/widgets/journey/journey_import_modal_from_type.d
 import 'package:hollybike/event/widgets/journey/upload_journey_menu.dart';
 import 'package:hollybike/event/widgets/journey/empty_journey_preview_card.dart';
 import 'package:hollybike/journey/widgets/journey_image.dart';
+import 'package:hollybike/event/widgets/journey/journey_modal.dart';
 import 'package:hollybike/shared/widgets/app_toast.dart';
+import 'package:hollybike/user_journey/widgets/user_journey_modal.dart';
 
 class JourneyTimeline extends StatelessWidget {
   final EventDetails eventDetails;
@@ -699,7 +701,108 @@ class _PastStepCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text('past — TODO');
+    final scheme = Theme.of(context).colorScheme;
+    final stepName = step.name?.trim().isNotEmpty == true
+        ? step.name!
+        : 'Étape ${step.position}';
+    final journey = stepJourney?.journey;
+
+    return Material(
+      color: Colors.transparent,
+      child: Ink(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: scheme.primaryContainer.withValues(alpha: 0.30),
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.10),
+            width: 1,
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(14),
+          onTap: () => _openDetails(context),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+            child: Row(
+              children: [
+                Icon(
+                  Icons.check_circle_rounded,
+                  size: 16,
+                  color: scheme.secondary.withValues(alpha: 0.7),
+                ),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Text(
+                    stepName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: scheme.onPrimary.withValues(alpha: 0.75),
+                      fontSize: 13,
+                      fontVariations: const [FontVariation.weight(600)],
+                    ),
+                  ),
+                ),
+                if (journey != null) ...[
+                  const SizedBox(width: 8),
+                  _SmallChip(label: journey.distanceLabel, scheme: scheme),
+                  const SizedBox(width: 6),
+                  _SmallChip(
+                    icon: Icons.schedule_rounded,
+                    label: journey.totalTimeLabel,
+                    scheme: scheme,
+                  ),
+                ] else ...[
+                  const SizedBox(width: 8),
+                  _SmallChip(
+                    label: step.journey.distanceLabel,
+                    scheme: scheme,
+                    muted: true,
+                  ),
+                ],
+                if (eventDetails.canEditJourney) ...[
+                  const SizedBox(width: 4),
+                  _StepActionsMenu(
+                    step: step,
+                    eventDetails: eventDetails,
+                  ),
+                ],
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  void _openDetails(BuildContext context) {
+    final journey = stepJourney?.journey;
+    if (journey != null) {
+      showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        context: context,
+        builder: (_) => UserJourneyModal(
+          journey: journey,
+          isCurrentEvent: true,
+          stepId: step.id,
+        ),
+      );
+    } else {
+      showModalBottomSheet(
+        backgroundColor: Colors.transparent,
+        isScrollControlled: true,
+        context: context,
+        builder: (_) => BlocProvider.value(
+          value: context.read<EventJourneyBloc>(),
+          child: JourneyModal(
+            journey: step.journey,
+            stepId: step.id,
+            onViewOnMap: onViewOnMap,
+          ),
+        ),
+      );
+    }
   }
 }
 
@@ -743,6 +846,52 @@ class _MetricChip extends StatelessWidget {
             style: TextStyle(
               color: color.withValues(alpha: 0.85),
               fontSize: 11,
+              fontVariations: const [FontVariation.weight(600)],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _SmallChip extends StatelessWidget {
+  final String label;
+  final ColorScheme scheme;
+  final IconData? icon;
+  final bool muted;
+
+  const _SmallChip({
+    required this.label,
+    required this.scheme,
+    this.icon,
+    this.muted = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        color: scheme.onPrimary.withValues(alpha: muted ? 0.05 : 0.08),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (icon != null) ...[
+            Icon(
+              icon,
+              size: 11,
+              color: scheme.onPrimary.withValues(alpha: muted ? 0.35 : 0.55),
+            ),
+            const SizedBox(width: 3),
+          ],
+          Text(
+            label,
+            style: TextStyle(
+              color: scheme.onPrimary.withValues(alpha: muted ? 0.40 : 0.70),
+              fontSize: 10.5,
               fontVariations: const [FontVariation.weight(600)],
             ),
           ),
