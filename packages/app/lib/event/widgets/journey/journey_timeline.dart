@@ -752,7 +752,7 @@ class _PastStepCard extends StatelessWidget {
                     label: journey.totalTimeLabel,
                     scheme: scheme,
                   ),
-                ] else ...[
+                ] else if (stepJourney != null) ...[
                   const SizedBox(width: 8),
                   _SmallChip(
                     label: step.journey.distanceLabel,
