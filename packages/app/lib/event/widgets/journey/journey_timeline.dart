@@ -8,6 +8,7 @@ import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_bloc.dart'
 import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_state.dart';
 import 'package:hollybike/event/types/event_details.dart';
 import 'package:hollybike/event/types/event_journey_step.dart';
+import 'package:hollybike/event/types/participation/event_caller_participation_step_journey.dart';
 import 'package:hollybike/event/widgets/journey/journey_import_modal_from_type.dart';
 import 'package:hollybike/event/widgets/journey/upload_journey_menu.dart';
 import 'package:hollybike/event/widgets/journey/empty_journey_preview_card.dart';
@@ -137,8 +138,67 @@ class JourneyTimeline extends StatelessWidget {
     );
   }
 
+  _StepState _resolveStepState(
+    EventJourneyStep step,
+    int? currentStepId,
+    Map<int, EventJourneyStep> stepById,
+  ) {
+    if (step.isCurrent) return _StepState.current;
+    final currentStep = currentStepId == null ? null : stepById[currentStepId];
+    if (currentStep == null) return _StepState.future;
+    return step.position < currentStep.position
+        ? _StepState.past
+        : _StepState.future;
+  }
+
   Widget _buildTimeline(BuildContext context, List<EventJourneyStep> steps) {
-    return const Text('timeline — TODO');
+    final stepById = {for (final s in steps) s.id: s};
+    final stepJourneyById = <int, EventCallerParticipationStepJourney>{
+      for (final sj in eventDetails.callerParticipation?.stepJourneys ?? [])
+        sj.stepId: sj,
+    };
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: List.generate(steps.length, (i) {
+        final step = steps[i];
+        final isLast = i == steps.length - 1;
+        final state = _resolveStepState(step, eventDetails.currentStepId, stepById);
+        final stepJourney = stepJourneyById[step.id];
+
+        return _TimelineRow(
+          stepState: state,
+          isLast: isLast,
+          child: _buildStepCard(context, step, state, stepJourney),
+        );
+      }),
+    );
+  }
+
+  Widget _buildStepCard(
+    BuildContext context,
+    EventJourneyStep step,
+    _StepState state,
+    EventCallerParticipationStepJourney? stepJourney,
+  ) {
+    switch (state) {
+      case _StepState.current:
+        return _CurrentStepCard(
+          step: step,
+          stepJourney: stepJourney,
+          eventDetails: eventDetails,
+          onViewOnMap: onViewOnMap,
+        );
+      case _StepState.past:
+        return _PastStepCard(
+          step: step,
+          stepJourney: stepJourney,
+          eventDetails: eventDetails,
+          onViewOnMap: onViewOnMap,
+        );
+      case _StepState.future:
+        return _FutureStepCard(step: step);
+    }
   }
 
   Widget _buildLoadingCard(BuildContext context) {
@@ -185,3 +245,206 @@ class JourneyTimeline extends StatelessWidget {
     journeyImportModalFromType(context, type, eventDetails.event);
   }
 }
+
+class _TimelineRow extends StatelessWidget {
+  final _StepState stepState;
+  final bool isLast;
+  final Widget child;
+
+  const _TimelineRow({
+    required this.stepState,
+    required this.isLast,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: IntrinsicHeight(
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              width: 28,
+              child: Column(
+                children: [
+                  _NodeCircle(stepState: stepState),
+                  if (!isLast)
+                    Expanded(
+                      child: _ConnectorLine(
+                        dashed: stepState == _StepState.current ||
+                            stepState == _StepState.future,
+                      ),
+                    ),
+                ],
+              ),
+            ),
+            const SizedBox(width: 10),
+            Expanded(child: child),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _NodeCircle extends StatelessWidget {
+  final _StepState stepState;
+  const _NodeCircle({required this.stepState});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    switch (stepState) {
+      case _StepState.current:
+        return Container(
+          width: 14,
+          height: 14,
+          margin: const EdgeInsets.only(top: 14),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scheme.secondary,
+            boxShadow: [
+              BoxShadow(
+                color: scheme.secondary.withValues(alpha: 0.45),
+                blurRadius: 8,
+                spreadRadius: 2,
+              ),
+            ],
+          ),
+        );
+      case _StepState.past:
+        return Container(
+          width: 12,
+          height: 12,
+          margin: const EdgeInsets.only(top: 12),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            color: scheme.secondary.withValues(alpha: 0.7),
+          ),
+        );
+      case _StepState.future:
+        return Container(
+          width: 10,
+          height: 10,
+          margin: const EdgeInsets.only(top: 11),
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: scheme.onPrimary.withValues(alpha: 0.25),
+              width: 1.5,
+            ),
+          ),
+        );
+    }
+  }
+}
+
+class _ConnectorLine extends StatelessWidget {
+  final bool dashed;
+  const _ConnectorLine({required this.dashed});
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    if (!dashed) {
+      return Center(
+        child: Container(
+          width: 2,
+          color: scheme.secondary.withValues(alpha: 0.5),
+        ),
+      );
+    }
+
+    return Center(
+      child: CustomPaint(
+        painter: _DashedLinePainter(
+          color: scheme.onPrimary.withValues(alpha: 0.2),
+        ),
+        child: const SizedBox(width: 2),
+      ),
+    );
+  }
+}
+
+class _DashedLinePainter extends CustomPainter {
+  final Color color;
+  const _DashedLinePainter({required this.color});
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = 2
+      ..strokeCap = StrokeCap.round;
+
+    const dashHeight = 4.0;
+    const dashSpace = 4.0;
+    double startY = 0;
+
+    while (startY < size.height) {
+      canvas.drawLine(
+        Offset(size.width / 2, startY),
+        Offset(size.width / 2, startY + dashHeight),
+        paint,
+      );
+      startY += dashHeight + dashSpace;
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedLinePainter old) => old.color != color;
+}
+
+class _CurrentStepCard extends StatelessWidget {
+  final EventJourneyStep step;
+  final EventCallerParticipationStepJourney? stepJourney;
+  final EventDetails eventDetails;
+  final void Function(int stepId) onViewOnMap;
+
+  const _CurrentStepCard({
+    required this.step,
+    required this.stepJourney,
+    required this.eventDetails,
+    required this.onViewOnMap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text('current — TODO');
+  }
+}
+
+class _PastStepCard extends StatelessWidget {
+  final EventJourneyStep step;
+  final EventCallerParticipationStepJourney? stepJourney;
+  final EventDetails eventDetails;
+  final void Function(int stepId) onViewOnMap;
+
+  const _PastStepCard({
+    required this.step,
+    required this.stepJourney,
+    required this.eventDetails,
+    required this.onViewOnMap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text('past — TODO');
+  }
+}
+
+class _FutureStepCard extends StatelessWidget {
+  final EventJourneyStep step;
+  const _FutureStepCard({required this.step});
+
+  @override
+  Widget build(BuildContext context) {
+    return const Text('future — TODO');
+  }
+}
+
+enum _StepState { past, current, future }
