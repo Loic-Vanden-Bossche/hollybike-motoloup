@@ -204,7 +204,11 @@ class JourneyTimeline extends StatelessWidget {
           onViewOnMap: onViewOnMap,
         );
       case _StepState.future:
-        return _FutureStepCard(step: step);
+        return _FutureStepCard(
+          step: step,
+          eventDetails: eventDetails,
+          onViewOnMap: onViewOnMap,
+        );
     }
   }
 
@@ -859,7 +863,14 @@ class _PastStepCard extends StatelessWidget {
 
 class _FutureStepCard extends StatelessWidget {
   final EventJourneyStep step;
-  const _FutureStepCard({required this.step});
+  final EventDetails eventDetails;
+  final void Function(int stepId) onViewOnMap;
+
+  const _FutureStepCard({
+    required this.step,
+    required this.eventDetails,
+    required this.onViewOnMap,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -870,39 +881,69 @@ class _FutureStepCard extends StatelessWidget {
 
     return Opacity(
       opacity: 0.5, // entire card is muted; child alpha values are relative to this
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: scheme.primaryContainer.withValues(alpha: 0.15),
-          border: Border.all(
-            color: scheme.onPrimary.withValues(alpha: 0.07),
-            width: 1,
+      child: Material(
+        color: Colors.transparent,
+        child: Ink(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(14),
+            color: scheme.primaryContainer.withValues(alpha: 0.15),
+            border: Border.all(
+              color: scheme.onPrimary.withValues(alpha: 0.07),
+              width: 1,
+            ),
+          ),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(14),
+            onTap: () => _openDetails(context),
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      stepName,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: TextStyle(
+                        color: scheme.onPrimary.withValues(alpha: 0.55),
+                        fontSize: 13,
+                        fontVariations: const [FontVariation.weight(550)],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  _SmallChip(
+                    label: step.journey.distanceLabel,
+                    scheme: scheme,
+                    muted: true,
+                  ),
+                  if (eventDetails.canEditJourney) ...[
+                    const SizedBox(width: 4),
+                    _StepActionsMenu(
+                      step: step,
+                      eventDetails: eventDetails,
+                    ),
+                  ],
+                ],
+              ),
+            ),
           ),
         ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-          child: Row(
-            children: [
-              Expanded(
-                child: Text(
-                  stepName,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                  style: TextStyle(
-                    color: scheme.onPrimary.withValues(alpha: 0.55),
-                    fontSize: 13,
-                    fontVariations: const [FontVariation.weight(550)],
-                  ),
-                ),
-              ),
-              const SizedBox(width: 8),
-              _SmallChip(
-                label: step.journey.distanceLabel,
-                scheme: scheme,
-                muted: true,
-              ),
-            ],
-          ),
+      ),
+    );
+  }
+
+  void _openDetails(BuildContext context) {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<EventJourneyBloc>(),
+        child: JourneyModal(
+          journey: step.journey,
+          stepId: step.id,
+          onViewOnMap: onViewOnMap,
         ),
       ),
     );
