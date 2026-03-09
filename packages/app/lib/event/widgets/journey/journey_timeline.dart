@@ -5,21 +5,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_bloc.dart';
-import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_event.dart';
 import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_state.dart';
 import 'package:hollybike/event/types/event_details.dart';
 import 'package:hollybike/event/types/event_journey_step.dart';
-import 'package:hollybike/event/types/participation/event_caller_participation_step_journey.dart';
 import 'package:hollybike/event/widgets/journey/journey_import_modal_from_type.dart';
 import 'package:hollybike/event/widgets/journey/upload_journey_menu.dart';
 import 'package:hollybike/event/widgets/journey/empty_journey_preview_card.dart';
-import 'package:hollybike/journey/widgets/journey_image.dart';
 import 'package:hollybike/shared/widgets/app_toast.dart';
-import 'package:hollybike/user_journey/type/user_journey.dart';
-import 'package:hollybike/user_journey/widgets/user_journey_modal.dart';
-import 'package:hollybike/event/widgets/journey/journey_modal.dart';
-import 'package:hollybike/event/bloc/event_details_bloc/event_details_bloc.dart';
-import 'package:hollybike/event/bloc/event_details_bloc/event_details_event.dart';
 
 class JourneyTimeline extends StatelessWidget {
   final EventDetails eventDetails;
@@ -52,6 +44,145 @@ class JourneyTimeline extends StatelessWidget {
   }
 
   Widget _buildContent(BuildContext context, bool loading) {
-    return const Text('JourneyTimeline — TODO');
+    final steps = [...eventDetails.journeySteps]
+      ..sort((a, b) => a.position - b.position);
+
+    if (loading) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(context, steps),
+          const SizedBox(height: 8),
+          _buildLoadingCard(context),
+        ],
+      );
+    }
+
+    if (steps.isEmpty) {
+      if (!eventDetails.canEditJourney) return const SizedBox.shrink();
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildHeader(context, steps),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 140,
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(22),
+              child: UploadJourneyMenu(
+                event: eventDetails.event,
+                onSelection: (type) =>
+                    journeyImportModalFromType(context, type, eventDetails.event),
+                child: EmptyJourneyPreviewCard(event: eventDetails.event),
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _buildHeader(context, steps),
+        const SizedBox(height: 12),
+        _buildTimeline(context, steps),
+      ],
+    );
+  }
+
+  Widget _buildHeader(BuildContext context, List<EventJourneyStep> steps) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return Row(
+      children: [
+        Container(
+          width: 3,
+          height: 14,
+          decoration: BoxDecoration(
+            color: scheme.secondary,
+            borderRadius: BorderRadius.circular(2),
+          ),
+        ),
+        const SizedBox(width: 8),
+        Text(
+          'ITINÉRAIRE',
+          style: TextStyle(
+            color: scheme.secondary.withValues(alpha: 0.8),
+            fontSize: 10,
+            fontVariations: const [FontVariation.weight(700)],
+            letterSpacing: 1.5,
+          ),
+        ),
+        const Spacer(),
+        if (eventDetails.canEditJourney)
+          GestureDetector(
+            onTap: () => _onAddStep(context),
+            child: Row(
+              children: [
+                Icon(Icons.add_rounded, size: 15, color: scheme.secondary),
+                const SizedBox(width: 4),
+                Text(
+                  'Ajouter',
+                  style: TextStyle(
+                    color: scheme.secondary,
+                    fontSize: 12,
+                    fontVariations: const [FontVariation.weight(650)],
+                  ),
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
+  Widget _buildTimeline(BuildContext context, List<EventJourneyStep> steps) {
+    return const Text('timeline — TODO');
+  }
+
+  Widget _buildLoadingCard(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(22),
+      child: Container(
+        height: 140,
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(22),
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [
+              scheme.primary.withValues(alpha: 0.56),
+              scheme.primary.withValues(alpha: 0.42),
+            ],
+          ),
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.12),
+            width: 1,
+          ),
+        ),
+        child: const Center(child: CircularProgressIndicator()),
+      ),
+    );
+  }
+
+  Future<void> _onAddStep(BuildContext context) async {
+    final box = context.findRenderObject() as RenderBox?;
+    if (box == null) return;
+    final position = box.localToGlobal(Offset.zero);
+
+    final type = await showUploadJourneyMenu(
+      context,
+      position: RelativeRect.fromLTRB(
+        position.dx + box.size.width,
+        position.dy + 12,
+        position.dx,
+        position.dy,
+      ),
+    );
+
+    if (type == null || !context.mounted) return;
+    journeyImportModalFromType(context, type, eventDetails.event);
   }
 }
