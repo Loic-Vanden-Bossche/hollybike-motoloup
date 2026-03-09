@@ -818,7 +818,7 @@ class _FutureStepCard extends StatelessWidget {
         : 'Étape ${step.position}';
 
     return Opacity(
-      opacity: 0.5,
+      opacity: 0.5, // entire card is muted; child alpha values are relative to this
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(14),
