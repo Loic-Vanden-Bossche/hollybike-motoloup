@@ -621,7 +621,9 @@ class _CurrentStepCard extends StatelessWidget {
 
     if (journey != null) {
       return [
-        InkWell(
+        SizedBox(
+          width: double.infinity,
+          child: InkWell(
           borderRadius: BorderRadius.circular(10),
           onTap: () => _openUserJourneyDetails(context, journey),
           child: Column(
@@ -703,6 +705,7 @@ class _CurrentStepCard extends StatelessWidget {
               ),
             ],
           ),
+        ),
         ),
       ];
     }
