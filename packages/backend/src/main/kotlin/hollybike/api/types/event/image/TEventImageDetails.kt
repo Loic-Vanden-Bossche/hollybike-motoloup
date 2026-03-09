@@ -25,7 +25,7 @@ data class TEventImageDetails(
 	constructor(entity: EventImage, isOwner: Boolean) : this(
 		id = entity.id.value,
 		owner = TUserPartial(entity.owner),
-		event = TEventPartial(entity.event),
+		event = TEventPartial(entity.event, null),
 		isOwner = isOwner,
 		position = entity.position?.let { TPosition(it) },
 		takenDateTime = entity.takenDateTime,

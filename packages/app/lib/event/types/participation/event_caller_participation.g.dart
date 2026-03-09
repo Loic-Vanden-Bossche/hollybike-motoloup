@@ -18,6 +18,15 @@ _EventCallerParticipation _$EventCallerParticipationFromJson(
           ? null
           : UserJourney.fromJson(json['journey'] as Map<String, dynamic>),
   hasRecordedPositions: json['hasRecordedPositions'] as bool,
+  stepJourneys:
+      (json['stepJourneys'] as List<dynamic>?)
+          ?.map(
+            (e) => EventCallerParticipationStepJourney.fromJson(
+              e as Map<String, dynamic>,
+            ),
+          )
+          .toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$EventCallerParticipationToJson(
@@ -29,6 +38,7 @@ Map<String, dynamic> _$EventCallerParticipationToJson(
   'joinedDateTime': instance.joinedDateTime.toIso8601String(),
   'journey': instance.journey,
   'hasRecordedPositions': instance.hasRecordedPositions,
+  'stepJourneys': instance.stepJourneys,
 };
 
 const _$EventRoleEnumMap = {

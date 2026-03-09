@@ -25,6 +25,7 @@ object UsersEventsPositions: IntIdTable("users_events_positions", "id_user_event
 	val accelerationZ = double("acceleration_z")
 	val accuracy = double("accuracy")
 	val speedAccuracy = double("speed_accuracy")
+	val journeyStep = reference("journey_step", EventJourneySteps).nullable().default(null)
 }
 
 class UserEventPosition(id: EntityID<Int>) : IntEntity(id) {
@@ -42,6 +43,7 @@ class UserEventPosition(id: EntityID<Int>) : IntEntity(id) {
 	var accelerationZ by UsersEventsPositions.accelerationZ
 	var accuracy by UsersEventsPositions.accuracy
 	var speedAccuracy by UsersEventsPositions.speedAccuracy
+	var journeyStep by EventJourneyStep optionalReferencedOn UsersEventsPositions.journeyStep
 
 	companion object : IntEntityClass<UserEventPosition>(UsersEventsPositions)
 }

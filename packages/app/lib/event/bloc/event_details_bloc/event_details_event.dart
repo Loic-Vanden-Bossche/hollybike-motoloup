@@ -54,11 +54,15 @@ class EditEvent extends EventDetailsEvent {
 }
 
 class TerminateUserJourney extends EventDetailsEvent {
-  TerminateUserJourney();
+  final int? stepId;
+
+  TerminateUserJourney({this.stepId});
 }
 
 class ResetUserJourney extends EventDetailsEvent {
-  ResetUserJourney();
+  final int? stepId;
+
+  ResetUserJourney({this.stepId});
 }
 
 class EventStarted extends EventDetailsEvent {

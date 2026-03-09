@@ -10,10 +10,18 @@ _EventDetails _$EventDetailsFromJson(
   Map<String, dynamic> json,
 ) => _EventDetails(
   event: Event.fromJson(json['event'] as Map<String, dynamic>),
-  journey:
-      json['journey'] == null
+  journeySteps:
+      (json['journey_steps'] as List<dynamic>?)
+          ?.map((e) => EventJourneyStep.fromJson(e as Map<String, dynamic>))
+          .toList() ??
+      const [],
+  currentStepId: (json['current_step_id'] as num?)?.toInt(),
+  currentJourney:
+      json['current_journey'] == null
           ? null
-          : MinimalJourney.fromJson(json['journey'] as Map<String, dynamic>),
+          : MinimalJourney.fromJson(
+            json['current_journey'] as Map<String, dynamic>,
+          ),
   callerParticipation:
       json['callerParticipation'] == null
           ? null
@@ -35,7 +43,9 @@ _EventDetails _$EventDetailsFromJson(
 Map<String, dynamic> _$EventDetailsToJson(_EventDetails instance) =>
     <String, dynamic>{
       'event': instance.event,
-      'journey': instance.journey,
+      'journey_steps': instance.journeySteps,
+      'current_step_id': instance.currentStepId,
+      'current_journey': instance.currentJourney,
       'callerParticipation': instance.callerParticipation,
       'previewParticipants': instance.previewParticipants,
       'previewParticipantsCount': instance.previewParticipantsCount,

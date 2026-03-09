@@ -243,7 +243,10 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     emit(EventOperationInProgress(state));
 
     try {
-      await _eventRepository.terminateUserJourney(eventId);
+      await _eventRepository.terminateUserJourney(
+        eventId,
+        stepId: event.stepId,
+      );
 
       emit(EventOperationSuccess(state, successMessage: 'Trajet terminé'));
     } catch (e) {
@@ -264,7 +267,10 @@ class EventDetailsBloc extends Bloc<EventDetailsEvent, EventDetailsState> {
     emit(EventOperationInProgress(state));
 
     try {
-      final resetJourney = await _eventRepository.resetUserJourney(eventId);
+      final resetJourney = await _eventRepository.resetUserJourney(
+        eventId,
+        stepId: event.stepId,
+      );
 
       if (resetJourney == null) {
         log('User journey not initially set');

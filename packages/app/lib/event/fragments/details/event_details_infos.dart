@@ -27,7 +27,7 @@ import '../../widgets/details/status/event_status_feed.dart';
 
 class EventDetailsInfos extends StatelessWidget {
   final EventDetails eventDetails;
-  final void Function() onViewOnMap;
+  final void Function(int stepId) onViewOnMap;
 
   const EventDetailsInfos({
     super.key,
@@ -94,7 +94,7 @@ class EventDetailsInfos extends StatelessWidget {
                 EventDetailsDescription(description: event.description),
 
                 // ── ITINÉRAIRE ───────────────────────────────────────
-                if (eventDetails.journey != null ||
+                if (eventDetails.journeySteps.isNotEmpty ||
                     eventDetails.canEditJourney) ...[
                   const SizedBox(height: 20),
                   _sectionLabel(context, 'ITINÉRAIRE'),
@@ -109,7 +109,6 @@ class EventDetailsInfos extends StatelessWidget {
                         ),
                     child: JourneyPreviewCard(
                       canAddJourney: eventDetails.canEditJourney,
-                      journey: eventDetails.journey,
                       eventDetails: eventDetails,
                       onViewOnMap: onViewOnMap,
                     ),

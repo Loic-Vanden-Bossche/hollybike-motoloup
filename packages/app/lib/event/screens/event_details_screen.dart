@@ -115,6 +115,8 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   // notification action.  Cleared after the confirmation dialog is shown once.
   bool _pendingAutoTerminate = false;
   StreamSubscription<int>? _trackingNavSubscription;
+  int? _focusedMapStepId;
+  int _mapFocusRequestVersion = 0;
 
   EventDetailsTab currentTab = EventDetailsTab.info;
 
@@ -290,9 +292,7 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     onPressed: _handleBackNavigation,
                     icon: Icons.arrow_back,
                   ),
-                  title: TopBarTitle(
-                    "",
-                  ),
+                  title: TopBarTitle(""),
                   useTitleContainer: false,
                   suffix: _renderActions(state),
                 ),
@@ -451,7 +451,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         onRefresh: _refreshEventDetails,
         child: EventDetailsInfos(
           eventDetails: eventDetails,
-          onViewOnMap: () {
+          onViewOnMap: (stepId) {
+            _focusedMapStepId = stepId;
+            _mapFocusRequestVersion++;
             _tabController.animateTo(3);
           },
         ),
@@ -501,7 +503,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
         ],
         child: EventDetailsMap(
           eventId: eventDetails.event.id,
-          journey: eventDetails.journey,
+          journeySteps: eventDetails.journeySteps,
+          currentStepId: eventDetails.currentStepId,
+          focusedStepId: _focusedMapStepId,
+          focusRequestVersion: _mapFocusRequestVersion,
           onMapLoaded: _scrollMapToFullscreen,
           onMapInteractionStart: _scrollMapToFullscreen,
           isMapFullscreen: _isTabBarPinnedUnderTopBar,
@@ -535,7 +540,10 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
   // Called once after the event details load when the screen was opened via
   // the "Terminer le parcours" notification action.  Reuses the same
   // confirmation dialog and BLoC events as EventNowStatus / EventFinishedStatus.
-  Future<void> _autoTriggerTerminate(BuildContext context, EventDetails? details) async {
+  Future<void> _autoTriggerTerminate(
+    BuildContext context,
+    EventDetails? details,
+  ) async {
     if (details == null) return;
     if (!mounted) return;
 
@@ -554,7 +562,9 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
     );
 
     if (confirmed == true && context.mounted) {
-      context.read<EventDetailsBloc>().add(TerminateUserJourney());
+      context.read<EventDetailsBloc>().add(
+        TerminateUserJourney(stepId: details.currentStepId),
+      );
       context.read<MyPositionBloc>().add(DisableSendPositions());
     }
   }
@@ -604,11 +614,12 @@ class _EventDetailsScreenState extends State<EventDetailsScreen>
                     return GlassFab(
                       icon: Icons.add_a_photo_outlined,
                       label: 'Ajouter des photos',
-                      onPressed: () => showEventImagesPicker(
-                        providerContext,
-                        eventDetails.event.id,
-                        bloc: providerContext.read<EventMyImagesBloc>(),
-                      ),
+                      onPressed:
+                          () => showEventImagesPicker(
+                            providerContext,
+                            eventDetails.event.id,
+                            bloc: providerContext.read<EventMyImagesBloc>(),
+                          ),
                     );
                   },
                 );

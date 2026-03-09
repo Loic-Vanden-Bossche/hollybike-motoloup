@@ -286,6 +286,16 @@ class EventService(
 				exception.message ?: "Trajet introuvable"
 			)
 
+			is EventJourneyStepNotFoundException -> call.respond(
+				HttpStatusCode.NotFound,
+				exception.message ?: "Étape introuvable"
+			)
+
+			is DuplicateEventJourneyStepException -> call.respond(
+				HttpStatusCode.Conflict,
+				exception.message ?: "Cette étape existe déjà"
+			)
+
 			else -> {
 				exception.printStackTrace()
 				call.respond(HttpStatusCode.InternalServerError, "Internal server error")
@@ -296,7 +306,7 @@ class EventService(
 	fun getAllEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
 		Event.wrapRows(
 			eventsQuery(caller, searchParam)
-		).with(Event::owner, Event::association, Event::participants, Event::journey).toList()
+		).with(Event::owner, Event::association, Event::participants).toList()
 	}
 
 	fun countAllEvents(caller: User, searchParam: SearchParam): Long = transaction(db) {
@@ -316,7 +326,7 @@ class EventService(
 	fun getFutureEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
 		Event.wrapRows(
 			eventsQuery(caller, searchParam).andWhere { futureEventsCondition() }
-		).with(Event::owner, Event::association, Event::participants, Event::journey).toList()
+		).with(Event::owner, Event::association, Event::participants).toList()
 	}
 
 	fun countFutureEvents(caller: User, searchParam: SearchParam): Long = transaction(db) {
@@ -326,7 +336,7 @@ class EventService(
 	fun getParticipatingEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
 		Event.wrapRows(
 			participatingEventsQuery(caller, searchParam)
-		).with(Event::owner, Event::association, Event::participants, Event::journey).toList()
+		).with(Event::owner, Event::association, Event::participants).toList()
 	}
 
 	fun countParticipatingEvents(caller: User, searchParam: SearchParam): Long = transaction(db) {
@@ -343,14 +353,14 @@ class EventService(
 	fun getArchivedEvents(caller: User, searchParam: SearchParam): List<Event> = transaction(db) {
 		Event.wrapRows(
 			eventsQuery(caller, searchParam).andWhere { archivedEventsCondition() }
-		).with(Event::owner, Event::association, Event::participants, Event::journey).toList()
+		).with(Event::owner, Event::association, Event::participants).toList()
 	}
 
 	fun countArchivedEvents(caller: User, searchParam: SearchParam): Long = transaction(db) {
 		eventsQuery(caller, searchParam, pagination = false).andWhere { archivedEventsCondition() }.count()
 	}
 
-	fun getEventWithParticipation(caller: User, id: Int): Pair<Event, EventParticipation?>? = transaction(db) {
+	fun getEventWithParticipation(caller: User, id: Int): Triple<Event, EventParticipation?, List<EventJourneyStep>>? = transaction(db) {
 		val eventRow = Events.innerJoin(
 			Users,
 			{ owner },
@@ -364,20 +374,136 @@ class EventService(
 			Events.id eq id and eventUserCondition(caller)
 		}.firstOrNull() ?: return@transaction null
 
-		Event.wrapRow(eventRow).load(
+		val event = Event.wrapRow(eventRow).load(
 			Event::owner,
 			Event::association,
-			Event::journey,
-			Journey::start,
-			Journey::end,
-			Journey::destination
-		) to eventRow.getOrNull(EventParticipations.id)?.let {
+		)
+		val callerParticipation = eventRow.getOrNull(EventParticipations.id)?.let {
 			EventParticipation.wrapRow(eventRow).load(
 				EventParticipation::user,
 				EventParticipation::journey,
 				EventParticipation::recordedPositions
 			)
 		}
+		val steps = getEventJourneyStepsForEvent(event.id.value)
+		if (callerParticipation != null && callerParticipation.journey == null && steps.isEmpty()) {
+			val fallbackJourney = UserJourney.find {
+				(UsersJourneys.user eq callerParticipation.user.id) and
+					(UsersJourneys.event eq event.id) and
+					UsersJourneys.eventJourneyStep.isNull()
+			}.orderBy(UsersJourneys.createdAt to SortOrder.DESC).limit(1).firstOrNull()
+
+			if (fallbackJourney != null) {
+				callerParticipation.journey = fallbackJourney
+			}
+		}
+
+		Triple(event, callerParticipation, steps)
+	}
+
+	private fun getEventJourneyStepsForEvent(eventId: Int): List<EventJourneyStep> {
+		return EventJourneyStep.find {
+			EventJourneySteps.event eq eventId
+		}.with(
+			EventJourneyStep::journey,
+			Journey::start,
+			Journey::end,
+			Journey::destination
+		).sortedBy { it.position }
+	}
+
+	private fun syncLegacyParticipationJourneysForCurrentStep(eventId: Int) {
+		val currentStep = EventJourneyStep.find {
+			(EventJourneySteps.event eq eventId) and (EventJourneySteps.isCurrent eq true)
+		}.limit(1).firstOrNull()
+		val eventEntity = Event.findById(eventId) ?: return
+
+		EventParticipation.find { EventParticipations.event eq eventId }.forEach { participation ->
+			val mappedJourney = currentStep?.let { step ->
+				EventParticipationStepJourney.find {
+					(EventParticipationStepJourneys.participation eq participation.id) and
+						(EventParticipationStepJourneys.step eq step.id)
+				}.limit(1).firstOrNull()?.journey
+			} ?: UserJourney.find {
+				(UsersJourneys.user eq participation.user.id) and
+					(UsersJourneys.event eq eventEntity.id) and
+					UsersJourneys.eventJourneyStep.isNull()
+			}.orderBy(UsersJourneys.createdAt to SortOrder.DESC).limit(1).firstOrNull()
+
+			if (currentStep == null && mappedJourney != null && mappedJourney.eventJourneyStep != null) {
+				participation.journey = null
+				return@forEach
+			}
+
+			participation.journey = mappedJourney
+		}
+	}
+
+	private fun linkUnsteppedJourneysToCreatedFirstStep(event: Event, createdStep: EventJourneyStep) {
+		EventParticipation.find {
+			(EventParticipations.event eq event.id) and (EventParticipations.isJoined eq true)
+		}.forEach { participation ->
+			val journey = participation.journey ?: return@forEach
+
+			if (journey.event?.id?.value != event.id.value) {
+				return@forEach
+			}
+
+			if (journey.eventJourneyStep != null) {
+				return@forEach
+			}
+
+			journey.eventJourneyStep = createdStep
+			journey.name = "${event.name} x ${createdStep.name?.takeIf { it.isNotBlank() } ?: "Étape ${createdStep.position}"}"
+
+			val existing = EventParticipationStepJourney.find {
+				(EventParticipationStepJourneys.participation eq participation.id) and
+					(EventParticipationStepJourneys.step eq createdStep.id)
+			}.limit(1).firstOrNull()
+
+			if (existing == null) {
+				EventParticipationStepJourney.new {
+					this.participation = participation
+					this.step = createdStep
+					this.journey = journey
+				}
+			}
+		}
+	}
+
+	fun getEventJourneySteps(caller: User, eventId: Int): Result<List<EventJourneyStep>> = transaction(db) {
+		val event = Event.find {
+			Events.id eq eventId and eventUserCondition(caller)
+		}.firstOrNull() ?: return@transaction Result.failure(
+			EventNotFoundException("Event $eventId introuvable")
+		)
+		Result.success(getEventJourneyStepsForEvent(event.id.value))
+	}
+
+	fun getCurrentJourneyDistances(eventIds: List<Int>): Map<Int, Int?> = transaction(db) {
+		if (eventIds.isEmpty()) {
+			return@transaction emptyMap()
+		}
+
+		val steps = EventJourneyStep.find {
+			EventJourneySteps.event inList eventIds
+		}.with(EventJourneyStep::journey)
+
+		val summedDistancesByEvent = steps.groupBy { it.event.id.value }.mapValues { (_, eventSteps) ->
+			var hasDistance = false
+			val total = eventSteps.sumOf { step ->
+				val distance = step.journey.totalDistance
+				if (distance != null) {
+					hasDistance = true
+					distance
+				} else {
+					0
+				}
+			}
+			if (hasDistance) total else null
+		}
+
+		eventIds.associateWith { summedDistancesByEvent[it] }
 	}
 
 	fun getEvent(caller: User, id: Int): Event? = transaction(db) {
@@ -421,28 +547,162 @@ class EventService(
 		}
 	}
 
-	fun addJourneyToEvent(caller: User, eventId: Int, journeyId: Int): Result<Unit> = transaction(db) {
-		findEventIfOrganizer(eventId, caller).onFailure { return@transaction Result.failure(it) }.onSuccess {
-			val journey = Journey.find { Journeys.id eq journeyId }.firstOrNull() ?: return@transaction Result.failure(
-				JourneyNotFoundException("Trajet $journeyId introuvable")
-			)
+	fun addJourneyStepToEvent(
+		caller: User,
+		eventId: Int,
+		journeyId: Int,
+		name: String?,
+		position: Int?
+	): Result<List<EventJourneyStep>> = transaction(db) {
+		val event = findEventIfOrganizer(eventId, caller).getOrElse { return@transaction Result.failure(it) }
+		val journey = Journey.find { Journeys.id eq journeyId }.firstOrNull() ?: return@transaction Result.failure(
+			JourneyNotFoundException("Trajet $journeyId introuvable")
+		)
 
-			it.journey = journey
-
-			return@transaction Result.success(Unit)
+		val currentSteps = getEventJourneyStepsForEvent(event.id.value).toMutableList()
+		if (currentSteps.any { it.journey.id.value == journeyId }) {
+			return@transaction Result.failure(DuplicateEventJourneyStepException("Ce trajet est déjà lié à cet événement"))
 		}
 
-		Result.success(Unit)
+		val normalizedName = name?.trim()?.takeIf { it.isNotBlank() }
+
+		val insertPosition = when (position) {
+			null -> currentSteps.size + 1
+			else -> {
+				if (position < 1 || position > currentSteps.size + 1) {
+					return@transaction Result.failure(BadRequestException("Position d'étape invalide"))
+				}
+				position
+			}
+		}
+
+		currentSteps.filter { it.position >= insertPosition }.forEach { it.position += 1 }
+
+		val createdStep = EventJourneyStep.new {
+			this.event = event
+			this.journey = journey
+			this.name = normalizedName ?: "Étape $insertPosition"
+			this.position = insertPosition
+			this.isCurrent = currentSteps.isEmpty()
+		}
+		currentSteps.filter { it.name.isNullOrBlank() }.forEach { existingStep ->
+			existingStep.name = "Étape ${existingStep.position}"
+		}
+		if (currentSteps.isEmpty()) {
+			linkUnsteppedJourneysToCreatedFirstStep(event, createdStep)
+		}
+
+		syncLegacyParticipationJourneysForCurrentStep(event.id.value)
+
+		Result.success(getEventJourneyStepsForEvent(event.id.value))
 	}
 
-	fun removeJourneyFromEvent(caller: User, eventId: Int): Result<Unit> = transaction(db) {
-		findEventIfOrganizer(eventId, caller).onFailure { return@transaction Result.failure(it) }.onSuccess {
-			it.journey = null
+	fun removeJourneyStepFromEvent(
+		caller: User,
+		eventId: Int,
+		stepId: Int
+	): Result<List<EventJourneyStep>> = transaction(db) {
+		val event = findEventIfOrganizer(eventId, caller).getOrElse { return@transaction Result.failure(it) }
 
-			return@transaction Result.success(Unit)
+		val step = EventJourneyStep.find {
+			(EventJourneySteps.id eq stepId) and (EventJourneySteps.event eq eventId)
+		}.firstOrNull() ?: return@transaction Result.failure(
+			EventJourneyStepNotFoundException("�tape $stepId introuvable")
+		)
+		val removedMappings = EventParticipationStepJourney.find {
+			EventParticipationStepJourneys.step eq step.id
+		}.toList()
+		val remainingCount =
+			EventJourneyStep.count(
+				(EventJourneySteps.event eq eventId) and (EventJourneySteps.id neq step.id)
+			).toInt()
+
+		removedMappings.forEach { mapping ->
+			val candidateJourney = mapping.journey
+			val participation = mapping.participation
+
+			if (remainingCount > 0) {
+				candidateJourney.event = null
+				candidateJourney.eventJourneyStep = null
+			} else {
+				val hasOtherNoStepJourney = UserJourney.find {
+					(UsersJourneys.user eq participation.user.id) and
+						(UsersJourneys.event eq event.id) and
+						UsersJourneys.eventJourneyStep.isNull() and
+						(UsersJourneys.id neq candidateJourney.id)
+				}.limit(1).firstOrNull() != null
+
+				if (hasOtherNoStepJourney) {
+					candidateJourney.event = null
+					candidateJourney.eventJourneyStep = null
+				} else {
+					candidateJourney.event = event
+					candidateJourney.eventJourneyStep = null
+				}
+			}
+
+			mapping.delete()
 		}
 
-		Result.success(Unit)
+		val removedPosition = step.position
+		val wasCurrent = step.isCurrent
+		step.delete()
+
+		val remaining = getEventJourneyStepsForEvent(eventId).toMutableList()
+		remaining.filter { it.position > removedPosition }.forEach { it.position -= 1 }
+
+		if (wasCurrent && remaining.isNotEmpty()) {
+			remaining.forEach { it.isCurrent = false }
+			val nextStep = remaining.firstOrNull { it.position == removedPosition }
+			if (nextStep != null) {
+				nextStep.isCurrent = true
+			} else {
+				remaining.maxByOrNull { it.position }?.let { it.isCurrent = true }
+			}
+		}
+
+		syncLegacyParticipationJourneysForCurrentStep(eventId)
+
+		Result.success(getEventJourneyStepsForEvent(eventId))
+	}
+
+	fun renameJourneyStep(
+		caller: User,
+		eventId: Int,
+		stepId: Int,
+		name: String?
+	): Result<List<EventJourneyStep>> = transaction(db) {
+		findEventIfOrganizer(eventId, caller).getOrElse { return@transaction Result.failure(it) }
+
+		val step = EventJourneyStep.find {
+			(EventJourneySteps.id eq stepId) and (EventJourneySteps.event eq eventId)
+		}.firstOrNull() ?: return@transaction Result.failure(
+			EventJourneyStepNotFoundException("Étape $stepId introuvable")
+		)
+
+		val normalizedName = name?.trim()?.takeIf { it.isNotBlank() }
+		step.name = normalizedName
+		Result.success(getEventJourneyStepsForEvent(eventId))
+	}
+
+	fun setCurrentJourneyStep(
+		caller: User,
+		eventId: Int,
+		stepId: Int
+	): Result<List<EventJourneyStep>> = transaction(db) {
+		findEventIfOrganizer(eventId, caller).getOrElse { return@transaction Result.failure(it) }
+
+		val step = EventJourneyStep.find {
+			(EventJourneySteps.id eq stepId) and (EventJourneySteps.event eq eventId)
+		}.firstOrNull() ?: return@transaction Result.failure(
+			EventJourneyStepNotFoundException("Étape $stepId introuvable")
+		)
+
+		EventJourneyStep.find { EventJourneySteps.event eq eventId }.forEach { it.isCurrent = false }
+		step.isCurrent = true
+		syncLegacyParticipationJourneysForCurrentStep(eventId)
+
+		Result.success(getEventJourneyStepsForEvent(eventId))
 	}
 
 	suspend fun updateEvent(
@@ -624,6 +884,7 @@ class EventService(
 		Result.success(event.delete())
 	}
 }
+
 
 
 

@@ -15,14 +15,20 @@ data class TEventParticipation(
 	val role: EEventRole,
 	val isImagesPublic: Boolean,
 	val joinedDateTime: Instant,
-	val journey: TUserJourney? = null
+	val journey: TUserJourney? = null,
+	val stepJourneys: List<TEventCallerParticipationStepJourney> = emptyList()
 ) {
-	constructor(entity: EventParticipation, isBetterThan: Map<String, Double>?) : this(
+	constructor(
+		entity: EventParticipation,
+		isBetterThan: Map<String, Double>?,
+		stepJourneys: List<TEventCallerParticipationStepJourney> = emptyList()
+	) : this(
 		user = TUserPartial(entity.user),
 		role = entity.role,
 		isImagesPublic = entity.isImagesPublic,
 		joinedDateTime = entity.joinedDateTime,
-		journey = entity.journey?.let { TUserJourney(it, isBetterThan) }
+		journey = entity.journey?.let { TUserJourney(it, isBetterThan) },
+		stepJourneys = stepJourneys
 	)
 }
 

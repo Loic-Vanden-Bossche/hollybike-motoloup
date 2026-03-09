@@ -109,8 +109,7 @@ class EventImageService(
 			EventImage::position,
 			Event::owner,
 			Event::association,
-			Event::participants,
-			Event::journey
+			Event::participants
 		).firstOrNull()?.let { image ->
 			TEventImageDetails(image, caller.id == image.owner.id)
 		}

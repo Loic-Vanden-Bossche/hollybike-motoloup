@@ -3,6 +3,7 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'package:freezed_annotation/freezed_annotation.dart';
+import 'package:hollybike/event/types/participation/event_caller_participation_step_journey.dart';
 
 import '../../../user_journey/type/user_journey.dart';
 import '../../../shared/types/json_map.dart';
@@ -20,6 +21,7 @@ sealed class EventCallerParticipation with _$EventCallerParticipation {
     required DateTime joinedDateTime,
     required UserJourney? journey,
     required bool hasRecordedPositions,
+    @Default([]) List<EventCallerParticipationStepJourney> stepJourneys,
   }) = _EventCallerParticipation;
 
   factory EventCallerParticipation.fromJson(JsonMap json) =>

@@ -8,11 +8,11 @@ import 'package:hollybike/event/bloc/event_details_bloc/event_details_bloc.dart'
 import 'package:hollybike/event/bloc/event_details_bloc/event_details_event.dart';
 import 'package:hollybike/event/bloc/event_map_images/event_map_images_bloc.dart';
 import 'package:hollybike/event/bloc/event_map_images/event_map_images_state.dart';
+import 'package:hollybike/event/types/event_journey_step.dart';
 import 'package:hollybike/event/widgets/details/event_details_scroll_wrapper.dart';
 import 'package:hollybike/event/widgets/events_list/events_list_placeholder.dart';
 import 'package:hollybike/event/widgets/map/event_map_photo_carousel.dart';
 import 'package:hollybike/event/widgets/map/journey_map.dart';
-import 'package:hollybike/journey/type/minimal_journey.dart';
 import 'package:hollybike/positions/bloc/user_positions/user_positions_bloc.dart';
 import 'package:hollybike/positions/bloc/user_positions/user_positions_state.dart';
 import 'package:hollybike/shared/widgets/loaders/themed_refresh_indicator.dart';
@@ -20,7 +20,10 @@ import 'package:lottie/lottie.dart';
 
 class EventDetailsMap extends StatefulWidget {
   final int eventId;
-  final MinimalJourney? journey;
+  final List<EventJourneyStep> journeySteps;
+  final int? currentStepId;
+  final int? focusedStepId;
+  final int focusRequestVersion;
   final void Function() onMapLoaded;
   final void Function()? onMapInteractionStart;
   final bool isMapFullscreen;
@@ -29,7 +32,10 @@ class EventDetailsMap extends StatefulWidget {
   const EventDetailsMap({
     super.key,
     required this.eventId,
-    required this.journey,
+    required this.journeySteps,
+    required this.currentStepId,
+    required this.focusedStepId,
+    required this.focusRequestVersion,
     required this.onMapLoaded,
     required this.isMapFullscreen,
     required this.onRequestFullscreen,
@@ -42,16 +48,61 @@ class EventDetailsMap extends StatefulWidget {
 
 class _EventDetailsMapState extends State<EventDetailsMap> {
   final JourneyMapController _mapController = JourneyMapController();
+  int? _selectedStepId;
 
   @override
   void initState() {
     super.initState();
+    _selectedStepId = _defaultSelectedStepId();
     context.read<UserPositionsBloc>().add(
       SubscribeToUserPositions(eventId: widget.eventId),
     );
   }
 
-  // ── Build ──────────────────────────────────────────────────────────────────
+  @override
+  void didUpdateWidget(covariant EventDetailsMap oldWidget) {
+    super.didUpdateWidget(oldWidget);
+
+    if (widget.focusRequestVersion != oldWidget.focusRequestVersion &&
+        widget.focusedStepId != null &&
+        widget.journeySteps.any((step) => step.id == widget.focusedStepId)) {
+      _selectedStepId = widget.focusedStepId;
+      return;
+    }
+
+    final stillExists = widget.journeySteps.any(
+      (step) => step.id == _selectedStepId,
+    );
+    if (!stillExists) {
+      _selectedStepId = _defaultSelectedStepId();
+    }
+  }
+
+  int? _defaultSelectedStepId() {
+    if (widget.currentStepId != null &&
+        widget.journeySteps.any((step) => step.id == widget.currentStepId)) {
+      return widget.currentStepId;
+    }
+
+    return widget.journeySteps.isNotEmpty ? widget.journeySteps.first.id : null;
+  }
+
+  EventJourneyStep? get _selectedStep {
+    if (_selectedStepId == null) return null;
+
+    for (final step in widget.journeySteps) {
+      if (step.id == _selectedStepId) {
+        return step;
+      }
+    }
+
+    return null;
+  }
+
+  bool get _showLivePositions {
+    return widget.currentStepId != null &&
+        _selectedStepId == widget.currentStepId;
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -62,8 +113,12 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
             imagesState is EventMapImagesLoaded &&
             imagesState.images.isNotEmpty;
 
-        if (widget.journey == null &&
-            posState.userPositions.isEmpty &&
+        final selectedJourney = _selectedStep?.journey;
+        final visibleUserPositions =
+            _showLivePositions ? posState.userPositions : const [];
+
+        if (selectedJourney == null &&
+            visibleUserPositions.isEmpty &&
             !hasGeolocatedImages) {
           return ThemedRefreshIndicator(
             onRefresh: () => _refreshEventDetails(context),
@@ -82,24 +137,109 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
             hasScrollBody: false,
             child: Padding(
               padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-              child: _MapCard(
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    JourneyMap(
-                      journey: widget.journey,
-                      controller: _mapController,
-                      onMapLoaded: widget.onMapLoaded,
-                      onMapInteractionStart: widget.onMapInteractionStart,
-                    ),
-                    _buildCarouselOverlay(),
+              child: Column(
+                children: [
+                  if (widget.journeySteps.length > 1) ...[
+                    _buildStepSelector(context),
+                    const SizedBox(height: 10),
                   ],
-                ),
+                  Expanded(
+                    child: _MapCard(
+                      child: Stack(
+                        fit: StackFit.expand,
+                        children: [
+                          JourneyMap(
+                            key: ValueKey(
+                              'journey-map-${selectedJourney?.id}-${_showLivePositions ? 1 : 0}',
+                            ),
+                            journey: selectedJourney,
+                            showLivePositions: _showLivePositions,
+                            controller: _mapController,
+                            onMapLoaded: widget.onMapLoaded,
+                            onMapInteractionStart: widget.onMapInteractionStart,
+                          ),
+                          _buildCarouselOverlay(),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
         );
       },
+    );
+  }
+
+  Widget _buildStepSelector(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final steps = [...widget.journeySteps]
+      ..sort((a, b) => a.position - b.position);
+
+    return SizedBox(
+      height: 36,
+      child: ListView.separated(
+        scrollDirection: Axis.horizontal,
+        itemCount: steps.length,
+        separatorBuilder: (context, index) => const SizedBox(width: 8),
+        itemBuilder: (context, index) {
+          final step = steps[index];
+          final selected = step.id == _selectedStepId;
+          final isCurrent = step.id == widget.currentStepId;
+
+          return GestureDetector(
+            onTap: () {
+              setState(() {
+                _selectedStepId = step.id;
+              });
+            },
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 220),
+              curve: Curves.easeOutCubic,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(100),
+                color:
+                    selected
+                        ? scheme.secondary.withValues(alpha: 0.18)
+                        : scheme.primaryContainer.withValues(alpha: 0.45),
+                border: Border.all(
+                  color:
+                      selected
+                          ? scheme.secondary.withValues(alpha: 0.55)
+                          : scheme.onPrimary.withValues(alpha: 0.12),
+                  width: 1,
+                ),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    step.name ?? 'Etape ${step.position}',
+                    style: TextStyle(
+                      color: selected ? scheme.secondary : scheme.onPrimary,
+                      fontSize: 12,
+                      fontVariations: const [FontVariation.weight(650)],
+                    ),
+                  ),
+                  if (isCurrent) ...[
+                    const SizedBox(width: 6),
+                    Container(
+                      width: 6,
+                      height: 6,
+                      decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: scheme.secondary,
+                      ),
+                    ),
+                  ],
+                ],
+              ),
+            ),
+          );
+        },
+      ),
     );
   }
 
@@ -123,22 +263,23 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
               child: AnimatedOpacity(
                 opacity: show ? 1.0 : 0.0,
                 duration: const Duration(milliseconds: 280),
-                child: show
-                    ? EventMapPhotoCarousel(
-                        images: images,
-                        isMapFullscreen: widget.isMapFullscreen,
-                        onRequestFullscreen: widget.onRequestFullscreen,
-                        onCollapsed: () => _mapController.hideMarker(),
-                        onExpanded: (index) {
-                          _mapController.showMarkerFor(images[index]);
-                          _mapController.panCameraTo(images[index]);
-                        },
-                        onPageChanged: (index) {
-                          _mapController.showMarkerFor(images[index]);
-                          _mapController.panCameraTo(images[index]);
-                        },
-                      )
-                    : const SizedBox.shrink(),
+                child:
+                    show
+                        ? EventMapPhotoCarousel(
+                          images: images,
+                          isMapFullscreen: widget.isMapFullscreen,
+                          onRequestFullscreen: widget.onRequestFullscreen,
+                          onCollapsed: () => _mapController.hideMarker(),
+                          onExpanded: (index) {
+                            _mapController.showMarkerFor(images[index]);
+                            _mapController.panCameraTo(images[index]);
+                          },
+                          onPageChanged: (index) {
+                            _mapController.showMarkerFor(images[index]);
+                            _mapController.panCameraTo(images[index]);
+                          },
+                        )
+                        : const SizedBox.shrink(),
               ),
             ),
           ),
@@ -175,8 +316,6 @@ class _EventDetailsMapState extends State<EventDetailsMap> {
     return context.read<EventDetailsBloc>().firstWhenNotLoading;
   }
 }
-
-// ── _MapCard ──────────────────────────────────────────────────────────────────
 
 class _MapCard extends StatelessWidget {
   final Widget child;

@@ -8,6 +8,7 @@ import '../../../user_journey/type/user_journey.dart';
 import '../../../shared/types/json_map.dart';
 import '../../../user/types/minimal_user.dart';
 import 'event_caller_participation.dart';
+import 'event_caller_participation_step_journey.dart';
 import 'event_role.dart';
 
 part 'event_participation.freezed.dart';
@@ -23,6 +24,7 @@ sealed class EventParticipation with _$EventParticipation {
     required EventRole role,
     required DateTime joinedDateTime,
     required UserJourney? journey,
+    @Default([]) List<EventCallerParticipationStepJourney> stepJourneys,
   }) = _EventParticipation;
 
   factory EventParticipation.fromJson(JsonMap json) =>
@@ -36,6 +38,7 @@ sealed class EventParticipation with _$EventParticipation {
       joinedDateTime: joinedDateTime,
       journey: journey,
       hasRecordedPositions: false,
+      stepJourneys: stepJourneys,
     );
   }
 

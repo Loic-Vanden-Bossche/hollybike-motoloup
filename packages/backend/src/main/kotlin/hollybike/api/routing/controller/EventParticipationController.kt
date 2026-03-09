@@ -114,7 +114,11 @@ class EventParticipationController(
 			call.respond(
 				TLists(
 					participations.map {
-						TEventParticipation(it, userEventPositionService.getIsBetterThanForUserJourney(it.journey))
+						TEventParticipation(
+							it,
+							userEventPositionService.getIsBetterThanForUserJourney(it.journey),
+							userEventPositionService.getParticipationStepJourneys(it)
+						)
 					},
 					searchParam,
 					participationCount
@@ -141,7 +145,8 @@ class EventParticipationController(
 				call.respond(
 					TEventParticipation(
 						it,
-						userEventPositionService.getIsBetterThanForUserJourney(it.journey)
+						userEventPositionService.getIsBetterThanForUserJourney(it.journey),
+						userEventPositionService.getParticipationStepJourneys(it)
 					)
 				)
 			}.onFailure {
@@ -155,7 +160,11 @@ class EventParticipationController(
 			eventParticipationService.participateEvent(call.user, data.eventId.id).onSuccess {
 				call.respond(
 					HttpStatusCode.Created,
-					TEventParticipation(it, userEventPositionService.getIsBetterThanForUserJourney(it.journey))
+					TEventParticipation(
+						it,
+						userEventPositionService.getIsBetterThanForUserJourney(it.journey),
+						userEventPositionService.getParticipationStepJourneys(it)
+					)
 				)
 			}.onFailure {
 				eventParticipationService.handleEventExceptions(it, call)
@@ -189,7 +198,8 @@ class EventParticipationController(
 						participations.map {
 							TEventParticipation(
 								it,
-								userEventPositionService.getIsBetterThanForUserJourney(it.journey)
+								userEventPositionService.getIsBetterThanForUserJourney(it.journey),
+								userEventPositionService.getParticipationStepJourneys(it)
 							)
 						}
 					)
@@ -219,7 +229,11 @@ class EventParticipationController(
 				.onSuccess {
 					call.respond(
 						HttpStatusCode.OK,
-						TEventParticipation(it, userEventPositionService.getIsBetterThanForUserJourney(it.journey))
+						TEventParticipation(
+							it,
+							userEventPositionService.getIsBetterThanForUserJourney(it.journey),
+							userEventPositionService.getParticipationStepJourneys(it)
+						)
 					)
 				}.onFailure {
 					eventParticipationService.handleEventExceptions(it, call)
@@ -237,7 +251,11 @@ class EventParticipationController(
 				.onSuccess {
 					call.respond(
 						HttpStatusCode.OK,
-						TEventParticipation(it, userEventPositionService.getIsBetterThanForUserJourney(it.journey))
+						TEventParticipation(
+							it,
+							userEventPositionService.getIsBetterThanForUserJourney(it.journey),
+							userEventPositionService.getParticipationStepJourneys(it)
+						)
 					)
 				}.onFailure {
 					eventParticipationService.handleEventExceptions(it, call)

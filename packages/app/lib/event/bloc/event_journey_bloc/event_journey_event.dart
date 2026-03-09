@@ -14,11 +14,13 @@ abstract class EventJourneyEvent {}
 class UploadJourneyFileToEvent extends EventJourneyEvent {
   final int eventId;
   final String name;
+  final String? stepName;
   final File file;
 
   UploadJourneyFileToEvent({
     required this.eventId,
     required this.name,
+    required this.stepName,
     required this.file,
   });
 }
@@ -26,12 +28,39 @@ class UploadJourneyFileToEvent extends EventJourneyEvent {
 class AttachJourneyToEvent extends EventJourneyEvent {
   final int eventId;
   final Journey journey;
+  final String? stepName;
+  final int? position;
 
-  AttachJourneyToEvent({required this.eventId, required this.journey});
+  AttachJourneyToEvent({
+    required this.eventId,
+    required this.journey,
+    this.stepName,
+    this.position,
+  });
 }
 
-class RemoveJourneyFromEvent extends EventJourneyEvent {
+class RemoveJourneyStepFromEvent extends EventJourneyEvent {
   final int eventId;
+  final int stepId;
 
-  RemoveJourneyFromEvent({required this.eventId});
+  RemoveJourneyStepFromEvent({required this.eventId, required this.stepId});
+}
+
+class RenameJourneyStepInEvent extends EventJourneyEvent {
+  final int eventId;
+  final int stepId;
+  final String name;
+
+  RenameJourneyStepInEvent({
+    required this.eventId,
+    required this.stepId,
+    required this.name,
+  });
+}
+
+class SetCurrentJourneyStep extends EventJourneyEvent {
+  final int eventId;
+  final int stepId;
+
+  SetCurrentJourneyStep({required this.eventId, required this.stepId});
 }

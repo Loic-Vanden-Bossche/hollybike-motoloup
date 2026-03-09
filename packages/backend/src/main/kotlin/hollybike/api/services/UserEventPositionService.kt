@@ -5,9 +5,12 @@
 package hollybike.api.services
 
 import hollybike.api.exceptions.BadRequestException
+import hollybike.api.exceptions.EventJourneyStepNotFoundException
 import hollybike.api.json
 import hollybike.api.repository.*
 import hollybike.api.services.storage.StorageService
+import hollybike.api.types.event.participation.TEventCallerParticipationStepJourney
+import hollybike.api.types.event.participation.TUserJourney
 import hollybike.api.types.journey.*
 import hollybike.api.types.user.EUserScope
 import hollybike.api.types.websocket.*
@@ -102,23 +105,23 @@ class UserEventPositionService(
 		for (message in this) {
 			if(message is UserSendPosition) {
 				val entity = transaction(db) {
-					transaction(db) {
-						UserEventPosition.new {
-							this.user = user
-							this.event = event
-							this.participation = participation
-							this.latitude = message.latitude
-							this.longitude = message.longitude
-							this.altitude = message.altitude
-							this.time = message.time
-							this.speed = message.speed
-							this.heading = message.heading
-							this.accelerationX = message.accelerationX
-							this.accelerationY = message.accelerationY
-							this.accelerationZ = message.accelerationZ
-							this.accuracy = message.accuracy
-							this.speedAccuracy = message.speedAccuracy
-						}
+					val currentStep = getCurrentEventStep(event.id.value)
+					UserEventPosition.new {
+						this.user = user
+						this.event = event
+						this.participation = participation
+						this.journeyStep = currentStep
+						this.latitude = message.latitude
+						this.longitude = message.longitude
+						this.altitude = message.altitude
+						this.time = message.time
+						this.speed = message.speed
+						this.heading = message.heading
+						this.accelerationX = message.accelerationX
+						this.accelerationY = message.accelerationY
+						this.accelerationZ = message.accelerationZ
+						this.accuracy = message.accuracy
+						this.speedAccuracy = message.speedAccuracy
 					}.load(UserEventPosition::user)
 				}
 				lastPosition[eventId]!![userId] = entity
@@ -138,19 +141,145 @@ class UserEventPositionService(
 
 	private infix fun UserJourney?.getIfAllowed(caller: User): UserJourney? = this?.let { if(authorizeGet(caller, it)) it else null }
 
-	fun getUserJourneyFromEvent(user: User, event: Event): UserJourney? = transaction(db) {
-		val participation = EventParticipation.find {
+	private fun getCurrentEventStep(eventId: Int): EventJourneyStep? {
+		return EventJourneyStep.find {
+			(EventJourneySteps.event eq eventId) and (EventJourneySteps.isCurrent eq true)
+		}.limit(1).firstOrNull()
+	}
+
+	private fun getStepForEvent(eventId: Int, stepId: Int): EventJourneyStep? {
+		return EventJourneyStep.find {
+			(EventJourneySteps.id eq stepId) and (EventJourneySteps.event eq eventId)
+		}.limit(1).firstOrNull()
+	}
+
+	private fun getParticipation(user: User, event: Event): EventParticipation? {
+		return EventParticipation.find {
 			(EventParticipations.user eq user.id) and (EventParticipations.event eq event.id)
-		}.firstOrNull()?.load(EventParticipation::journey) ?: return@transaction null
-		participation.journey
+		}.firstOrNull()
+	}
+
+	fun getUserJourneyFromEvent(user: User, event: Event): UserJourney? = transaction(db) {
+		val currentStep = getCurrentEventStep(event.id.value)
+		if (currentStep == null) {
+			val participation = getParticipation(user, event) ?: return@transaction null
+			return@transaction participation.load(EventParticipation::journey).journey
+		}
+		getUserJourneyFromEventStep(user, event, currentStep.id.value)
+	}
+
+	fun getUserJourneyFromEventStep(user: User, event: Event, stepId: Int): UserJourney? = transaction(db) {
+		if (getStepForEvent(event.id.value, stepId) == null) {
+			return@transaction null
+		}
+		val participation = getParticipation(user, event) ?: return@transaction null
+		val stepJourney = EventParticipationStepJourney.find {
+			(EventParticipationStepJourneys.participation eq participation.id) and
+				(EventParticipationStepJourneys.step eq stepId)
+		}.limit(1).firstOrNull()
+
+		stepJourney?.journey ?: if (getCurrentEventStep(event.id.value)?.id?.value == stepId) {
+			participation.load(EventParticipation::journey).journey
+		} else {
+			null
+		}
 	}
 
 	fun removeUserJourneyFromEvent(user: User, event: Event) = transaction(db) {
-		val participation = EventParticipation.find {
-			(EventParticipations.user eq user.id) and (EventParticipations.event eq event.id)
-		}.firstOrNull() ?: return@transaction
+		val currentStep = getCurrentEventStep(event.id.value)
+		if (currentStep == null) {
+			val participation = getParticipation(user, event) ?: return@transaction
+			participation.journey?.let { clearJourneyContextLink(it) }
+			participation.journey = null
+			return@transaction
+		}
+		removeUserJourneyFromEventStep(user, event, currentStep.id.value)
+	}
 
-		participation.journey = null
+	fun removeUserJourneyFromEventStep(user: User, event: Event, stepId: Int) = transaction(db) {
+		if (getStepForEvent(event.id.value, stepId) == null) {
+			throw EventJourneyStepNotFoundException("Étape $stepId introuvable")
+		}
+		val participation = getParticipation(user, event) ?: return@transaction
+
+		val stepMappings = EventParticipationStepJourney.find {
+			(EventParticipationStepJourneys.participation eq participation.id) and
+				(EventParticipationStepJourneys.step eq stepId)
+		}.toList()
+		stepMappings.forEach { mapping ->
+			clearJourneyContextLink(mapping.journey)
+			mapping.delete()
+		}
+
+		UsersEventsPositions.deleteWhere {
+			(UsersEventsPositions.participation eq participation.id) and
+				(UsersEventsPositions.journeyStep eq stepId)
+		}
+
+		if (getCurrentEventStep(event.id.value)?.id?.value == stepId) {
+			participation.journey?.let { clearJourneyContextLink(it) }
+			participation.journey = null
+		}
+	}
+
+	private fun clearJourneyContextLink(userJourney: UserJourney) {
+		userJourney.event = null
+		userJourney.eventJourneyStep = null
+	}
+
+	fun getCallerStepJourneys(
+		user: User,
+		event: Event,
+		steps: List<EventJourneyStep>
+	): List<TEventCallerParticipationStepJourney> = transaction(db) {
+		val participation = getParticipation(user, event) ?: return@transaction emptyList()
+		val mappings = EventParticipationStepJourney.find {
+			EventParticipationStepJourneys.participation eq participation.id
+		}.associateBy { it.step.id.value }
+		val recordedCounts = UserEventPosition.find {
+			UsersEventsPositions.participation eq participation.id
+		}.groupingBy { it.journeyStep?.id?.value }.eachCount()
+
+		steps.sortedBy { it.position }.map { step ->
+			val mapping = mappings[step.id.value]
+			val journey = mapping?.journey
+			TEventCallerParticipationStepJourney(
+				stepId = step.id.value,
+				journey = journey?.let {
+					TUserJourney(
+						it,
+						getIsBetterThanForUserJourneyInTransaction(it),
+						step.event.name,
+						step.name
+					)
+				},
+				hasRecordedPositions = (recordedCounts[step.id.value] ?: 0) >= 2
+			)
+		}
+	}
+
+	fun getParticipationStepJourneys(
+		participation: EventParticipation
+	): List<TEventCallerParticipationStepJourney> = transaction(db) {
+		EventParticipationStepJourney.find {
+			EventParticipationStepJourneys.participation eq participation.id
+		}.sortedBy { it.step.position }
+			.map { mapping ->
+				TEventCallerParticipationStepJourney(
+					stepId = mapping.step.id.value,
+					journey = TUserJourney(
+						mapping.journey,
+						getIsBetterThanForUserJourneyInTransaction(mapping.journey),
+						mapping.step.event.name,
+						mapping.step.name
+					),
+					hasRecordedPositions = false
+				)
+			}
+	}
+
+	fun getJourneyEventAndStepNames(userJourney: UserJourney): Pair<String?, String?> = transaction(db) {
+		getJourneyEventAndStepNamesInTransaction(userJourney)
 	}
 
 	suspend fun deleteUserJourney(userJourney: UserJourney) {
@@ -201,30 +330,48 @@ class UserEventPositionService(
 	}
 
 	fun getIsBetterThanForUserJourney(userJourney: UserJourney?): Map<String, Double>? = transaction(db) {
+		getIsBetterThanForUserJourneyInTransaction(userJourney)
+	}
+
+	private fun getIsBetterThanForUserJourneyInTransaction(userJourney: UserJourney?): Map<String, Double>? {
 		if (userJourney == null) {
-			return@transaction null
+			return null
 		}
 
-		val participation = EventParticipation.find {
-			(EventParticipations.journey eq userJourney.id) and (EventParticipations.isJoined eq true)
-		}.firstOrNull()
+		val event = userJourney.event ?: return null
+		val step = userJourney.eventJourneyStep
+		val othersJourneys = if (step != null) {
+			if (step.event.id.value != event.id.value) {
+				return null
+			}
 
-		if (participation == null) {
-			return@transaction null
+			EventParticipationStepJourney.find {
+				EventParticipationStepJourneys.step eq step.id
+			}.mapNotNull { row ->
+				if (!row.participation.isJoined) return@mapNotNull null
+				val otherJourney = row.journey
+				if (otherJourney.id.value == userJourney.id.value) return@mapNotNull null
+				val otherEvent = otherJourney.event
+				val otherStep = otherJourney.eventJourneyStep
+				if (otherEvent?.id?.value != event.id.value || otherStep?.id?.value != step.id.value) {
+					return@mapNotNull null
+				}
+				otherJourney
+			}
+		} else {
+			EventParticipation.find {
+				(EventParticipations.event eq event.id) and (EventParticipations.isJoined eq true)
+			}.mapNotNull { participation ->
+				val otherJourney = participation.journey ?: return@mapNotNull null
+				if (otherJourney.id.value == userJourney.id.value) return@mapNotNull null
+				if (otherJourney.event?.id?.value != event.id.value) return@mapNotNull null
+				if (otherJourney.eventJourneyStep != null) return@mapNotNull null
+				otherJourney
+			}
 		}
-
-		val eventId = participation.event.id.value
-
-		val otherParticipations = EventParticipation.find {
-			(EventParticipations.event eq eventId) and
-				(EventParticipations.isJoined eq true) and
-				(EventParticipations.id neq participation.id)
-		}
-
-		val othersJourneys = otherParticipations.mapNotNull { it.journey }
 
 		if (othersJourneys.isEmpty()) {
-			return@transaction emptyMap()
+			return emptyMap()
 		}
 
 		val hasBest = mutableMapOf<String, Double>()
@@ -247,7 +394,20 @@ class UserEventPositionService(
 			hasBest[key] = calculatePercentage(value, otherValues)
 		}
 
-		hasBest
+		return hasBest
+	}
+
+	private fun getJourneyEventAndStepNamesInTransaction(userJourney: UserJourney): Pair<String?, String?> {
+		val event = userJourney.event
+		val step = userJourney.eventJourneyStep
+		val eventName = event?.name
+		val stepName =
+			if (event != null && step != null && step.event.id.value == event.id.value) {
+				step.name
+			} else {
+				null
+			}
+		return eventName to stepName
 	}
 
 	private data class FilteringArtifacts(
@@ -271,7 +431,22 @@ class UserEventPositionService(
 	)
 
 	suspend fun terminateUserJourney(user: User, event: Event): UserJourney {
-		val raw = loadRawJourneySamples(user, event)
+		val currentStep = transaction(db) { getCurrentEventStep(event.id.value) }
+		return if (currentStep != null) {
+			terminateUserJourney(user, event, currentStep.id.value)
+		} else {
+			terminateUserJourney(user, event, null)
+		}
+	}
+
+	suspend fun terminateUserJourney(user: User, event: Event, stepId: Int?): UserJourney {
+		if (stepId != null) {
+			val stepExists = transaction(db) { getStepForEvent(event.id.value, stepId) != null }
+			if (!stepExists) {
+				throw EventJourneyStepNotFoundException("Étape $stepId introuvable")
+			}
+		}
+		val raw = loadRawJourneySamples(user, event, stepId)
 		if (raw.size < 2) {
 			throw BadRequestException("Aucune position exploitable pour terminer le trajet")
 		}
@@ -280,13 +455,35 @@ class UserEventPositionService(
 		val computed = buildJourneyComputation(raw, filtering.smoothedStates, filtering.origin, filtering.accelMetrics)
 		val file = uploadUserJourney(computed.geoJson, event.id.value, user.id.value)
 
-		return persistJourney(user, event, file, computed)
+		return persistJourney(user, event, stepId, file, computed)
 	}
 
-	private fun loadRawJourneySamples(user: User, event: Event): List<PositionSample> = transaction(db) {
+	suspend fun terminateUserJourney(user: User, event: Event, stepId: Int): UserJourney {
+		val stepExists = transaction(db) { getStepForEvent(event.id.value, stepId) != null }
+		if (!stepExists) {
+			throw EventJourneyStepNotFoundException("Étape $stepId introuvable")
+		}
+		val raw = loadRawJourneySamples(user, event, stepId)
+		if (raw.size < 2) {
+			throw BadRequestException("Aucune position exploitable pour terminer le trajet")
+		}
+
+		val filtering = computeFilteringArtifacts(raw)
+		val computed = buildJourneyComputation(raw, filtering.smoothedStates, filtering.origin, filtering.accelMetrics)
+		val file = uploadUserJourney(computed.geoJson, event.id.value, user.id.value)
+
+		return persistJourney(user, event, stepId, file, computed)
+	}
+
+	private fun loadRawJourneySamples(user: User, event: Event, stepId: Int?): List<PositionSample> = transaction(db) {
 		UserEventPosition.find {
 			(UsersEventsPositions.user eq user.id) and
-				(UsersEventsPositions.event eq event.id)
+				(UsersEventsPositions.event eq event.id) and
+				if (stepId == null) {
+					UsersEventsPositions.journeyStep.isNull()
+				} else {
+					UsersEventsPositions.journeyStep eq stepId
+				}
 		}
 			.orderBy(UsersEventsPositions.time to SortOrder.ASC)
 			.map { pos ->
@@ -547,12 +744,32 @@ class UserEventPositionService(
 		)
 	}
 
-	private fun persistJourney(user: User, event: Event, file: String, computed: JourneyComputation): UserJourney {
+	private fun persistJourney(
+		user: User,
+		event: Event,
+		stepId: Int?,
+		file: String,
+		computed: JourneyComputation
+	): UserJourney {
 		return transaction(db) {
 			val participation = EventParticipation.find {
 				(EventParticipations.user eq user.id) and (EventParticipations.event eq event.id)
 			}.first()
-
+			val step = stepId?.let {
+				EventJourneyStep.find {
+					(EventJourneySteps.id eq it) and (EventJourneySteps.event eq event.id)
+				}.limit(1).firstOrNull() ?: throw BadRequestException("Étape introuvable")
+			}
+			if (step == null) {
+				UserJourney.find {
+					(UsersJourneys.user eq user.id) and
+						(UsersJourneys.event eq event.id) and
+						UsersJourneys.eventJourneyStep.isNull()
+				}.forEach { existing ->
+					existing.event = null
+					existing.eventJourneyStep = null
+				}
+			}
 			UserJourney.new {
 				this.journey = file
 				this.avgSpeed = computed.avgSpeed
@@ -568,11 +785,43 @@ class UserEventPositionService(
 				this.maxGForce = computed.maxGForce
 
 				this.user = user
+				this.event = event
+				this.eventJourneyStep = step
+				this.name = if (step != null) {
+					"${event.name} x ${step.name?.takeIf { it.isNotBlank() } ?: "Étape ${step.position}"}"
+				} else {
+					event.name
+				}
 			}.apply {
-				participation.journey = this
+				if (step != null) {
+					val existingStepJourney = EventParticipationStepJourney.find {
+						(EventParticipationStepJourneys.participation eq participation.id) and
+							(EventParticipationStepJourneys.step eq step.id)
+					}.limit(1).firstOrNull()
+
+					if (existingStepJourney != null) {
+						existingStepJourney.journey = this
+					} else {
+						EventParticipationStepJourney.new {
+							this.participation = participation
+							this.step = step
+							this.journey = this@apply
+						}
+					}
+				}
+
+				if (step == null || step.isCurrent) {
+					participation.journey = this
+				}
 
 				UsersEventsPositions.deleteWhere {
-					(UsersEventsPositions.user eq user.id) and (UsersEventsPositions.event eq event.id)
+					(UsersEventsPositions.user eq user.id) and
+						(UsersEventsPositions.event eq event.id) and
+						if (step == null) {
+							UsersEventsPositions.journeyStep.isNull()
+						} else {
+							UsersEventsPositions.journeyStep eq step.id
+						}
 				}
 			}
 		}
@@ -586,6 +835,4 @@ class UserEventPositionService(
 		return path
 	}
 }
-
-
 

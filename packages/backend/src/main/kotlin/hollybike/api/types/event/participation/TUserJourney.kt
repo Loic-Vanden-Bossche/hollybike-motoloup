@@ -13,6 +13,7 @@ import kotlinx.serialization.Serializable
 data class TUserJourney(
 	val id: Int,
 	val file: String,
+	val name: String? = null,
 	@SerialName("avg_speed")
 	val avgSpeed: Double? = null,
 	@SerialName("total_elevation_loss")
@@ -35,12 +36,22 @@ data class TUserJourney(
 	val maxSpeed: Double? = null,
 	@SerialName("created_at")
 	val createdAt: Instant,
+	@SerialName("event_name")
+	val eventName: String? = null,
+	@SerialName("step_name")
+	val stepName: String? = null,
 	@SerialName("is_better_than")
 	val isBetterThan: Map<String, Double>? = null
 ) {
-	constructor(journey: UserJourney, isBetterThan: Map<String, Double>?): this (
+	constructor(
+		journey: UserJourney,
+		isBetterThan: Map<String, Double>?,
+		eventName: String? = null,
+		stepName: String? = null
+	): this (
 		journey.id.value,
 		journey.journeySigned,
+		journey.name,
 		journey.avgSpeed,
 		journey.totalElevationLoss,
 		journey.totalElevationGain,
@@ -52,6 +63,8 @@ data class TUserJourney(
 		journey.totalTime,
 		journey.maxSpeed,
 		journey.createdAt,
+		eventName,
+		stepName,
 		isBetterThan
 	)
 }

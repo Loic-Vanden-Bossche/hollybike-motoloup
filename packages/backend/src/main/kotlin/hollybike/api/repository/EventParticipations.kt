@@ -24,6 +24,7 @@ class EventParticipation(id: EntityID<Int>) : IntEntity(id) {
 	var journey by UserJourney optionalReferencedOn EventParticipations.journey
 
 	val recordedPositions by UserEventPosition referrersOn UsersEventsPositions.participation
+	val stepJourneys by EventParticipationStepJourney referrersOn EventParticipationStepJourneys.participation
 
 	val hasRecordedPositions: Boolean
 		get() = recordedPositions.count() >= 2

@@ -47,9 +47,22 @@ void journeyImportModalFromType(
   }
 
   Future<void> uploadJourneyFile(File file, bool isGpx) async {
+    if (!context.mounted) {
+      return;
+    }
+
     BlocProvider.of<EventJourneyBloc>(context).add(
-      UploadJourneyFileToEvent(eventId: event.id, name: event.name, file: file),
+      UploadJourneyFileToEvent(
+        eventId: event.id,
+        name: event.name,
+        stepName: null,
+        file: file,
+      ),
     );
+
+    if (!context.mounted) {
+      return;
+    }
 
     await showDialog(
       barrierDismissible: false,
@@ -128,6 +141,7 @@ void journeyImportModalFromType(
           );
         },
       );
+      break;
     case NewJourneyType.file:
       final platformFile = await getJourneyFile(context, event);
 

@@ -5,6 +5,7 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:hollybike/event/types/event.dart';
 import 'package:hollybike/event/types/event_status_state.dart';
+import 'package:hollybike/event/types/event_journey_step.dart';
 import 'package:hollybike/event/types/participation/event_caller_participation.dart';
 import 'package:hollybike/event/types/participation/event_participation.dart';
 import 'package:hollybike/event/types/participation/event_role.dart';
@@ -23,7 +24,11 @@ sealed class EventDetails with _$EventDetails {
 
   const factory EventDetails({
     required Event event,
-    required MinimalJourney? journey,
+    @JsonKey(name: 'journey_steps')
+    @Default([])
+    List<EventJourneyStep> journeySteps,
+    @JsonKey(name: 'current_step_id') int? currentStepId,
+    @JsonKey(name: 'current_journey') MinimalJourney? currentJourney,
     required EventCallerParticipation? callerParticipation,
     required List<EventParticipation> previewParticipants,
     required int previewParticipantsCount,
@@ -35,7 +40,9 @@ sealed class EventDetails with _$EventDetails {
 
   factory EventDetails.empty() => EventDetails(
     event: Event.empty(),
-    journey: null,
+    journeySteps: const [],
+    currentStepId: null,
+    currentJourney: null,
     expenses: null,
     callerParticipation: null,
     previewParticipants: [],
@@ -62,4 +69,7 @@ sealed class EventDetails with _$EventDetails {
         (event.status != EventStatusState.finished &&
             event.status != EventStatusState.canceled);
   }
+
+  // Transitional accessor so existing widgets can keep reading a single journey.
+  MinimalJourney? get journey => currentJourney;
 }

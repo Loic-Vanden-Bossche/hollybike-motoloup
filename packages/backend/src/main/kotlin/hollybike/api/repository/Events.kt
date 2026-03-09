@@ -22,7 +22,6 @@ object Events : IntIdTable("events", "id_event") {
 	val image = varchar("image", 2_048).nullable().default(null)
 	val status = integer("status")
 	val owner = reference("owner", Users)
-	val journey = reference("journey", Journeys).nullable().default(null)
 	val startDateTime = timestamp("start_date_time")
 	val endDateTime = timestamp("end_date_time").nullable().default(null)
 	val createDateTime = timestamp("create_date_time").clientDefault { Clock.System.now() }
@@ -37,9 +36,9 @@ class Event(id: EntityID<Int>) : IntEntity(id) {
 	var image by Events.image
 	val signedImage by Events.image.transform({ it }, { it?.let { signatureService.sign(it) } })
 	val participants by EventParticipation referrersOn EventParticipations.event
+	val journeySteps by EventJourneyStep referrersOn EventJourneySteps.event
 	var status by Events.status.transform({ it.value }, { EEventStatus[it] })
 	var owner by User referencedOn Events.owner
-	var journey by Journey optionalReferencedOn Events.journey
 	var startDateTime by Events.startDateTime
 	var endDateTime by Events.endDateTime
 	var createDateTime by Events.createDateTime

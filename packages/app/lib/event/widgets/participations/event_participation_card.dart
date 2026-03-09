@@ -12,6 +12,7 @@ import 'package:hollybike/event/widgets/participations/event_participation_modal
 import 'package:hollybike/shared/utils/dates.dart';
 
 import '../../bloc/event_participations_bloc/event_participations_bloc.dart';
+import '../../types/event_journey_step.dart';
 import '../../types/participation/event_participation.dart';
 
 class EventParticipationCard extends StatelessWidget {
@@ -20,6 +21,8 @@ class EventParticipationCard extends StatelessWidget {
   final bool isOwner;
   final bool isCurrentUser;
   final bool isCurrentUserOrganizer;
+  final List<EventJourneyStep> journeySteps;
+  final int? currentStepId;
 
   const EventParticipationCard({
     super.key,
@@ -28,6 +31,8 @@ class EventParticipationCard extends StatelessWidget {
     required this.isCurrentUserOrganizer,
     required this.isOwner,
     required this.eventId,
+    required this.journeySteps,
+    required this.currentStepId,
   });
 
   @override
@@ -112,6 +117,65 @@ class EventParticipationCard extends StatelessWidget {
                           color: scheme.secondary,
                           fontVariations: const [FontVariation.weight(650)],
                         ),
+                      ),
+                    ],
+                    if (journeySteps.isNotEmpty) ...[
+                      const SizedBox(height: 8),
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 6,
+                        children:
+                            journeySteps.map((step) {
+                              final isCurrentStep =
+                                  (currentStepId ?? 0) == step.id;
+                              final label =
+                                  step.name?.trim().isNotEmpty == true
+                                      ? step.name!
+                                      : 'Etape ${step.position}';
+                              return Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 8,
+                                  vertical: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(999),
+                                  color:
+                                      isCurrentStep
+                                          ? scheme.primary.withValues(
+                                            alpha: 0.18,
+                                          )
+                                          : scheme.onPrimary.withValues(
+                                            alpha: 0.08,
+                                          ),
+                                  border: Border.all(
+                                    color:
+                                        isCurrentStep
+                                            ? scheme.primary.withValues(
+                                              alpha: 0.35,
+                                            )
+                                            : scheme.onPrimary.withValues(
+                                              alpha: 0.12,
+                                            ),
+                                  ),
+                                ),
+                                child: Text(
+                                  isCurrentStep ? '$label - actuelle' : label,
+                                  style: Theme.of(
+                                    context,
+                                  ).textTheme.bodySmall?.copyWith(
+                                    color:
+                                        isCurrentStep
+                                            ? scheme.primary
+                                            : scheme.onPrimary.withValues(
+                                              alpha: 0.86,
+                                            ),
+                                    fontVariations: const [
+                                      FontVariation.weight(650),
+                                    ],
+                                  ),
+                                ),
+                              );
+                            }).toList(),
                       ),
                     ],
                   ],

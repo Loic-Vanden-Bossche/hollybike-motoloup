@@ -29,6 +29,7 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNotNull
 import org.jetbrains.exposed.v1.core.and
+import org.jetbrains.exposed.v1.core.inList
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
 import org.postgresql.util.PSQLException
@@ -223,9 +224,20 @@ class AssociationService(
 		if(!authorizeGet(caller, association)) {
 			null
 		} else {
-			Event.count((Events.association eq association.id) and (Events.journey.isNotNull()))
+			val eventIds = Event.find { Events.association eq association.id }
+				.map { it.id.value }
+
+			if (eventIds.isEmpty()) {
+				0L
+				} else {
+					EventJourneyStep.find { EventJourneySteps.event inList eventIds }
+						.map { it.event.id.value }
+						.toSet()
+						.size
+						.toLong()
+				}
+			}
 		}
-	}
 
 	fun getAssociationTotalJourney(caller: User, association: Association): Long? = transaction(db) {
 		if(!authorizeGet(caller, association)) {
@@ -278,7 +290,16 @@ class AssociationService(
 		)
 
 		val totalEvents = events.size.toLong()
-		val totalEventsWithJourney = events.count { it.journey != null }.toLong()
+		val eventIds = events.map { it.id.value }
+			val totalEventsWithJourney = if (eventIds.isEmpty()) {
+				0L
+			} else {
+				EventJourneyStep.find { EventJourneySteps.event inList eventIds }
+					.map { it.event.id.value }
+					.toSet()
+					.size
+					.toLong()
+			}
 		val totalJourneys = Journey.count(Journeys.association eq association.id)
 		val journeyAdoption = TJourneyAdoption(
 			totalEvents = totalEvents,

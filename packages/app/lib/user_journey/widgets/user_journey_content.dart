@@ -20,6 +20,8 @@ class UserJourneyContent extends StatelessWidget {
   final bool showDate;
   final void Function(UserJourney)? onJourneySelected;
   final Color? accentColor;
+  final int? eventStepId;
+  final String? contextLabel;
 
   const UserJourneyContent({
     super.key,
@@ -31,6 +33,8 @@ class UserJourneyContent extends StatelessWidget {
     required this.showDate,
     this.onJourneySelected,
     this.accentColor,
+    this.eventStepId,
+    this.contextLabel,
   });
 
   @override
@@ -96,6 +100,19 @@ class UserJourneyContent extends StatelessWidget {
               ),
               if (showDate || onJourneySelected != null)
                 const SizedBox(height: 8),
+              if (contextLabel != null) ...[
+                Text(
+                  contextLabel!,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.78),
+                    fontSize: 11.5,
+                    fontVariations: const [FontVariation.weight(620)],
+                  ),
+                ),
+                const SizedBox(height: 6),
+              ],
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -236,6 +253,7 @@ class UserJourneyContent extends StatelessWidget {
           user: user,
           isCurrentEvent: isCurrentEvent,
           onDeleted: onDeleted,
+          stepId: eventStepId,
         );
 
         if (eventDetailsBloc == null) {

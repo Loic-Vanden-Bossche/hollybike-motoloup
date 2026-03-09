@@ -17,6 +17,7 @@ import 'package:hollybike/image/type/geolocated_event_image.dart';
 import 'package:hollybike/journey/service/journey_position_manager.dart';
 import 'package:hollybike/journey/type/minimal_journey.dart';
 import 'package:hollybike/positions/bloc/user_positions/user_positions_bloc.dart';
+import 'package:hollybike/positions/bloc/user_positions/user_positions_state.dart';
 import 'package:hollybike/shared/types/geojson.dart';
 import 'package:hollybike/shared/utils/waiter.dart';
 import 'package:hollybike/shared/websocket/recieve/websocket_receive_position.dart';
@@ -47,6 +48,7 @@ class JourneyMapController {
 
 class JourneyMap extends StatefulWidget {
   final MinimalJourney? journey;
+  final bool showLivePositions;
   final JourneyMapController controller;
   final void Function() onMapLoaded;
   final void Function()? onMapInteractionStart;
@@ -54,6 +56,7 @@ class JourneyMap extends StatefulWidget {
   const JourneyMap({
     super.key,
     required this.journey,
+    this.showLivePositions = true,
     required this.controller,
     required this.onMapLoaded,
     this.onMapInteractionStart,
@@ -71,6 +74,7 @@ class _JourneyMapState extends State<JourneyMap> {
   GeoJsonSource? _heatmapSource;
   PhotoMapMarkerManager? _markerManager;
   String? _geoJsonRaw;
+  StreamSubscription<UserPositionsState>? _positionsSubscription;
 
   bool _mapLoading = true;
   bool _pointerDown = false;
@@ -86,6 +90,7 @@ class _JourneyMapState extends State<JourneyMap> {
   void dispose() {
     widget.controller._detach();
     _markerManager?.hide();
+    _positionsSubscription?.cancel();
     super.dispose();
   }
 
@@ -113,6 +118,7 @@ class _JourneyMapState extends State<JourneyMap> {
           if (!mounted) return;
           final (_, geoJsonRaw) = values;
           _geoJsonRaw = geoJsonRaw;
+          final userPositionsBloc = BlocProvider.of<UserPositionsBloc>(context);
 
           await Future.wait([
             if (geoJsonRaw != null)
@@ -152,27 +158,32 @@ class _JourneyMapState extends State<JourneyMap> {
                 pointManager: pointManager,
                 context: context,
               );
-              final userPositionsBloc = BlocProvider.of<UserPositionsBloc>(
-                context,
-              );
+              final initialPositions =
+                  widget.showLivePositions
+                      ? userPositionsBloc.state.userPositions
+                      : const <WebsocketReceivePosition>[];
+
+              _positionsSubscription?.cancel();
               Timer(const Duration(seconds: 1), () {
-                journeyPositionManager.updatePositions(
-                  userPositionsBloc.state.userPositions,
-                );
-                userPositionsBloc.stream.listen((state) {
-                  journeyPositionManager.updatePositions(state.userPositions);
-                  _setCameraOptions(
-                    state.userPositions,
-                    map,
-                    updateMode: true,
-                  );
+                journeyPositionManager.updatePositions(initialPositions);
+                _positionsSubscription = userPositionsBloc.stream.listen((
+                  state,
+                ) {
+                  final visiblePositions =
+                      widget.showLivePositions
+                          ? state.userPositions
+                          : const <WebsocketReceivePosition>[];
+                  journeyPositionManager.updatePositions(visiblePositions);
+                  _setCameraOptions(visiblePositions, map, updateMode: true);
                 });
               });
             }),
           ]);
 
           final userPositions =
-              BlocProvider.of<UserPositionsBloc>(context).state.userPositions;
+              widget.showLivePositions
+                  ? userPositionsBloc.state.userPositions
+                  : const <WebsocketReceivePosition>[];
           final cameraOptions = await _setCameraOptions(userPositions, map);
 
           setState(() => _mapLoading = false);
@@ -222,9 +233,9 @@ class _JourneyMapState extends State<JourneyMap> {
     final bbox =
         geoJson == null
             ? GeoJSON.calculateBbox(userCoordinates)
-            : GeoJSON.fromJsonString(geoJson).dynamicBBox(
-              extraValues: userCoordinates,
-            );
+            : GeoJSON.fromJsonString(
+              geoJson,
+            ).dynamicBBox(extraValues: userCoordinates);
 
     final bounds = CoordinateBounds(
       southwest: Point(coordinates: Position(bbox[0], bbox[1])),
@@ -268,9 +279,9 @@ class _JourneyMapState extends State<JourneyMap> {
     final bbox =
         geoJson == null
             ? GeoJSON.calculateBbox(imageCoordinates)
-            : GeoJSON.fromJsonString(geoJson).dynamicBBox(
-              extraValues: imageCoordinates,
-            );
+            : GeoJSON.fromJsonString(
+              geoJson,
+            ).dynamicBBox(extraValues: imageCoordinates);
 
     final bounds = CoordinateBounds(
       southwest: Point(coordinates: Position(bbox[0], bbox[1])),
@@ -341,11 +352,16 @@ class _JourneyMapState extends State<JourneyMap> {
           'interpolate',
           ['linear'],
           ['heatmap-density'],
-          0, 'rgba(0,0,0,0)',
-          0.15, 'rgba(148,226,213,0.5)',
-          0.4, 'rgba(148,226,213,1)',
-          0.7, 'rgba(255,210,80,1)',
-          1.0, 'rgba(255,130,70,1)',
+          0,
+          'rgba(0,0,0,0)',
+          0.15,
+          'rgba(148,226,213,0.5)',
+          0.4,
+          'rgba(148,226,213,1)',
+          0.7,
+          'rgba(255,210,80,1)',
+          1.0,
+          'rgba(255,130,70,1)',
         ]),
       );
 
@@ -357,9 +373,12 @@ class _JourneyMapState extends State<JourneyMap> {
           'interpolate',
           ['linear'],
           ['zoom'],
-          5, 14,
-          10, 28,
-          14, 40,
+          5,
+          14,
+          10,
+          28,
+          14,
+          40,
         ]),
       );
 
@@ -371,9 +390,12 @@ class _JourneyMapState extends State<JourneyMap> {
           'interpolate',
           ['linear'],
           ['zoom'],
-          8, 0.9,
-          13, 0.6,
-          15, 0.0,
+          8,
+          0.9,
+          13,
+          0.6,
+          15,
+          0.0,
         ]),
       );
 

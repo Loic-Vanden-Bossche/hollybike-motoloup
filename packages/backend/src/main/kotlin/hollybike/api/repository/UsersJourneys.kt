@@ -27,6 +27,9 @@ object UsersJourneys : IntIdTable("users_journeys", "id_user_journey") {
 	val maxSpeed = double("max_speed").nullable()
 	val createdAt = timestamp("created_at").defaultExpression(now())
 	val user = reference("user", Users).nullable().default(null)
+	val event = reference("event", Events).nullable().default(null)
+	val eventJourneyStep = reference("event_journey_step", EventJourneySteps).nullable().default(null)
+	val name = varchar("name", 255).nullable()
 }
 
 class UserJourney(id: EntityID<Int>) : IntEntity(id) {
@@ -44,6 +47,9 @@ class UserJourney(id: EntityID<Int>) : IntEntity(id) {
 	var maxSpeed by UsersJourneys.maxSpeed
 	var createdAt by UsersJourneys.createdAt
 	var user by User optionalReferencedOn UsersJourneys.user
+	var event by Event optionalReferencedOn UsersJourneys.event
+	var eventJourneyStep by EventJourneyStep optionalReferencedOn UsersJourneys.eventJourneyStep
+	var name by UsersJourneys.name
 
 	companion object : IntEntityClass<UserJourney>(UsersJourneys)
 }

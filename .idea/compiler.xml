@@ -6,12 +6,13 @@
       <module name="android.device_info_plus" target="17" />
       <module name="android.file_picker" target="17" />
       <module name="android.flutter_background_service_android" target="21" />
-      <module name="android.flutter_local_notifications" target="17" />
       <module name="android.flutter_plugin_android_lifecycle" target="17" />
       <module name="android.package_info_plus" target="17" />
       <module name="android.path_provider_android" target="17" />
       <module name="android.photo_manager" target="17" />
+      <module name="android.sqflite_android" target="17" />
       <module name="api.hollybike" target="19" />
+      <module name="com.dexterous.flutterlocalnotifications.android.flutter_local_notifications" target="17" />
       <module name="com.example.hollybike.main" target="19" />
       <module name="com.example.hollybike.test" target="19" />
       <module name="com.fluttercandies.photo_manager.android.photo_manager" target="17" />

@@ -18,6 +18,7 @@ import 'package:http_parser/http_parser.dart';
 import '../../../user_journey/type/user_journey.dart';
 import '../../types/event.dart';
 import '../../types/event_details.dart';
+import '../../types/event_journey_steps_state.dart';
 import '../../types/participation/event_participation.dart';
 
 class EventApi {
@@ -25,6 +26,19 @@ class EventApi {
   final Downloader downloader;
 
   EventApi({required this.client, required this.downloader});
+
+  Future<String> _resolveApiPath(String path) async {
+    if (client.dio.options.baseUrl.isNotEmpty) {
+      return path;
+    }
+
+    final session = await client.authPersistence?.currentSession;
+    if (session == null) {
+      return path;
+    }
+
+    return '${session.host}/api$path';
+  }
 
   Future<PaginatedList<MinimalEvent>> getEvents(
     String? requestType,
@@ -101,27 +115,74 @@ class EventApi {
     await client.dio.patch('/events/$eventId/finish');
   }
 
-  Future<void> addJourneyToEvent(int eventId, int journeyId) async {
-    await client.dio.post(
-      '/events/$eventId/journey',
-      data: {'journey_id': journeyId},
+  Future<EventJourneyStepsState> getJourneySteps(int eventId) async {
+    final response = await client.dio.get(
+      await _resolveApiPath('/events/$eventId/journey-steps'),
     );
+    return EventJourneyStepsState.fromJson(response.data);
   }
 
-  Future<void> removeJourneyFromEvent(int eventId) async {
-    await client.dio.delete('/events/$eventId/journey');
-  }
-
-  Future<UserJourney> terminateUserJourney(int eventId) async {
+  Future<EventJourneyStepsState> addJourneyStepToEvent(
+    int eventId,
+    int journeyId, {
+    String? name,
+    int? position,
+  }) async {
     final response = await client.dio.post(
-      '/events/$eventId/participations/me/journey/terminate',
+      await _resolveApiPath('/events/$eventId/journey-steps'),
+      data: {'journey_id': journeyId, 'name': name, 'position': position},
     );
+    return EventJourneyStepsState.fromJson(response.data);
+  }
+
+  Future<EventJourneyStepsState> removeJourneyStepFromEvent(
+    int eventId,
+    int stepId,
+  ) async {
+    final response = await client.dio.delete(
+      await _resolveApiPath('/events/$eventId/journey-steps/$stepId'),
+    );
+    return EventJourneyStepsState.fromJson(response.data);
+  }
+
+  Future<EventJourneyStepsState> renameJourneyStepInEvent(
+    int eventId,
+    int stepId,
+    String name,
+  ) async {
+    final response = await client.dio.patch(
+      await _resolveApiPath('/events/$eventId/journey-steps/$stepId'),
+      data: {'name': name},
+    );
+    return EventJourneyStepsState.fromJson(response.data);
+  }
+
+  Future<EventJourneyStepsState> setCurrentJourneyStep(
+    int eventId,
+    int stepId,
+  ) async {
+    final response = await client.dio.patch(
+      await _resolveApiPath('/events/$eventId/journey-steps/$stepId/current'),
+    );
+    return EventJourneyStepsState.fromJson(response.data);
+  }
+
+  Future<UserJourney> terminateUserJourney(int eventId, {int? stepId}) async {
+    final path =
+        stepId == null
+            ? '/events/$eventId/participations/me/journey/terminate'
+            : '/events/$eventId/journey-steps/$stepId/participations/me/journey/terminate';
+    final response = await client.dio.post(await _resolveApiPath(path));
 
     return UserJourney.fromJson(response.data);
   }
 
-  Future<void> resetUserJourney(int eventId) async {
-    await client.dio.patch('/events/$eventId/participations/me/journey/reset');
+  Future<void> resetUserJourney(int eventId, {int? stepId}) async {
+    final path =
+        stepId == null
+            ? '/events/$eventId/participations/me/journey/reset'
+            : '/events/$eventId/journey-steps/$stepId/participations/me/journey/reset';
+    await client.dio.patch(await _resolveApiPath(path));
   }
 
   Future<void> deleteExpense(int expenseId) async {

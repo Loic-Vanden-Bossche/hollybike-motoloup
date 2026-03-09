@@ -3,7 +3,6 @@
   Made by enzoSoa (Enzo SOARES) and Loïc Vanden Bossche
 */
 import 'package:flutter/material.dart';
-import 'package:hollybike/event/types/event_details.dart';
 import 'package:hollybike/event/widgets/journey/journey_modal_header.dart';
 import 'package:hollybike/journey/widgets/journey_image.dart';
 import 'package:hollybike/journey/widgets/journey_location.dart';
@@ -12,15 +11,15 @@ import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 import '../../../journey/type/minimal_journey.dart';
 
 class JourneyModal extends StatelessWidget {
-  final void Function() onViewOnMap;
-  final EventDetails eventDetails;
+  final void Function(int stepId) onViewOnMap;
   final MinimalJourney journey;
+  final int stepId;
 
   const JourneyModal({
     super.key,
     required this.journey,
     required this.onViewOnMap,
-    required this.eventDetails,
+    required this.stepId,
   });
 
   @override
@@ -34,11 +33,7 @@ class JourneyModal extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           // Actions header
-          JourneyModalHeader(
-            onViewOnMap: onViewOnMap,
-            event: eventDetails.event,
-            canEditJourney: eventDetails.canEditJourney,
-          ),
+          JourneyModalHeader(onViewOnMap: onViewOnMap, stepId: stepId),
           const SizedBox(height: 16),
 
           // Route preview image
