@@ -51,7 +51,7 @@ class JourneyTimeline extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(context, steps),
+          _buildHeader(context),
           const SizedBox(height: 8),
           _buildLoadingCard(context),
         ],
@@ -63,7 +63,7 @@ class JourneyTimeline extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(context, steps),
+          _buildHeader(context),
           const SizedBox(height: 8),
           SizedBox(
             height: 140,
@@ -84,14 +84,14 @@ class JourneyTimeline extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeader(context, steps),
+        _buildHeader(context),
         const SizedBox(height: 12),
         _buildTimeline(context, steps),
       ],
     );
   }
 
-  Widget _buildHeader(BuildContext context, List<EventJourneyStep> steps) {
+  Widget _buildHeader(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
     return Row(
@@ -148,7 +148,6 @@ class JourneyTimeline extends StatelessWidget {
       child: Container(
         height: 140,
         decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(22),
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
