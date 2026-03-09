@@ -492,46 +492,51 @@ class _CurrentStepCard extends StatelessWidget {
                     ],
                   ],
                 ),
-                const SizedBox(height: 10),
-                // Route preview image — tappable to open route details
-                ClipRRect(
+                // Route section — full InkWell over image + metrics
+                InkWell(
                   borderRadius: BorderRadius.circular(14),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(14),
-                    onTap: () => _openRouteDetails(context),
-                    child: SizedBox(
-                      height: 120,
-                      child: JourneyImage(
-                        imageKey: step.journey.previewImageKey,
-                        imageUrl: step.journey.previewImage,
+                  onTap: () => _openRouteDetails(context),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const SizedBox(height: 10),
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: SizedBox(
+                          height: 120,
+                          child: JourneyImage(
+                            imageKey: step.journey.previewImageKey,
+                            imageUrl: step.journey.previewImage,
+                          ),
+                        ),
                       ),
-                    ),
+                      const SizedBox(height: 10),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 6,
+                        children: [
+                          _MetricChip(
+                            icon: Icons.route_outlined,
+                            label: step.journey.distanceLabel,
+                          ),
+                          _MetricChip(
+                            icon: Icons.north_east_rounded,
+                            label: '${step.journey.totalElevationGain ?? 0} m',
+                          ),
+                          _MetricChip(
+                            icon: Icons.south_east_rounded,
+                            label:
+                                '${step.journey.totalElevationLoss ?? 0} m',
+                          ),
+                          if (step.journey.readablePartialLocation != null)
+                            _MetricChip(
+                              icon: Icons.location_on_outlined,
+                              label: step.journey.readablePartialLocation!,
+                            ),
+                        ],
+                      ),
+                    ],
                   ),
-                ),
-                const SizedBox(height: 10),
-                // Route metrics
-                Wrap(
-                  spacing: 8,
-                  runSpacing: 6,
-                  children: [
-                    _MetricChip(
-                      icon: Icons.route_outlined,
-                      label: step.journey.distanceLabel,
-                    ),
-                    _MetricChip(
-                      icon: Icons.north_east_rounded,
-                      label: '${step.journey.totalElevationGain ?? 0} m',
-                    ),
-                    _MetricChip(
-                      icon: Icons.south_east_rounded,
-                      label: '${step.journey.totalElevationLoss ?? 0} m',
-                    ),
-                    if (step.journey.readablePartialLocation != null)
-                      _MetricChip(
-                        icon: Icons.location_on_outlined,
-                        label: step.journey.readablePartialLocation!,
-                      ),
-                  ],
                 ),
                 // User journey section
                 ..._buildUserJourneySection(context, scheme),
@@ -616,12 +621,13 @@ class _CurrentStepCard extends StatelessWidget {
 
     if (journey != null) {
       return [
-        ...divider,
-        GestureDetector(
+        InkWell(
+          borderRadius: BorderRadius.circular(10),
           onTap: () => _openUserJourneyDetails(context, journey),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+              ...divider,
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
