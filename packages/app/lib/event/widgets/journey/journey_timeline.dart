@@ -18,6 +18,7 @@ import 'package:hollybike/event/widgets/journey/empty_journey_preview_card.dart'
 import 'package:hollybike/journey/widgets/journey_image.dart';
 import 'package:hollybike/event/widgets/journey/journey_modal.dart';
 import 'package:hollybike/shared/widgets/app_toast.dart';
+import 'package:hollybike/user_journey/type/user_journey.dart';
 import 'package:hollybike/user_journey/widgets/user_journey_modal.dart';
 
 class JourneyTimeline extends StatelessWidget {
@@ -492,14 +493,18 @@ class _CurrentStepCard extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 10),
-                // Route preview image
-                SizedBox(
-                  height: 120,
-                  child: ClipRRect(
+                // Route preview image — tappable to open route details
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(14),
+                  child: InkWell(
                     borderRadius: BorderRadius.circular(14),
-                    child: JourneyImage(
-                      imageKey: step.journey.previewImageKey,
-                      imageUrl: step.journey.previewImage,
+                    onTap: () => _openRouteDetails(context),
+                    child: SizedBox(
+                      height: 120,
+                      child: JourneyImage(
+                        imageKey: step.journey.previewImageKey,
+                        imageUrl: step.journey.previewImage,
+                      ),
                     ),
                   ),
                 ),
@@ -534,6 +539,35 @@ class _CurrentStepCard extends StatelessWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  void _openRouteDetails(BuildContext context) {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (_) => BlocProvider.value(
+        value: context.read<EventJourneyBloc>(),
+        child: JourneyModal(
+          journey: step.journey,
+          stepId: step.id,
+          onViewOnMap: onViewOnMap,
+        ),
+      ),
+    );
+  }
+
+  void _openUserJourneyDetails(BuildContext context, UserJourney journey) {
+    showModalBottomSheet(
+      backgroundColor: Colors.transparent,
+      isScrollControlled: true,
+      context: context,
+      builder: (_) => UserJourneyModal(
+        journey: journey,
+        isCurrentEvent: true,
+        stepId: step.id,
       ),
     );
   }
@@ -583,78 +617,86 @@ class _CurrentStepCard extends StatelessWidget {
     if (journey != null) {
       return [
         ...divider,
-        Row(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                journey.distanceLabel,
-                style: TextStyle(
-                  color: scheme.onPrimary,
-                  fontSize: 24,
-                  fontVariations: const [FontVariation.weight(760)],
-                  height: 1.0,
-                ),
-              ),
-            ),
-            Container(
-              padding:
-                  const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
-              decoration: BoxDecoration(
-                color: scheme.secondary.withValues(alpha: 0.12),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: scheme.secondary.withValues(alpha: 0.28),
-                ),
-              ),
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+        GestureDetector(
+          onTap: () => _openUserJourneyDetails(context, journey),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(
-                    Icons.schedule_rounded,
-                    size: 14,
-                    color: scheme.onPrimary.withValues(alpha: 0.78),
+                  Expanded(
+                    child: Text(
+                      journey.distanceLabel,
+                      style: TextStyle(
+                        color: scheme.onPrimary,
+                        fontSize: 24,
+                        fontVariations: const [FontVariation.weight(760)],
+                        height: 1.0,
+                      ),
+                    ),
                   ),
-                  const SizedBox(width: 6),
-                  Text(
-                    journey.totalTimeLabel,
-                    style: TextStyle(
-                      color: scheme.onPrimary.withValues(alpha: 0.86),
-                      fontSize: 11.5,
-                      fontVariations: const [FontVariation.weight(650)],
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
+                    decoration: BoxDecoration(
+                      color: scheme.secondary.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(
+                        color: scheme.secondary.withValues(alpha: 0.28),
+                      ),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Icon(
+                          Icons.schedule_rounded,
+                          size: 14,
+                          color: scheme.onPrimary.withValues(alpha: 0.78),
+                        ),
+                        const SizedBox(width: 6),
+                        Text(
+                          journey.totalTimeLabel,
+                          style: TextStyle(
+                            color: scheme.onPrimary.withValues(alpha: 0.86),
+                            fontSize: 11.5,
+                            fontVariations: const [FontVariation.weight(650)],
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ],
               ),
-            ),
-          ],
-        ),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 6,
-          runSpacing: 6,
-          children: [
-            _MetricChip(
-              icon: Icons.north_east_rounded,
-              label: 'D+ ${journey.totalElevationGain?.round() ?? 0} m',
-              accent: scheme.secondary,
-            ),
-            _MetricChip(
-              icon: Icons.terrain_rounded,
-              label: 'Alt ${journey.maxElevation?.round() ?? 0} m',
-              accent: scheme.secondary,
-            ),
-            _MetricChip(
-              icon: Icons.speed_rounded,
-              label: journey.maxSpeedLabel,
-              accent: scheme.secondary,
-            ),
-            _MetricChip(
-              icon: Icons.gps_fixed_rounded,
-              label: journey.maxGForceLabel,
-              accent: scheme.secondary,
-            ),
-          ],
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 6,
+                runSpacing: 6,
+                children: [
+                  _MetricChip(
+                    icon: Icons.north_east_rounded,
+                    label: 'D+ ${journey.totalElevationGain?.round() ?? 0} m',
+                    accent: scheme.secondary,
+                  ),
+                  _MetricChip(
+                    icon: Icons.terrain_rounded,
+                    label: 'Alt ${journey.maxElevation?.round() ?? 0} m',
+                    accent: scheme.secondary,
+                  ),
+                  _MetricChip(
+                    icon: Icons.speed_rounded,
+                    label: journey.maxSpeedLabel,
+                    accent: scheme.secondary,
+                  ),
+                  _MetricChip(
+                    icon: Icons.gps_fixed_rounded,
+                    label: journey.maxGForceLabel,
+                    accent: scheme.secondary,
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ];
     }
