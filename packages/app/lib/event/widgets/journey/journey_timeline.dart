@@ -812,7 +812,49 @@ class _FutureStepCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const Text('future — TODO');
+    final scheme = Theme.of(context).colorScheme;
+    final stepName = step.name?.trim().isNotEmpty == true
+        ? step.name!
+        : 'Étape ${step.position}';
+
+    return Opacity(
+      opacity: 0.5,
+      child: Container(
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(14),
+          color: scheme.primaryContainer.withValues(alpha: 0.15),
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.07),
+            width: 1,
+          ),
+        ),
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+          child: Row(
+            children: [
+              Expanded(
+                child: Text(
+                  stepName,
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(
+                    color: scheme.onPrimary.withValues(alpha: 0.55),
+                    fontSize: 13,
+                    fontVariations: const [FontVariation.weight(550)],
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              _SmallChip(
+                label: step.journey.distanceLabel,
+                scheme: scheme,
+                muted: true,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
   }
 }
 
