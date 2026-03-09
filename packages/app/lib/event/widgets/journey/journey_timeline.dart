@@ -449,7 +449,7 @@ class _CurrentStepCard extends StatelessWidget {
           child: Padding(
             padding: const EdgeInsets.all(14),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Header row: step name + Actuelle badge + admin menu
                 Row(
