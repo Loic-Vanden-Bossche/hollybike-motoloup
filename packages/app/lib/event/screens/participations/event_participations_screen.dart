@@ -217,10 +217,6 @@ class _EventParticipationsScreenState extends State<EventParticipationsScreen> {
                                     child: EventParticipationCard(
                                       eventId: widget.eventDetails.event.id,
                                       participation: participation,
-                                      journeySteps:
-                                          widget.eventDetails.journeySteps,
-                                      currentStepId:
-                                          widget.eventDetails.currentStepId,
                                       isOwner:
                                           widget.eventDetails.event.owner.id ==
                                           participation.user.id,
