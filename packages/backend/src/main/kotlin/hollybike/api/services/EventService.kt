@@ -881,6 +881,13 @@ class EventService(
 			}
 		}
 
+		// Keep check constraint valid during event deletion:
+		// a journey step cannot remain set when event becomes null.
+		UsersJourneys.update({ UsersJourneys.event eq event.id }) { stmt ->
+			stmt[UsersJourneys.eventJourneyStep] = null
+			stmt[UsersJourneys.event] = null
+		}
+
 		Result.success(event.delete())
 	}
 }

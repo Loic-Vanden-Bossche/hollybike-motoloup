@@ -20,6 +20,10 @@ import 'package:hollybike/event/widgets/journey/journey_modal.dart';
 import 'package:hollybike/shared/widgets/app_toast.dart';
 import 'package:hollybike/user_journey/type/user_journey.dart';
 import 'package:hollybike/user_journey/widgets/user_journey_modal.dart';
+import 'package:hollybike/ui/widgets/modal/glass_dialog.dart';
+import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
+import 'package:hollybike/ui/widgets/inputs/glass_input_decoration.dart';
+import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
 
 class JourneyTimeline extends StatelessWidget {
   final EventDetails eventDetails;
@@ -44,7 +48,10 @@ class JourneyTimeline extends StatelessWidget {
       },
       child: BlocBuilder<EventJourneyBloc, EventJourneyState>(
         builder: (context, state) {
-          final loading = state is EventJourneyOperationInProgress;
+          final loading = state is EventJourneyOperationInProgress ||
+              state is EventJourneyUploadInProgress ||
+              state is EventJourneyCreationInProgress ||
+              state is EventJourneyGetPositionsInProgress;
           return _buildContent(context, loading);
         },
       ),
@@ -55,11 +62,12 @@ class JourneyTimeline extends StatelessWidget {
     final steps = [...eventDetails.journeySteps]
       ..sort((a, b) => a.position - b.position);
 
-    if (loading) {
+    // Initial load: no steps yet — show full spinner card.
+    if (loading && steps.isEmpty) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(context),
+          _buildHeader(context, loading: false),
           const SizedBox(height: 8),
           _buildLoadingCard(context),
         ],
@@ -71,7 +79,7 @@ class JourneyTimeline extends StatelessWidget {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _buildHeader(context),
+          _buildHeader(context, loading: false),
           const SizedBox(height: 8),
           SizedBox(
             height: 140,
@@ -89,17 +97,18 @@ class JourneyTimeline extends StatelessWidget {
       );
     }
 
+    // Steps exist: operations show a mini loader on the Ajouter button.
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildHeader(context),
+        _buildHeader(context, loading: loading),
         const SizedBox(height: 12),
         _buildTimeline(context, steps),
       ],
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  Widget _buildHeader(BuildContext context, {required bool loading}) {
     final scheme = Theme.of(context).colorScheme;
 
     return Row(
@@ -124,92 +133,60 @@ class JourneyTimeline extends StatelessWidget {
         ),
         const Spacer(),
         if (eventDetails.canEditJourney)
-          GestureDetector(
-            onTap: () => _onAddStep(context),
-            child: Row(
-              children: [
-                Icon(Icons.add_rounded, size: 15, color: scheme.secondary),
-                const SizedBox(width: 4),
-                Text(
-                  'Ajouter',
-                  style: TextStyle(
-                    color: scheme.secondary,
-                    fontSize: 12,
-                    fontVariations: const [FontVariation.weight(650)],
+          loading
+              ? Row(
+                  children: [
+                    SizedBox(
+                      width: 12,
+                      height: 12,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 1.5,
+                        color: scheme.secondary.withValues(alpha: 0.4),
+                      ),
+                    ),
+                    const SizedBox(width: 6),
+                    Text(
+                      'Ajouter',
+                      style: TextStyle(
+                        color: scheme.secondary.withValues(alpha: 0.35),
+                        fontSize: 12,
+                        fontVariations: const [FontVariation.weight(650)],
+                      ),
+                    ),
+                  ],
+                )
+              : GestureDetector(
+                  onTap: () => _onAddStep(context),
+                  child: Row(
+                    children: [
+                      Icon(Icons.add_rounded, size: 15, color: scheme.secondary),
+                      const SizedBox(width: 4),
+                      Text(
+                        'Ajouter',
+                        style: TextStyle(
+                          color: scheme.secondary,
+                          fontSize: 12,
+                          fontVariations: const [FontVariation.weight(650)],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
       ],
     );
   }
 
-  _StepState _resolveStepState(
-    EventJourneyStep step,
-    int? currentStepId,
-    Map<int, EventJourneyStep> stepById,
-  ) {
-    if (step.isCurrent) return _StepState.current;
-    final currentStep = currentStepId == null ? null : stepById[currentStepId];
-    if (currentStep == null) return _StepState.future;
-    return step.position < currentStep.position
-        ? _StepState.past
-        : _StepState.future;
-  }
-
   Widget _buildTimeline(BuildContext context, List<EventJourneyStep> steps) {
-    final stepById = {for (final s in steps) s.id: s};
     final stepJourneyById = <int, EventCallerParticipationStepJourney>{
       for (final sj in eventDetails.callerParticipation?.stepJourneys ?? [])
         sj.stepId: sj,
     };
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: List.generate(steps.length, (i) {
-        final step = steps[i];
-        final isLast = i == steps.length - 1;
-        final state = _resolveStepState(step, eventDetails.currentStepId, stepById);
-        final stepJourney = stepJourneyById[step.id];
-
-        return _TimelineRow(
-          stepState: state,
-          isLast: isLast,
-          child: _buildStepCard(context, step, state, stepJourney),
-        );
-      }),
+    return _AnimatedTimeline(
+      steps: steps,
+      stepJourneyById: stepJourneyById,
+      eventDetails: eventDetails,
+      onViewOnMap: onViewOnMap,
     );
-  }
-
-  Widget _buildStepCard(
-    BuildContext context,
-    EventJourneyStep step,
-    _StepState state,
-    EventCallerParticipationStepJourney? stepJourney,
-  ) {
-    switch (state) {
-      case _StepState.current:
-        return _CurrentStepCard(
-          step: step,
-          stepJourney: stepJourney,
-          eventDetails: eventDetails,
-          onViewOnMap: onViewOnMap,
-        );
-      case _StepState.past:
-        return _PastStepCard(
-          step: step,
-          stepJourney: stepJourney,
-          eventDetails: eventDetails,
-          onViewOnMap: onViewOnMap,
-        );
-      case _StepState.future:
-        return _FutureStepCard(
-          step: step,
-          eventDetails: eventDetails,
-          onViewOnMap: onViewOnMap,
-        );
-    }
   }
 
   Widget _buildLoadingCard(BuildContext context) {
@@ -257,43 +234,491 @@ class JourneyTimeline extends StatelessWidget {
   }
 }
 
+// ─── Animated timeline ───────────────────────────────────────────────────────
+
+class _AnimatedTimeline extends StatefulWidget {
+  final List<EventJourneyStep> steps;
+  final Map<int, EventCallerParticipationStepJourney> stepJourneyById;
+  final EventDetails eventDetails;
+  final void Function(int stepId) onViewOnMap;
+
+  const _AnimatedTimeline({
+    required this.steps,
+    required this.stepJourneyById,
+    required this.eventDetails,
+    required this.onViewOnMap,
+  });
+
+  @override
+  State<_AnimatedTimeline> createState() => _AnimatedTimelineState();
+}
+
+class _AnimatedTimelineState extends State<_AnimatedTimeline> {
+  final _listKey = GlobalKey<AnimatedListState>();
+  late List<EventJourneyStep> _steps;
+
+  @override
+  void initState() {
+    super.initState();
+    _steps = List.from(widget.steps);
+  }
+
+  @override
+  void didUpdateWidget(_AnimatedTimeline old) {
+    super.didUpdateWidget(old);
+    _syncSteps(widget.steps);
+  }
+
+  void _syncSteps(List<EventJourneyStep> newSteps) {
+    // Removals — iterate backwards to keep indices stable
+    for (int i = _steps.length - 1; i >= 0; i--) {
+      if (!newSteps.any((s) => s.id == _steps[i].id)) {
+        final removed = _steps.removeAt(i);
+        _listKey.currentState?.removeItem(
+          i,
+          (ctx, anim) => _buildAnimatedItem(ctx, removed, i, anim),
+          duration: const Duration(milliseconds: 350),
+        );
+      }
+    }
+    // Insertions
+    for (int i = 0; i < newSteps.length; i++) {
+      if (!_steps.any((s) => s.id == newSteps[i].id)) {
+        _steps.insert(i, newSteps[i]);
+        _listKey.currentState?.insertItem(
+          i,
+          duration: const Duration(milliseconds: 480),
+        );
+      }
+    }
+    // State updates (e.g. set current)
+    setState(() {
+      for (int i = 0; i < _steps.length; i++) {
+        final updated = newSteps.firstWhere(
+          (s) => s.id == _steps[i].id,
+          orElse: () => _steps[i],
+        );
+        if (updated != _steps[i]) _steps[i] = updated;
+      }
+    });
+  }
+
+  _StepState _resolveState(EventJourneyStep step) {
+    if (step.isCurrent) return _StepState.current;
+    final stepById = {for (final s in widget.steps) s.id: s};
+    final currentStep = widget.eventDetails.currentStepId == null
+        ? null
+        : stepById[widget.eventDetails.currentStepId];
+    if (currentStep == null) return _StepState.future;
+    return step.position < currentStep.position
+        ? _StepState.past
+        : _StepState.future;
+  }
+
+  Widget _buildTitle(
+    EventJourneyStep step,
+    _StepState state,
+    EventCallerParticipationStepJourney? stepJourney,
+  ) {
+    switch (state) {
+      case _StepState.current:
+        return _CurrentStepTitleCard(
+            step: step, eventDetails: widget.eventDetails);
+      case _StepState.past:
+        return _PastStepCard(
+          step: step,
+          stepJourney: stepJourney,
+          eventDetails: widget.eventDetails,
+          onViewOnMap: widget.onViewOnMap,
+        );
+      case _StepState.future:
+        return _FutureStepCard(
+          step: step,
+          eventDetails: widget.eventDetails,
+          onViewOnMap: widget.onViewOnMap,
+        );
+    }
+  }
+
+  Widget _buildAnimatedItem(
+    BuildContext context,
+    EventJourneyStep step,
+    int index,
+    Animation<double> animation,
+  ) {
+    final isFirst = index == 0;
+    final isLast = index == _steps.length - 1;
+    final state = _resolveState(step);
+    final stepJourney = widget.stepJourneyById[step.id];
+
+    // Title card animates when step state changes (past ↔ current ↔ future)
+    final titleChild = AnimatedSwitcher(
+      duration: const Duration(milliseconds: 380),
+      switchInCurve: Curves.easeOutCubic,
+      switchOutCurve: Curves.easeInCubic,
+      transitionBuilder: (child, anim) => FadeTransition(
+        opacity: anim,
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0, 0.12),
+            end: Offset.zero,
+          ).animate(CurvedAnimation(parent: anim, curve: Curves.easeOutCubic)),
+          child: child,
+        ),
+      ),
+      child: KeyedSubtree(
+        key: ValueKey('${step.id}_$state'),
+        child: _buildTitle(step, state, stepJourney),
+      ),
+    );
+
+    final bodyChild = state == _StepState.current
+        ? _CurrentStepBodyCard(
+            step: step,
+            stepJourney: stepJourney,
+            eventDetails: widget.eventDetails,
+            onViewOnMap: widget.onViewOnMap,
+          )
+        : null;
+
+    final row = _TimelineRow(
+      stepState: state,
+      isFirst: isFirst,
+      isLast: isLast,
+      titleChild: titleChild,
+      bodyChild: bodyChild,
+    );
+
+    // Add / remove animations: slide from right + fade + height expand.
+    // Use AnimatedBuilder + Align(heightFactor) instead of SizeTransition so
+    // there is no internal ClipRect that would cut off the pulsing dot glow.
+    final heightCurve =
+        CurvedAnimation(parent: animation, curve: Curves.easeOutCubic);
+    return AnimatedBuilder(
+      animation: heightCurve,
+      builder: (context, child) => Align(
+        alignment: Alignment.topCenter,
+        heightFactor: heightCurve.value,
+        child: child,
+      ),
+      child: FadeTransition(
+        opacity: CurvedAnimation(parent: animation, curve: Curves.easeOut),
+        child: SlideTransition(
+          position: Tween<Offset>(
+            begin: const Offset(0.18, 0),
+            end: Offset.zero,
+          ).animate(
+              CurvedAnimation(parent: animation, curve: Curves.easeOutCubic)),
+          child: row,
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedList(
+      key: _listKey,
+      initialItemCount: _steps.length,
+      shrinkWrap: true,
+      padding: EdgeInsets.zero,
+      clipBehavior: Clip.none,
+      physics: const NeverScrollableScrollPhysics(),
+      itemBuilder: (context, index, animation) =>
+          _buildAnimatedItem(context, _steps[index], index, animation),
+    );
+  }
+}
+
+// ─── Pulsing dot for current step ────────────────────────────────────────────
+
+class _PulsingCurrentDot extends StatefulWidget {
+  const _PulsingCurrentDot();
+
+  @override
+  State<_PulsingCurrentDot> createState() => _PulsingCurrentDotState();
+}
+
+class _PulsingCurrentDotState extends State<_PulsingCurrentDot>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _ctrl;
+  late final Animation<double> _glow;
+
+  @override
+  void initState() {
+    super.initState();
+    _ctrl = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 1400),
+    )..repeat(reverse: true);
+    _glow = Tween<double>(begin: 0.20, end: 0.65).animate(
+      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _ctrl.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return AnimatedBuilder(
+      animation: _glow,
+      builder: (context, _) => DecoratedBox(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: scheme.secondary,
+          boxShadow: [
+            BoxShadow(
+              color: scheme.secondary.withValues(alpha: _glow.value),
+              blurRadius: 8 + _glow.value * 10,
+              spreadRadius: 1 + _glow.value * 3,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─── Timeline row ─────────────────────────────────────────────────────────────
+
+/// Layout: dot is placed via [Center] inside an [IntrinsicHeight] row that
+/// spans only the [titleChild] height. This guarantees the dot center aligns
+/// exactly with the title text center without any hardcoded pixel offsets —
+/// Flutter's layout engine does the math automatically.
+///
+/// For the current step, [bodyChild] is placed in a second row below, keeping
+/// the dot aligned with the compact title bar, not the full expanded card.
 class _TimelineRow extends StatelessWidget {
   final _StepState stepState;
+  final bool isFirst;
   final bool isLast;
-  final Widget child;
+  final Widget titleChild;
+  final Widget? bodyChild;
 
   const _TimelineRow({
     required this.stepState,
+    required this.isFirst,
     required this.isLast,
+    required this.titleChild,
+    this.bodyChild,
+  });
+
+  double get _dotSize {
+    switch (stepState) {
+      case _StepState.current:
+        return 14.0;
+      case _StepState.past:
+        return 12.0;
+      case _StepState.future:
+        return 10.0;
+    }
+  }
+
+  bool get _isDashed => stepState != _StepState.past;
+
+  @override
+  Widget build(BuildContext context) {
+    final dotSize = _dotSize;
+    final scheme = Theme.of(context).colorScheme;
+    // Only draw the outgoing connector when there is a real next step below.
+    // The body card is part of the current step, not a next step.
+    final hasBelow = !isLast;
+
+    // Left rail for the title row.
+    // FractionallySizedBox splits the rail at exactly 50% height (= dot center),
+    // so connectors meet precisely at the dot center regardless of card height.
+    final titleRail = SizedBox(
+      width: 28,
+      child: Stack(
+        clipBehavior: Clip.none,
+        children: [
+          // Incoming connector: top half → dot center
+          if (!isFirst)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: (28 - 2) / 2,
+              width: 2,
+              child: FractionallySizedBox(
+                heightFactor: 0.5,
+                alignment: Alignment.topCenter,
+                child: _ConnectorLine(dashed: stepState == _StepState.future),
+              ),
+            ),
+          // Outgoing connector: dot center → bottom half
+          if (hasBelow)
+            Positioned(
+              top: 0,
+              bottom: 0,
+              left: (28 - 2) / 2,
+              width: 2,
+              child: FractionallySizedBox(
+                heightFactor: 0.5,
+                alignment: Alignment.bottomCenter,
+                child: _ConnectorLine(dashed: _isDashed),
+              ),
+            ),
+          // Opaque background circle — blocks connector from showing through dot
+          Center(
+            child: SizedBox(
+              width: dotSize,
+              height: dotSize,
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: scheme.surface,
+                ),
+              ),
+            ),
+          ),
+          // Dot indicator — centered in the rail = centered with titleChild
+          Center(
+            child: SizedBox(
+              width: dotSize,
+              height: dotSize,
+              child: _NodeCircle(stepState: stepState),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    // A thin bridge that continues the connector line through the vertical gap
+    // between rows. Avoids wrapping IntrinsicHeight in Padding (which would
+    // exclude the gap from the left rail, creating a visible break).
+    Widget connectorBridge(double height, {Key? key, bool withLine = true}) =>
+        SizedBox(
+          key: key,
+          height: height,
+          child: withLine
+              ? Stack(
+                  children: [
+                    Positioned(
+                      top: 0,
+                      bottom: 0,
+                      left: (28 - 2) / 2,
+                      width: 2,
+                      child: _ConnectorLine(dashed: _isDashed),
+                    ),
+                  ],
+                )
+              : null,
+        );
+
+    // Body rail: full-height connector alongside the body card.
+    final bodyRail = SizedBox(
+      width: 28,
+      child: !isLast
+          ? Stack(children: [
+              Positioned(
+                top: 0,
+                bottom: 0,
+                left: (28 - 2) / 2,
+                width: 2,
+                child: _ConnectorLine(dashed: _isDashed),
+              ),
+            ])
+          : null,
+    );
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        // Title row.
+        IntrinsicHeight(
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              titleRail,
+              const SizedBox(width: 10),
+              Expanded(child: titleChild),
+            ],
+          ),
+        ),
+        // Body section animates in when the step becomes current and out when
+        // it leaves the current state. AnimatedSwitcher detects the key change
+        // (body ↔ gap ↔ empty) and runs SizeTransition + FadeTransition.
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 520),
+          switchInCurve: Curves.easeOutCubic,
+          switchOutCurve: Curves.easeInCubic,
+            transitionBuilder: (child, anim) => AnimatedBuilder(
+            animation: anim,
+            builder: (context, inner) => Align(
+              alignment: Alignment.topCenter,
+              heightFactor: anim.value,
+              child: inner,
+            ),
+            child: FadeTransition(
+              opacity: CurvedAnimation(parent: anim, curve: Curves.easeOut),
+              child: child,
+            ),
+          ),
+          child: bodyChild != null
+              ? Column(
+                  key: const ValueKey('body'),
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    connectorBridge(4, withLine: !isLast),
+                    IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          bodyRail,
+                          const SizedBox(width: 10),
+                          Expanded(child: bodyChild!),
+                        ],
+                      ),
+                    ),
+                    if (!isLast) connectorBridge(8),
+                  ],
+                )
+              : !isLast
+                  ? connectorBridge(8, key: const ValueKey('gap'))
+                  : const SizedBox.shrink(key: ValueKey('empty')),
+        ),
+      ],
+    );
+  }
+}
+
+/// Shared decoration shell for all step cards in the timeline.
+/// Handles ClipRRect + Material + Ink + InkWell + Padding uniformly.
+class _StepCardShell extends StatelessWidget {
+  final Widget child;
+  final BoxDecoration decoration;
+  final VoidCallback? onTap;
+
+  static const _kPadding = EdgeInsets.symmetric(horizontal: 12, vertical: 8);
+  static const _kRadius = BorderRadius.all(Radius.circular(22));
+
+  const _StepCardShell({
     required this.child,
+    required this.decoration,
+    this.onTap,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: IntrinsicHeight(
-        child: Row(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            SizedBox(
-              width: 28,
-              child: Column(
-                children: [
-                  _NodeCircle(stepState: stepState),
-                  if (!isLast)
-                    Expanded(
-                      child: _ConnectorLine(
-                        dashed: stepState == _StepState.current ||
-                            stepState == _StepState.future,
-                      ),
-                    ),
-                ],
-              ),
+    return ClipRRect(
+      borderRadius: _kRadius,
+      child: Material(
+        color: Colors.transparent,
+        child: Ink(
+          decoration: decoration,
+          child: InkWell(
+            borderRadius: BorderRadius.circular(22),
+            onTap: onTap,
+            child: Padding(
+              padding: _kPadding,
+              child: child,
             ),
-            const SizedBox(width: 10),
-            Expanded(child: child),
-          ],
+          ),
         ),
       ),
     );
@@ -310,37 +735,16 @@ class _NodeCircle extends StatelessWidget {
 
     switch (stepState) {
       case _StepState.current:
-        return Container(
-          width: 14,
-          height: 14,
-          margin: const EdgeInsets.only(top: 14),
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: scheme.secondary,
-            boxShadow: [
-              BoxShadow(
-                color: scheme.secondary.withValues(alpha: 0.45),
-                blurRadius: 8,
-                spreadRadius: 2,
-              ),
-            ],
-          ),
-        );
+        return const _PulsingCurrentDot();
       case _StepState.past:
-        return Container(
-          width: 12,
-          height: 12,
-          margin: const EdgeInsets.only(top: 12),
+        return DecoratedBox(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             color: scheme.secondary.withValues(alpha: 0.7),
           ),
         );
       case _StepState.future:
-        return Container(
-          width: 10,
-          height: 10,
-          margin: const EdgeInsets.only(top: 11),
+        return DecoratedBox(
           decoration: BoxDecoration(
             shape: BoxShape.circle,
             border: Border.all(
@@ -361,21 +765,19 @@ class _ConnectorLine extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
+    // _ConnectorLine is placed in a Positioned with tight size constraints,
+    // so children expand to fill the available space automatically.
     if (!dashed) {
-      return Center(
-        child: Container(
-          width: 2,
+      return DecoratedBox(
+        decoration: BoxDecoration(
           color: scheme.secondary.withValues(alpha: 0.5),
         ),
       );
     }
 
-    return Center(
-      child: CustomPaint(
-        painter: _DashedLinePainter(
-          color: scheme.onPrimary.withValues(alpha: 0.2),
-        ),
-        child: const SizedBox(width: 2),
+    return CustomPaint(
+      painter: _DashedLinePainter(
+        color: scheme.onPrimary.withValues(alpha: 0.2),
       ),
     );
   }
@@ -410,13 +812,93 @@ class _DashedLinePainter extends CustomPainter {
   bool shouldRepaint(_DashedLinePainter old) => old.color != color;
 }
 
-class _CurrentStepCard extends StatelessWidget {
+/// Compact title bar for the current step — only the header row.
+/// Kept separate from [_CurrentStepBodyCard] so the timeline dot can align
+/// with this card's vertical center (= title row center) via Center().
+class _CurrentStepTitleCard extends StatelessWidget {
+  final EventJourneyStep step;
+  final EventDetails eventDetails;
+
+  const _CurrentStepTitleCard({
+    required this.step,
+    required this.eventDetails,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    final stepName = step.name?.trim().isNotEmpty == true
+        ? step.name!
+        : 'Étape ${step.position}';
+
+    return _StepCardShell(
+      decoration: BoxDecoration(
+        borderRadius: _StepCardShell._kRadius,
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+          colors: [
+            scheme.primary.withValues(alpha: 0.56),
+            scheme.primary.withValues(alpha: 0.42),
+          ],
+        ),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.12),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Text(
+              stepName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: scheme.onPrimary,
+                fontSize: 14,
+                fontVariations: const [FontVariation.weight(700)],
+              ),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100),
+              color: scheme.secondary.withValues(alpha: 0.16),
+            ),
+            child: Text(
+              'Actuelle',
+              style: TextStyle(
+                color: scheme.secondary,
+                fontSize: 11,
+                fontVariations: const [FontVariation.weight(700)],
+              ),
+            ),
+          ),
+          if (eventDetails.canEditJourney) ...[
+            const SizedBox(width: 4),
+            _StepActionsMenu(
+              step: step,
+              eventDetails: eventDetails,
+              forceWithoutSetCurrent: true,
+            ),
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+/// Body content for the current step — route image, metrics, and user journey.
+/// Rendered below [_CurrentStepTitleCard] in a separate timeline body row.
+class _CurrentStepBodyCard extends StatelessWidget {
   final EventJourneyStep step;
   final EventCallerParticipationStepJourney? stepJourney;
   final EventDetails eventDetails;
   final void Function(int stepId) onViewOnMap;
 
-  const _CurrentStepCard({
+  const _CurrentStepBodyCard({
     required this.step,
     required this.stepJourney,
     required this.eventDetails,
@@ -426,9 +908,6 @@ class _CurrentStepCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
-    final stepName = step.name?.trim().isNotEmpty == true
-        ? step.name!
-        : 'Étape ${step.position}';
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
@@ -455,92 +934,69 @@ class _CurrentStepCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Header row: step name + Actuelle badge + admin menu
-                Row(
+                // Route section — InkWell layered above image via Stack
+                // so the ripple is visible over the image.
+                Stack(
                   children: [
-                    Expanded(
-                      child: Text(
-                        stepName,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                          color: scheme.onPrimary,
-                          fontSize: 14,
-                          fontVariations: const [FontVariation.weight(700)],
-                        ),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 8, vertical: 4),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(100),
-                        color: scheme.secondary.withValues(alpha: 0.16),
-                      ),
-                      child: Text(
-                        'Actuelle',
-                        style: TextStyle(
-                          color: scheme.secondary,
-                          fontSize: 11,
-                          fontVariations: const [FontVariation.weight(700)],
-                        ),
-                      ),
-                    ),
-                    if (eventDetails.canEditJourney) ...[
-                      const SizedBox(width: 4),
-                      _StepActionsMenu(
-                        step: step,
-                        eventDetails: eventDetails,
-                        forceWithoutSetCurrent: true,
-                      ),
-                    ],
-                  ],
-                ),
-                // Route section — full InkWell over image + metrics
-                InkWell(
-                  borderRadius: BorderRadius.circular(14),
-                  onTap: () => _openRouteDetails(context),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const SizedBox(height: 10),
-                      ClipRRect(
-                        borderRadius: BorderRadius.circular(14),
-                        child: SizedBox(
-                          height: 120,
-                          child: JourneyImage(
-                            imageKey: step.journey.previewImageKey,
-                            imageUrl: step.journey.previewImage,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 10),
-                      Wrap(
-                        spacing: 8,
-                        runSpacing: 6,
-                        children: [
-                          _MetricChip(
-                            icon: Icons.route_outlined,
-                            label: step.journey.distanceLabel,
-                          ),
-                          _MetricChip(
-                            icon: Icons.north_east_rounded,
-                            label: '${step.journey.totalElevationGain ?? 0} m',
-                          ),
-                          _MetricChip(
-                            icon: Icons.south_east_rounded,
-                            label:
-                                '${step.journey.totalElevationLoss ?? 0} m',
-                          ),
-                          if (step.journey.readablePartialLocation != null)
-                            _MetricChip(
-                              icon: Icons.location_on_outlined,
-                              label: step.journey.readablePartialLocation!,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(14),
+                          child: AspectRatio(
+                            aspectRatio: 1.66,
+                            child: LayoutBuilder(
+                              builder: (context, constraints) => OverflowBox(
+                                maxHeight: constraints.maxHeight + 25,
+                                alignment: Alignment.topCenter,
+                                child: SizedBox(
+                                  width: constraints.maxWidth,
+                                  height: constraints.maxHeight + 25,
+                                  child: JourneyImage(
+                                    imageKey: step.journey.previewImageKey,
+                                    imageUrl: step.journey.previewImage,
+                                  ),
+                                ),
+                              ),
                             ),
-                        ],
+                          ),
+                        ),
+                        const SizedBox(height: 10),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 6,
+                          children: [
+                            _MetricChip(
+                              icon: Icons.route_outlined,
+                              label: step.journey.distanceLabel,
+                            ),
+                            _MetricChip(
+                              icon: Icons.north_east_rounded,
+                              label: '${step.journey.totalElevationGain ?? 0} m',
+                            ),
+                            _MetricChip(
+                              icon: Icons.south_east_rounded,
+                              label: '${step.journey.totalElevationLoss ?? 0} m',
+                            ),
+                            if (step.journey.readablePartialLocation != null)
+                              _MetricChip(
+                                icon: Icons.location_on_outlined,
+                                label: step.journey.readablePartialLocation!,
+                              ),
+                          ],
+                        ),
+                      ],
+                    ),
+                    Positioned.fill(
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(14),
+                          onTap: () => _openRouteDetails(context),
+                        ),
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
                 // User journey section
                 ..._buildUserJourneySection(context, scheme),
@@ -762,70 +1218,61 @@ class _PastStepCard extends StatelessWidget {
         : 'Étape ${step.position}';
     final journey = stepJourney?.journey;
 
-    return Material(
-      color: Colors.transparent,
-      child: Ink(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(14),
-          color: scheme.primaryContainer.withValues(alpha: 0.30),
-          border: Border.all(
-            color: scheme.onPrimary.withValues(alpha: 0.10),
-            width: 1,
-          ),
+    return _StepCardShell(
+      decoration: BoxDecoration(
+        borderRadius: _StepCardShell._kRadius,
+        color: scheme.primaryContainer.withValues(alpha: 0.30),
+        border: Border.all(
+          color: scheme.onPrimary.withValues(alpha: 0.10),
+          width: 1,
         ),
-        child: InkWell(
-          borderRadius: BorderRadius.circular(14),
-          onTap: () => _openDetails(context),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            child: Row(
-              children: [
-                Icon(
-                  Icons.check_circle_rounded,
-                  size: 16,
-                  color: scheme.secondary.withValues(alpha: 0.7),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    stepName,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: scheme.onPrimary.withValues(alpha: 0.75),
-                      fontSize: 13,
-                      fontVariations: const [FontVariation.weight(600)],
-                    ),
-                  ),
-                ),
-                if (journey != null) ...[
-                  const SizedBox(width: 8),
-                  _SmallChip(label: journey.distanceLabel, scheme: scheme),
-                  const SizedBox(width: 6),
-                  _SmallChip(
-                    icon: Icons.schedule_rounded,
-                    label: journey.totalTimeLabel,
-                    scheme: scheme,
-                  ),
-                ] else if (stepJourney != null) ...[
-                  const SizedBox(width: 8),
-                  _SmallChip(
-                    label: step.journey.distanceLabel,
-                    scheme: scheme,
-                    muted: true,
-                  ),
-                ],
-                if (eventDetails.canEditJourney) ...[
-                  const SizedBox(width: 4),
-                  _StepActionsMenu(
-                    step: step,
-                    eventDetails: eventDetails,
-                  ),
-                ],
-              ],
+      ),
+      onTap: () => _openDetails(context),
+      child: Row(
+        children: [
+          Icon(
+            Icons.check_circle_rounded,
+            size: 16,
+            color: scheme.secondary.withValues(alpha: 0.7),
+          ),
+          const SizedBox(width: 8),
+          Expanded(
+            child: Text(
+              stepName,
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: scheme.onPrimary.withValues(alpha: 0.75),
+                fontSize: 13,
+                fontVariations: const [FontVariation.weight(600)],
+              ),
             ),
           ),
-        ),
+          if (journey != null) ...[
+            const SizedBox(width: 8),
+            _SmallChip(label: journey.distanceLabel, scheme: scheme),
+            const SizedBox(width: 6),
+            _SmallChip(
+              icon: Icons.schedule_rounded,
+              label: journey.totalTimeLabel,
+              scheme: scheme,
+            ),
+          ] else if (stepJourney != null) ...[
+            const SizedBox(width: 8),
+            _SmallChip(
+              label: step.journey.distanceLabel,
+              scheme: scheme,
+              muted: true,
+            ),
+          ],
+          if (eventDetails.canEditJourney) ...[
+            const SizedBox(width: 4),
+            _StepActionsMenu(
+              step: step,
+              eventDetails: eventDetails,
+            ),
+          ],
+        ],
       ),
     );
   }
@@ -880,54 +1327,45 @@ class _FutureStepCard extends StatelessWidget {
         : 'Étape ${step.position}';
 
     return Opacity(
-      opacity: 0.5, // entire card is muted; child alpha values are relative to this
-      child: Material(
-        color: Colors.transparent,
-        child: Ink(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(14),
-            color: scheme.primaryContainer.withValues(alpha: 0.15),
-            border: Border.all(
-              color: scheme.onPrimary.withValues(alpha: 0.07),
-              width: 1,
-            ),
+      opacity: 0.5,
+      child: _StepCardShell(
+        decoration: BoxDecoration(
+          borderRadius: _StepCardShell._kRadius,
+          color: scheme.primaryContainer.withValues(alpha: 0.15),
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.07),
+            width: 1,
           ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(14),
-            onTap: () => _openDetails(context),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      stepName,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: scheme.onPrimary.withValues(alpha: 0.55),
-                        fontSize: 13,
-                        fontVariations: const [FontVariation.weight(550)],
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  _SmallChip(
-                    label: step.journey.distanceLabel,
-                    scheme: scheme,
-                    muted: true,
-                  ),
-                  if (eventDetails.canEditJourney) ...[
-                    const SizedBox(width: 4),
-                    _StepActionsMenu(
-                      step: step,
-                      eventDetails: eventDetails,
-                    ),
-                  ],
-                ],
+        ),
+        onTap: () => _openDetails(context),
+        child: Row(
+          children: [
+            Expanded(
+              child: Text(
+                stepName,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: scheme.onPrimary.withValues(alpha: 0.55),
+                  fontSize: 13,
+                  fontVariations: const [FontVariation.weight(550)],
+                ),
               ),
             ),
-          ),
+            const SizedBox(width: 8),
+            _SmallChip(
+              label: step.journey.distanceLabel,
+              scheme: scheme,
+              muted: true,
+            ),
+            if (eventDetails.canEditJourney) ...[
+              const SizedBox(width: 4),
+              _StepActionsMenu(
+                step: step,
+                eventDetails: eventDetails,
+              ),
+            ],
+          ],
         ),
       ),
     );
@@ -1037,6 +1475,52 @@ class _SmallChip extends StatelessWidget {
 
 enum _StepAction { rename, setCurrent, remove }
 
+class _DialogButton extends StatelessWidget {
+  final String label;
+  final bool primary;
+  final VoidCallback onTap;
+
+  const _DialogButton({
+    required this.label,
+    required this.onTap,
+    this.primary = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 9),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(50),
+          color: primary
+              ? scheme.secondary.withValues(alpha: 0.15)
+              : scheme.primaryContainer.withValues(alpha: 0.45),
+          border: Border.all(
+            color: primary
+                ? scheme.secondary.withValues(alpha: 0.42)
+                : scheme.onPrimary.withValues(alpha: 0.12),
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          style: TextStyle(
+            color: primary
+                ? scheme.secondary
+                : scheme.onPrimary.withValues(alpha: 0.72),
+            fontSize: 13,
+            fontVariations: const [FontVariation.weight(650)],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class _StepActionsMenu extends StatelessWidget {
   final EventJourneyStep step;
   final EventDetails eventDetails;
@@ -1052,23 +1536,26 @@ class _StepActionsMenu extends StatelessWidget {
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return PopupMenuButton<_StepAction>(
-      icon: Icon(
-        Icons.more_horiz_rounded,
-        size: 18,
-        color: scheme.onPrimary.withValues(alpha: 0.7),
-      ),
+    return GlassPopupMenuButton<_StepAction>(
+      padding: EdgeInsets.zero,
       onSelected: (action) => _onAction(context, action),
       itemBuilder: (_) => [
-        const PopupMenuItem(value: _StepAction.rename, child: Text('Renommer')),
+        glassPopupMenuItem(
+          value: _StepAction.rename,
+          label: 'Renommer',
+          icon: Icons.edit_rounded,
+        ),
         if (!step.isCurrent && !forceWithoutSetCurrent)
-          const PopupMenuItem(
+          glassPopupMenuItem(
             value: _StepAction.setCurrent,
-            child: Text('Définir comme actuelle'),
+            label: 'Définir comme actuelle',
+            icon: Icons.flag_rounded,
           ),
-        PopupMenuItem(
+        glassPopupMenuItem(
           value: _StepAction.remove,
-          child: Text('Retirer', style: TextStyle(color: scheme.error)),
+          label: 'Retirer',
+          icon: Icons.delete_rounded,
+          color: scheme.error,
         ),
       ],
     );
@@ -1081,27 +1568,32 @@ class _StepActionsMenu extends StatelessWidget {
             text: step.name ?? 'Étape ${step.position}');
         final name = await showDialog<String?>(
           context: context,
-          builder: (d) => AlertDialog(
-            title: const Text('Nom de l\'étape'),
-            content: TextField(
+          builder: (d) => GlassDialog(
+            title: 'Nom de l\'étape',
+            onClose: () => Navigator.of(d).pop(null),
+            body: TextField(
               controller: controller,
-              decoration: const InputDecoration(hintText: 'Ex: Aller'),
+              decoration: buildGlassInputDecoration(d, labelText: 'Nom'),
               textInputAction: TextInputAction.done,
+              onSubmitted: (v) => Navigator.of(d).pop(v.trim()),
+              autofocus: true,
             ),
             actions: [
-              TextButton(
-                onPressed: () => Navigator.of(d).pop(null),
-                child: const Text('Annuler'),
+              _DialogButton(
+                label: 'Annuler',
+                onTap: () => Navigator.of(d).pop(null),
               ),
-              TextButton(
-                onPressed: () =>
-                    Navigator.of(d).pop(controller.text.trim()),
-                child: const Text('Valider'),
+              _DialogButton(
+                label: 'Valider',
+                primary: true,
+                onTap: () => Navigator.of(d).pop(controller.text.trim()),
               ),
             ],
           ),
         );
-        controller.dispose();
+        // Dispose after the dismiss animation so the TextField
+        // doesn't access a dead controller while animating out.
+        WidgetsBinding.instance.addPostFrameCallback((_) => controller.dispose());
         if (name == null || name.isEmpty || !context.mounted) return;
         context.read<EventJourneyBloc>().add(
               RenameJourneyStepInEvent(
@@ -1120,6 +1612,14 @@ class _StepActionsMenu extends StatelessWidget {
             );
         return;
       case _StepAction.remove:
+        final confirmed = await showGlassConfirmationDialog(
+          context: context,
+          title: 'Retirer l\'étape',
+          message: 'Retirer cette étape de l\'itinéraire ?',
+          confirmLabel: 'Retirer',
+          destructiveConfirm: true,
+        );
+        if (confirmed != true || !context.mounted) return;
         context.read<EventJourneyBloc>().add(
               RemoveJourneyStepFromEvent(
                 eventId: eventDetails.event.id,

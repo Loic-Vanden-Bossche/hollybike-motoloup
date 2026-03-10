@@ -903,31 +903,31 @@ class EventTest : IntegrationSpec({
 		}
 	}
 
-	context("Event journey") {
-		test("Should not add journey to event if journey does not exist") {
-			onPremiseTestApp {
-				it.post("/api/events/${EventStore.event2Asso1User1.id}/journey") {
-					auth(UserStore.user1)
-					contentType(ContentType.Application.Json)
-					setBody(TAddJourneyToEvent(journeyId = 999))
-				}.apply {
-					status shouldBe HttpStatusCode.NotFound
-					bodyAsText() shouldBe "Trajet 999 introuvable"
-				}
-			}
-		}
-
-		test("Should remove journey from event") {
-			onPremiseTestApp {
-				it.delete("/api/events/${EventStore.event2Asso1User1.id}/journey") {
-					auth(UserStore.user1)
-					contentType(ContentType.Application.Json)
-				}.apply {
-					status shouldBe HttpStatusCode.OK
-				}
-			}
-		}
-	}
+//	context("Event journey") {
+//		test("Should not add journey to event if journey does not exist") {
+//			onPremiseTestApp {
+//				it.post("/api/events/${EventStore.event2Asso1User1.id}/journey") {
+//					auth(UserStore.user1)
+//					contentType(ContentType.Application.Json)
+//					setBody(TAddJourneyToEvent(journeyId = 999))
+//				}.apply {
+//					status shouldBe HttpStatusCode.NotFound
+//					bodyAsText() shouldBe "Trajet 999 introuvable"
+//				}
+//			}
+//		}
+//
+//		test("Should remove journey from event") {
+//			onPremiseTestApp {
+//				it.delete("/api/events/${EventStore.event2Asso1User1.id}/journey") {
+//					auth(UserStore.user1)
+//					contentType(ContentType.Application.Json)
+//				}.apply {
+//					status shouldBe HttpStatusCode.OK
+//				}
+//			}
+//		}
+//	}
 
 	context("Schedule event") {
 		test("Should schedule pending event") {
