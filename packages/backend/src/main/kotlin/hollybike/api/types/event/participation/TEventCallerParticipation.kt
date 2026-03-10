@@ -15,15 +15,30 @@ data class TEventCallerParticipation(
 	val isImagesPublic: Boolean,
 	val joinedDateTime: Instant,
 	val journey: TUserJourney? = null,
-	val hasRecordedPositions: Boolean
+	val hasRecordedPositions: Boolean,
+	val stepJourneys: List<TEventCallerParticipationStepJourney> = emptyList()
 ) {
-	constructor(entity: EventParticipation, isBetterThan: Map<String, Double>?) : this(
+	constructor(
+		entity: EventParticipation,
+		isBetterThan: Map<String, Double>?,
+		stepJourneys: List<TEventCallerParticipationStepJourney> = emptyList(),
+		currentStepId: Int? = null
+	) : this(
 		role = entity.role,
 		userId = entity.user.id.value,
 		isImagesPublic = entity.isImagesPublic,
 		joinedDateTime = entity.joinedDateTime,
-		journey = entity.journey?.let { TUserJourney(it, isBetterThan) },
-		hasRecordedPositions = entity.hasRecordedPositions
+		journey = if (stepJourneys.isNotEmpty()) {
+			stepJourneys.firstOrNull { it.stepId == currentStepId }?.journey
+		} else {
+			entity.journey?.let { TUserJourney(it, isBetterThan) }
+		},
+		hasRecordedPositions = if (stepJourneys.isNotEmpty()) {
+			stepJourneys.firstOrNull { it.stepId == currentStepId }?.hasRecordedPositions == true
+		} else {
+			entity.hasRecordedPositions
+		},
+		stepJourneys = stepJourneys
 	)
 }
 

@@ -1,0 +1,2 @@
+enum UserJourneyCardDisplayContext { event, profile }
+

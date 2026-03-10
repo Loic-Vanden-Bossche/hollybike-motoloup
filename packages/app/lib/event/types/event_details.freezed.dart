@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EventDetails {
 
- Event get event; MinimalJourney? get journey; EventCallerParticipation? get callerParticipation; List<EventParticipation> get previewParticipants; int get previewParticipantsCount; List<EventExpense>? get expenses; int? get totalExpense;
+ Event get event;@JsonKey(name: 'journey_steps') List<EventJourneyStep> get journeySteps;@JsonKey(name: 'current_step_id') int? get currentStepId;@JsonKey(name: 'current_journey') MinimalJourney? get currentJourney; EventCallerParticipation? get callerParticipation; List<EventParticipation> get previewParticipants; int get previewParticipantsCount; List<EventExpense>? get expenses; int? get totalExpense;
 /// Create a copy of EventDetails
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $EventDetailsCopyWith<EventDetails> get copyWith => _$EventDetailsCopyWithImpl<E
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventDetails&&(identical(other.event, event) || other.event == event)&&(identical(other.journey, journey) || other.journey == journey)&&(identical(other.callerParticipation, callerParticipation) || other.callerParticipation == callerParticipation)&&const DeepCollectionEquality().equals(other.previewParticipants, previewParticipants)&&(identical(other.previewParticipantsCount, previewParticipantsCount) || other.previewParticipantsCount == previewParticipantsCount)&&const DeepCollectionEquality().equals(other.expenses, expenses)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventDetails&&(identical(other.event, event) || other.event == event)&&const DeepCollectionEquality().equals(other.journeySteps, journeySteps)&&(identical(other.currentStepId, currentStepId) || other.currentStepId == currentStepId)&&(identical(other.currentJourney, currentJourney) || other.currentJourney == currentJourney)&&(identical(other.callerParticipation, callerParticipation) || other.callerParticipation == callerParticipation)&&const DeepCollectionEquality().equals(other.previewParticipants, previewParticipants)&&(identical(other.previewParticipantsCount, previewParticipantsCount) || other.previewParticipantsCount == previewParticipantsCount)&&const DeepCollectionEquality().equals(other.expenses, expenses)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,event,journey,callerParticipation,const DeepCollectionEquality().hash(previewParticipants),previewParticipantsCount,const DeepCollectionEquality().hash(expenses),totalExpense);
+int get hashCode => Object.hash(runtimeType,event,const DeepCollectionEquality().hash(journeySteps),currentStepId,currentJourney,callerParticipation,const DeepCollectionEquality().hash(previewParticipants),previewParticipantsCount,const DeepCollectionEquality().hash(expenses),totalExpense);
 
 @override
 String toString() {
-  return 'EventDetails(event: $event, journey: $journey, callerParticipation: $callerParticipation, previewParticipants: $previewParticipants, previewParticipantsCount: $previewParticipantsCount, expenses: $expenses, totalExpense: $totalExpense)';
+  return 'EventDetails(event: $event, journeySteps: $journeySteps, currentStepId: $currentStepId, currentJourney: $currentJourney, callerParticipation: $callerParticipation, previewParticipants: $previewParticipants, previewParticipantsCount: $previewParticipantsCount, expenses: $expenses, totalExpense: $totalExpense)';
 }
 
 
@@ -48,11 +48,11 @@ abstract mixin class $EventDetailsCopyWith<$Res>  {
   factory $EventDetailsCopyWith(EventDetails value, $Res Function(EventDetails) _then) = _$EventDetailsCopyWithImpl;
 @useResult
 $Res call({
- Event event, MinimalJourney? journey, EventCallerParticipation? callerParticipation, List<EventParticipation> previewParticipants, int previewParticipantsCount, List<EventExpense>? expenses, int? totalExpense
+ Event event,@JsonKey(name: 'journey_steps') List<EventJourneyStep> journeySteps,@JsonKey(name: 'current_step_id') int? currentStepId,@JsonKey(name: 'current_journey') MinimalJourney? currentJourney, EventCallerParticipation? callerParticipation, List<EventParticipation> previewParticipants, int previewParticipantsCount, List<EventExpense>? expenses, int? totalExpense
 });
 
 
-$EventCopyWith<$Res> get event;$MinimalJourneyCopyWith<$Res>? get journey;$EventCallerParticipationCopyWith<$Res>? get callerParticipation;
+$EventCopyWith<$Res> get event;$MinimalJourneyCopyWith<$Res>? get currentJourney;$EventCallerParticipationCopyWith<$Res>? get callerParticipation;
 
 }
 /// @nodoc
@@ -65,10 +65,12 @@ class _$EventDetailsCopyWithImpl<$Res>
 
 /// Create a copy of EventDetails
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? event = null,Object? journey = freezed,Object? callerParticipation = freezed,Object? previewParticipants = null,Object? previewParticipantsCount = null,Object? expenses = freezed,Object? totalExpense = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? event = null,Object? journeySteps = null,Object? currentStepId = freezed,Object? currentJourney = freezed,Object? callerParticipation = freezed,Object? previewParticipants = null,Object? previewParticipantsCount = null,Object? expenses = freezed,Object? totalExpense = freezed,}) {
   return _then(_self.copyWith(
 event: null == event ? _self.event : event // ignore: cast_nullable_to_non_nullable
-as Event,journey: freezed == journey ? _self.journey : journey // ignore: cast_nullable_to_non_nullable
+as Event,journeySteps: null == journeySteps ? _self.journeySteps : journeySteps // ignore: cast_nullable_to_non_nullable
+as List<EventJourneyStep>,currentStepId: freezed == currentStepId ? _self.currentStepId : currentStepId // ignore: cast_nullable_to_non_nullable
+as int?,currentJourney: freezed == currentJourney ? _self.currentJourney : currentJourney // ignore: cast_nullable_to_non_nullable
 as MinimalJourney?,callerParticipation: freezed == callerParticipation ? _self.callerParticipation : callerParticipation // ignore: cast_nullable_to_non_nullable
 as EventCallerParticipation?,previewParticipants: null == previewParticipants ? _self.previewParticipants : previewParticipants // ignore: cast_nullable_to_non_nullable
 as List<EventParticipation>,previewParticipantsCount: null == previewParticipantsCount ? _self.previewParticipantsCount : previewParticipantsCount // ignore: cast_nullable_to_non_nullable
@@ -90,13 +92,13 @@ $EventCopyWith<$Res> get event {
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$MinimalJourneyCopyWith<$Res>? get journey {
-    if (_self.journey == null) {
+$MinimalJourneyCopyWith<$Res>? get currentJourney {
+    if (_self.currentJourney == null) {
     return null;
   }
 
-  return $MinimalJourneyCopyWith<$Res>(_self.journey!, (value) {
-    return _then(_self.copyWith(journey: value));
+  return $MinimalJourneyCopyWith<$Res>(_self.currentJourney!, (value) {
+    return _then(_self.copyWith(currentJourney: value));
   });
 }/// Create a copy of EventDetails
 /// with the given fields replaced by the non-null parameter values.
@@ -189,10 +191,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Event event,  MinimalJourney? journey,  EventCallerParticipation? callerParticipation,  List<EventParticipation> previewParticipants,  int previewParticipantsCount,  List<EventExpense>? expenses,  int? totalExpense)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Event event, @JsonKey(name: 'journey_steps')  List<EventJourneyStep> journeySteps, @JsonKey(name: 'current_step_id')  int? currentStepId, @JsonKey(name: 'current_journey')  MinimalJourney? currentJourney,  EventCallerParticipation? callerParticipation,  List<EventParticipation> previewParticipants,  int previewParticipantsCount,  List<EventExpense>? expenses,  int? totalExpense)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EventDetails() when $default != null:
-return $default(_that.event,_that.journey,_that.callerParticipation,_that.previewParticipants,_that.previewParticipantsCount,_that.expenses,_that.totalExpense);case _:
+return $default(_that.event,_that.journeySteps,_that.currentStepId,_that.currentJourney,_that.callerParticipation,_that.previewParticipants,_that.previewParticipantsCount,_that.expenses,_that.totalExpense);case _:
   return orElse();
 
 }
@@ -210,10 +212,10 @@ return $default(_that.event,_that.journey,_that.callerParticipation,_that.previe
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Event event,  MinimalJourney? journey,  EventCallerParticipation? callerParticipation,  List<EventParticipation> previewParticipants,  int previewParticipantsCount,  List<EventExpense>? expenses,  int? totalExpense)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Event event, @JsonKey(name: 'journey_steps')  List<EventJourneyStep> journeySteps, @JsonKey(name: 'current_step_id')  int? currentStepId, @JsonKey(name: 'current_journey')  MinimalJourney? currentJourney,  EventCallerParticipation? callerParticipation,  List<EventParticipation> previewParticipants,  int previewParticipantsCount,  List<EventExpense>? expenses,  int? totalExpense)  $default,) {final _that = this;
 switch (_that) {
 case _EventDetails():
-return $default(_that.event,_that.journey,_that.callerParticipation,_that.previewParticipants,_that.previewParticipantsCount,_that.expenses,_that.totalExpense);}
+return $default(_that.event,_that.journeySteps,_that.currentStepId,_that.currentJourney,_that.callerParticipation,_that.previewParticipants,_that.previewParticipantsCount,_that.expenses,_that.totalExpense);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -227,10 +229,10 @@ return $default(_that.event,_that.journey,_that.callerParticipation,_that.previe
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Event event,  MinimalJourney? journey,  EventCallerParticipation? callerParticipation,  List<EventParticipation> previewParticipants,  int previewParticipantsCount,  List<EventExpense>? expenses,  int? totalExpense)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Event event, @JsonKey(name: 'journey_steps')  List<EventJourneyStep> journeySteps, @JsonKey(name: 'current_step_id')  int? currentStepId, @JsonKey(name: 'current_journey')  MinimalJourney? currentJourney,  EventCallerParticipation? callerParticipation,  List<EventParticipation> previewParticipants,  int previewParticipantsCount,  List<EventExpense>? expenses,  int? totalExpense)?  $default,) {final _that = this;
 switch (_that) {
 case _EventDetails() when $default != null:
-return $default(_that.event,_that.journey,_that.callerParticipation,_that.previewParticipants,_that.previewParticipantsCount,_that.expenses,_that.totalExpense);case _:
+return $default(_that.event,_that.journeySteps,_that.currentStepId,_that.currentJourney,_that.callerParticipation,_that.previewParticipants,_that.previewParticipantsCount,_that.expenses,_that.totalExpense);case _:
   return null;
 
 }
@@ -242,11 +244,19 @@ return $default(_that.event,_that.journey,_that.callerParticipation,_that.previe
 @JsonSerializable()
 
 class _EventDetails extends EventDetails {
-  const _EventDetails({required this.event, required this.journey, required this.callerParticipation, required final  List<EventParticipation> previewParticipants, required this.previewParticipantsCount, required final  List<EventExpense>? expenses, required this.totalExpense}): _previewParticipants = previewParticipants,_expenses = expenses,super._();
+  const _EventDetails({required this.event, @JsonKey(name: 'journey_steps') final  List<EventJourneyStep> journeySteps = const [], @JsonKey(name: 'current_step_id') this.currentStepId, @JsonKey(name: 'current_journey') this.currentJourney, required this.callerParticipation, required final  List<EventParticipation> previewParticipants, required this.previewParticipantsCount, required final  List<EventExpense>? expenses, required this.totalExpense}): _journeySteps = journeySteps,_previewParticipants = previewParticipants,_expenses = expenses,super._();
   factory _EventDetails.fromJson(Map<String, dynamic> json) => _$EventDetailsFromJson(json);
 
 @override final  Event event;
-@override final  MinimalJourney? journey;
+ final  List<EventJourneyStep> _journeySteps;
+@override@JsonKey(name: 'journey_steps') List<EventJourneyStep> get journeySteps {
+  if (_journeySteps is EqualUnmodifiableListView) return _journeySteps;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_journeySteps);
+}
+
+@override@JsonKey(name: 'current_step_id') final  int? currentStepId;
+@override@JsonKey(name: 'current_journey') final  MinimalJourney? currentJourney;
 @override final  EventCallerParticipation? callerParticipation;
  final  List<EventParticipation> _previewParticipants;
 @override List<EventParticipation> get previewParticipants {
@@ -280,16 +290,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventDetails&&(identical(other.event, event) || other.event == event)&&(identical(other.journey, journey) || other.journey == journey)&&(identical(other.callerParticipation, callerParticipation) || other.callerParticipation == callerParticipation)&&const DeepCollectionEquality().equals(other._previewParticipants, _previewParticipants)&&(identical(other.previewParticipantsCount, previewParticipantsCount) || other.previewParticipantsCount == previewParticipantsCount)&&const DeepCollectionEquality().equals(other._expenses, _expenses)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventDetails&&(identical(other.event, event) || other.event == event)&&const DeepCollectionEquality().equals(other._journeySteps, _journeySteps)&&(identical(other.currentStepId, currentStepId) || other.currentStepId == currentStepId)&&(identical(other.currentJourney, currentJourney) || other.currentJourney == currentJourney)&&(identical(other.callerParticipation, callerParticipation) || other.callerParticipation == callerParticipation)&&const DeepCollectionEquality().equals(other._previewParticipants, _previewParticipants)&&(identical(other.previewParticipantsCount, previewParticipantsCount) || other.previewParticipantsCount == previewParticipantsCount)&&const DeepCollectionEquality().equals(other._expenses, _expenses)&&(identical(other.totalExpense, totalExpense) || other.totalExpense == totalExpense));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,event,journey,callerParticipation,const DeepCollectionEquality().hash(_previewParticipants),previewParticipantsCount,const DeepCollectionEquality().hash(_expenses),totalExpense);
+int get hashCode => Object.hash(runtimeType,event,const DeepCollectionEquality().hash(_journeySteps),currentStepId,currentJourney,callerParticipation,const DeepCollectionEquality().hash(_previewParticipants),previewParticipantsCount,const DeepCollectionEquality().hash(_expenses),totalExpense);
 
 @override
 String toString() {
-  return 'EventDetails(event: $event, journey: $journey, callerParticipation: $callerParticipation, previewParticipants: $previewParticipants, previewParticipantsCount: $previewParticipantsCount, expenses: $expenses, totalExpense: $totalExpense)';
+  return 'EventDetails(event: $event, journeySteps: $journeySteps, currentStepId: $currentStepId, currentJourney: $currentJourney, callerParticipation: $callerParticipation, previewParticipants: $previewParticipants, previewParticipantsCount: $previewParticipantsCount, expenses: $expenses, totalExpense: $totalExpense)';
 }
 
 
@@ -300,11 +310,11 @@ abstract mixin class _$EventDetailsCopyWith<$Res> implements $EventDetailsCopyWi
   factory _$EventDetailsCopyWith(_EventDetails value, $Res Function(_EventDetails) _then) = __$EventDetailsCopyWithImpl;
 @override @useResult
 $Res call({
- Event event, MinimalJourney? journey, EventCallerParticipation? callerParticipation, List<EventParticipation> previewParticipants, int previewParticipantsCount, List<EventExpense>? expenses, int? totalExpense
+ Event event,@JsonKey(name: 'journey_steps') List<EventJourneyStep> journeySteps,@JsonKey(name: 'current_step_id') int? currentStepId,@JsonKey(name: 'current_journey') MinimalJourney? currentJourney, EventCallerParticipation? callerParticipation, List<EventParticipation> previewParticipants, int previewParticipantsCount, List<EventExpense>? expenses, int? totalExpense
 });
 
 
-@override $EventCopyWith<$Res> get event;@override $MinimalJourneyCopyWith<$Res>? get journey;@override $EventCallerParticipationCopyWith<$Res>? get callerParticipation;
+@override $EventCopyWith<$Res> get event;@override $MinimalJourneyCopyWith<$Res>? get currentJourney;@override $EventCallerParticipationCopyWith<$Res>? get callerParticipation;
 
 }
 /// @nodoc
@@ -317,10 +327,12 @@ class __$EventDetailsCopyWithImpl<$Res>
 
 /// Create a copy of EventDetails
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? event = null,Object? journey = freezed,Object? callerParticipation = freezed,Object? previewParticipants = null,Object? previewParticipantsCount = null,Object? expenses = freezed,Object? totalExpense = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? event = null,Object? journeySteps = null,Object? currentStepId = freezed,Object? currentJourney = freezed,Object? callerParticipation = freezed,Object? previewParticipants = null,Object? previewParticipantsCount = null,Object? expenses = freezed,Object? totalExpense = freezed,}) {
   return _then(_EventDetails(
 event: null == event ? _self.event : event // ignore: cast_nullable_to_non_nullable
-as Event,journey: freezed == journey ? _self.journey : journey // ignore: cast_nullable_to_non_nullable
+as Event,journeySteps: null == journeySteps ? _self._journeySteps : journeySteps // ignore: cast_nullable_to_non_nullable
+as List<EventJourneyStep>,currentStepId: freezed == currentStepId ? _self.currentStepId : currentStepId // ignore: cast_nullable_to_non_nullable
+as int?,currentJourney: freezed == currentJourney ? _self.currentJourney : currentJourney // ignore: cast_nullable_to_non_nullable
 as MinimalJourney?,callerParticipation: freezed == callerParticipation ? _self.callerParticipation : callerParticipation // ignore: cast_nullable_to_non_nullable
 as EventCallerParticipation?,previewParticipants: null == previewParticipants ? _self._previewParticipants : previewParticipants // ignore: cast_nullable_to_non_nullable
 as List<EventParticipation>,previewParticipantsCount: null == previewParticipantsCount ? _self.previewParticipantsCount : previewParticipantsCount // ignore: cast_nullable_to_non_nullable
@@ -343,13 +355,13 @@ $EventCopyWith<$Res> get event {
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
-$MinimalJourneyCopyWith<$Res>? get journey {
-    if (_self.journey == null) {
+$MinimalJourneyCopyWith<$Res>? get currentJourney {
+    if (_self.currentJourney == null) {
     return null;
   }
 
-  return $MinimalJourneyCopyWith<$Res>(_self.journey!, (value) {
-    return _then(_self.copyWith(journey: value));
+  return $MinimalJourneyCopyWith<$Res>(_self.currentJourney!, (value) {
+    return _then(_self.copyWith(currentJourney: value));
   });
 }/// Create a copy of EventDetails
 /// with the given fields replaced by the non-null parameter values.

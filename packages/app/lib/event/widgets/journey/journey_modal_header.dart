@@ -5,81 +5,26 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_bloc.dart';
-import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_event.dart';
-import 'package:hollybike/event/bloc/event_journey_bloc/event_journey_state.dart';
-import 'package:hollybike/event/types/event.dart';
-import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
-import 'package:hollybike/event/widgets/journey/journey_import_modal_from_type.dart';
-import 'package:hollybike/event/widgets/journey/upload_journey_menu.dart';
-
-enum JourneyModalAction { update, delete }
 
 class JourneyModalHeader extends StatelessWidget {
-  final void Function() onViewOnMap;
-  final Event event;
-  final bool canEditJourney;
+  final void Function(int stepId) onViewOnMap;
+  final int stepId;
 
   const JourneyModalHeader({
     super.key,
     required this.onViewOnMap,
-    required this.event,
-    required this.canEditJourney,
+    required this.stepId,
   });
 
   @override
   Widget build(BuildContext context) {
-    return BlocListener<EventJourneyBloc, EventJourneyState>(
-      listener: (context, state) {
-        if (state is EventJourneyCreationSuccess) {
-          _returnToDetails(context);
-        }
-      },
-      child: _buildHeader(context),
-    );
+    return _buildHeader(context);
   }
 
   Widget _buildHeader(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
 
-    return Row(
-      children: [
-        if (canEditJourney) _buildEditMenu(context, scheme),
-        const Spacer(),
-        _buildMapButton(context, scheme),
-      ],
-    );
-  }
-
-  Widget _buildEditMenu(BuildContext context, ColorScheme scheme) {
-    return GlassPopupMenuButton<JourneyModalAction>(
-      onSelected: (action) => _onActionsSelected(context, action),
-      icon: const GlassPopupMenuTriggerIcon(icon: Icons.tune_rounded),
-      itemBuilder:
-          (context) => [
-            glassPopupMenuItem(
-              value: JourneyModalAction.update,
-              child: UploadJourneyMenu(
-                event: event,
-                onSelection: (type) => _onUpdateJourney(context, type),
-                child: const Row(
-                  children: [
-                    Icon(Icons.swap_calls_rounded),
-                    SizedBox(width: 10),
-                    Text('Changer de parcours'),
-                  ],
-                ),
-              ),
-            ),
-            glassPopupMenuItem(
-              value: JourneyModalAction.delete,
-              icon: Icons.remove_circle_outline_rounded,
-              label: 'Retirer le parcours',
-              color: scheme.error,
-            ),
-          ],
-    );
+    return Row(children: [const Spacer(), _buildMapButton(context, scheme)]);
   }
 
   Widget _buildMapButton(BuildContext context, ColorScheme scheme) {
@@ -114,37 +59,10 @@ class JourneyModalHeader extends StatelessWidget {
     );
   }
 
-  void _onUpdateJourney(BuildContext context, NewJourneyType type) async {
-    await Navigator.of(context).maybePop();
-    if (context.mounted) {
-      journeyImportModalFromType(
-        context,
-        type,
-        event,
-        selected: () {
-          _returnToDetails(context);
-        },
-      );
-    }
-  }
-
-  void _onDeleteJourney(BuildContext context) {
-    _returnToDetails(context);
-    context.read<EventJourneyBloc>().add(
-      RemoveJourneyFromEvent(eventId: event.id),
-    );
-  }
-
-  void _onActionsSelected(BuildContext context, JourneyModalAction action) {
-    if (action == JourneyModalAction.delete) {
-      _onDeleteJourney(context);
-    }
-  }
-
   void _onOpenMap(BuildContext context) {
     _returnToDetails(context);
     Timer(const Duration(milliseconds: 200), () {
-      onViewOnMap();
+      onViewOnMap(stepId);
     });
   }
 

@@ -18,6 +18,7 @@ sealed class UserJourney with _$UserJourney {
   const factory UserJourney({
     required int id,
     required String file,
+    String? name,
     @JsonKey(name: 'avg_speed') required double? avgSpeed,
     @JsonKey(name: 'total_distance') required int? totalDistance,
     @JsonKey(name: 'min_elevation') required double? minElevation,
@@ -29,6 +30,8 @@ sealed class UserJourney with _$UserJourney {
     @JsonKey(name: 'avg_g_force') required double? avgGForce,
     @JsonKey(name: 'max_g_force') required double? maxGForce,
     @JsonKey(name: 'created_at') required DateTime createdAt,
+    @JsonKey(name: 'event_name') String? eventName,
+    @JsonKey(name: 'step_name') String? stepName,
     @JsonKey(name: 'is_better_than') required Map<String, double>? isBetterThan,
   }) = _UserJourney;
 
@@ -64,6 +67,31 @@ sealed class UserJourney with _$UserJourney {
     }
 
     return '$hours h $minutes min';
+  }
+
+  String? get contextLabel {
+    final event = eventName?.trim();
+    final step = stepName?.trim();
+    final hasEvent = event != null && event.isNotEmpty;
+    final hasStep = step != null && step.isNotEmpty;
+
+    if (!hasEvent && !hasStep) {
+      return null;
+    }
+
+    if (hasEvent && hasStep) {
+      return '$event · $step';
+    }
+
+    return hasEvent ? event : step;
+  }
+
+  String? get titleLabel {
+    final title = name?.trim();
+    if (title != null && title.isNotEmpty) {
+      return title;
+    }
+    return contextLabel;
   }
 
   String _speedLabel(double? speed) {

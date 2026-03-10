@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UserJourney {
 
- int get id; String get file;@JsonKey(name: 'avg_speed') double? get avgSpeed;@JsonKey(name: 'total_distance') int? get totalDistance;@JsonKey(name: 'min_elevation') double? get minElevation;@JsonKey(name: 'max_elevation') double? get maxElevation;@JsonKey(name: 'total_elevation_gain') double? get totalElevationGain;@JsonKey(name: 'total_elevation_loss') double? get totalElevationLoss;@JsonKey(name: 'total_time') int? get totalTime;@JsonKey(name: 'max_speed') double? get maxSpeed;@JsonKey(name: 'avg_g_force') double? get avgGForce;@JsonKey(name: 'max_g_force') double? get maxGForce;@JsonKey(name: 'created_at') DateTime get createdAt;@JsonKey(name: 'is_better_than') Map<String, double>? get isBetterThan;
+ int get id; String get file; String? get name;@JsonKey(name: 'avg_speed') double? get avgSpeed;@JsonKey(name: 'total_distance') int? get totalDistance;@JsonKey(name: 'min_elevation') double? get minElevation;@JsonKey(name: 'max_elevation') double? get maxElevation;@JsonKey(name: 'total_elevation_gain') double? get totalElevationGain;@JsonKey(name: 'total_elevation_loss') double? get totalElevationLoss;@JsonKey(name: 'total_time') int? get totalTime;@JsonKey(name: 'max_speed') double? get maxSpeed;@JsonKey(name: 'avg_g_force') double? get avgGForce;@JsonKey(name: 'max_g_force') double? get maxGForce;@JsonKey(name: 'created_at') DateTime get createdAt;@JsonKey(name: 'event_name') String? get eventName;@JsonKey(name: 'step_name') String? get stepName;@JsonKey(name: 'is_better_than') Map<String, double>? get isBetterThan;
 /// Create a copy of UserJourney
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $UserJourneyCopyWith<UserJourney> get copyWith => _$UserJourneyCopyWithImpl<User
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserJourney&&(identical(other.id, id) || other.id == id)&&(identical(other.file, file) || other.file == file)&&(identical(other.avgSpeed, avgSpeed) || other.avgSpeed == avgSpeed)&&(identical(other.totalDistance, totalDistance) || other.totalDistance == totalDistance)&&(identical(other.minElevation, minElevation) || other.minElevation == minElevation)&&(identical(other.maxElevation, maxElevation) || other.maxElevation == maxElevation)&&(identical(other.totalElevationGain, totalElevationGain) || other.totalElevationGain == totalElevationGain)&&(identical(other.totalElevationLoss, totalElevationLoss) || other.totalElevationLoss == totalElevationLoss)&&(identical(other.totalTime, totalTime) || other.totalTime == totalTime)&&(identical(other.maxSpeed, maxSpeed) || other.maxSpeed == maxSpeed)&&(identical(other.avgGForce, avgGForce) || other.avgGForce == avgGForce)&&(identical(other.maxGForce, maxGForce) || other.maxGForce == maxGForce)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other.isBetterThan, isBetterThan));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserJourney&&(identical(other.id, id) || other.id == id)&&(identical(other.file, file) || other.file == file)&&(identical(other.name, name) || other.name == name)&&(identical(other.avgSpeed, avgSpeed) || other.avgSpeed == avgSpeed)&&(identical(other.totalDistance, totalDistance) || other.totalDistance == totalDistance)&&(identical(other.minElevation, minElevation) || other.minElevation == minElevation)&&(identical(other.maxElevation, maxElevation) || other.maxElevation == maxElevation)&&(identical(other.totalElevationGain, totalElevationGain) || other.totalElevationGain == totalElevationGain)&&(identical(other.totalElevationLoss, totalElevationLoss) || other.totalElevationLoss == totalElevationLoss)&&(identical(other.totalTime, totalTime) || other.totalTime == totalTime)&&(identical(other.maxSpeed, maxSpeed) || other.maxSpeed == maxSpeed)&&(identical(other.avgGForce, avgGForce) || other.avgGForce == avgGForce)&&(identical(other.maxGForce, maxGForce) || other.maxGForce == maxGForce)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.eventName, eventName) || other.eventName == eventName)&&(identical(other.stepName, stepName) || other.stepName == stepName)&&const DeepCollectionEquality().equals(other.isBetterThan, isBetterThan));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,file,avgSpeed,totalDistance,minElevation,maxElevation,totalElevationGain,totalElevationLoss,totalTime,maxSpeed,avgGForce,maxGForce,createdAt,const DeepCollectionEquality().hash(isBetterThan));
+int get hashCode => Object.hash(runtimeType,id,file,name,avgSpeed,totalDistance,minElevation,maxElevation,totalElevationGain,totalElevationLoss,totalTime,maxSpeed,avgGForce,maxGForce,createdAt,eventName,stepName,const DeepCollectionEquality().hash(isBetterThan));
 
 @override
 String toString() {
-  return 'UserJourney(id: $id, file: $file, avgSpeed: $avgSpeed, totalDistance: $totalDistance, minElevation: $minElevation, maxElevation: $maxElevation, totalElevationGain: $totalElevationGain, totalElevationLoss: $totalElevationLoss, totalTime: $totalTime, maxSpeed: $maxSpeed, avgGForce: $avgGForce, maxGForce: $maxGForce, createdAt: $createdAt, isBetterThan: $isBetterThan)';
+  return 'UserJourney(id: $id, file: $file, name: $name, avgSpeed: $avgSpeed, totalDistance: $totalDistance, minElevation: $minElevation, maxElevation: $maxElevation, totalElevationGain: $totalElevationGain, totalElevationLoss: $totalElevationLoss, totalTime: $totalTime, maxSpeed: $maxSpeed, avgGForce: $avgGForce, maxGForce: $maxGForce, createdAt: $createdAt, eventName: $eventName, stepName: $stepName, isBetterThan: $isBetterThan)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $UserJourneyCopyWith<$Res>  {
   factory $UserJourneyCopyWith(UserJourney value, $Res Function(UserJourney) _then) = _$UserJourneyCopyWithImpl;
 @useResult
 $Res call({
- int id, String file,@JsonKey(name: 'avg_speed') double? avgSpeed,@JsonKey(name: 'total_distance') int? totalDistance,@JsonKey(name: 'min_elevation') double? minElevation,@JsonKey(name: 'max_elevation') double? maxElevation,@JsonKey(name: 'total_elevation_gain') double? totalElevationGain,@JsonKey(name: 'total_elevation_loss') double? totalElevationLoss,@JsonKey(name: 'total_time') int? totalTime,@JsonKey(name: 'max_speed') double? maxSpeed,@JsonKey(name: 'avg_g_force') double? avgGForce,@JsonKey(name: 'max_g_force') double? maxGForce,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'is_better_than') Map<String, double>? isBetterThan
+ int id, String file, String? name,@JsonKey(name: 'avg_speed') double? avgSpeed,@JsonKey(name: 'total_distance') int? totalDistance,@JsonKey(name: 'min_elevation') double? minElevation,@JsonKey(name: 'max_elevation') double? maxElevation,@JsonKey(name: 'total_elevation_gain') double? totalElevationGain,@JsonKey(name: 'total_elevation_loss') double? totalElevationLoss,@JsonKey(name: 'total_time') int? totalTime,@JsonKey(name: 'max_speed') double? maxSpeed,@JsonKey(name: 'avg_g_force') double? avgGForce,@JsonKey(name: 'max_g_force') double? maxGForce,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'event_name') String? eventName,@JsonKey(name: 'step_name') String? stepName,@JsonKey(name: 'is_better_than') Map<String, double>? isBetterThan
 });
 
 
@@ -65,11 +65,12 @@ class _$UserJourneyCopyWithImpl<$Res>
 
 /// Create a copy of UserJourney
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? file = null,Object? avgSpeed = freezed,Object? totalDistance = freezed,Object? minElevation = freezed,Object? maxElevation = freezed,Object? totalElevationGain = freezed,Object? totalElevationLoss = freezed,Object? totalTime = freezed,Object? maxSpeed = freezed,Object? avgGForce = freezed,Object? maxGForce = freezed,Object? createdAt = null,Object? isBetterThan = freezed,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? file = null,Object? name = freezed,Object? avgSpeed = freezed,Object? totalDistance = freezed,Object? minElevation = freezed,Object? maxElevation = freezed,Object? totalElevationGain = freezed,Object? totalElevationLoss = freezed,Object? totalTime = freezed,Object? maxSpeed = freezed,Object? avgGForce = freezed,Object? maxGForce = freezed,Object? createdAt = null,Object? eventName = freezed,Object? stepName = freezed,Object? isBetterThan = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,file: null == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
-as String,avgSpeed: freezed == avgSpeed ? _self.avgSpeed : avgSpeed // ignore: cast_nullable_to_non_nullable
+as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,avgSpeed: freezed == avgSpeed ? _self.avgSpeed : avgSpeed // ignore: cast_nullable_to_non_nullable
 as double?,totalDistance: freezed == totalDistance ? _self.totalDistance : totalDistance // ignore: cast_nullable_to_non_nullable
 as int?,minElevation: freezed == minElevation ? _self.minElevation : minElevation // ignore: cast_nullable_to_non_nullable
 as double?,maxElevation: freezed == maxElevation ? _self.maxElevation : maxElevation // ignore: cast_nullable_to_non_nullable
@@ -80,7 +81,9 @@ as int?,maxSpeed: freezed == maxSpeed ? _self.maxSpeed : maxSpeed // ignore: cas
 as double?,avgGForce: freezed == avgGForce ? _self.avgGForce : avgGForce // ignore: cast_nullable_to_non_nullable
 as double?,maxGForce: freezed == maxGForce ? _self.maxGForce : maxGForce // ignore: cast_nullable_to_non_nullable
 as double?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,isBetterThan: freezed == isBetterThan ? _self.isBetterThan : isBetterThan // ignore: cast_nullable_to_non_nullable
+as DateTime,eventName: freezed == eventName ? _self.eventName : eventName // ignore: cast_nullable_to_non_nullable
+as String?,stepName: freezed == stepName ? _self.stepName : stepName // ignore: cast_nullable_to_non_nullable
+as String?,isBetterThan: freezed == isBetterThan ? _self.isBetterThan : isBetterThan // ignore: cast_nullable_to_non_nullable
 as Map<String, double>?,
   ));
 }
@@ -163,10 +166,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String file, @JsonKey(name: 'avg_speed')  double? avgSpeed, @JsonKey(name: 'total_distance')  int? totalDistance, @JsonKey(name: 'min_elevation')  double? minElevation, @JsonKey(name: 'max_elevation')  double? maxElevation, @JsonKey(name: 'total_elevation_gain')  double? totalElevationGain, @JsonKey(name: 'total_elevation_loss')  double? totalElevationLoss, @JsonKey(name: 'total_time')  int? totalTime, @JsonKey(name: 'max_speed')  double? maxSpeed, @JsonKey(name: 'avg_g_force')  double? avgGForce, @JsonKey(name: 'max_g_force')  double? maxGForce, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'is_better_than')  Map<String, double>? isBetterThan)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int id,  String file,  String? name, @JsonKey(name: 'avg_speed')  double? avgSpeed, @JsonKey(name: 'total_distance')  int? totalDistance, @JsonKey(name: 'min_elevation')  double? minElevation, @JsonKey(name: 'max_elevation')  double? maxElevation, @JsonKey(name: 'total_elevation_gain')  double? totalElevationGain, @JsonKey(name: 'total_elevation_loss')  double? totalElevationLoss, @JsonKey(name: 'total_time')  int? totalTime, @JsonKey(name: 'max_speed')  double? maxSpeed, @JsonKey(name: 'avg_g_force')  double? avgGForce, @JsonKey(name: 'max_g_force')  double? maxGForce, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'event_name')  String? eventName, @JsonKey(name: 'step_name')  String? stepName, @JsonKey(name: 'is_better_than')  Map<String, double>? isBetterThan)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserJourney() when $default != null:
-return $default(_that.id,_that.file,_that.avgSpeed,_that.totalDistance,_that.minElevation,_that.maxElevation,_that.totalElevationGain,_that.totalElevationLoss,_that.totalTime,_that.maxSpeed,_that.avgGForce,_that.maxGForce,_that.createdAt,_that.isBetterThan);case _:
+return $default(_that.id,_that.file,_that.name,_that.avgSpeed,_that.totalDistance,_that.minElevation,_that.maxElevation,_that.totalElevationGain,_that.totalElevationLoss,_that.totalTime,_that.maxSpeed,_that.avgGForce,_that.maxGForce,_that.createdAt,_that.eventName,_that.stepName,_that.isBetterThan);case _:
   return orElse();
 
 }
@@ -184,10 +187,10 @@ return $default(_that.id,_that.file,_that.avgSpeed,_that.totalDistance,_that.min
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String file, @JsonKey(name: 'avg_speed')  double? avgSpeed, @JsonKey(name: 'total_distance')  int? totalDistance, @JsonKey(name: 'min_elevation')  double? minElevation, @JsonKey(name: 'max_elevation')  double? maxElevation, @JsonKey(name: 'total_elevation_gain')  double? totalElevationGain, @JsonKey(name: 'total_elevation_loss')  double? totalElevationLoss, @JsonKey(name: 'total_time')  int? totalTime, @JsonKey(name: 'max_speed')  double? maxSpeed, @JsonKey(name: 'avg_g_force')  double? avgGForce, @JsonKey(name: 'max_g_force')  double? maxGForce, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'is_better_than')  Map<String, double>? isBetterThan)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int id,  String file,  String? name, @JsonKey(name: 'avg_speed')  double? avgSpeed, @JsonKey(name: 'total_distance')  int? totalDistance, @JsonKey(name: 'min_elevation')  double? minElevation, @JsonKey(name: 'max_elevation')  double? maxElevation, @JsonKey(name: 'total_elevation_gain')  double? totalElevationGain, @JsonKey(name: 'total_elevation_loss')  double? totalElevationLoss, @JsonKey(name: 'total_time')  int? totalTime, @JsonKey(name: 'max_speed')  double? maxSpeed, @JsonKey(name: 'avg_g_force')  double? avgGForce, @JsonKey(name: 'max_g_force')  double? maxGForce, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'event_name')  String? eventName, @JsonKey(name: 'step_name')  String? stepName, @JsonKey(name: 'is_better_than')  Map<String, double>? isBetterThan)  $default,) {final _that = this;
 switch (_that) {
 case _UserJourney():
-return $default(_that.id,_that.file,_that.avgSpeed,_that.totalDistance,_that.minElevation,_that.maxElevation,_that.totalElevationGain,_that.totalElevationLoss,_that.totalTime,_that.maxSpeed,_that.avgGForce,_that.maxGForce,_that.createdAt,_that.isBetterThan);}
+return $default(_that.id,_that.file,_that.name,_that.avgSpeed,_that.totalDistance,_that.minElevation,_that.maxElevation,_that.totalElevationGain,_that.totalElevationLoss,_that.totalTime,_that.maxSpeed,_that.avgGForce,_that.maxGForce,_that.createdAt,_that.eventName,_that.stepName,_that.isBetterThan);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -201,10 +204,10 @@ return $default(_that.id,_that.file,_that.avgSpeed,_that.totalDistance,_that.min
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String file, @JsonKey(name: 'avg_speed')  double? avgSpeed, @JsonKey(name: 'total_distance')  int? totalDistance, @JsonKey(name: 'min_elevation')  double? minElevation, @JsonKey(name: 'max_elevation')  double? maxElevation, @JsonKey(name: 'total_elevation_gain')  double? totalElevationGain, @JsonKey(name: 'total_elevation_loss')  double? totalElevationLoss, @JsonKey(name: 'total_time')  int? totalTime, @JsonKey(name: 'max_speed')  double? maxSpeed, @JsonKey(name: 'avg_g_force')  double? avgGForce, @JsonKey(name: 'max_g_force')  double? maxGForce, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'is_better_than')  Map<String, double>? isBetterThan)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int id,  String file,  String? name, @JsonKey(name: 'avg_speed')  double? avgSpeed, @JsonKey(name: 'total_distance')  int? totalDistance, @JsonKey(name: 'min_elevation')  double? minElevation, @JsonKey(name: 'max_elevation')  double? maxElevation, @JsonKey(name: 'total_elevation_gain')  double? totalElevationGain, @JsonKey(name: 'total_elevation_loss')  double? totalElevationLoss, @JsonKey(name: 'total_time')  int? totalTime, @JsonKey(name: 'max_speed')  double? maxSpeed, @JsonKey(name: 'avg_g_force')  double? avgGForce, @JsonKey(name: 'max_g_force')  double? maxGForce, @JsonKey(name: 'created_at')  DateTime createdAt, @JsonKey(name: 'event_name')  String? eventName, @JsonKey(name: 'step_name')  String? stepName, @JsonKey(name: 'is_better_than')  Map<String, double>? isBetterThan)?  $default,) {final _that = this;
 switch (_that) {
 case _UserJourney() when $default != null:
-return $default(_that.id,_that.file,_that.avgSpeed,_that.totalDistance,_that.minElevation,_that.maxElevation,_that.totalElevationGain,_that.totalElevationLoss,_that.totalTime,_that.maxSpeed,_that.avgGForce,_that.maxGForce,_that.createdAt,_that.isBetterThan);case _:
+return $default(_that.id,_that.file,_that.name,_that.avgSpeed,_that.totalDistance,_that.minElevation,_that.maxElevation,_that.totalElevationGain,_that.totalElevationLoss,_that.totalTime,_that.maxSpeed,_that.avgGForce,_that.maxGForce,_that.createdAt,_that.eventName,_that.stepName,_that.isBetterThan);case _:
   return null;
 
 }
@@ -216,11 +219,12 @@ return $default(_that.id,_that.file,_that.avgSpeed,_that.totalDistance,_that.min
 @JsonSerializable()
 
 class _UserJourney extends UserJourney {
-  const _UserJourney({required this.id, required this.file, @JsonKey(name: 'avg_speed') required this.avgSpeed, @JsonKey(name: 'total_distance') required this.totalDistance, @JsonKey(name: 'min_elevation') required this.minElevation, @JsonKey(name: 'max_elevation') required this.maxElevation, @JsonKey(name: 'total_elevation_gain') required this.totalElevationGain, @JsonKey(name: 'total_elevation_loss') required this.totalElevationLoss, @JsonKey(name: 'total_time') required this.totalTime, @JsonKey(name: 'max_speed') required this.maxSpeed, @JsonKey(name: 'avg_g_force') required this.avgGForce, @JsonKey(name: 'max_g_force') required this.maxGForce, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'is_better_than') required final  Map<String, double>? isBetterThan}): _isBetterThan = isBetterThan,super._();
+  const _UserJourney({required this.id, required this.file, this.name, @JsonKey(name: 'avg_speed') required this.avgSpeed, @JsonKey(name: 'total_distance') required this.totalDistance, @JsonKey(name: 'min_elevation') required this.minElevation, @JsonKey(name: 'max_elevation') required this.maxElevation, @JsonKey(name: 'total_elevation_gain') required this.totalElevationGain, @JsonKey(name: 'total_elevation_loss') required this.totalElevationLoss, @JsonKey(name: 'total_time') required this.totalTime, @JsonKey(name: 'max_speed') required this.maxSpeed, @JsonKey(name: 'avg_g_force') required this.avgGForce, @JsonKey(name: 'max_g_force') required this.maxGForce, @JsonKey(name: 'created_at') required this.createdAt, @JsonKey(name: 'event_name') this.eventName, @JsonKey(name: 'step_name') this.stepName, @JsonKey(name: 'is_better_than') required final  Map<String, double>? isBetterThan}): _isBetterThan = isBetterThan,super._();
   factory _UserJourney.fromJson(Map<String, dynamic> json) => _$UserJourneyFromJson(json);
 
 @override final  int id;
 @override final  String file;
+@override final  String? name;
 @override@JsonKey(name: 'avg_speed') final  double? avgSpeed;
 @override@JsonKey(name: 'total_distance') final  int? totalDistance;
 @override@JsonKey(name: 'min_elevation') final  double? minElevation;
@@ -232,6 +236,8 @@ class _UserJourney extends UserJourney {
 @override@JsonKey(name: 'avg_g_force') final  double? avgGForce;
 @override@JsonKey(name: 'max_g_force') final  double? maxGForce;
 @override@JsonKey(name: 'created_at') final  DateTime createdAt;
+@override@JsonKey(name: 'event_name') final  String? eventName;
+@override@JsonKey(name: 'step_name') final  String? stepName;
  final  Map<String, double>? _isBetterThan;
 @override@JsonKey(name: 'is_better_than') Map<String, double>? get isBetterThan {
   final value = _isBetterThan;
@@ -255,16 +261,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserJourney&&(identical(other.id, id) || other.id == id)&&(identical(other.file, file) || other.file == file)&&(identical(other.avgSpeed, avgSpeed) || other.avgSpeed == avgSpeed)&&(identical(other.totalDistance, totalDistance) || other.totalDistance == totalDistance)&&(identical(other.minElevation, minElevation) || other.minElevation == minElevation)&&(identical(other.maxElevation, maxElevation) || other.maxElevation == maxElevation)&&(identical(other.totalElevationGain, totalElevationGain) || other.totalElevationGain == totalElevationGain)&&(identical(other.totalElevationLoss, totalElevationLoss) || other.totalElevationLoss == totalElevationLoss)&&(identical(other.totalTime, totalTime) || other.totalTime == totalTime)&&(identical(other.maxSpeed, maxSpeed) || other.maxSpeed == maxSpeed)&&(identical(other.avgGForce, avgGForce) || other.avgGForce == avgGForce)&&(identical(other.maxGForce, maxGForce) || other.maxGForce == maxGForce)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&const DeepCollectionEquality().equals(other._isBetterThan, _isBetterThan));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserJourney&&(identical(other.id, id) || other.id == id)&&(identical(other.file, file) || other.file == file)&&(identical(other.name, name) || other.name == name)&&(identical(other.avgSpeed, avgSpeed) || other.avgSpeed == avgSpeed)&&(identical(other.totalDistance, totalDistance) || other.totalDistance == totalDistance)&&(identical(other.minElevation, minElevation) || other.minElevation == minElevation)&&(identical(other.maxElevation, maxElevation) || other.maxElevation == maxElevation)&&(identical(other.totalElevationGain, totalElevationGain) || other.totalElevationGain == totalElevationGain)&&(identical(other.totalElevationLoss, totalElevationLoss) || other.totalElevationLoss == totalElevationLoss)&&(identical(other.totalTime, totalTime) || other.totalTime == totalTime)&&(identical(other.maxSpeed, maxSpeed) || other.maxSpeed == maxSpeed)&&(identical(other.avgGForce, avgGForce) || other.avgGForce == avgGForce)&&(identical(other.maxGForce, maxGForce) || other.maxGForce == maxGForce)&&(identical(other.createdAt, createdAt) || other.createdAt == createdAt)&&(identical(other.eventName, eventName) || other.eventName == eventName)&&(identical(other.stepName, stepName) || other.stepName == stepName)&&const DeepCollectionEquality().equals(other._isBetterThan, _isBetterThan));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,file,avgSpeed,totalDistance,minElevation,maxElevation,totalElevationGain,totalElevationLoss,totalTime,maxSpeed,avgGForce,maxGForce,createdAt,const DeepCollectionEquality().hash(_isBetterThan));
+int get hashCode => Object.hash(runtimeType,id,file,name,avgSpeed,totalDistance,minElevation,maxElevation,totalElevationGain,totalElevationLoss,totalTime,maxSpeed,avgGForce,maxGForce,createdAt,eventName,stepName,const DeepCollectionEquality().hash(_isBetterThan));
 
 @override
 String toString() {
-  return 'UserJourney(id: $id, file: $file, avgSpeed: $avgSpeed, totalDistance: $totalDistance, minElevation: $minElevation, maxElevation: $maxElevation, totalElevationGain: $totalElevationGain, totalElevationLoss: $totalElevationLoss, totalTime: $totalTime, maxSpeed: $maxSpeed, avgGForce: $avgGForce, maxGForce: $maxGForce, createdAt: $createdAt, isBetterThan: $isBetterThan)';
+  return 'UserJourney(id: $id, file: $file, name: $name, avgSpeed: $avgSpeed, totalDistance: $totalDistance, minElevation: $minElevation, maxElevation: $maxElevation, totalElevationGain: $totalElevationGain, totalElevationLoss: $totalElevationLoss, totalTime: $totalTime, maxSpeed: $maxSpeed, avgGForce: $avgGForce, maxGForce: $maxGForce, createdAt: $createdAt, eventName: $eventName, stepName: $stepName, isBetterThan: $isBetterThan)';
 }
 
 
@@ -275,7 +281,7 @@ abstract mixin class _$UserJourneyCopyWith<$Res> implements $UserJourneyCopyWith
   factory _$UserJourneyCopyWith(_UserJourney value, $Res Function(_UserJourney) _then) = __$UserJourneyCopyWithImpl;
 @override @useResult
 $Res call({
- int id, String file,@JsonKey(name: 'avg_speed') double? avgSpeed,@JsonKey(name: 'total_distance') int? totalDistance,@JsonKey(name: 'min_elevation') double? minElevation,@JsonKey(name: 'max_elevation') double? maxElevation,@JsonKey(name: 'total_elevation_gain') double? totalElevationGain,@JsonKey(name: 'total_elevation_loss') double? totalElevationLoss,@JsonKey(name: 'total_time') int? totalTime,@JsonKey(name: 'max_speed') double? maxSpeed,@JsonKey(name: 'avg_g_force') double? avgGForce,@JsonKey(name: 'max_g_force') double? maxGForce,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'is_better_than') Map<String, double>? isBetterThan
+ int id, String file, String? name,@JsonKey(name: 'avg_speed') double? avgSpeed,@JsonKey(name: 'total_distance') int? totalDistance,@JsonKey(name: 'min_elevation') double? minElevation,@JsonKey(name: 'max_elevation') double? maxElevation,@JsonKey(name: 'total_elevation_gain') double? totalElevationGain,@JsonKey(name: 'total_elevation_loss') double? totalElevationLoss,@JsonKey(name: 'total_time') int? totalTime,@JsonKey(name: 'max_speed') double? maxSpeed,@JsonKey(name: 'avg_g_force') double? avgGForce,@JsonKey(name: 'max_g_force') double? maxGForce,@JsonKey(name: 'created_at') DateTime createdAt,@JsonKey(name: 'event_name') String? eventName,@JsonKey(name: 'step_name') String? stepName,@JsonKey(name: 'is_better_than') Map<String, double>? isBetterThan
 });
 
 
@@ -292,11 +298,12 @@ class __$UserJourneyCopyWithImpl<$Res>
 
 /// Create a copy of UserJourney
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? file = null,Object? avgSpeed = freezed,Object? totalDistance = freezed,Object? minElevation = freezed,Object? maxElevation = freezed,Object? totalElevationGain = freezed,Object? totalElevationLoss = freezed,Object? totalTime = freezed,Object? maxSpeed = freezed,Object? avgGForce = freezed,Object? maxGForce = freezed,Object? createdAt = null,Object? isBetterThan = freezed,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? file = null,Object? name = freezed,Object? avgSpeed = freezed,Object? totalDistance = freezed,Object? minElevation = freezed,Object? maxElevation = freezed,Object? totalElevationGain = freezed,Object? totalElevationLoss = freezed,Object? totalTime = freezed,Object? maxSpeed = freezed,Object? avgGForce = freezed,Object? maxGForce = freezed,Object? createdAt = null,Object? eventName = freezed,Object? stepName = freezed,Object? isBetterThan = freezed,}) {
   return _then(_UserJourney(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as int,file: null == file ? _self.file : file // ignore: cast_nullable_to_non_nullable
-as String,avgSpeed: freezed == avgSpeed ? _self.avgSpeed : avgSpeed // ignore: cast_nullable_to_non_nullable
+as String,name: freezed == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
+as String?,avgSpeed: freezed == avgSpeed ? _self.avgSpeed : avgSpeed // ignore: cast_nullable_to_non_nullable
 as double?,totalDistance: freezed == totalDistance ? _self.totalDistance : totalDistance // ignore: cast_nullable_to_non_nullable
 as int?,minElevation: freezed == minElevation ? _self.minElevation : minElevation // ignore: cast_nullable_to_non_nullable
 as double?,maxElevation: freezed == maxElevation ? _self.maxElevation : maxElevation // ignore: cast_nullable_to_non_nullable
@@ -307,7 +314,9 @@ as int?,maxSpeed: freezed == maxSpeed ? _self.maxSpeed : maxSpeed // ignore: cas
 as double?,avgGForce: freezed == avgGForce ? _self.avgGForce : avgGForce // ignore: cast_nullable_to_non_nullable
 as double?,maxGForce: freezed == maxGForce ? _self.maxGForce : maxGForce // ignore: cast_nullable_to_non_nullable
 as double?,createdAt: null == createdAt ? _self.createdAt : createdAt // ignore: cast_nullable_to_non_nullable
-as DateTime,isBetterThan: freezed == isBetterThan ? _self._isBetterThan : isBetterThan // ignore: cast_nullable_to_non_nullable
+as DateTime,eventName: freezed == eventName ? _self.eventName : eventName // ignore: cast_nullable_to_non_nullable
+as String?,stepName: freezed == stepName ? _self.stepName : stepName // ignore: cast_nullable_to_non_nullable
+as String?,isBetterThan: freezed == isBetterThan ? _self._isBetterThan : isBetterThan // ignore: cast_nullable_to_non_nullable
 as Map<String, double>?,
   ));
 }

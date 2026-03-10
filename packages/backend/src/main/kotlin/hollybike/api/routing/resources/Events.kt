@@ -49,8 +49,29 @@ class Events(val api: API = API()) {
 		@Resource("details")
 		class Details(val details: Id)
 
-		@Resource("journey")
-		class Journey(val journey: Id)
+		@Resource("journey-steps")
+		class JourneySteps(val steps: Id) {
+			@Resource("{stepId}")
+			class Step(val journeySteps: JourneySteps, val stepId: Int) {
+				@Resource("current")
+				class Current(val step: Step)
+
+				@Resource("participations")
+				class Participations(val step: Step) {
+					@Resource("me")
+					class Me(val participations: Participations) {
+						@Resource("journey")
+						class Journey(val me: Me) {
+							@Resource("terminate")
+							class Terminate(val journey: Journey)
+
+							@Resource("reset")
+							class Reset(val journey: Journey)
+						}
+					}
+				}
+			}
+		}
 
 		@Resource("participations")
 		class Participations(val eventId: Id) {

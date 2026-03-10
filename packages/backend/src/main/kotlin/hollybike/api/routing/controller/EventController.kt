@@ -1,4 +1,4 @@
-/*
+﻿/*
   Hollybike API Kotlin KTor Graalvm application
   Made by MacaronFR (Denis TURBIEZ) and Loïc Vanden Bossche
 */
@@ -32,6 +32,9 @@ import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.jvm.javaio.toInputStream
+import kotlinx.serialization.json.JsonObject
+import kotlinx.serialization.json.contentOrNull
+import kotlinx.serialization.json.jsonPrimitive
 
 class EventController(
 	application: Application,
@@ -55,8 +58,11 @@ class EventController(
 				getEventExpenseReport()
 				getEvent()
 				createEvent()
-				addJourneyToEvent()
-				removeJourneyFromEvent()
+				getJourneySteps()
+				addJourneyStepToEvent()
+				removeJourneyStepFromEvent()
+				renameJourneyStep()
+				setCurrentJourneyStep()
 				updateEvent()
 				uploadEventImage()
 				deleteEvent()
@@ -68,6 +74,8 @@ class EventController(
 				getParticipantJourney()
 				resetEventJourney()
 				terminateEventJourney()
+				resetEventJourneyForStep()
+				terminateEventJourneyForStep()
 			}
 		}
 	}
@@ -77,9 +85,10 @@ class EventController(
 			val params = call.request.queryParameters.getSearchParam(mapper)
 
 			val events = eventService.getAllEvents(call.user, params)
+			val distances = eventService.getCurrentJourneyDistances(events.map { it.id.value })
 			val totalEvents = eventService.countAllEvents(call.user, params)
 
-			call.respond(TLists(events.map { TEventPartial(it) }, params, totalEvents))
+			call.respond(TLists(events.map { TEventPartial(it, distances[it.id.value]) }, params, totalEvents))
 		}
 	}
 
@@ -88,9 +97,10 @@ class EventController(
 			val searchParam = call.request.queryParameters.getSearchParam(mapper)
 
 			val events = eventService.getFutureEvents(call.user, searchParam)
+			val distances = eventService.getCurrentJourneyDistances(events.map { it.id.value })
 			val totalEvents = eventService.countFutureEvents(call.user, searchParam)
 
-			call.respond(TLists(events.map { TEventPartial(it) }, searchParam, totalEvents))
+			call.respond(TLists(events.map { TEventPartial(it, distances[it.id.value]) }, searchParam, totalEvents))
 		}
 	}
 
@@ -110,9 +120,10 @@ class EventController(
 			}
 
 			val events = eventService.getParticipatingEvents(call.user, searchParam)
+			val distances = eventService.getCurrentJourneyDistances(events.map { it.id.value })
 			val totalEvents = eventService.countParticipatingEvents(call.user, searchParam)
 
-			call.respond(TLists(events.map { TEventPartial(it) }, searchParam, totalEvents))
+			call.respond(TLists(events.map { TEventPartial(it, distances[it.id.value]) }, searchParam, totalEvents))
 		}
 	}
 
@@ -121,16 +132,20 @@ class EventController(
 			val searchParam = call.request.queryParameters.getSearchParam(mapper)
 
 			val events = eventService.getArchivedEvents(call.user, searchParam)
+			val distances = eventService.getCurrentJourneyDistances(events.map { it.id.value })
 			val totalEvents = eventService.countArchivedEvents(call.user, searchParam)
 
-			call.respond(TLists(events.map { TEventPartial(it) }, searchParam, totalEvents))
+			call.respond(TLists(events.map { TEventPartial(it, distances[it.id.value]) }, searchParam, totalEvents))
 		}
 	}
 
 	private fun Route.getEventDetails() {
 		get<Events.Id.Details> { id ->
-			val (event, callerParticipation) = eventService.getEventWithParticipation(call.user, id.details.id)
-				?: return@get call.respond(HttpStatusCode.NotFound, "L'évènement n'a pas été trouvé")
+			val (event, callerParticipation, journeySteps) = eventService.getEventWithParticipation(call.user, id.details.id)
+				?: return@get call.respond(HttpStatusCode.NotFound, "L'evenement n'a pas ete trouve")
+			val callerStepJourneys = callerParticipation?.let {
+				userEventPositionService.getCallerStepJourneys(call.user, event, journeySteps)
+			}
 
 			val eventExpenses = callerParticipation?.let {
 				expenseService.getEventExpense(it, call.user, event)
@@ -142,6 +157,8 @@ class EventController(
 						TEventDetails(
 							event,
 							callerParticipation,
+							journeySteps,
+							callerStepJourneys,
 							participants,
 							participantsCount,
 							eventExpenses,
@@ -211,29 +228,72 @@ class EventController(
 		}
 	}
 
-	private fun Route.addJourneyToEvent() {
-		post<Events.Id.Journey> { data ->
-			val journeyId = call.receive<TAddJourneyToEvent>().journeyId
-
-			eventService.addJourneyToEvent(
-				call.user,
-				data.journey.id,
-				journeyId
-			).onSuccess {
-				call.respond(HttpStatusCode.OK)
+	private fun Route.getJourneySteps() {
+		get<Events.Id.JourneySteps> { data ->
+			eventService.getEventJourneySteps(call.user, data.steps.id).onSuccess { steps ->
+				call.respond(HttpStatusCode.OK, TEventJourneyStepsState(steps))
 			}.onFailure {
 				eventService.handleEventExceptions(it, call)
 			}
 		}
 	}
 
-	private fun Route.removeJourneyFromEvent() {
-		delete<Events.Id.Journey> { data ->
-			eventService.removeJourneyFromEvent(
+	private fun Route.addJourneyStepToEvent() {
+		post<Events.Id.JourneySteps> { data ->
+			val body = call.receive<TCreateEventJourneyStep>()
+			eventService.addJourneyStepToEvent(
 				call.user,
-				data.journey.id,
-			).onSuccess {
-				call.respond(HttpStatusCode.OK)
+				data.steps.id,
+				body.journeyId,
+				body.name,
+				body.position
+			).onSuccess { steps ->
+				call.respond(HttpStatusCode.OK, TEventJourneyStepsState(steps))
+			}.onFailure {
+				eventService.handleEventExceptions(it, call)
+			}
+		}
+	}
+
+	private fun Route.removeJourneyStepFromEvent() {
+		delete<Events.Id.JourneySteps.Step> { data ->
+			eventService.removeJourneyStepFromEvent(
+				call.user,
+				data.journeySteps.steps.id,
+				data.stepId
+			).onSuccess { steps ->
+				call.respond(HttpStatusCode.OK, TEventJourneyStepsState(steps))
+			}.onFailure {
+				eventService.handleEventExceptions(it, call)
+			}
+		}
+	}
+
+	private fun Route.renameJourneyStep() {
+		patch<Events.Id.JourneySteps.Step> { data ->
+			val body = call.receive<JsonObject>()
+			val name = body["name"]?.jsonPrimitive?.contentOrNull
+			eventService.renameJourneyStep(
+				call.user,
+				data.journeySteps.steps.id,
+				data.stepId,
+				name
+			).onSuccess { steps ->
+				call.respond(HttpStatusCode.OK, TEventJourneyStepsState(steps))
+			}.onFailure {
+				eventService.handleEventExceptions(it, call)
+			}
+		}
+	}
+
+	private fun Route.setCurrentJourneyStep() {
+		patch<Events.Id.JourneySteps.Step.Current> { data ->
+			eventService.setCurrentJourneyStep(
+				call.user,
+				data.step.journeySteps.steps.id,
+				data.step.stepId
+			).onSuccess { steps ->
+				call.respond(HttpStatusCode.OK, TEventJourneyStepsState(steps))
 			}.onFailure {
 				eventService.handleEventExceptions(it, call)
 			}
@@ -352,11 +412,47 @@ class EventController(
 				runCatching {
 					userEventPositionService.terminateUserJourney(call.user, event)
 				}.onSuccess { journey ->
+					val (eventName, stepName) = userEventPositionService.getJourneyEventAndStepNames(journey)
 					call.respond(
 						HttpStatusCode.Created,
 						TUserJourney(
 							journey,
-							userEventPositionService.getIsBetterThanForUserJourney(journey)
+							userEventPositionService.getIsBetterThanForUserJourney(journey),
+							eventName,
+							stepName
+						)
+					)
+				}.onFailure {
+					eventService.handleEventExceptions(it, call)
+				}
+			}
+		}
+	}
+
+	private fun Route.terminateEventJourneyForStep() {
+		post<Events.Id.JourneySteps.Step.Participations.Me.Journey.Terminate> { it ->
+			val eventId = it.journey.me.participations.step.journeySteps.steps.id
+			val stepId = it.journey.me.participations.step.stepId
+
+			val event = eventService.getEvent(call.user, eventId) ?: run {
+				call.respond(HttpStatusCode.NotFound, "Évènement inconnu")
+				return@post
+			}
+
+			userEventPositionService.getUserJourneyFromEventStep(call.user, event, stepId)?.let {
+				call.respond(HttpStatusCode.Conflict, "Trajet déjà terminé")
+			} ?: run {
+				runCatching {
+					userEventPositionService.terminateUserJourney(call.user, event, stepId)
+				}.onSuccess { journey ->
+					val (eventName, stepName) = userEventPositionService.getJourneyEventAndStepNames(journey)
+					call.respond(
+						HttpStatusCode.Created,
+						TUserJourney(
+							journey,
+							userEventPositionService.getIsBetterThanForUserJourney(journey),
+							eventName,
+							stepName
 						)
 					)
 				}.onFailure {
@@ -376,6 +472,26 @@ class EventController(
 			userEventPositionService.removeUserJourneyFromEvent(call.user, event)
 
 			call.respond(HttpStatusCode.NoContent)
+		}
+	}
+
+	private fun Route.resetEventJourneyForStep() {
+		patch<Events.Id.JourneySteps.Step.Participations.Me.Journey.Reset> {
+			val eventId = it.journey.me.participations.step.journeySteps.steps.id
+			val stepId = it.journey.me.participations.step.stepId
+
+			val event = eventService.getEvent(call.user, eventId) ?: run {
+				call.respond(HttpStatusCode.NotFound, "Évènement inconnu")
+				return@patch
+			}
+
+			runCatching {
+				userEventPositionService.removeUserJourneyFromEventStep(call.user, event, stepId)
+			}.onSuccess {
+				call.respond(HttpStatusCode.NoContent)
+			}.onFailure {
+				eventService.handleEventExceptions(it, call)
+			}
 		}
 	}
 
@@ -407,3 +523,5 @@ class EventController(
 
 
 
+
+

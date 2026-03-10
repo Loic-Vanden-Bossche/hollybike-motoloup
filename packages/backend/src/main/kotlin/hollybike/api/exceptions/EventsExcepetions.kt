@@ -17,5 +17,7 @@ class InvalidEventNameException(message: String? = null) : RuntimeException(mess
 class InvalidEventDescriptionException(message: String? = null) : RuntimeException(message)
 
 class JourneyNotFoundException(message: String? = null) : RuntimeException(message)
+class EventJourneyStepNotFoundException(message: String? = null) : RuntimeException(message)
+class DuplicateEventJourneyStepException(message: String? = null) : RuntimeException(message)
 
 

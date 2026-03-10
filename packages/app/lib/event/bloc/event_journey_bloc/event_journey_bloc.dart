@@ -22,7 +22,9 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
   }) : super(EventJourneyInitial()) {
     on<UploadJourneyFileToEvent>(_onUploadJourneyFileToEvent);
     on<AttachJourneyToEvent>(_onAttachJourneyToEvent);
-    on<RemoveJourneyFromEvent>(_onRemoveJourney);
+    on<RemoveJourneyStepFromEvent>(_onRemoveJourneyStep);
+    on<RenameJourneyStepInEvent>(_onRenameJourneyStep);
+    on<SetCurrentJourneyStep>(_onSetCurrentJourneyStep);
   }
 
   Future<void> _onUploadJourneyFileToEvent(
@@ -48,39 +50,17 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
     emit(EventJourneyUploadInProgress(state));
 
     try {
-      final journeyWithFile = await journeyRepository.uploadJourneyFile(
-        journey.id,
-        event.file,
-      );
+      await journeyRepository.uploadJourneyFile(journey.id, event.file);
 
       emit(EventJourneyUploadSuccess(state));
 
-      await eventRepository.addJourneyToEvent(event.eventId, journey);
-
-      eventRepository.onEventJourneyUpdated(journeyWithFile, event.eventId);
+      await eventRepository.addJourneyStepToEvent(
+        event.eventId,
+        journey,
+        name: event.stepName,
+      );
 
       emit(EventJourneyCreationSuccess(state));
-
-      try {
-        emit(EventJourneyGetPositionsInProgress(state));
-
-        final journeyWithPositions = await journeyRepository.getPositions(
-          journeyWithFile.id,
-        );
-
-        eventRepository.onEventJourneyUpdated(
-          journeyWithFile.copyWith(
-            start: journeyWithPositions.start,
-            end: journeyWithPositions.end,
-            destination: journeyWithPositions.destination,
-          ),
-          event.eventId,
-        );
-
-        emit(EventJourneyGetPositionsSuccess(state));
-      } catch (e) {
-        log('Error while fetching positions for journey', error: e);
-      }
     } catch (e) {
       try {
         await journeyRepository.deleteJourney(journey.id);
@@ -104,7 +84,12 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
     emit(EventJourneyOperationInProgress(state));
 
     try {
-      await eventRepository.addJourneyToEvent(event.eventId, event.journey);
+      await eventRepository.addJourneyStepToEvent(
+        event.eventId,
+        event.journey,
+        name: event.stepName,
+        position: event.position,
+      );
 
       emit(
         EventJourneyOperationSuccess(
@@ -123,14 +108,17 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
     }
   }
 
-  Future<void> _onRemoveJourney(
-    RemoveJourneyFromEvent event,
+  Future<void> _onRemoveJourneyStep(
+    RemoveJourneyStepFromEvent event,
     Emitter<EventJourneyState> emit,
   ) async {
     emit(EventJourneyOperationInProgress(state));
 
     try {
-      await eventRepository.removeJourneyFromEvent(event.eventId);
+      await eventRepository.removeJourneyStepFromEvent(
+        event.eventId,
+        event.stepId,
+      );
 
       emit(
         EventJourneyOperationSuccess(
@@ -143,7 +131,56 @@ class EventJourneyBloc extends Bloc<EventJourneyEvent, EventJourneyState> {
       emit(
         EventJourneyOperationFailure(
           state,
-          errorMessage: 'Impossible de retirer le parcours.',
+          errorMessage: 'Impossible de retirer l\'étape.',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onRenameJourneyStep(
+    RenameJourneyStepInEvent event,
+    Emitter<EventJourneyState> emit,
+  ) async {
+    emit(EventJourneyOperationInProgress(state));
+    try {
+      await eventRepository.renameJourneyStepInEvent(
+        event.eventId,
+        event.stepId,
+        event.name,
+      );
+      emit(
+        EventJourneyOperationSuccess(state, successMessage: 'Étape renommée'),
+      );
+    } catch (e) {
+      log('Error while renaming journey step', error: e);
+      emit(
+        EventJourneyOperationFailure(
+          state,
+          errorMessage: 'Impossible de renommer l\'étape.',
+        ),
+      );
+    }
+  }
+
+  Future<void> _onSetCurrentJourneyStep(
+    SetCurrentJourneyStep event,
+    Emitter<EventJourneyState> emit,
+  ) async {
+    emit(EventJourneyOperationInProgress(state));
+    try {
+      await eventRepository.setCurrentJourneyStep(event.eventId, event.stepId);
+      emit(
+        EventJourneyOperationSuccess(
+          state,
+          successMessage: 'Étape actuelle mise à jour',
+        ),
+      );
+    } catch (e) {
+      log('Error while setting current journey step', error: e);
+      emit(
+        EventJourneyOperationFailure(
+          state,
+          errorMessage: 'Impossible de changer l\'étape actuelle.',
         ),
       );
     }

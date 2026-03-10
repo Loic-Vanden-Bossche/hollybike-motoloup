@@ -8,6 +8,7 @@ import 'package:hollybike/profile/bloc/profile_journeys_bloc/profile_journeys_bl
 import 'package:hollybike/user/types/minimal_user.dart';
 import 'package:hollybike/user_journey/type/user_journey.dart';
 import 'package:hollybike/user_journey/widgets/user_journey_card.dart';
+import 'package:hollybike/user_journey/widgets/user_journey_card_display_context.dart';
 
 import '../../profile/bloc/profile_journeys_bloc/profile_journeys_event.dart';
 
@@ -58,6 +59,7 @@ class UserJourneyList extends StatelessWidget {
                         journey: journey,
                         color: scheme.secondary.withValues(alpha: 0.18),
                         user: user,
+                        displayContext: UserJourneyCardDisplayContext.profile,
                         onJourneySelected: onJourneySelected,
                         onDeleted: () {
                           context.read<ProfileJourneysBloc>().add(

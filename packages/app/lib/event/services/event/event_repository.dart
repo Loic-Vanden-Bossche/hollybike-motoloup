@@ -8,8 +8,10 @@ import 'package:hollybike/auth/services/auth_persistence.dart';
 import 'package:hollybike/event/types/event_details.dart';
 import 'package:hollybike/event/types/event_expense.dart';
 import 'package:hollybike/event/types/event_form_data.dart';
+import 'package:hollybike/event/types/event_journey_steps_state.dart';
 import 'package:hollybike/event/types/event_status_state.dart';
 import 'package:hollybike/event/types/participation/event_caller_participation.dart';
+import 'package:hollybike/event/types/participation/event_caller_participation_step_journey.dart';
 import 'package:hollybike/journey/type/journey.dart';
 import 'package:hollybike/shared/types/paginated_list.dart';
 import 'package:hollybike/shared/utils/streams/stream_counter.dart';
@@ -18,6 +20,7 @@ import 'package:hollybike/shared/utils/streams/stream_value.dart';
 import '../../../shared/utils/streams/stream_mapper.dart';
 import '../../../user_journey/type/user_journey.dart';
 import '../../types/event.dart';
+import '../../types/event_journey_step.dart';
 import '../../types/minimal_event.dart';
 import '../../types/participation/event_participation.dart';
 import 'event_api.dart';
@@ -139,9 +142,9 @@ class EventRepository {
     }
 
     final streamKey =
-    requestType == "participating"
-        ? (userId ?? participatingStreamKey)
-        : null;
+        requestType == "participating"
+            ? (userId ?? participatingStreamKey)
+            : null;
 
     final pageResult = await eventApi.getEvents(
       requestType,
@@ -320,7 +323,9 @@ class EventRepository {
         expenses: details.expenses,
         totalExpense: details.totalExpense,
         event: details.event,
-        journey: details.journey,
+        journeySteps: details.journeySteps,
+        currentStepId: details.currentStepId,
+        currentJourney: details.currentJourney,
         callerParticipation: null,
         previewParticipants: details.previewParticipants,
         previewParticipantsCount: details.previewParticipantsCount,
@@ -530,50 +535,172 @@ class EventRepository {
     );
   }
 
-  Future<void> addJourneyToEvent(int eventId, Journey journey) async {
-    await eventApi.addJourneyToEvent(eventId, journey.id);
-
-    onEventJourneyUpdated(journey, eventId);
-  }
-
-  void onEventJourneyUpdated(Journey journey, int eventId) {
-    final details = _eventDetailsStreamMapper.get(eventId);
-
-    if (details == null) {
-      return;
-    }
-
-    _eventDetailsStreamMapper.add(
+  Future<void> addJourneyStepToEvent(
+    int eventId,
+    Journey journey, {
+    String? name,
+    int? position,
+  }) async {
+    final state = await eventApi.addJourneyStepToEvent(
       eventId,
-      details.copyWith(journey: journey.toMinimalJourney()),
+      journey.id,
+      name: name,
+      position: position,
     );
+    _applyJourneyStepsState(eventId, state);
+    await _refreshEventDetails(eventId);
   }
 
-  Future<void> removeJourneyFromEvent(int eventId) async {
-    await eventApi.removeJourneyFromEvent(eventId);
+  Future<void> renameJourneyStepInEvent(
+    int eventId,
+    int stepId,
+    String name,
+  ) async {
+    final state = await eventApi.renameJourneyStepInEvent(
+      eventId,
+      stepId,
+      name,
+    );
+    _applyJourneyStepsState(eventId, state);
+    await _refreshEventDetails(eventId);
+  }
 
+  Future<void> setCurrentJourneyStep(int eventId, int stepId) async {
+    final state = await eventApi.setCurrentJourneyStep(eventId, stepId);
+    _applyJourneyStepsState(eventId, state);
+    await _refreshEventDetails(eventId);
+  }
+
+  Future<void> removeJourneyStepFromEvent(int eventId, int stepId) async {
+    final state = await eventApi.removeJourneyStepFromEvent(eventId, stepId);
+    _applyJourneyStepsState(eventId, state);
+    await _refreshEventDetails(eventId);
+  }
+
+  Future<List<EventJourneyStep>> getJourneySteps(int eventId) async {
+    final state = await eventApi.getJourneySteps(eventId);
+    _applyJourneyStepsState(eventId, state);
+    return state.journeySteps;
+  }
+
+  void _applyJourneyStepsState(int eventId, EventJourneyStepsState stepState) {
     final details = _eventDetailsStreamMapper.get(eventId);
 
-    if (details == null) {
-      return;
-    }
+    if (details == null) return;
+
+    final caller = details.callerParticipation;
+    final updatedStepJourneys = _reconcileCallerStepJourneys(
+      caller,
+      stepState,
+      details,
+    );
+    final currentStepState =
+        updatedStepJourneys
+            ?.where(
+              (EventCallerParticipationStepJourney stepJourney) =>
+                  stepJourney.stepId == stepState.currentStepId,
+            )
+            .firstOrNull;
+    final currentStepId = stepState.currentStepId;
+    final fallbackJourney =
+        currentStepId == null
+            ? caller?.journey
+            : (caller?.stepJourneys.isEmpty == true &&
+                stepState.journeySteps.length == 1 &&
+                caller?.journey != null &&
+                stepState.journeySteps.first.id == currentStepId)
+            ? caller?.journey
+            : null;
+    final fallbackHasRecordedPositions =
+        currentStepId == null
+            ? caller?.hasRecordedPositions ?? false
+            : (caller?.stepJourneys.isEmpty == true &&
+                stepState.journeySteps.length == 1 &&
+                stepState.journeySteps.first.id == currentStepId)
+            ? caller?.hasRecordedPositions ?? false
+            : false;
 
     _eventDetailsStreamMapper.add(
       eventId,
-      EventDetails(
-        expenses: details.expenses,
-        totalExpense: details.totalExpense,
-        event: details.event,
-        journey: null,
-        callerParticipation: details.callerParticipation,
-        previewParticipants: details.previewParticipants,
-        previewParticipantsCount: details.previewParticipantsCount,
+      details.copyWith(
+        journeySteps: stepState.journeySteps,
+        currentStepId: stepState.currentStepId,
+        currentJourney: stepState.currentJourney,
+        callerParticipation:
+            caller == null
+                ? null
+                : caller.copyWith(
+                  journey: currentStepState?.journey ?? fallbackJourney,
+                  hasRecordedPositions:
+                      currentStepState?.hasRecordedPositions ??
+                      fallbackHasRecordedPositions,
+                  stepJourneys: updatedStepJourneys ?? const [],
+                ),
       ),
     );
   }
 
-  Future<UserJourney> terminateUserJourney(int eventId) async {
-    final userJourney = await eventApi.terminateUserJourney(eventId);
+  List<EventCallerParticipationStepJourney>? _reconcileCallerStepJourneys(
+    EventCallerParticipation? caller,
+    EventJourneyStepsState stepState,
+    EventDetails details,
+  ) {
+    if (caller == null) {
+      return null;
+    }
+
+    if (stepState.journeySteps.isEmpty) {
+      return const [];
+    }
+
+    final existingByStepId = {
+      for (final stepJourney in caller.stepJourneys)
+        stepJourney.stepId: stepJourney,
+    };
+
+    return stepState.journeySteps.map((step) {
+      final existing = existingByStepId[step.id];
+      if (existing != null) {
+        return existing;
+      }
+
+      final shouldSeedFromLegacyCurrent =
+          caller.stepJourneys.isEmpty &&
+          caller.journey != null &&
+          details.currentStepId == null &&
+          stepState.currentStepId == step.id &&
+          stepState.journeySteps.length == 1;
+
+      if (shouldSeedFromLegacyCurrent) {
+        return EventCallerParticipationStepJourney(
+          stepId: step.id,
+          journey: caller.journey,
+          hasRecordedPositions: caller.hasRecordedPositions,
+        );
+      }
+
+      return EventCallerParticipationStepJourney(
+        stepId: step.id,
+        journey: null,
+        hasRecordedPositions: false,
+      );
+    }).toList();
+  }
+
+  Future<void> _refreshEventDetails(int eventId) async {
+    if (_eventDetailsStreamMapper.get(eventId) == null) {
+      return;
+    }
+
+    final refreshedDetails = await eventApi.getEventDetails(eventId);
+    _eventDetailsStreamMapper.add(eventId, refreshedDetails);
+  }
+
+  Future<UserJourney> terminateUserJourney(int eventId, {int? stepId}) async {
+    final userJourney = await eventApi.terminateUserJourney(
+      eventId,
+      stepId: stepId,
+    );
 
     final details = _eventDetailsStreamMapper.get(eventId);
 
@@ -581,12 +708,28 @@ class EventRepository {
       return userJourney;
     }
 
+    final targetedStepId = stepId ?? details.currentStepId;
+    final updatedStepJourneys =
+        details.callerParticipation?.stepJourneys.map((entry) {
+          if (entry.stepId != targetedStepId) return entry;
+          return entry.copyWith(
+            journey: userJourney,
+            hasRecordedPositions: false,
+          );
+        }).toList() ??
+        const [];
+    final currentStepState =
+        updatedStepJourneys
+            .where((entry) => entry.stepId == details.currentStepId)
+            .firstOrNull;
+
     _eventDetailsStreamMapper.add(
       eventId,
       details.copyWith(
         callerParticipation: details.callerParticipation?.copyWith(
-          journey: userJourney,
-          hasRecordedPositions: false,
+          journey: currentStepState?.journey ?? userJourney,
+          hasRecordedPositions: currentStepState?.hasRecordedPositions ?? false,
+          stepJourneys: updatedStepJourneys,
         ),
       ),
     );
@@ -594,8 +737,8 @@ class EventRepository {
     return userJourney;
   }
 
-  Future<UserJourney?> resetUserJourney(int eventId) async {
-    await eventApi.resetUserJourney(eventId);
+  Future<UserJourney?> resetUserJourney(int eventId, {int? stepId}) async {
+    await eventApi.resetUserJourney(eventId, stepId: stepId);
 
     final details = _eventDetailsStreamMapper.get(eventId);
 
@@ -605,6 +748,22 @@ class EventRepository {
       return null;
     }
 
+    final targetedStepId = stepId ?? details?.currentStepId;
+    final resetJourney =
+        caller.stepJourneys
+            .where((entry) => entry.stepId == targetedStepId)
+            .firstOrNull
+            ?.journey;
+    final updatedStepJourneys =
+        caller.stepJourneys.map((entry) {
+          if (entry.stepId != targetedStepId) return entry;
+          return entry.copyWith(journey: null, hasRecordedPositions: false);
+        }).toList();
+    final currentStepState =
+        updatedStepJourneys
+            .where((entry) => entry.stepId == details?.currentStepId)
+            .firstOrNull;
+
     _eventDetailsStreamMapper.add(
       eventId,
       details?.copyWith(
@@ -613,29 +772,62 @@ class EventRepository {
           isImagesPublic: caller.isImagesPublic,
           role: caller.role,
           joinedDateTime: caller.joinedDateTime,
-          journey: null,
-          hasRecordedPositions: false,
+          journey: currentStepState?.journey,
+          hasRecordedPositions: currentStepState?.hasRecordedPositions ?? false,
+          stepJourneys: updatedStepJourneys,
         ),
       ),
     );
 
-    return caller.journey;
+    return resetJourney ?? caller.journey;
   }
 
   void onUserPositionSent(int eventId) {
-    final caller = _eventDetailsStreamMapper.get(eventId)?.callerParticipation;
+    final details = _eventDetailsStreamMapper.get(eventId);
+    final caller = details?.callerParticipation;
 
-    if (caller?.hasRecordedPositions != false) {
+    if (caller == null) {
+      return;
+    }
+
+    final currentStepId = details?.currentStepId;
+    if (currentStepId == null) {
+      if (caller.hasRecordedPositions) {
+        return;
+      }
+      _eventDetailsStreamMapper.add(
+        eventId,
+        details?.copyWith(
+          callerParticipation: caller.copyWith(hasRecordedPositions: true),
+        ),
+      );
+      return;
+    }
+
+    final updatedStepJourneys =
+        caller.stepJourneys.map((stepJourney) {
+          if (stepJourney.stepId != currentStepId) return stepJourney;
+          if (stepJourney.hasRecordedPositions) return stepJourney;
+          return stepJourney.copyWith(hasRecordedPositions: true);
+        }).toList();
+    final currentStepState =
+        updatedStepJourneys
+            .where((stepJourney) => stepJourney.stepId == currentStepId)
+            .firstOrNull;
+
+    if (currentStepState?.hasRecordedPositions != true &&
+        caller.hasRecordedPositions) {
       return;
     }
 
     _eventDetailsStreamMapper.add(
       eventId,
-      _eventDetailsStreamMapper
-          .get(eventId)
-          ?.copyWith(
-            callerParticipation: caller?.copyWith(hasRecordedPositions: true),
-          ),
+      details?.copyWith(
+        callerParticipation: caller.copyWith(
+          hasRecordedPositions: currentStepState?.hasRecordedPositions ?? true,
+          stepJourneys: updatedStepJourneys,
+        ),
+      ),
     );
   }
 
@@ -828,7 +1020,29 @@ class EventRepository {
         continue;
       }
 
-      if (participation.journey?.id == userJourneyId) {
+      final hasMatchingStepJourney = participation.stepJourneys.any(
+        (stepJourney) => stepJourney.journey?.id == userJourneyId,
+      );
+
+      if (participation.journey?.id == userJourneyId ||
+          hasMatchingStepJourney) {
+        final updatedStepJourneys =
+            participation.stepJourneys.map((stepJourney) {
+              if (stepJourney.journey?.id == userJourneyId) {
+                return stepJourney.copyWith(
+                  journey: null,
+                  hasRecordedPositions: false,
+                );
+              }
+              return stepJourney;
+            }).toList();
+        final currentStepState =
+            updatedStepJourneys
+                .where(
+                  (stepJourney) =>
+                      stepJourney.stepId == counter.value?.currentStepId,
+                )
+                .firstOrNull;
         counter.add(
           counter.value?.copyWith(
             callerParticipation: EventCallerParticipation(
@@ -836,8 +1050,10 @@ class EventRepository {
               isImagesPublic: participation.isImagesPublic,
               role: participation.role,
               joinedDateTime: participation.joinedDateTime,
-              journey: null,
-              hasRecordedPositions: false,
+              journey: currentStepState?.journey,
+              hasRecordedPositions:
+                  currentStepState?.hasRecordedPositions ?? false,
+              stepJourneys: updatedStepJourneys,
             ),
           ),
         );

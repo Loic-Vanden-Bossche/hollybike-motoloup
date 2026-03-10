@@ -120,7 +120,9 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
       child: JourneyLibrary(
         event: widget.event,
         onAddJourney: _onAddJourney,
-        onSelected: _onSelectedJourney,
+        onSelected: (journey) {
+          _onSelectedJourney(journey);
+        },
         journeys: journeys,
       ),
     );
@@ -139,13 +141,21 @@ class _JourneyLibraryModalState extends State<JourneyLibraryModal> {
     }
   }
 
-  void _onSelectedJourney(Journey journey) {
+  Future<void> _onSelectedJourney(Journey journey) async {
+    if (!mounted) {
+      return;
+    }
+
     if (widget.onJourneyAdded != null) {
       widget.onJourneyAdded!();
     }
-    BlocProvider.of<EventJourneyBloc>(
-      context,
-    ).add(AttachJourneyToEvent(journey: journey, eventId: widget.event.id));
+    BlocProvider.of<EventJourneyBloc>(context).add(
+      AttachJourneyToEvent(
+        journey: journey,
+        eventId: widget.event.id,
+        stepName: null,
+      ),
+    );
     Navigator.of(context).pop();
   }
 }

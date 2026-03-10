@@ -30,6 +30,8 @@ class EventNowStatus extends StatelessWidget {
       eventDetails.callerParticipation?.journey == null &&
       eventDetails.callerParticipation?.hasRecordedPositions == true;
 
+  int? get currentStepId => eventDetails.currentStepId;
+
   @override
   Widget build(BuildContext context) {
     return EventDetailsStatusBadge(
@@ -61,7 +63,9 @@ class EventNowStatus extends StatelessWidget {
       );
 
       if (confirmed == true && context.mounted) {
-        context.read<EventDetailsBloc>().add(TerminateUserJourney());
+        context.read<EventDetailsBloc>().add(
+          TerminateUserJourney(stepId: currentStepId),
+        );
 
         if (isCurrentEvent) {
           context.read<MyPositionBloc>().add(DisableSendPositions());

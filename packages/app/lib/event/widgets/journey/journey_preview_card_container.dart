@@ -20,39 +20,31 @@ class JourneyPreviewCardContainer extends StatelessWidget {
 
     return ClipRRect(
       borderRadius: BorderRadius.circular(22),
-      child: Stack(
-        children: [
-          Container(
-            width: double.infinity,
-            height: double.infinity,
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(22),
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  scheme.primary.withValues(alpha: 0.56),
-                  scheme.primary.withValues(alpha: 0.42),
-                ],
-              ),
-              border: Border.all(
-                color: scheme.onPrimary.withValues(alpha: 0.12),
-                width: 1,
-              ),
+      child: Material(
+        color: Colors.transparent,
+        child: Ink(
+          width: double.infinity,
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(22),
+            gradient: LinearGradient(
+              begin: Alignment.topLeft,
+              end: Alignment.bottomRight,
+              colors: [
+                scheme.primary.withValues(alpha: 0.56),
+                scheme.primary.withValues(alpha: 0.42),
+              ],
             ),
-            padding: const EdgeInsets.all(14),
-            child: child,
-          ),
-          Positioned.fill(
-            child: Material(
-              color: Colors.transparent,
-              child: InkWell(
-                borderRadius: BorderRadius.circular(22),
-                onTap: onTap,
-              ),
+            border: Border.all(
+              color: scheme.onPrimary.withValues(alpha: 0.12),
+              width: 1,
             ),
           ),
-        ],
+          child: InkWell(
+            borderRadius: BorderRadius.circular(22),
+            onTap: onTap,
+            child: Padding(padding: const EdgeInsets.all(14), child: child),
+          ),
+        ),
       ),
     );
   }

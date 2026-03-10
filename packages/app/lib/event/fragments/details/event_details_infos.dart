@@ -8,9 +8,8 @@ import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/event/widgets/details/event_details_description.dart';
-import 'package:hollybike/event/widgets/details/event_my_journey.dart';
 import 'package:hollybike/event/widgets/expenses/expenses_preview_card.dart';
-import 'package:hollybike/event/widgets/journey/journey_preview_card.dart';
+import 'package:hollybike/event/widgets/journey/journey_timeline.dart';
 import 'package:hollybike/weather/widgets/weather_forecast_card.dart';
 
 import '../../../app/app_router.gr.dart';
@@ -27,7 +26,7 @@ import '../../widgets/details/status/event_status_feed.dart';
 
 class EventDetailsInfos extends StatelessWidget {
   final EventDetails eventDetails;
-  final void Function() onViewOnMap;
+  final void Function(int stepId) onViewOnMap;
 
   const EventDetailsInfos({
     super.key,
@@ -94,30 +93,22 @@ class EventDetailsInfos extends StatelessWidget {
                 EventDetailsDescription(description: event.description),
 
                 // ── ITINÉRAIRE ───────────────────────────────────────
-                if (eventDetails.journey != null ||
-                    eventDetails.canEditJourney) ...[
+                if (eventDetails.journeySteps.isNotEmpty ||
+                    eventDetails.canEditJourney ||
+                    (eventDetails.callerParticipation?.stepJourneys.isNotEmpty ?? false)) ...[
                   const SizedBox(height: 20),
-                  _sectionLabel(context, 'ITINÉRAIRE'),
-                  const SizedBox(height: 8),
                   BlocProvider<EventJourneyBloc>(
-                    create:
-                        (context) => EventJourneyBloc(
-                          journeyRepository:
-                              RepositoryProvider.of<JourneyRepository>(context),
-                          eventRepository:
-                              RepositoryProvider.of<EventRepository>(context),
-                        ),
-                    child: JourneyPreviewCard(
-                      canAddJourney: eventDetails.canEditJourney,
-                      journey: eventDetails.journey,
+                    create: (context) => EventJourneyBloc(
+                      journeyRepository:
+                          RepositoryProvider.of<JourneyRepository>(context),
+                      eventRepository:
+                          RepositoryProvider.of<EventRepository>(context),
+                    ),
+                    child: JourneyTimeline(
                       eventDetails: eventDetails,
                       onViewOnMap: onViewOnMap,
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  EventMyJourney(eventDetails: eventDetails),
-                ] else ...[
-                  EventMyJourney(eventDetails: eventDetails),
                 ],
 
                 // ── MÉTÉO ────────────────────────────────────────────

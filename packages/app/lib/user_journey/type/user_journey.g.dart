@@ -9,6 +9,7 @@ part of 'user_journey.dart';
 _UserJourney _$UserJourneyFromJson(Map<String, dynamic> json) => _UserJourney(
   id: (json['id'] as num).toInt(),
   file: json['file'] as String,
+  name: json['name'] as String?,
   avgSpeed: (json['avg_speed'] as num?)?.toDouble(),
   totalDistance: (json['total_distance'] as num?)?.toInt(),
   minElevation: (json['min_elevation'] as num?)?.toDouble(),
@@ -20,6 +21,8 @@ _UserJourney _$UserJourneyFromJson(Map<String, dynamic> json) => _UserJourney(
   avgGForce: (json['avg_g_force'] as num?)?.toDouble(),
   maxGForce: (json['max_g_force'] as num?)?.toDouble(),
   createdAt: DateTime.parse(json['created_at'] as String),
+  eventName: json['event_name'] as String?,
+  stepName: json['step_name'] as String?,
   isBetterThan: (json['is_better_than'] as Map<String, dynamic>?)?.map(
     (k, e) => MapEntry(k, (e as num).toDouble()),
   ),
@@ -29,6 +32,7 @@ Map<String, dynamic> _$UserJourneyToJson(_UserJourney instance) =>
     <String, dynamic>{
       'id': instance.id,
       'file': instance.file,
+      'name': instance.name,
       'avg_speed': instance.avgSpeed,
       'total_distance': instance.totalDistance,
       'min_elevation': instance.minElevation,
@@ -40,5 +44,7 @@ Map<String, dynamic> _$UserJourneyToJson(_UserJourney instance) =>
       'avg_g_force': instance.avgGForce,
       'max_g_force': instance.maxGForce,
       'created_at': instance.createdAt.toIso8601String(),
+      'event_name': instance.eventName,
+      'step_name': instance.stepName,
       'is_better_than': instance.isBetterThan,
     };

@@ -35,7 +35,7 @@ data class TEventPartial(
 	val participantsCount: Int,
 	val distance: Int? = null
 ) {
-	constructor(entity: Event) : this(
+	constructor(entity: Event, distance: Int?) : this(
 		id = entity.id.value,
 		name = entity.name,
 		description = entity.description,
@@ -50,7 +50,7 @@ data class TEventPartial(
 		association = TPartialAssociation(entity.association),
 		budget = entity.budget,
 		participantsCount = entity.participants.count { it.isJoined },
-		distance = entity.journey?.totalDistance
+		distance = distance
 	)
 }
 

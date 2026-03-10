@@ -4,9 +4,14 @@
 */
 import 'package:auto_route/auto_route.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hollybike/event/bloc/event_details_bloc/event_details_bloc.dart';
+import 'package:hollybike/event/bloc/event_details_bloc/event_details_state.dart';
 import 'package:hollybike/event/types/participation/event_participation.dart';
+import 'package:hollybike/event/widgets/journey/step_user_journey_list.dart';
 import 'package:hollybike/shared/utils/dates.dart';
 import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
+import 'package:hollybike/user_journey/widgets/user_journey_card_display_context.dart';
 
 import '../event_loading_profile_picture.dart';
 import '../../../user_journey/widgets/user_journey_card.dart';
@@ -19,6 +24,51 @@ class EventParticipationModal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
+    EventDetailsBloc? eventDetailsBloc;
+    try {
+      eventDetailsBloc = context.read<EventDetailsBloc>();
+    } catch (_) {
+      eventDetailsBloc = null;
+    }
+    final stepJourneyCardsWidget =
+        eventDetailsBloc == null
+            ? (participation.stepJourneys.isEmpty
+                ? UserJourneyCard(
+                  journey: participation.journey,
+                  user: participation.user,
+                  color: scheme.secondary.withValues(alpha: 0.18),
+                  isCurrentEvent: true,
+                  displayContext: UserJourneyCardDisplayContext.event,
+                )
+                : StepUserJourneyList(
+                  stepJourneys: participation.stepJourneys,
+                  journeySteps: const [],
+                  currentStepId: null,
+                  user: participation.user,
+                ))
+            : BlocBuilder<EventDetailsBloc, EventDetailsState>(
+              bloc: eventDetailsBloc,
+              builder: (context, state) {
+                final details = state.eventDetails;
+                final eventSteps = details?.journeySteps ?? const [];
+                final currentStepId = details?.currentStepId;
+                if (participation.stepJourneys.isEmpty) {
+                  return UserJourneyCard(
+                    journey: participation.journey,
+                    user: participation.user,
+                    color: scheme.secondary.withValues(alpha: 0.18),
+                    isCurrentEvent: true,
+                    displayContext: UserJourneyCardDisplayContext.event,
+                  );
+                }
+                return StepUserJourneyList(
+                  stepJourneys: participation.stepJourneys,
+                  journeySteps: eventSteps,
+                  currentStepId: currentStepId,
+                  user: participation.user,
+                );
+              },
+            );
 
     return GlassBottomModal(
       maxContentHeight: 540,
@@ -111,12 +161,7 @@ class EventParticipationModal extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 14),
-          UserJourneyCard(
-            journey: participation.journey,
-            user: participation.user,
-            color: scheme.secondary.withValues(alpha: 0.18),
-            isCurrentEvent: true,
-          ),
+          stepJourneyCardsWidget,
           const SizedBox(height: 8),
         ],
       ),

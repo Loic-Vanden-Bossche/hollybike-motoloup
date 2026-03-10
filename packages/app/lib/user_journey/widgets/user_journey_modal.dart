@@ -34,6 +34,7 @@ enum JourneyModalAction { resetJourney, deleteJourney, downloadJourney }
 class UserJourneyModal extends StatefulWidget {
   final UserJourney journey;
   final bool isCurrentEvent;
+  final int? stepId;
   final MinimalUser? user;
   final void Function()? onDeleted;
 
@@ -41,6 +42,7 @@ class UserJourneyModal extends StatefulWidget {
     super.key,
     required this.journey,
     required this.isCurrentEvent,
+    this.stepId,
     this.user,
     this.onDeleted,
   });
@@ -447,6 +449,10 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
   }
 
   String _getTitle() {
+    final titleLabel = widget.journey.titleLabel;
+    if (titleLabel != null && titleLabel.isNotEmpty) {
+      return titleLabel;
+    }
     final date = DateFormat(
       'dd-MM-yyyy',
     ).format(widget.journey.createdAt.toLocal());
@@ -503,7 +509,9 @@ class _UserJourneyModalState extends State<UserJourneyModal> {
     );
 
     if (confirmed == true && context.mounted) {
-      context.read<EventDetailsBloc>().add(ResetUserJourney());
+      context.read<EventDetailsBloc>().add(
+        ResetUserJourney(stepId: widget.stepId),
+      );
     }
   }
 

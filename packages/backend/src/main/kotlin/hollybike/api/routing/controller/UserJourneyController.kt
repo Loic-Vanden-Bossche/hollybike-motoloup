@@ -59,9 +59,12 @@ class UserJourneyController(
 			call.respond(
 				TLists(
 					userJourneys.map {
+						val (eventName, stepName) = userEventPositionService.getJourneyEventAndStepNames(it)
 						TUserJourney(
 							it,
-							userEventPositionService.getIsBetterThanForUserJourney(it)
+							userEventPositionService.getIsBetterThanForUserJourney(it),
+							eventName,
+							stepName
 						)
 					}, searchParam, totalUserJourneys
 				)
@@ -75,7 +78,16 @@ class UserJourneyController(
 				return@get call.respond(HttpStatusCode.NotFound, "Trajet inconnu")
 			}
 
-			call.respond(HttpStatusCode.OK, TUserJourney(userJourney, userEventPositionService.getIsBetterThanForUserJourney(userJourney)))
+			val (eventName, stepName) = userEventPositionService.getJourneyEventAndStepNames(userJourney)
+			call.respond(
+				HttpStatusCode.OK,
+				TUserJourney(
+					userJourney,
+					userEventPositionService.getIsBetterThanForUserJourney(userJourney),
+					eventName,
+					stepName
+				)
+			)
 		}
 	}
 

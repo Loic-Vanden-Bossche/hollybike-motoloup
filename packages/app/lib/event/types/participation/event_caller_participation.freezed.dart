@@ -15,7 +15,7 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$EventCallerParticipation {
 
- int get userId; bool get isImagesPublic; EventRole get role; DateTime get joinedDateTime; UserJourney? get journey; bool get hasRecordedPositions;
+ int get userId; bool get isImagesPublic; EventRole get role; DateTime get joinedDateTime; UserJourney? get journey; bool get hasRecordedPositions; List<EventCallerParticipationStepJourney> get stepJourneys;
 /// Create a copy of EventCallerParticipation
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -28,16 +28,16 @@ $EventCallerParticipationCopyWith<EventCallerParticipation> get copyWith => _$Ev
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventCallerParticipation&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.isImagesPublic, isImagesPublic) || other.isImagesPublic == isImagesPublic)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedDateTime, joinedDateTime) || other.joinedDateTime == joinedDateTime)&&(identical(other.journey, journey) || other.journey == journey)&&(identical(other.hasRecordedPositions, hasRecordedPositions) || other.hasRecordedPositions == hasRecordedPositions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is EventCallerParticipation&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.isImagesPublic, isImagesPublic) || other.isImagesPublic == isImagesPublic)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedDateTime, joinedDateTime) || other.joinedDateTime == joinedDateTime)&&(identical(other.journey, journey) || other.journey == journey)&&(identical(other.hasRecordedPositions, hasRecordedPositions) || other.hasRecordedPositions == hasRecordedPositions)&&const DeepCollectionEquality().equals(other.stepJourneys, stepJourneys));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,isImagesPublic,role,joinedDateTime,journey,hasRecordedPositions);
+int get hashCode => Object.hash(runtimeType,userId,isImagesPublic,role,joinedDateTime,journey,hasRecordedPositions,const DeepCollectionEquality().hash(stepJourneys));
 
 @override
 String toString() {
-  return 'EventCallerParticipation(userId: $userId, isImagesPublic: $isImagesPublic, role: $role, joinedDateTime: $joinedDateTime, journey: $journey, hasRecordedPositions: $hasRecordedPositions)';
+  return 'EventCallerParticipation(userId: $userId, isImagesPublic: $isImagesPublic, role: $role, joinedDateTime: $joinedDateTime, journey: $journey, hasRecordedPositions: $hasRecordedPositions, stepJourneys: $stepJourneys)';
 }
 
 
@@ -48,7 +48,7 @@ abstract mixin class $EventCallerParticipationCopyWith<$Res>  {
   factory $EventCallerParticipationCopyWith(EventCallerParticipation value, $Res Function(EventCallerParticipation) _then) = _$EventCallerParticipationCopyWithImpl;
 @useResult
 $Res call({
- int userId, bool isImagesPublic, EventRole role, DateTime joinedDateTime, UserJourney? journey, bool hasRecordedPositions
+ int userId, bool isImagesPublic, EventRole role, DateTime joinedDateTime, UserJourney? journey, bool hasRecordedPositions, List<EventCallerParticipationStepJourney> stepJourneys
 });
 
 
@@ -65,7 +65,7 @@ class _$EventCallerParticipationCopyWithImpl<$Res>
 
 /// Create a copy of EventCallerParticipation
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? isImagesPublic = null,Object? role = null,Object? joinedDateTime = null,Object? journey = freezed,Object? hasRecordedPositions = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? userId = null,Object? isImagesPublic = null,Object? role = null,Object? joinedDateTime = null,Object? journey = freezed,Object? hasRecordedPositions = null,Object? stepJourneys = null,}) {
   return _then(_self.copyWith(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,isImagesPublic: null == isImagesPublic ? _self.isImagesPublic : isImagesPublic // ignore: cast_nullable_to_non_nullable
@@ -73,7 +73,8 @@ as bool,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_n
 as EventRole,joinedDateTime: null == joinedDateTime ? _self.joinedDateTime : joinedDateTime // ignore: cast_nullable_to_non_nullable
 as DateTime,journey: freezed == journey ? _self.journey : journey // ignore: cast_nullable_to_non_nullable
 as UserJourney?,hasRecordedPositions: null == hasRecordedPositions ? _self.hasRecordedPositions : hasRecordedPositions // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,stepJourneys: null == stepJourneys ? _self.stepJourneys : stepJourneys // ignore: cast_nullable_to_non_nullable
+as List<EventCallerParticipationStepJourney>,
   ));
 }
 /// Create a copy of EventCallerParticipation
@@ -167,10 +168,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  bool isImagesPublic,  EventRole role,  DateTime joinedDateTime,  UserJourney? journey,  bool hasRecordedPositions)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( int userId,  bool isImagesPublic,  EventRole role,  DateTime joinedDateTime,  UserJourney? journey,  bool hasRecordedPositions,  List<EventCallerParticipationStepJourney> stepJourneys)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _EventCallerParticipation() when $default != null:
-return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTime,_that.journey,_that.hasRecordedPositions);case _:
+return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTime,_that.journey,_that.hasRecordedPositions,_that.stepJourneys);case _:
   return orElse();
 
 }
@@ -188,10 +189,10 @@ return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTim
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  bool isImagesPublic,  EventRole role,  DateTime joinedDateTime,  UserJourney? journey,  bool hasRecordedPositions)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( int userId,  bool isImagesPublic,  EventRole role,  DateTime joinedDateTime,  UserJourney? journey,  bool hasRecordedPositions,  List<EventCallerParticipationStepJourney> stepJourneys)  $default,) {final _that = this;
 switch (_that) {
 case _EventCallerParticipation():
-return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTime,_that.journey,_that.hasRecordedPositions);}
+return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTime,_that.journey,_that.hasRecordedPositions,_that.stepJourneys);}
 }
 /// A variant of `when` that fallback to returning `null`
 ///
@@ -205,10 +206,10 @@ return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTim
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  bool isImagesPublic,  EventRole role,  DateTime joinedDateTime,  UserJourney? journey,  bool hasRecordedPositions)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( int userId,  bool isImagesPublic,  EventRole role,  DateTime joinedDateTime,  UserJourney? journey,  bool hasRecordedPositions,  List<EventCallerParticipationStepJourney> stepJourneys)?  $default,) {final _that = this;
 switch (_that) {
 case _EventCallerParticipation() when $default != null:
-return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTime,_that.journey,_that.hasRecordedPositions);case _:
+return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTime,_that.journey,_that.hasRecordedPositions,_that.stepJourneys);case _:
   return null;
 
 }
@@ -220,7 +221,7 @@ return $default(_that.userId,_that.isImagesPublic,_that.role,_that.joinedDateTim
 @JsonSerializable()
 
 class _EventCallerParticipation implements EventCallerParticipation {
-  const _EventCallerParticipation({required this.userId, required this.isImagesPublic, required this.role, required this.joinedDateTime, required this.journey, required this.hasRecordedPositions});
+  const _EventCallerParticipation({required this.userId, required this.isImagesPublic, required this.role, required this.joinedDateTime, required this.journey, required this.hasRecordedPositions, final  List<EventCallerParticipationStepJourney> stepJourneys = const []}): _stepJourneys = stepJourneys;
   factory _EventCallerParticipation.fromJson(Map<String, dynamic> json) => _$EventCallerParticipationFromJson(json);
 
 @override final  int userId;
@@ -229,6 +230,13 @@ class _EventCallerParticipation implements EventCallerParticipation {
 @override final  DateTime joinedDateTime;
 @override final  UserJourney? journey;
 @override final  bool hasRecordedPositions;
+ final  List<EventCallerParticipationStepJourney> _stepJourneys;
+@override@JsonKey() List<EventCallerParticipationStepJourney> get stepJourneys {
+  if (_stepJourneys is EqualUnmodifiableListView) return _stepJourneys;
+  // ignore: implicit_dynamic_type
+  return EqualUnmodifiableListView(_stepJourneys);
+}
+
 
 /// Create a copy of EventCallerParticipation
 /// with the given fields replaced by the non-null parameter values.
@@ -243,16 +251,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventCallerParticipation&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.isImagesPublic, isImagesPublic) || other.isImagesPublic == isImagesPublic)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedDateTime, joinedDateTime) || other.joinedDateTime == joinedDateTime)&&(identical(other.journey, journey) || other.journey == journey)&&(identical(other.hasRecordedPositions, hasRecordedPositions) || other.hasRecordedPositions == hasRecordedPositions));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _EventCallerParticipation&&(identical(other.userId, userId) || other.userId == userId)&&(identical(other.isImagesPublic, isImagesPublic) || other.isImagesPublic == isImagesPublic)&&(identical(other.role, role) || other.role == role)&&(identical(other.joinedDateTime, joinedDateTime) || other.joinedDateTime == joinedDateTime)&&(identical(other.journey, journey) || other.journey == journey)&&(identical(other.hasRecordedPositions, hasRecordedPositions) || other.hasRecordedPositions == hasRecordedPositions)&&const DeepCollectionEquality().equals(other._stepJourneys, _stepJourneys));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,userId,isImagesPublic,role,joinedDateTime,journey,hasRecordedPositions);
+int get hashCode => Object.hash(runtimeType,userId,isImagesPublic,role,joinedDateTime,journey,hasRecordedPositions,const DeepCollectionEquality().hash(_stepJourneys));
 
 @override
 String toString() {
-  return 'EventCallerParticipation(userId: $userId, isImagesPublic: $isImagesPublic, role: $role, joinedDateTime: $joinedDateTime, journey: $journey, hasRecordedPositions: $hasRecordedPositions)';
+  return 'EventCallerParticipation(userId: $userId, isImagesPublic: $isImagesPublic, role: $role, joinedDateTime: $joinedDateTime, journey: $journey, hasRecordedPositions: $hasRecordedPositions, stepJourneys: $stepJourneys)';
 }
 
 
@@ -263,7 +271,7 @@ abstract mixin class _$EventCallerParticipationCopyWith<$Res> implements $EventC
   factory _$EventCallerParticipationCopyWith(_EventCallerParticipation value, $Res Function(_EventCallerParticipation) _then) = __$EventCallerParticipationCopyWithImpl;
 @override @useResult
 $Res call({
- int userId, bool isImagesPublic, EventRole role, DateTime joinedDateTime, UserJourney? journey, bool hasRecordedPositions
+ int userId, bool isImagesPublic, EventRole role, DateTime joinedDateTime, UserJourney? journey, bool hasRecordedPositions, List<EventCallerParticipationStepJourney> stepJourneys
 });
 
 
@@ -280,7 +288,7 @@ class __$EventCallerParticipationCopyWithImpl<$Res>
 
 /// Create a copy of EventCallerParticipation
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? isImagesPublic = null,Object? role = null,Object? joinedDateTime = null,Object? journey = freezed,Object? hasRecordedPositions = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? userId = null,Object? isImagesPublic = null,Object? role = null,Object? joinedDateTime = null,Object? journey = freezed,Object? hasRecordedPositions = null,Object? stepJourneys = null,}) {
   return _then(_EventCallerParticipation(
 userId: null == userId ? _self.userId : userId // ignore: cast_nullable_to_non_nullable
 as int,isImagesPublic: null == isImagesPublic ? _self.isImagesPublic : isImagesPublic // ignore: cast_nullable_to_non_nullable
@@ -288,7 +296,8 @@ as bool,role: null == role ? _self.role : role // ignore: cast_nullable_to_non_n
 as EventRole,joinedDateTime: null == joinedDateTime ? _self.joinedDateTime : joinedDateTime // ignore: cast_nullable_to_non_nullable
 as DateTime,journey: freezed == journey ? _self.journey : journey // ignore: cast_nullable_to_non_nullable
 as UserJourney?,hasRecordedPositions: null == hasRecordedPositions ? _self.hasRecordedPositions : hasRecordedPositions // ignore: cast_nullable_to_non_nullable
-as bool,
+as bool,stepJourneys: null == stepJourneys ? _self._stepJourneys : stepJourneys // ignore: cast_nullable_to_non_nullable
+as List<EventCallerParticipationStepJourney>,
   ));
 }
 

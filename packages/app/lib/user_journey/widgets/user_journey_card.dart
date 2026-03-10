@@ -8,6 +8,7 @@ import 'package:hollybike/user/types/minimal_user.dart';
 
 import 'user_journey_content.dart';
 import 'empty_user_journey.dart';
+import 'user_journey_card_display_context.dart';
 
 class UserJourneyCard extends StatelessWidget {
   final UserJourney? journey;
@@ -17,6 +18,10 @@ class UserJourneyCard extends StatelessWidget {
   final void Function()? onDeleted;
   final bool showDate;
   final void Function(UserJourney)? onJourneySelected;
+  final int? eventStepId;
+  final String? stepTitleOverride;
+  final bool isCurrentStep;
+  final UserJourneyCardDisplayContext displayContext;
 
   const UserJourneyCard({
     super.key,
@@ -27,6 +32,10 @@ class UserJourneyCard extends StatelessWidget {
     this.onDeleted,
     this.showDate = false,
     this.onJourneySelected,
+    this.eventStepId,
+    this.stepTitleOverride,
+    this.isCurrentStep = false,
+    required this.displayContext,
   });
 
   @override
@@ -36,6 +45,9 @@ class UserJourneyCard extends StatelessWidget {
       color.withValues(alpha: 0.22),
       scheme.primaryContainer.withValues(alpha: 0.74),
     );
+
+    final headerTitle = _resolveHeaderTitle();
+    final contextLabel = _resolveContextLabel();
 
     final content =
         journey == null
@@ -55,6 +67,8 @@ class UserJourneyCard extends StatelessWidget {
               showDate: showDate,
               onJourneySelected: onJourneySelected,
               accentColor: accent,
+              eventStepId: eventStepId,
+              contextLabel: contextLabel,
             );
 
     return ClipRRect(
@@ -79,8 +93,110 @@ class UserJourneyCard extends StatelessWidget {
             ),
           ],
         ),
-        child: Padding(padding: const EdgeInsets.all(10), child: content),
+        child: Padding(
+          padding: const EdgeInsets.all(10),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              if (headerTitle != null) ...[
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        headerTitle,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: scheme.onPrimary.withValues(alpha: 0.94),
+                          fontSize: 13,
+                          fontVariations: const [FontVariation.weight(700)],
+                        ),
+                      ),
+                    ),
+                    if (isCurrentStep)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(999),
+                          color: scheme.onPrimary.withValues(alpha: 0.16),
+                        ),
+                        child: Text(
+                          'Actuelle',
+                          style: TextStyle(
+                            color: scheme.onPrimary,
+                            fontSize: 10.5,
+                            fontVariations: const [FontVariation.weight(700)],
+                          ),
+                        ),
+                      ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+              ],
+              content,
+            ],
+          ),
+        ),
       ),
     );
+  }
+
+  String? _resolveHeaderTitle() {
+    if (displayContext != UserJourneyCardDisplayContext.event) {
+      return null;
+    }
+
+    final overrideTitle = stepTitleOverride?.trim();
+    if (overrideTitle != null && overrideTitle.isNotEmpty) {
+      return overrideTitle;
+    }
+
+    final stepName = journey?.stepName?.trim();
+    if (stepName != null && stepName.isNotEmpty) {
+      return stepName;
+    }
+
+    final hasEventLink = (journey?.eventName?.trim().isNotEmpty ?? false);
+    if (!hasEventLink) {
+      final journeyName = journey?.name?.trim();
+      if (journeyName != null && journeyName.isNotEmpty) {
+        return journeyName;
+      }
+    }
+
+    return null;
+  }
+
+  String? _resolveContextLabel() {
+    if (displayContext != UserJourneyCardDisplayContext.profile) {
+      return null;
+    }
+
+    final event = journey?.eventName?.trim();
+    final step = journey?.stepName?.trim();
+    final hasEvent = event != null && event.isNotEmpty;
+    final hasStep = step != null && step.isNotEmpty;
+
+    if (!hasEvent && !hasStep) {
+      return null;
+    }
+
+    if (hasEvent && hasStep) {
+      return '$event · $step';
+    }
+
+    if (hasEvent || hasStep) {
+      return hasEvent ? event : step;
+    }
+
+    final journeyName = journey?.name?.trim();
+    if (journeyName != null && journeyName.isNotEmpty) {
+      return journeyName;
+    }
+
+    return null;
   }
 }
