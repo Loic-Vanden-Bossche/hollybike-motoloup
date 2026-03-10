@@ -32,7 +32,7 @@ class EventParticipationModal extends StatelessWidget {
     }
     final stepJourneyCardsWidget =
         eventDetailsBloc == null
-            ? (participation.stepJourneys.isEmpty
+            ? (participation.stepJourneys.length <= 1
                 ? UserJourneyCard(
                   journey: participation.journey,
                   user: participation.user,
@@ -52,7 +52,7 @@ class EventParticipationModal extends StatelessWidget {
                 final details = state.eventDetails;
                 final eventSteps = details?.journeySteps ?? const [];
                 final currentStepId = details?.currentStepId;
-                if (participation.stepJourneys.isEmpty) {
+                if (participation.stepJourneys.length <= 1) {
                   return UserJourneyCard(
                     journey: participation.journey,
                     user: participation.user,
