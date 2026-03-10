@@ -52,7 +52,7 @@ class EventParticipationModal extends StatelessWidget {
                 final details = state.eventDetails;
                 final eventSteps = details?.journeySteps ?? const [];
                 final currentStepId = details?.currentStepId;
-                if (participation.stepJourneys.length <= 1) {
+                if (eventSteps.length <= 1) {
                   return UserJourneyCard(
                     journey: participation.journey,
                     user: participation.user,

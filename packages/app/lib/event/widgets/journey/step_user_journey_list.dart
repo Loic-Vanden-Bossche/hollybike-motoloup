@@ -31,49 +31,93 @@ class StepUserJourneyList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final stepById = {for (final step in journeySteps) step.id: step};
+    final stepJourneyByStepId = {
+      for (final sj in stepJourneys) sj.stepId: sj,
+    };
     final currentStepPosition =
         currentStepId == null ? null : stepById[currentStepId]?.position;
 
     final entries = <_StepEntry>[];
-    for (final stepJourney in stepJourneys) {
-      final step = stepById[stepJourney.stepId];
-      final isCurrent = currentStepId == stepJourney.stepId;
-      final isPast = !isCurrent &&
-          step != null &&
-          currentStepPosition != null &&
-          step.position < currentStepPosition;
-      final isFuture = !isCurrent &&
-          step != null &&
-          currentStepPosition != null &&
-          step.position > currentStepPosition;
 
-      // If we have no step context (no currentStepId), keep existing behaviour:
-      // hide future steps with no journey.
-      if (isFuture && stepJourney.journey == null && currentStepId == null) {
-        continue;
+    if (journeySteps.isNotEmpty) {
+      // Primary path: iterate event steps sorted by position, look up user journey.
+      final sortedSteps = [...journeySteps]
+        ..sort((a, b) => a.position - b.position);
+      for (final step in sortedSteps) {
+        final stepJourney = stepJourneyByStepId[step.id];
+        final isCurrent = currentStepId == step.id;
+        final isPast = !isCurrent &&
+            currentStepPosition != null &&
+            step.position < currentStepPosition;
+        final isFuture = !isCurrent &&
+            currentStepPosition != null &&
+            step.position > currentStepPosition;
+
+        // Hide future steps that have no recorded journey.
+        if (isFuture && (stepJourney == null || stepJourney.journey == null)) {
+          continue;
+        }
+
+        final stepState = isCurrent
+            ? TimelineStepState.current
+            : isFuture
+                ? TimelineStepState.future
+                : TimelineStepState.past;
+
+        final title = step.name?.trim().isNotEmpty == true
+            ? step.name!
+            : 'Étape ${step.position}';
+
+        entries.add(_StepEntry(
+          stepJourney: stepJourney,
+          step: step,
+          stepState: stepState,
+          isCurrent: isCurrent,
+          isPast: isPast,
+          isFuture: isFuture,
+          title: title,
+        ));
       }
+    } else {
+      // Fallback: no event step data — iterate recorded step journeys directly.
+      for (final stepJourney in stepJourneys) {
+        final step = stepById[stepJourney.stepId];
+        final isCurrent = currentStepId == stepJourney.stepId;
+        final isPast = !isCurrent &&
+            step != null &&
+            currentStepPosition != null &&
+            step.position < currentStepPosition;
+        final isFuture = !isCurrent &&
+            step != null &&
+            currentStepPosition != null &&
+            step.position > currentStepPosition;
 
-      final stepState = isCurrent
-          ? TimelineStepState.current
-          : isFuture
-              ? TimelineStepState.future
-              : TimelineStepState.past;
+        if (isFuture && stepJourney.journey == null && currentStepId == null) {
+          continue;
+        }
 
-      final title = step == null
-          ? 'Étape ${stepJourney.stepId}'
-          : (step.name?.trim().isNotEmpty == true
-              ? step.name!
-              : 'Étape ${step.position}');
+        final stepState = isCurrent
+            ? TimelineStepState.current
+            : isFuture
+                ? TimelineStepState.future
+                : TimelineStepState.past;
 
-      entries.add(_StepEntry(
-        stepJourney: stepJourney,
-        step: step,
-        stepState: stepState,
-        isCurrent: isCurrent,
-        isPast: isPast,
-        isFuture: isFuture,
-        title: title,
-      ));
+        final title = step == null
+            ? 'Étape ${stepJourney.stepId}'
+            : (step.name?.trim().isNotEmpty == true
+                ? step.name!
+                : 'Étape ${step.position}');
+
+        entries.add(_StepEntry(
+          stepJourney: stepJourney,
+          step: step,
+          stepState: stepState,
+          isCurrent: isCurrent,
+          isPast: isPast,
+          isFuture: isFuture,
+          title: title,
+        ));
+      }
     }
 
     if (entries.isEmpty) return const SizedBox.shrink();
@@ -98,7 +142,7 @@ class StepUserJourneyList extends StatelessWidget {
 // ─── Data holder ──────────────────────────────────────────────────────────────
 
 class _StepEntry {
-  final EventCallerParticipationStepJourney stepJourney;
+  final EventCallerParticipationStepJourney? stepJourney;
   final EventJourneyStep? step;
   final TimelineStepState stepState;
   final bool isCurrent;
@@ -267,7 +311,8 @@ class _ParticipantRow extends StatelessWidget {
   Widget _buildTitleCard(BuildContext context) {
     final scheme = Theme.of(context).colorScheme;
     final isFutureEmpty =
-        entry.isFuture && entry.stepJourney.journey == null;
+        entry.isFuture &&
+        (entry.stepJourney == null || entry.stepJourney!.journey == null);
 
     if (isFutureEmpty) {
       return Opacity(
@@ -354,13 +399,15 @@ class _ParticipantRow extends StatelessWidget {
     final accent = scheme.secondary.withValues(alpha: 0.18);
 
     // Future step with no journey → no body (title chip is enough)
-    if (entry.isFuture && stepJourney.journey == null) return null;
+    if (entry.isFuture && (stepJourney == null || stepJourney.journey == null)) {
+      return null;
+    }
 
     // Step has a journey → show UserJourneyCard without duplicate header
-    if (stepJourney.journey != null) {
+    if (stepJourney?.journey != null) {
       return UserJourneyCard(
         isCurrentEvent: isCurrentEvent,
-        eventStepId: stepJourney.stepId,
+        eventStepId: stepJourney!.stepId,
         journey: stepJourney.journey,
         user: user,
         color: accent,
@@ -372,7 +419,9 @@ class _ParticipantRow extends StatelessWidget {
 
     // Current step, no journey yet
     if (entry.isCurrent) {
-      if (stepJourney.hasRecordedPositions && onTerminateStep != null) {
+      if (stepJourney != null &&
+          stepJourney.hasRecordedPositions &&
+          onTerminateStep != null) {
         return Align(
           alignment: Alignment.centerLeft,
           child: FilledButton.tonal(
@@ -388,15 +437,11 @@ class _ParticipantRow extends StatelessWidget {
       );
     }
 
-    // Past step, no journey recorded
-    if (entry.isPast) {
-      return _PastStepMissingJourneyCard(
-        title: entry.title,
-        color: accent,
-      );
-    }
-
-    return null;
+    // Past step (or unknown context) with no journey recorded
+    return _PastStepMissingJourneyCard(
+      title: entry.title,
+      color: accent,
+    );
   }
 }
 
