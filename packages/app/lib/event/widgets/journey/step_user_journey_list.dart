@@ -220,7 +220,7 @@ class _ParticipantRow extends StatelessWidget {
                 child: TimelineConnectorLine(dashed: _isDashed),
               ),
             ),
-          if (!isLast || hasBody)
+          if (!isLast)
             Positioned(
               top: 0,
               bottom: 0,
@@ -290,7 +290,7 @@ class _ParticipantRow extends StatelessWidget {
         ),
         // Body (always expanded)
         if (hasBody) ...[
-          timelineConnectorBridge(4, dashed: _isDashed, withLine: true),
+          timelineConnectorBridge(4, dashed: _isDashed, withLine: !isLast),
           IntrinsicHeight(
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
