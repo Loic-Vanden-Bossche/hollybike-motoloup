@@ -82,21 +82,17 @@ class UserJourneyCard extends StatelessWidget {
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              accent.withValues(alpha: 0.52),
-              scheme.primary.withValues(alpha: 0.45),
+              scheme.primary.withValues(alpha: 0.44),
+              scheme.primary.withValues(alpha: 0.32),
             ],
           ),
-          border: Border.all(color: accent.withValues(alpha: 0.30), width: 1),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.18),
-              blurRadius: 24,
-              offset: const Offset(0, 10),
-            ),
-          ],
+          border: Border.all(
+            color: scheme.onPrimary.withValues(alpha: 0.12),
+            width: 1,
+          ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(10),
+          padding: const EdgeInsets.all(12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
