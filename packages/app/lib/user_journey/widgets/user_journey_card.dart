@@ -57,7 +57,6 @@ class UserJourneyCard extends StatelessWidget {
               height: 78,
               child: EmptyUserJourney(
                 username: user?.username,
-                color: accent.withValues(alpha: 0.28),
               ),
             )
             : UserJourneyContent(
