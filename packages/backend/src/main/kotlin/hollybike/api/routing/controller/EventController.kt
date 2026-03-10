@@ -32,9 +32,6 @@ import io.ktor.server.resources.put
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.utils.io.jvm.javaio.toInputStream
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.contentOrNull
-import kotlinx.serialization.json.jsonPrimitive
 
 class EventController(
 	application: Application,
@@ -271,13 +268,12 @@ class EventController(
 
 	private fun Route.renameJourneyStep() {
 		patch<Events.Id.JourneySteps.Step> { data ->
-			val body = call.receive<JsonObject>()
-			val name = body["name"]?.jsonPrimitive?.contentOrNull
+			val body = call.receive<TUpdateEventJourneyStep>()
 			eventService.renameJourneyStep(
 				call.user,
 				data.journeySteps.steps.id,
 				data.stepId,
-				name
+				body.name
 			).onSuccess { steps ->
 				call.respond(HttpStatusCode.OK, TEventJourneyStepsState(steps))
 			}.onFailure {
