@@ -22,6 +22,7 @@ class UserJourneyCard extends StatelessWidget {
   final String? stepTitleOverride;
   final bool isCurrentStep;
   final UserJourneyCardDisplayContext displayContext;
+  final bool showStepHeader;
 
   const UserJourneyCard({
     super.key,
@@ -36,6 +37,7 @@ class UserJourneyCard extends StatelessWidget {
     this.stepTitleOverride,
     this.isCurrentStep = false,
     required this.displayContext,
+    this.showStepHeader = true,
   });
 
   @override
@@ -98,7 +100,7 @@ class UserJourneyCard extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (headerTitle != null) ...[
+              if (showStepHeader && headerTitle != null) ...[
                 Row(
                   children: [
                     Expanded(
