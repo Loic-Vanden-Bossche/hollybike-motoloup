@@ -24,6 +24,7 @@ import 'package:hollybike/ui/widgets/modal/glass_dialog.dart';
 import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 import 'package:hollybike/ui/widgets/inputs/glass_input_decoration.dart';
 import 'package:hollybike/ui/widgets/menu/glass_popup_menu.dart';
+import 'package:hollybike/event/widgets/journey/journey_timeline_components.dart';
 
 class JourneyTimeline extends StatelessWidget {
   final EventDetails eventDetails;
@@ -303,35 +304,35 @@ class _AnimatedTimelineState extends State<_AnimatedTimeline> {
     });
   }
 
-  _StepState _resolveState(EventJourneyStep step) {
-    if (step.isCurrent) return _StepState.current;
+  TimelineStepState _resolveState(EventJourneyStep step) {
+    if (step.isCurrent) return TimelineStepState.current;
     final stepById = {for (final s in widget.steps) s.id: s};
     final currentStep = widget.eventDetails.currentStepId == null
         ? null
         : stepById[widget.eventDetails.currentStepId];
-    if (currentStep == null) return _StepState.future;
+    if (currentStep == null) return TimelineStepState.future;
     return step.position < currentStep.position
-        ? _StepState.past
-        : _StepState.future;
+        ? TimelineStepState.past
+        : TimelineStepState.future;
   }
 
   Widget _buildTitle(
     EventJourneyStep step,
-    _StepState state,
+    TimelineStepState state,
     EventCallerParticipationStepJourney? stepJourney,
   ) {
     switch (state) {
-      case _StepState.current:
+      case TimelineStepState.current:
         return _CurrentStepTitleCard(
             step: step, eventDetails: widget.eventDetails);
-      case _StepState.past:
+      case TimelineStepState.past:
         return _PastStepCard(
           step: step,
           stepJourney: stepJourney,
           eventDetails: widget.eventDetails,
           onViewOnMap: widget.onViewOnMap,
         );
-      case _StepState.future:
+      case TimelineStepState.future:
         return _FutureStepCard(
           step: step,
           eventDetails: widget.eventDetails,
@@ -372,7 +373,7 @@ class _AnimatedTimelineState extends State<_AnimatedTimeline> {
       ),
     );
 
-    final bodyChild = state == _StepState.current
+    final bodyChild = state == TimelineStepState.current
         ? _CurrentStepBodyCard(
             step: step,
             stepJourney: stepJourney,
@@ -430,60 +431,6 @@ class _AnimatedTimelineState extends State<_AnimatedTimeline> {
   }
 }
 
-// ─── Pulsing dot for current step ────────────────────────────────────────────
-
-class _PulsingCurrentDot extends StatefulWidget {
-  const _PulsingCurrentDot();
-
-  @override
-  State<_PulsingCurrentDot> createState() => _PulsingCurrentDotState();
-}
-
-class _PulsingCurrentDotState extends State<_PulsingCurrentDot>
-    with SingleTickerProviderStateMixin {
-  late final AnimationController _ctrl;
-  late final Animation<double> _glow;
-
-  @override
-  void initState() {
-    super.initState();
-    _ctrl = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    )..repeat(reverse: true);
-    _glow = Tween<double>(begin: 0.20, end: 0.65).animate(
-      CurvedAnimation(parent: _ctrl, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _ctrl.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-    return AnimatedBuilder(
-      animation: _glow,
-      builder: (context, _) => DecoratedBox(
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: scheme.secondary,
-          boxShadow: [
-            BoxShadow(
-              color: scheme.secondary.withValues(alpha: _glow.value),
-              blurRadius: 8 + _glow.value * 10,
-              spreadRadius: 1 + _glow.value * 3,
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
 // ─── Timeline row ─────────────────────────────────────────────────────────────
 
 /// Layout: dot is placed via [Center] inside an [IntrinsicHeight] row that
@@ -494,7 +441,7 @@ class _PulsingCurrentDotState extends State<_PulsingCurrentDot>
 /// For the current step, [bodyChild] is placed in a second row below, keeping
 /// the dot aligned with the compact title bar, not the full expanded card.
 class _TimelineRow extends StatelessWidget {
-  final _StepState stepState;
+  final TimelineStepState stepState;
   final bool isFirst;
   final bool isLast;
   final Widget titleChild;
@@ -510,16 +457,16 @@ class _TimelineRow extends StatelessWidget {
 
   double get _dotSize {
     switch (stepState) {
-      case _StepState.current:
+      case TimelineStepState.current:
         return 14.0;
-      case _StepState.past:
+      case TimelineStepState.past:
         return 12.0;
-      case _StepState.future:
+      case TimelineStepState.future:
         return 10.0;
     }
   }
 
-  bool get _isDashed => stepState != _StepState.past;
+  bool get _isDashed => stepState != TimelineStepState.past;
 
   @override
   Widget build(BuildContext context) {
@@ -547,7 +494,7 @@ class _TimelineRow extends StatelessWidget {
               child: FractionallySizedBox(
                 heightFactor: 0.5,
                 alignment: Alignment.topCenter,
-                child: _ConnectorLine(dashed: stepState == _StepState.future),
+                child: TimelineConnectorLine(dashed: stepState == TimelineStepState.future),
               ),
             ),
           // Outgoing connector: dot center → bottom half
@@ -560,7 +507,7 @@ class _TimelineRow extends StatelessWidget {
               child: FractionallySizedBox(
                 heightFactor: 0.5,
                 alignment: Alignment.bottomCenter,
-                child: _ConnectorLine(dashed: _isDashed),
+                child: TimelineConnectorLine(dashed: _isDashed),
               ),
             ),
           // Opaque background circle — blocks connector from showing through dot
@@ -581,34 +528,12 @@ class _TimelineRow extends StatelessWidget {
             child: SizedBox(
               width: dotSize,
               height: dotSize,
-              child: _NodeCircle(stepState: stepState),
+              child: TimelineNodeCircle(stepState: stepState),
             ),
           ),
         ],
       ),
     );
-
-    // A thin bridge that continues the connector line through the vertical gap
-    // between rows. Avoids wrapping IntrinsicHeight in Padding (which would
-    // exclude the gap from the left rail, creating a visible break).
-    Widget connectorBridge(double height, {Key? key, bool withLine = true}) =>
-        SizedBox(
-          key: key,
-          height: height,
-          child: withLine
-              ? Stack(
-                  children: [
-                    Positioned(
-                      top: 0,
-                      bottom: 0,
-                      left: (28 - 2) / 2,
-                      width: 2,
-                      child: _ConnectorLine(dashed: _isDashed),
-                    ),
-                  ],
-                )
-              : null,
-        );
 
     // Body rail: full-height connector alongside the body card.
     final bodyRail = SizedBox(
@@ -620,7 +545,7 @@ class _TimelineRow extends StatelessWidget {
                 bottom: 0,
                 left: (28 - 2) / 2,
                 width: 2,
-                child: _ConnectorLine(dashed: _isDashed),
+                child: TimelineConnectorLine(dashed: _isDashed),
               ),
             ])
           : null,
@@ -664,7 +589,7 @@ class _TimelineRow extends StatelessWidget {
                   key: const ValueKey('body'),
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    connectorBridge(4, withLine: !isLast),
+                    timelineConnectorBridge(4, dashed: _isDashed, withLine: !isLast),
                     IntrinsicHeight(
                       child: Row(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -675,11 +600,11 @@ class _TimelineRow extends StatelessWidget {
                         ],
                       ),
                     ),
-                    if (!isLast) connectorBridge(8),
+                    if (!isLast) timelineConnectorBridge(8, dashed: _isDashed),
                   ],
                 )
               : !isLast
-                  ? connectorBridge(8, key: const ValueKey('gap'))
+                  ? timelineConnectorBridge(8, dashed: _isDashed, key: const ValueKey('gap'))
                   : const SizedBox.shrink(key: ValueKey('empty')),
         ),
       ],
@@ -687,130 +612,6 @@ class _TimelineRow extends StatelessWidget {
   }
 }
 
-/// Shared decoration shell for all step cards in the timeline.
-/// Handles ClipRRect + Material + Ink + InkWell + Padding uniformly.
-class _StepCardShell extends StatelessWidget {
-  final Widget child;
-  final BoxDecoration decoration;
-  final VoidCallback? onTap;
-
-  static const _kPadding = EdgeInsets.symmetric(horizontal: 12, vertical: 8);
-  static const _kRadius = BorderRadius.all(Radius.circular(22));
-
-  const _StepCardShell({
-    required this.child,
-    required this.decoration,
-    this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: _kRadius,
-      child: Material(
-        color: Colors.transparent,
-        child: Ink(
-          decoration: decoration,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(22),
-            onTap: onTap,
-            child: Padding(
-              padding: _kPadding,
-              child: child,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class _NodeCircle extends StatelessWidget {
-  final _StepState stepState;
-  const _NodeCircle({required this.stepState});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    switch (stepState) {
-      case _StepState.current:
-        return const _PulsingCurrentDot();
-      case _StepState.past:
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            color: scheme.secondary.withValues(alpha: 0.7),
-          ),
-        );
-      case _StepState.future:
-        return DecoratedBox(
-          decoration: BoxDecoration(
-            shape: BoxShape.circle,
-            border: Border.all(
-              color: scheme.onPrimary.withValues(alpha: 0.25),
-              width: 1.5,
-            ),
-          ),
-        );
-    }
-  }
-}
-
-class _ConnectorLine extends StatelessWidget {
-  final bool dashed;
-  const _ConnectorLine({required this.dashed});
-
-  @override
-  Widget build(BuildContext context) {
-    final scheme = Theme.of(context).colorScheme;
-
-    // _ConnectorLine is placed in a Positioned with tight size constraints,
-    // so children expand to fill the available space automatically.
-    if (!dashed) {
-      return DecoratedBox(
-        decoration: BoxDecoration(
-          color: scheme.secondary.withValues(alpha: 0.5),
-        ),
-      );
-    }
-
-    return CustomPaint(
-      painter: _DashedLinePainter(
-        color: scheme.onPrimary.withValues(alpha: 0.2),
-      ),
-    );
-  }
-}
-
-class _DashedLinePainter extends CustomPainter {
-  final Color color;
-  const _DashedLinePainter({required this.color});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = 2
-      ..strokeCap = StrokeCap.round;
-
-    const dashHeight = 4.0;
-    const dashSpace = 4.0;
-    double startY = 0;
-
-    while (startY < size.height) {
-      canvas.drawLine(
-        Offset(size.width / 2, startY),
-        Offset(size.width / 2, startY + dashHeight),
-        paint,
-      );
-      startY += dashHeight + dashSpace;
-    }
-  }
-
-  @override
-  bool shouldRepaint(_DashedLinePainter old) => old.color != color;
-}
 
 /// Compact title bar for the current step — only the header row.
 /// Kept separate from [_CurrentStepBodyCard] so the timeline dot can align
@@ -831,9 +632,9 @@ class _CurrentStepTitleCard extends StatelessWidget {
         ? step.name!
         : 'Étape ${step.position}';
 
-    return _StepCardShell(
+    return TimelineStepCardShell(
       decoration: BoxDecoration(
-        borderRadius: _StepCardShell._kRadius,
+        borderRadius: TimelineStepCardShell.kRadius,
         gradient: LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
@@ -1218,9 +1019,9 @@ class _PastStepCard extends StatelessWidget {
         : 'Étape ${step.position}';
     final journey = stepJourney?.journey;
 
-    return _StepCardShell(
+    return TimelineStepCardShell(
       decoration: BoxDecoration(
-        borderRadius: _StepCardShell._kRadius,
+        borderRadius: TimelineStepCardShell.kRadius,
         color: scheme.primaryContainer.withValues(alpha: 0.30),
         border: Border.all(
           color: scheme.onPrimary.withValues(alpha: 0.10),
@@ -1328,9 +1129,9 @@ class _FutureStepCard extends StatelessWidget {
 
     return Opacity(
       opacity: 0.5,
-      child: _StepCardShell(
+      child: TimelineStepCardShell(
         decoration: BoxDecoration(
-          borderRadius: _StepCardShell._kRadius,
+          borderRadius: TimelineStepCardShell.kRadius,
           color: scheme.primaryContainer.withValues(alpha: 0.15),
           border: Border.all(
             color: scheme.onPrimary.withValues(alpha: 0.07),
@@ -1387,8 +1188,6 @@ class _FutureStepCard extends StatelessWidget {
     );
   }
 }
-
-enum _StepState { past, current, future }
 
 class _MetricChip extends StatelessWidget {
   final IconData icon;
