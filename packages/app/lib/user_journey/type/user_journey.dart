@@ -62,10 +62,8 @@ sealed class UserJourney with _$UserJourney {
     final hours = totalTime! ~/ 3600;
     final minutes = (totalTime! % 3600) ~/ 60;
 
-    if (hours == 0) {
-      return '$minutes min';
-    }
-
+    if (hours == 0) return '$minutes min';
+    if (minutes == 0) return '$hours h';
     return '$hours h $minutes min';
   }
 

@@ -45,7 +45,7 @@ class UserJourneyContent extends StatelessWidget {
     return Stack(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+          padding: EdgeInsets.zero,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -135,10 +135,10 @@ class UserJourneyContent extends StatelessWidget {
                       vertical: 6,
                     ),
                     decoration: BoxDecoration(
-                      color: highlight.withValues(alpha: 0.20),
+                      color: scheme.secondary.withValues(alpha: 0.12),
                       borderRadius: BorderRadius.circular(12),
                       border: Border.all(
-                        color: highlight.withValues(alpha: 0.38),
+                        color: scheme.secondary.withValues(alpha: 0.28),
                       ),
                     ),
                     child: Row(
@@ -173,25 +173,21 @@ class UserJourneyContent extends StatelessWidget {
                     label: 'D+',
                     value:
                         '${existingJourney.totalElevationGain?.round() ?? 0} m',
-                    accentColor: highlight,
                   ),
                   _JourneyMetricPill(
                     icon: Icons.terrain_rounded,
                     label: 'Alt max',
                     value: '${existingJourney.maxElevation?.round() ?? 0} m',
-                    accentColor: highlight,
                   ),
                   _JourneyMetricPill(
                     icon: Icons.speed_rounded,
                     label: 'V max',
                     value: existingJourney.maxSpeedLabel,
-                    accentColor: highlight,
                   ),
                   _JourneyMetricPill(
                     icon: Icons.gps_fixed_rounded,
                     label: 'G max',
                     value: existingJourney.maxGForceLabel,
-                    accentColor: highlight,
                   ),
                 ],
               ),
@@ -273,13 +269,11 @@ class _JourneyMetricPill extends StatelessWidget {
   final IconData icon;
   final String label;
   final String value;
-  final Color accentColor;
 
   const _JourneyMetricPill({
     required this.icon,
     required this.label,
     required this.value,
-    required this.accentColor,
   });
 
   @override
@@ -290,20 +284,19 @@ class _JourneyMetricPill extends StatelessWidget {
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(10),
-        color: scheme.onPrimary.withValues(alpha: 0.05),
-        border: Border.all(color: accentColor.withValues(alpha: 0.28)),
+        color: scheme.secondary.withValues(alpha: 0.08),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: scheme.onPrimary.withValues(alpha: 0.72)),
-          const SizedBox(width: 6),
+          Icon(icon, size: 13, color: scheme.secondary.withValues(alpha: 0.70)),
+          const SizedBox(width: 4),
           Text(
             '$label $value',
             style: TextStyle(
-              color: scheme.onPrimary.withValues(alpha: 0.82),
-              fontSize: 10.8,
-              fontVariations: const [FontVariation.weight(620)],
+              color: scheme.secondary.withValues(alpha: 0.85),
+              fontSize: 11,
+              fontVariations: const [FontVariation.weight(600)],
             ),
           ),
         ],

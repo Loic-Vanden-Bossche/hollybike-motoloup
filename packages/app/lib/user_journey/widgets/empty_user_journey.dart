@@ -8,9 +8,8 @@ import 'package:lottie/lottie.dart';
 
 class EmptyUserJourney extends StatelessWidget {
   final String? username;
-  final Color color;
 
-  const EmptyUserJourney({super.key, this.username, required this.color});
+  const EmptyUserJourney({super.key, this.username});
 
   @override
   Widget build(BuildContext context) {
@@ -27,9 +26,8 @@ class EmptyUserJourney extends StatelessWidget {
         height: double.infinity,
         padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
         decoration: BoxDecoration(
-          color: color,
+          color: scheme.onPrimary.withValues(alpha: 0.04),
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: scheme.onPrimary.withValues(alpha: 0.08)),
         ),
         child: Row(
           mainAxisAlignment: MainAxisAlignment.start,

@@ -9,7 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/event/widgets/details/event_details_description.dart';
 import 'package:hollybike/event/widgets/expenses/expenses_preview_card.dart';
-import 'package:hollybike/event/widgets/journey/journey_timeline.dart';
+import 'package:hollybike/event/widgets/journey/timeline/journey_timeline.dart';
 import 'package:hollybike/weather/widgets/weather_forecast_card.dart';
 
 import '../../../app/app_router.gr.dart';
