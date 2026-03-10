@@ -131,7 +131,6 @@ class _ParticipantRow extends StatelessWidget {
   final void Function(int stepId)? onTerminateStep;
 
   const _ParticipantRow({
-    super.key,
     required this.entry,
     required this.isFirst,
     required this.isLast,
