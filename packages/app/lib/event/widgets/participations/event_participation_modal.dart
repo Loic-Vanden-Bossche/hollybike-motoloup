@@ -8,7 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:hollybike/event/bloc/event_details_bloc/event_details_bloc.dart';
 import 'package:hollybike/event/bloc/event_details_bloc/event_details_state.dart';
 import 'package:hollybike/event/types/participation/event_participation.dart';
-import 'package:hollybike/event/widgets/journey/step_user_journey_list.dart';
+import 'package:hollybike/event/widgets/journey/step_user_journey_list/step_user_journey_list.dart';
 import 'package:hollybike/shared/utils/dates.dart';
 import 'package:hollybike/ui/widgets/modal/glass_bottom_modal.dart';
 import 'package:hollybike/user_journey/widgets/user_journey_card_display_context.dart';
