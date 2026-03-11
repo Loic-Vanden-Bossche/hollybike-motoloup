@@ -37,6 +37,7 @@ import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.isNull
 import org.jetbrains.exposed.v1.core.neq
 import org.jetbrains.exposed.v1.dao.load
+import org.jetbrains.exposed.v1.dao.with
 import org.jetbrains.exposed.v1.exceptions.ExposedSQLException
 import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.andWhere
@@ -147,7 +148,7 @@ class NotificationService(
 		}
 		Notification.wrapRows(
 			Notifications.selectAll().applyParam(searchParam).andWhere { condition },
-		).toList()
+		).with(Notification::user).toList()
 	}
 
 	fun getAllCount(caller: User, searchParam: SearchParam): Long = transaction(db) {

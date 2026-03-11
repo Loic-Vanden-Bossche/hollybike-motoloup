@@ -3,6 +3,8 @@
   "includes":[{
     "pattern":"\\QMETA-INF/services/ch.qos.logback.classic.spi.Configurator\\E"
   }, {
+    "pattern":"\\QMETA-INF/services/com.google.auth.http.HttpTransportFactory\\E"
+  }, {
     "pattern":"\\QMETA-INF/services/io.ktor.serialization.kotlinx.KotlinxSerializationExtensionProvider\\E"
   }, {
     "pattern":"\\QMETA-INF/services/java.lang.System$LoggerFinder\\E"
@@ -153,17 +155,27 @@
   }, {
     "pattern":"\\Qlogback.xml\\E"
   }, {
+    "pattern":"\\Qlogging.properties\\E"
+  }, {
     "pattern":"\\Qmozilla/public-suffix-list.txt\\E"
+  }, {
+    "pattern":"\\Qorg/apache/hc/client5/version.properties\\E"
   }, {
     "pattern":"\\Qorg/fusesource/jansi/internal/native/Windows/x86_64/jansi.dll\\E"
   }, {
     "pattern":"\\Qorg/fusesource/jansi/jansi.properties\\E"
+  }, {
+    "pattern":"\\Qorg/jacoco/agent/rt/internal_aeaf9ab/core/runtime/InjectedClassRuntime$Lookup.class\\E"
+  }, {
+    "pattern":"\\Qorg/jacoco/agent/rt/internal_aeaf9ab/core/runtime/InjectedClassRuntime.class\\E"
   }, {
     "pattern":"\\Qorg/postgresql/driverconfig.properties\\E"
   }, {
     "pattern":"\\Qorg/slf4j/impl/StaticLoggerBinder.class\\E"
   }, {
     "pattern":"\\Qprofile.jpg\\E"
+  }, {
+    "pattern":"\\Qprometheus.properties\\E"
   }, {
     "pattern":"\\QsystemType.properties\\E"
   }, {
