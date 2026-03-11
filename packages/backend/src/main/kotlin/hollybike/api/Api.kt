@@ -46,7 +46,12 @@ fun Application.api(storageService: StorageService, db: Database) {
 		MailSender(it.url, it.port, it.username ?: "", it.password ?: "", it.sender)
 	}
 
-	val notificationService = NotificationService(db)
+	val notificationService = NotificationService(
+		db = db,
+		logger = log,
+		isCloud = isCloud,
+		firebaseAdminCredentialsJson = conf.firebase.adminCredentialsJson,
+	)
 	val associationService = AssociationService(db, storageService)
 	val userService = UserService(db, storageService, associationService)
 	val invitationService = InvitationService(db)
@@ -72,7 +77,7 @@ fun Application.api(storageService: StorageService, db: Database) {
 	JourneyController(this, journeyService, positionService, storageService)
 	UserJourneyController(this, userEventPositionService, storageService)
 	ProfileController(this, profileService)
-	WebSocketController(this, authVerifier, notificationService, userEventPositionService)
+	WebSocketController(this, authVerifier, userEventPositionService)
 	NotificationController(this, notificationService)
 	ExpenseController(this, expenseService)
 

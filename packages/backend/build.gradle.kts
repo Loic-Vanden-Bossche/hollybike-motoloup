@@ -125,6 +125,7 @@ dependencies {
 	implementation("org.liquibase:liquibase-core:5.0.1")
 	implementation("software.amazon.awssdk:cloudfront:2.41.29")
 	implementation("org.simplejavamail:simple-java-mail:8.12.6")
+	implementation("com.google.firebase:firebase-admin:9.7.0")
 	ksp(project(":processor"))
 
 	liquibaseRuntime("org.liquibase:liquibase-core:5.0.1")

@@ -28,6 +28,9 @@ on:
       ANDROID_KEY_PROPERTIES:
         description: "Android signing properties (base64)"
         required: true
+      ANDROID_GOOGLE_SERVICES_JSON:
+        description: "Android Firebase google-services.json (base64)"
+        required: true
       PRODUCTION_CREDENTIAL_FILE:
         description: "Google Play service account JSON (base64)"
         required: true
@@ -64,6 +67,7 @@ jobs:
     env:
       KEYSTORE_PATH: android/upload-keystore.jks
       KEY_PROPS_PATH: android/key.properties
+      GOOGLE_SERVICES_PATH: android/app/google-services.json
       AAB_PATH: build/app/outputs/bundle/release/app-release.aab
 
     steps:
@@ -102,6 +106,10 @@ jobs:
       - name: Decode Android key properties
         if: inputs.externall_call
         run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > "${{ env.KEY_PROPS_PATH }}"
+
+      - name: Decode google-services.json
+        if: inputs.externall_call || inputs.create-executables
+        run: echo "${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}" | base64 --decode > "${{ env.GOOGLE_SERVICES_PATH }}"
 
       - name: Configure Gradle credentials
         if: inputs.externall_call || inputs.create-executables

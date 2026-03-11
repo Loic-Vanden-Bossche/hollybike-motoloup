@@ -33,6 +33,7 @@ export function EventInfo(props: EventInfoProps) {
 		eventData, setEventData, id,
 	} = props;
 	const [budgetText, setBudgetText] = useState("");
+	const toMinute = (timestamp: number | null) => timestamp === null ? null : Math.floor(timestamp / 60000);
 	const initialDates = useRef<{
 		start: number,
 		end: number | null
@@ -116,7 +117,9 @@ export function EventInfo(props: EventInfoProps) {
 				onClick={() => {
 					const start = eventData.start_date_time.getTime();
 					const end = eventData.end_date_time?.getTime() ?? null;
-					const hasDateChanges = start !== initialDates.current.start || end !== initialDates.current.end;
+					const hasDateChanges =
+						toMinute(start) !== toMinute(initialDates.current.start) ||
+						toMinute(end) !== toMinute(initialDates.current.end);
 					const isTerminated = eventData.status === EEventStatus.Finished || eventData.status === EEventStatus.Cancelled;
 					if (hasDateChanges && eventData.status === EEventStatus.Now) {
 						toast("Impossible de modifier les dates d'un événement en cours.", { type: "warning" });
@@ -134,8 +137,12 @@ export function EventInfo(props: EventInfoProps) {
 						body: {
 							name: eventData.name,
 							description: eventData.description,
-							start_date: eventData.start_date_time,
-							end_date: eventData.end_date_time,
+							start_date: hasDateChanges ? eventData.start_date_time : new Date(initialDates.current.start),
+							end_date: hasDateChanges
+								? eventData.end_date_time
+								: initialDates.current.end === null
+									? null
+									: new Date(initialDates.current.end),
 							budget: budgetText !== "" ? parseFloat(budgetText) * 100 : undefined,
 						},
 					}).then((res) => {

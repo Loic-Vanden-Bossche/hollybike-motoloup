@@ -14,6 +14,7 @@ import 'package:hollybike/auth/services/auth_persistence.dart';
 import 'package:hollybike/auth/types/auth_session.dart';
 import 'package:hollybike/auth/guards/auth_stream.dart';
 import 'package:hollybike/event/services/event/event_repository.dart';
+import 'package:hollybike/notification/background/notification_nav_intent.dart';
 import 'app_router.gr.dart';
 import 'package:hollybike/notification/bloc/notification_bloc.dart';
 import 'package:hollybike/positions/bloc/my_position/my_position_bloc.dart';
@@ -38,6 +39,7 @@ class _AppState extends State<App> {
   late final AuthStream authChangeNotifier;
   late final EventRepository _eventRepository;
   StreamSubscription<int>? _navSubscription;
+  StreamSubscription<int?>? _notificationNavSubscription;
   AuthSession? _lastAuthSession;
 
   @override
@@ -69,6 +71,9 @@ class _AppState extends State<App> {
     // Warm-start: navigate whenever the tracking notification is tapped while
     // the app is already running.
     _navSubscription = TrackingNavIntent.stream.listen(_navigateToTrackingEvent);
+    _notificationNavSubscription = NotificationNavIntent.stream.listen(
+      _navigateFromNotification,
+    );
 
     // Cold-start: pull any event ID stored by MainActivity before Dart started.
     // Deferred to post-frame so the router has settled on its initial route.
@@ -80,6 +85,7 @@ class _AppState extends State<App> {
   @override
   void dispose() {
     _navSubscription?.cancel();
+    _notificationNavSubscription?.cancel();
     super.dispose();
   }
 
@@ -155,6 +161,14 @@ class _AppState extends State<App> {
         },
       ),
     );
+  }
+
+  Future<void> _navigateFromNotification(int? eventId) async {
+    if (eventId == null) {
+      appRouter.navigate(const EventsRoute());
+      return;
+    }
+    await _navigateToTrackingEvent(eventId);
   }
 
   void _stopAllBackgroundServices(BuildContext context) {

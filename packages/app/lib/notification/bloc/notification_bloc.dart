@@ -35,12 +35,12 @@ class NotificationBloc extends Bloc<NotificationEvent, NotificationState> {
       if (_activeSessionKey != null) {
         await notifications.disconnect();
       }
-      await notifications.connectNotifications(event.session);
-      _activeSessionKey = sessionKey;
-      emit(NotificationServiceRunning());
-    } catch (e) {
+      final started = await notifications.connectNotifications(event.session);
+      _activeSessionKey = started ? sessionKey : null;
+      emit(started ? NotificationServiceRunning() : NotificationServiceStopped());
+    } catch (_) {
       _activeSessionKey = null;
-      emit(NotificationServiceFailure(e.toString()));
+      emit(NotificationServiceStopped());
     }
   }
 
