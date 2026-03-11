@@ -4,7 +4,7 @@ resource "kubernetes_manifest" "runner_autoscaler" {
     kind       = "HorizontalRunnerAutoscaler"
     metadata = {
       name      = "hollybike-autoscaler"
-      namespace = data.kubernetes_namespace.actions_runner_system.metadata[0].name
+      namespace = data.kubernetes_namespace_v1.actions_runner_system.metadata[0].name
     }
     spec = {
       scaleTargetRef = {

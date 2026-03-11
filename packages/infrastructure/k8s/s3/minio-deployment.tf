@@ -1,4 +1,4 @@
-resource "kubernetes_stateful_set" "minio" {
+resource "kubernetes_stateful_set_v1" "minio" {
   metadata {
     name      = "minio"
     namespace = var.namespace
@@ -8,7 +8,7 @@ resource "kubernetes_stateful_set" "minio" {
   }
 
   spec {
-    service_name = kubernetes_service.minio.metadata[0].name
+    service_name = kubernetes_service_v1.minio.metadata[0].name
     replicas     = 1
 
     selector {

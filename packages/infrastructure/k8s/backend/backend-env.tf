@@ -1,4 +1,4 @@
-resource "kubernetes_secret" "backend_env" {
+resource "kubernetes_secret_v1" "backend_env" {
   metadata {
     name      = "backend-env"
     namespace = var.namespace
@@ -13,6 +13,7 @@ resource "kubernetes_secret" "backend_env" {
     SECURITY_DOMAIN                   = "https://${var.domain}"
     SECURITY_REALM                    = var.security_realm
     SECURITY_SECRET                   = var.security_secret
+    FIREBASE_ADMIN_CREDENTIALS_JSON   = var.firebase_admin_credentials_json
     STORAGE_S3_BUCKET_NAME            = var.storage_s3_bucket_name
     STORAGE_S3_PASSWORD               = var.storage_s3_password
     STORAGE_S3_REGION                 = "us-east-1"

@@ -31,7 +31,7 @@ resource "kubernetes_ingress_v1" "hollybike_backend_ingress" {
 
           backend {
             service {
-              name = kubernetes_service.backend.metadata[0].name
+              name = kubernetes_service_v1.backend.metadata[0].name
               port {
                 number = 8080
               }

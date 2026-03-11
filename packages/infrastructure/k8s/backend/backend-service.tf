@@ -1,4 +1,4 @@
-resource "kubernetes_service" "backend" {
+resource "kubernetes_service_v1" "backend" {
   metadata {
     name      = "hollybike-backend"
     namespace = var.namespace

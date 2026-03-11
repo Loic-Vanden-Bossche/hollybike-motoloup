@@ -40,7 +40,7 @@
 #
 #           backend {
 #             service {
-#               name = kubernetes_service.frontend.metadata[0].name
+#               name = kubernetes_service_v1.frontend.metadata[0].name
 #               port {
 #                 number = 80
 #               }
@@ -84,7 +84,7 @@ resource "kubernetes_ingress_v1" "hollybike_frontend_assets" {
           path_type = "ImplementationSpecific"
           backend {
             service {
-              name = kubernetes_service.frontend.metadata[0].name
+              name = kubernetes_service_v1.frontend.metadata[0].name
               port {
                 number = 80
               }
@@ -127,7 +127,7 @@ resource "kubernetes_ingress_v1" "hollybike_frontend_spa" {
           path_type = "ImplementationSpecific"
           backend {
             service {
-              name = kubernetes_service.frontend.metadata[0].name
+              name = kubernetes_service_v1.frontend.metadata[0].name
               port {
                 number = 80
               }

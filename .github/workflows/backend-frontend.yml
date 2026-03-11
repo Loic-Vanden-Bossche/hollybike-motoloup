@@ -36,6 +36,9 @@ on:
       BACKEND_SECUTIRY_SECRET:
         description: "Backend security secret"
         required: true
+      FIREBASE_ADMIN_CREDENTIALS_JSON:
+        description: "Firebase Admin credentials JSON"
+        required: false
       KUBE_CONFIG:
         description: "Kubernetes config (base64)"
         required: true
@@ -77,6 +80,7 @@ jobs:
       DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
       DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
       BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
+      FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
   build-backend-on-premises:
