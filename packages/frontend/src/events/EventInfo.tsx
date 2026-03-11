@@ -138,11 +138,11 @@ export function EventInfo(props: EventInfoProps) {
 							name: eventData.name,
 							description: eventData.description,
 							start_date: hasDateChanges ? eventData.start_date_time : new Date(initialDates.current.start),
-							end_date: hasDateChanges
-								? eventData.end_date_time
-								: initialDates.current.end === null
-									? null
-									: new Date(initialDates.current.end),
+							end_date: hasDateChanges ?
+								eventData.end_date_time :
+								initialDates.current.end === null ?
+									null :
+									new Date(initialDates.current.end),
 							budget: budgetText !== "" ? parseFloat(budgetText) * 100 : undefined,
 						},
 					}).then((res) => {
