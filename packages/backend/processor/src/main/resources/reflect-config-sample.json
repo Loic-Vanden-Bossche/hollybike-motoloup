@@ -258,7 +258,8 @@
   "name":"com.github.dockerjava.api.model.AuthConfig",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
+  "queryAllDeclaredConstructors":true,
+  "methods":[{"name":"getAuth","parameterTypes":[] }, {"name":"getEmail","parameterTypes":[] }, {"name":"getIdentitytoken","parameterTypes":[] }, {"name":"getPassword","parameterTypes":[] }, {"name":"getRegistryAddress","parameterTypes":[] }, {"name":"getRegistrytoken","parameterTypes":[] }, {"name":"getStackOrchestrator","parameterTypes":[] }, {"name":"getUsername","parameterTypes":[] }]
 },
 {
   "name":"com.github.dockerjava.api.model.Bind",
@@ -665,6 +666,18 @@
   "queryAllDeclaredConstructors":true
 },
 {
+  "name":"com.google.api.client.json.GenericJson",
+  "allDeclaredFields":true,
+  "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.google.api.client.util.GenericData",
+  "allDeclaredFields":true
+},
+{
+  "name":"com.ibm.lang.management.OperatingSystemMXBean"
+},
+{
   "name":"com.sun.crypto.provider.AESCipher$General",
   "methods":[{"name":"<init>","parameterTypes":[] }]
 },
@@ -723,6 +736,21 @@
 {
   "name":"com.sun.crypto.provider.TlsMasterSecretGenerator",
   "methods":[{"name":"<init>","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.management.GarbageCollectionNotificationInfo"
+},
+{
+  "name":"com.sun.management.GcInfo",
+  "fields":[{"name":"builder"}, {"name":"extAttributes"}],
+  "methods":[{"name":"getMemoryUsageBeforeGc","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.management.OperatingSystemMXBean",
+  "methods":[{"name":"getCpuLoad","parameterTypes":[] }, {"name":"getProcessCpuLoad","parameterTypes":[] }, {"name":"getProcessCpuTime","parameterTypes":[] }]
+},
+{
+  "name":"com.sun.management.UnixOperatingSystemMXBean"
 },
 {
   "name":"com.sun.org.apache.xerces.internal.jaxp.DocumentBuilderFactoryImpl",
@@ -816,6 +844,21 @@
   "name":"hollybike.api.EventTest$1$12"
 },
 {
+  "name":"hollybike.api.EventTest$1$13"
+},
+{
+  "name":"hollybike.api.EventTest$1$14"
+},
+{
+  "name":"hollybike.api.EventTest$1$15"
+},
+{
+  "name":"hollybike.api.EventTest$1$16"
+},
+{
+  "name":"hollybike.api.EventTest$1$17"
+},
+{
   "name":"hollybike.api.EventTest$1$2"
 },
 {
@@ -857,6 +900,22 @@
   "name":"hollybike.api.InvitationTest$1$3"
 },
 {
+  "name":"hollybike.api.NotificationTest",
+  "methods":[{"name":"<init>","parameterTypes":[] }, {"name":"<init>","parameterTypes":["kotlin.jvm.internal.DefaultConstructorMarker"] }]
+},
+{
+  "name":"hollybike.api.NotificationTest$1$1"
+},
+{
+  "name":"hollybike.api.NotificationTest$1$2"
+},
+{
+  "name":"hollybike.api.NotificationTest$1$3"
+},
+{
+  "name":"hollybike.api.NotificationTest$Companion"
+},
+{
   "name":"hollybike.api.PackageConfig"
 },
 {
@@ -875,6 +934,9 @@
 },
 {
   "name":"hollybike.api.UserTest$1$1"
+},
+{
+  "name":"hollybike.api.UserTest$1$10"
 },
 {
   "name":"hollybike.api.UserTest$1$2"
@@ -942,12 +1004,22 @@
   "name":"hollybike.api.repository.EventImage$Companion"
 },
 {
+  "name":"hollybike.api.repository.EventJourneyStep"
+},
+{
   "name":"hollybike.api.repository.EventParticipation",
   "fields":[{"name":"journey$delegate"}, {"name":"recordedPositions$delegate"}, {"name":"user$delegate"}],
   "methods":[{"name":"<init>","parameterTypes":["org.jetbrains.exposed.v1.core.dao.id.EntityID"] }, {"name":"getJourney","parameterTypes":[] }, {"name":"getRecordedPositions","parameterTypes":[] }, {"name":"getUser","parameterTypes":[] }, {"name":"setJourney","parameterTypes":["hollybike.api.repository.UserJourney"] }, {"name":"setUser","parameterTypes":["hollybike.api.repository.User"] }]
 },
 {
   "name":"hollybike.api.repository.EventParticipation$Companion"
+},
+{
+  "name":"hollybike.api.repository.EventParticipationStepJourney"
+},
+{
+  "name":"hollybike.api.repository.Expense",
+  "methods":[{"name":"<init>","parameterTypes":["org.jetbrains.exposed.v1.core.dao.id.EntityID"] }]
 },
 {
   "name":"hollybike.api.repository.Invitation",
@@ -962,7 +1034,11 @@
 },
 {
   "name":"hollybike.api.repository.Notification",
-  "methods":[{"name":"<init>","parameterTypes":["org.jetbrains.exposed.v1.core.dao.id.EntityID"] }]
+  "fields":[{"name":"user$delegate"}],
+  "methods":[{"name":"<init>","parameterTypes":["org.jetbrains.exposed.v1.core.dao.id.EntityID"] }, {"name":"getUser","parameterTypes":[] }, {"name":"setUser","parameterTypes":["hollybike.api.repository.User"] }]
+},
+{
+  "name":"hollybike.api.repository.Notification$Companion"
 },
 {
   "name":"hollybike.api.repository.Position"
@@ -1138,6 +1214,14 @@
   "name":"hollybike.api.types.event.participation.EEventRole"
 },
 {
+  "name":"hollybike.api.types.event.participation.TCreateParticipations",
+  "fields":[{"name":"Companion"}]
+},
+{
+  "name":"hollybike.api.types.event.participation.TCreateParticipations$Companion",
+  "methods":[{"name":"serializer","parameterTypes":[] }]
+},
+{
   "name":"hollybike.api.types.event.participation.TEventParticipation",
   "fields":[{"name":"Companion"}]
 },
@@ -1151,6 +1235,22 @@
 },
 {
   "name":"hollybike.api.types.event.participation.TUserJourney$Companion",
+  "methods":[{"name":"serializer","parameterTypes":[] }]
+},
+{
+  "name":"hollybike.api.types.expense.TExpense",
+  "fields":[{"name":"Companion"}]
+},
+{
+  "name":"hollybike.api.types.expense.TExpense$Companion",
+  "methods":[{"name":"serializer","parameterTypes":[] }]
+},
+{
+  "name":"hollybike.api.types.expense.TNewExpense",
+  "fields":[{"name":"Companion"}]
+},
+{
+  "name":"hollybike.api.types.expense.TNewExpense$Companion",
   "methods":[{"name":"serializer","parameterTypes":[] }]
 },
 {
@@ -1187,6 +1287,22 @@
 {
   "name":"hollybike.api.types.lists.TLists$Companion",
   "methods":[{"name":"serializer","parameterTypes":["kotlinx.serialization.KSerializer"] }]
+},
+{
+  "name":"hollybike.api.types.notification.TNotificationDeviceTokenDelete",
+  "fields":[{"name":"Companion"}]
+},
+{
+  "name":"hollybike.api.types.notification.TNotificationDeviceTokenDelete$Companion",
+  "methods":[{"name":"serializer","parameterTypes":[] }]
+},
+{
+  "name":"hollybike.api.types.notification.TNotificationDeviceTokenUpsert",
+  "fields":[{"name":"Companion"}]
+},
+{
+  "name":"hollybike.api.types.notification.TNotificationDeviceTokenUpsert$Companion",
+  "methods":[{"name":"serializer","parameterTypes":[] }]
 },
 {
   "name":"hollybike.api.types.shared.ImagePath",
@@ -1236,6 +1352,14 @@
 },
 {
   "name":"hollybike.api.types.websocket.Message$Companion",
+  "methods":[{"name":"serializer","parameterTypes":[] }]
+},
+{
+  "name":"hollybike.api.types.websocket.TNotification",
+  "fields":[{"name":"Companion"}]
+},
+{
+  "name":"hollybike.api.types.websocket.TNotification$Companion",
   "methods":[{"name":"serializer","parameterTypes":[] }]
 },
 {
@@ -1338,6 +1462,9 @@
   "name":"io.ktor.http.content.MultiPartData"
 },
 {
+  "name":"io.ktor.http.content.OutputStreamContent"
+},
+{
   "name":"io.ktor.http.content.TextContent"
 },
 {
@@ -1391,6 +1518,9 @@
   "name":"io.ktor.server.engine.BaseApplicationResponse"
 },
 {
+  "name":"io.ktor.server.metrics.micrometer.CallMeasure"
+},
+{
   "name":"io.ktor.server.plugins.MutableOriginConnectionPoint"
 },
 {
@@ -1438,6 +1568,9 @@
   "fields":[{"name":"_closedCause"}, {"name":"suspensionSlot"}]
 },
 {
+  "name":"io.ktor.utils.io.jvm.javaio.PollersKt"
+},
+{
   "name":"io.ktor.utils.io.pool.DefaultPool",
   "fields":[{"name":"top"}]
 },
@@ -1447,6 +1580,14 @@
 },
 {
   "name":"io.ktor.websocket.WebSocketExtension"
+},
+{
+  "name":"io.micrometer.core.instrument.distribution.TimeWindowMax",
+  "fields":[{"name":"rotating"}]
+},
+{
+  "name":"io.prometheus.metrics.expositionformats.internal.PrometheusProtobufWriterImpl",
+  "methods":[{"name":"<init>","parameterTypes":[] }]
 },
 {
   "name":"java.beans.Introspector"
@@ -1466,6 +1607,10 @@
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"java.lang.$JaCoCo",
+  "fields":[{"name":"data"}]
+},
+{
   "name":"java.lang.AutoCloseable",
   "queryAllDeclaredMethods":true
 },
@@ -1473,11 +1618,24 @@
   "name":"java.lang.Boolean",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
+  "queryAllDeclaredConstructors":true,
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Byte",
+  "fields":[{"name":"TYPE"}]
+},
+{
+  "name":"java.lang.Character",
+  "fields":[{"name":"TYPE"}]
 },
 {
   "name":"java.lang.Class",
   "methods":[{"name":"getModule","parameterTypes":[] }, {"name":"getPermittedSubclasses","parameterTypes":[] }, {"name":"getRecordComponents","parameterTypes":[] }, {"name":"isRecord","parameterTypes":[] }, {"name":"isSealed","parameterTypes":[] }]
+},
+{
+  "name":"java.lang.ClassLoader",
+  "methods":[{"name":"getUnnamedModule","parameterTypes":[] }]
 },
 {
   "name":"java.lang.ClassValue"
@@ -1487,20 +1645,30 @@
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"java.lang.Double",
+  "fields":[{"name":"TYPE"}]
+},
+{
   "name":"java.lang.Enum",
   "queryAllDeclaredMethods":true
+},
+{
+  "name":"java.lang.Float",
+  "fields":[{"name":"TYPE"}]
 },
 {
   "name":"java.lang.Integer",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
+  "queryAllDeclaredConstructors":true,
+  "fields":[{"name":"TYPE"}]
 },
 {
   "name":"java.lang.Long",
   "allDeclaredFields":true,
   "queryAllDeclaredMethods":true,
-  "queryAllDeclaredConstructors":true
+  "queryAllDeclaredConstructors":true,
+  "fields":[{"name":"TYPE"}]
 },
 {
   "name":"java.lang.Module",
@@ -1528,9 +1696,13 @@
   "methods":[{"name":"checkPermission","parameterTypes":["java.security.Permission"] }]
 },
 {
+  "name":"java.lang.Short",
+  "fields":[{"name":"TYPE"}]
+},
+{
   "name":"java.lang.String",
   "allDeclaredClasses":true,
-  "fields":[{"name":"Companion"}]
+  "fields":[{"name":"Companion"}, {"name":"TYPE"}]
 },
 {
   "name":"java.lang.System",
@@ -1543,6 +1715,10 @@
 {
   "name":"java.lang.Throwable",
   "allDeclaredFields":true
+},
+{
+  "name":"java.lang.Void",
+  "fields":[{"name":"TYPE"}]
 },
 {
   "name":"java.lang.annotation.Annotation",
@@ -1586,7 +1762,27 @@
   "queryAllDeclaredMethods":true
 },
 {
+  "name":"java.lang.instrument.Instrumentation",
+  "methods":[{"name":"redefineModule","parameterTypes":["java.lang.Module","java.util.Set","java.util.Map","java.util.Map","java.util.Set","java.util.Map"] }]
+},
+{
   "name":"java.lang.invoke.MethodHandle"
+},
+{
+  "name":"java.lang.invoke.MethodHandles",
+  "methods":[{"name":"lookup","parameterTypes":[] }, {"name":"privateLookupIn","parameterTypes":["java.lang.Class","java.lang.invoke.MethodHandles$Lookup"] }]
+},
+{
+  "name":"java.lang.invoke.MethodHandles$Lookup",
+  "methods":[{"name":"defineClass","parameterTypes":["byte[]"] }]
+},
+{
+  "name":"java.lang.management.ManagementFactory"
+},
+{
+  "name":"java.lang.management.MemoryUsage",
+  "queryAllPublicMethods":true,
+  "methods":[{"name":"from","parameterTypes":["javax.management.openmbean.CompositeData"] }]
 },
 {
   "name":"java.lang.module.ModuleDescriptor",
@@ -1602,6 +1798,16 @@
 {
   "name":"java.lang.reflect.Parameter",
   "methods":[{"name":"getName","parameterTypes":[] }]
+},
+{
+  "name":"java.math.BigDecimal"
+},
+{
+  "name":"java.math.BigInteger"
+},
+{
+  "name":"java.net.SocketException",
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.String"] }]
 },
 {
   "name":"java.net.StandardSocketOptions"
@@ -1640,6 +1846,10 @@
 },
 {
   "name":"java.sql.Timestamp"
+},
+{
+  "name":"java.util.AbstractMap",
+  "allDeclaredFields":true
 },
 {
   "name":"java.util.ArrayList",
@@ -1715,6 +1925,9 @@
 },
 {
   "name":"java.util.concurrent.locks.ReentrantLock$Sync"
+},
+{
+  "name":"javax.management.ObjectName"
 },
 {
   "name":"javax.security.auth.x500.X500Principal",
@@ -2319,6 +2532,19 @@
   "name":"org.gradle.process.internal.worker.child.SystemApplicationClassLoaderWorker$WorkerServices",
   "queryAllDeclaredMethods":true,
   "methods":[{"name":"createGradleUserHomeDirProvider","parameterTypes":[] }, {"name":"createWorkerDirectoryProvider","parameterTypes":["org.gradle.initialization.GradleUserHomeDirProvider"] }, {"name":"createWorkerLogEventListener","parameterTypes":[] }]
+},
+{
+  "name":"org.jacoco.agent.rt.internal_aeaf9ab.PreMain",
+  "methods":[{"name":"premain","parameterTypes":["java.lang.String","java.lang.instrument.Instrumentation"] }]
+},
+{
+  "name":"org.jacoco.agent.rt.internal_aeaf9ab.core.runtime.InjectedClassRuntime",
+  "allDeclaredClasses":true,
+  "methods":[{"name":"<init>","parameterTypes":["java.lang.Class","java.lang.String"] }]
+},
+{
+  "name":"org.jacoco.agent.rt.internal_aeaf9ab.core.runtime.InjectedClassRuntime$Lookup",
+  "allDeclaredClasses":true
 },
 {
   "name":"org.jetbrains.exposed.v1.core.Column"

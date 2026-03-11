@@ -94,10 +94,8 @@ dependencies {
 	implementation("io.ktor:ktor-server-call-logging:$ktorVersion")
 	implementation("io.ktor:ktor-server-html-builder:$ktorVersion")
 	implementation("io.ktor:ktor-server-websockets:$ktorVersion")
-//	implementation("io.ktor:ktor-serialization-kotlinx-xml:$ktorVersion")
 
 	implementation("io.github.pdvrieze.xmlutil:core:0.91.3")
-//	implementation("io.github.pdvrieze.xmlutil:core-jvm:0.90.1")
 	implementation("io.github.pdvrieze.xmlutil:serialization-jvm:0.91.3")
 
 	implementation("io.ktor:ktor-client-core:$ktorVersion")
@@ -123,8 +121,15 @@ dependencies {
 
 	implementation("org.postgresql:postgresql:42.7.10")
 	implementation("org.liquibase:liquibase-core:5.0.1")
-	implementation("software.amazon.awssdk:cloudfront:2.41.29")
+	implementation("software.amazon.awssdk:cloudfront:2.41.29") {
+		exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
+	}
+	implementation("software.amazon.awssdk:url-connection-client:2.41.29")
 	implementation("org.simplejavamail:simple-java-mail:8.12.6")
+	implementation("com.google.firebase:firebase-admin:9.8.0") {
+		exclude(group = "io.grpc", module = "grpc-netty-shaded")
+	}
+	implementation("io.grpc:grpc-okhttp:1.71.0")
 	ksp(project(":processor"))
 
 	liquibaseRuntime("org.liquibase:liquibase-core:5.0.1")
@@ -344,7 +349,7 @@ graalvmNative {
 			javaLauncher.set(
 				javaToolchains.launcherFor {
 					languageVersion.set(JavaLanguageVersion.of(21))
-// 					vendor.set(JvmVendorSpec.ORACLE)
+					vendor.set(JvmVendorSpec.matching("GraalVM"))
 				},
 			)
 		}
@@ -369,6 +374,8 @@ graalvmNative {
 
 			buildArgs.add("--initialize-at-run-time=org.simplejavamail.internal.util.MiscUtil")
 			buildArgs.add("--initialize-at-run-time=org.simplejavamail.internal.moduleloader.ModuleLoader")
+			buildArgs.add("--initialize-at-build-time=ch.qos.logback")
+			buildArgs.add("--initialize-at-build-time=org.slf4j")
 			buildArgs.add("--initialize-at-build-time=kotlin.DeprecationLevel")
 
 			buildArgs.add("--install-exit-handlers")
@@ -383,7 +390,10 @@ graalvmNative {
 			buildArgs.add("-H:ResourceConfigurationFiles=${project.projectDir}/src/main/resources/resource-config.json")
 			buildArgs.add("-H:DynamicProxyConfigurationFiles=${project.projectDir}/src/main/resources/proxy-config.json")
 
-			buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
+			val isWindows = System.getProperty("os.name").lowercase().contains("windows")
+			if (!isWindows) {
+				buildArgs.add("-H:+StaticExecutableWithDynamicLibC")
+			}
 
 			buildArgs.add("--features=okhttp3.internal.graal.OkHttpFeature")
 
@@ -394,7 +404,8 @@ graalvmNative {
 	}
 
 	metadataRepository {
-		enabled.set(true)
+		val isWindows = System.getProperty("os.name").lowercase().contains("windows")
+		enabled.set(!isWindows)
 	}
 }
 

@@ -12,7 +12,6 @@ import android.provider.MediaStore
 import android.provider.OpenableColumns
 import android.util.Log
 import androidx.core.view.WindowCompat
-import com.hollybike.hollybike.realtime.RealtimeForegroundService
 import com.hollybike.hollybike.tracking.TrackingForegroundService
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -30,7 +29,6 @@ class MainActivity : FlutterActivity() {
 	private val singleMediaPickerRequestCode = 1101
 	private val multipleMediaPickerRequestCode = 1102
 	private var isUiResumed = false
-	private var pendingRealtimeStart: Intent? = null
 	private var pendingLocationStart: Intent? = null
 	private var pendingMediaPickerResult: MethodChannel.Result? = null
 
@@ -106,25 +104,6 @@ class MainActivity : FlutterActivity() {
 		MethodChannel(flutterEngine.dartExecutor.binaryMessenger, channel)
 			.setMethodCallHandler { call, result ->
 				when (call.method) {
-					"startRealtime" -> {
-						val token = call.argument<String>("token") ?: ""
-						val host = call.argument<String>("host") ?: ""
-						val intent = Intent(this, RealtimeForegroundService::class.java)
-							.putExtra(RealtimeForegroundService.EXTRA_TOKEN, token)
-							.putExtra(RealtimeForegroundService.EXTRA_HOST, host)
-						startForegroundServiceSafely(
-							intent = intent,
-							storePending = { pendingRealtimeStart = intent },
-						)
-						result.success(null)
-					}
-
-					"stopRealtime" -> {
-						pendingRealtimeStart = null
-						stopService(Intent(this, RealtimeForegroundService::class.java))
-						result.success(null)
-					}
-
 					"startLocation" -> {
 						val token = call.argument<String>("token") ?: ""
 						val host = call.argument<String>("host") ?: ""
@@ -210,14 +189,6 @@ class MainActivity : FlutterActivity() {
 	}
 
 	private fun drainPendingForegroundStarts() {
-		pendingRealtimeStart?.let { intent ->
-			pendingRealtimeStart = null
-			startForegroundServiceSafely(
-				intent = intent,
-				storePending = { pendingRealtimeStart = intent },
-			)
-		}
-
 		pendingLocationStart?.let { intent ->
 			pendingLocationStart = null
 			startForegroundServiceSafely(

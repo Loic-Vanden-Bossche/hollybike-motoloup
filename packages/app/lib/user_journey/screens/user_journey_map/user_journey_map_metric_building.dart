@@ -400,13 +400,40 @@ extension _UserJourneyMapMetricBuilding on _UserJourneyMapScreenState {
     }
 
     if (totalDistance <= 0) {
+      // Ensure strictly increasing stops even when all points are identical.
+      final lastIndex = coordinates.length - 1;
       return List<double>.generate(
         coordinates.length,
-        (index) => index == coordinates.length - 1 ? 1 : 0,
+        (index) => index / lastIndex,
       );
     }
 
-    return cumulative.map((value) => value / totalDistance).toList();
+    final normalized = cumulative.map((value) => value / totalDistance).toList();
+    normalized[0] = 0;
+
+    // Mapbox interpolate stops must be strictly increasing.
+    const epsilon = 1e-9;
+    for (var index = 1; index < normalized.length; index++) {
+      if (normalized[index] <= normalized[index - 1]) {
+        normalized[index] = normalized[index - 1] + epsilon;
+      }
+    }
+
+    final last = normalized.last;
+    if (last <= 0) {
+      final lastIndex = normalized.length - 1;
+      return List<double>.generate(normalized.length, (index) => index / lastIndex);
+    }
+
+    if (last > 1) {
+      for (var index = 0; index < normalized.length; index++) {
+        normalized[index] = normalized[index] / last;
+      }
+    }
+
+    normalized[0] = 0;
+    normalized[normalized.length - 1] = 1;
+    return normalized;
   }
 
   double _coordinateDistance(List<double> start, List<double> end) {

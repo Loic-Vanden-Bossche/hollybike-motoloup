@@ -23,6 +23,7 @@ data class Conf(
 	val smtp: ConfSMTP? = null,
 	val storage: ConfStorage = ConfStorage(),
 	val mapBox: ConfMapBox = ConfMapBox(),
+	val firebase: ConfFirebase = ConfFirebase(),
 )
 
 @Suppress("UnsafeOptInUsageError")
@@ -75,6 +76,12 @@ data class ConfStorage(
 @Serializable
 data class ConfMapBox(
 	val publicAccessTokenSecret: String? = null,
+)
+
+@Suppress("UnsafeOptInUsageError")
+@Serializable
+data class ConfFirebase(
+	val adminCredentialsJson: String? = null,
 )
 
 fun parseConf(): Conf? {
@@ -134,7 +141,10 @@ private fun parseEnvConf() = Conf(
 	),
 	ConfMapBox(
 		System.getenv("MAPBOX_PUBLIC_ACCESS_TOKEN_SECRET")
-	)
+	),
+	ConfFirebase(
+		System.getenv("FIREBASE_ADMIN_CREDENTIALS_JSON"),
+	),
 )
 
 private fun parseEnvSMTPConv(): ConfSMTP? = try {

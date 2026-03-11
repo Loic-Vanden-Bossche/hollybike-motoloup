@@ -1,4 +1,4 @@
-resource "kubernetes_service" "postgres" {
+resource "kubernetes_service_v1" "postgres" {
   metadata {
     name      = "postgres"
     namespace = var.namespace

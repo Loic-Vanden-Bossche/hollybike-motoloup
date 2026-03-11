@@ -33,6 +33,9 @@ on:
       BACKEND_SECUTIRY_SECRET:
         description: "Backend security secret"
         required: true
+      FIREBASE_ADMIN_CREDENTIALS_JSON:
+        description: "Firebase Admin credentials JSON"
+        required: false
       KUBE_CONFIG:
         description: "Kubernetes config (base64)"
         required: true
@@ -66,6 +69,7 @@ env:
   TF_VAR_database_username: ${{ secrets.DATABASE_USERNAME }}
   TF_VAR_database_password: ${{ secrets.DATABASE_PASSWORD }}
   TF_VAR_security_secret: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
+  TF_VAR_firebase_admin_credentials_json: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
   TF_VAR_repository_name: ${{ github.repository }}
 
 defaults:

@@ -4,7 +4,7 @@ resource "kubernetes_manifest" "runner_deployment" {
     kind       = "RunnerDeployment"
     metadata = {
       name      = "hollybike-runner"
-      namespace = data.kubernetes_namespace.actions_runner_system.metadata[0].name
+      namespace = data.kubernetes_namespace_v1.actions_runner_system.metadata[0].name
     }
     spec = {
       replicas = 1

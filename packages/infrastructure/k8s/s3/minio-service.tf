@@ -1,4 +1,4 @@
-resource "kubernetes_service" "minio" {
+resource "kubernetes_service_v1" "minio" {
   metadata {
     name      = "minio"
     namespace = var.namespace

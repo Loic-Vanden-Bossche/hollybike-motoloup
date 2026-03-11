@@ -6,18 +6,15 @@ class AppNotifications {
   static final FlutterLocalNotificationsPlugin plugin =
       FlutterLocalNotificationsPlugin();
 
-  static const String realtimeChannelId = 'realtime_channel';
   static const String trackingChannelId = 'tracking_channel';
-  static const String eventUpdated = 'hollybike-event-updated-notifications';
-  static const String eventParticipation =
-      'hollybike-event-participation-notifications';
-  static const String eventDeletion = 'hollybike-event-deletion-notifications';
-  static const String eventCreation = 'hollybike-event-creation-notifications';
+  static const String eventUpdates = 'hollybike-event-updates-notifications';
 
   static final Random _random = Random();
   static bool _initialized = false;
 
-  static Future<void> init() async {
+  static Future<void> init({
+    Future<void> Function(String? payload)? onTapPayload,
+  }) async {
     if (_initialized) {
       return;
     }
@@ -25,7 +22,12 @@ class AppNotifications {
     const init = InitializationSettings(
       android: AndroidInitializationSettings('ic_stat_hollybike'),
     );
-    await plugin.initialize(settings: init);
+    await plugin.initialize(
+      settings: init,
+      onDidReceiveNotificationResponse: (response) {
+        onTapPayload?.call(response.payload);
+      },
+    );
 
     final android =
         plugin
@@ -33,14 +35,6 @@ class AppNotifications {
               AndroidFlutterLocalNotificationsPlugin
             >();
 
-    await android?.createNotificationChannel(
-      const AndroidNotificationChannel(
-        realtimeChannelId,
-        'Live updates',
-        description: 'WebSocket en temps reel',
-        importance: Importance.low,
-      ),
-    );
     await android?.createNotificationChannel(
       const AndroidNotificationChannel(
         trackingChannelId,
@@ -51,33 +45,9 @@ class AppNotifications {
     );
     await android?.createNotificationChannel(
       const AndroidNotificationChannel(
-        eventUpdated,
-        'Mise a jour des evenements',
-        description: 'Mises a jour de status',
-        importance: Importance.high,
-      ),
-    );
-    await android?.createNotificationChannel(
-      const AndroidNotificationChannel(
-        eventParticipation,
-        'Participation aux evenements',
-        description: 'Ajout/Retrait',
-        importance: Importance.high,
-      ),
-    );
-    await android?.createNotificationChannel(
-      const AndroidNotificationChannel(
-        eventDeletion,
-        'Suppression des evenements',
-        description: 'Suppressions',
-        importance: Importance.high,
-      ),
-    );
-    await android?.createNotificationChannel(
-      const AndroidNotificationChannel(
-        eventCreation,
-        'Creation des evenements',
-        description: 'Nouveaux evenements',
+        eventUpdates,
+        'Mises a jour evenements',
+        description: 'Notifications des evenements',
         importance: Importance.high,
       ),
     );
@@ -89,11 +59,13 @@ class AppNotifications {
     required String channelId,
     required String title,
     required String body,
+    String? payload,
   }) async {
     await plugin.show(
-        id: _random.nextInt(1 << 20),
+      id: _random.nextInt(1 << 20),
       title: title,
       body: body,
+      payload: payload,
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
@@ -103,7 +75,7 @@ class AppNotifications {
           priority: Priority.high,
           showWhen: false,
         ),
-      )
+      ),
     );
   }
 }

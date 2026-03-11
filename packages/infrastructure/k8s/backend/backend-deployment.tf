@@ -1,4 +1,4 @@
-resource "kubernetes_deployment" "backend" {
+resource "kubernetes_deployment_v1" "backend" {
   metadata {
     name      = "hollybike-backend"
     namespace = var.namespace
@@ -42,7 +42,7 @@ resource "kubernetes_deployment" "backend" {
 
           env_from {
             secret_ref {
-              name = kubernetes_secret.backend_env.metadata[0].name
+              name = kubernetes_secret_v1.backend_env.metadata[0].name
             }
           }
 

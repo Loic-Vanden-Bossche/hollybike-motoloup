@@ -478,9 +478,14 @@ class EventRepository {
       return;
     }
 
+    final updatedEvent = details.event.copyWith(
+      participantsCount: (details.previewParticipantsCount - 1).clamp(0, 1 << 30),
+    );
+
     _eventDetailsStreamMapper.add(
       eventId,
       details.copyWith(
+        event: updatedEvent,
         previewParticipants:
             details.previewParticipants
                 .where((p) => p.user.id != userId)
@@ -488,6 +493,8 @@ class EventRepository {
         previewParticipantsCount: details.previewParticipantsCount - 1,
       ),
     );
+
+    _propagateEventStatsToPreviews(eventId, participantsCount: updatedEvent.participantsCount);
   }
 
   void onParticipantsAdded(
@@ -503,10 +510,14 @@ class EventRepository {
 
     final updatedPreviewParticipants =
         [...details.previewParticipants, ...participants].take(5).toList();
+    final updatedEvent = details.event.copyWith(
+      participantsCount: details.previewParticipantsCount + participants.length,
+    );
 
     _eventDetailsStreamMapper.add(
       eventId,
       details.copyWith(
+        event: updatedEvent,
         previewParticipants: updatedPreviewParticipants,
         previewParticipantsCount:
             details.previewParticipantsCount + participants.length,
@@ -516,6 +527,8 @@ class EventRepository {
                 : details.callerParticipation,
       ),
     );
+
+    _propagateEventStatsToPreviews(eventId, participantsCount: updatedEvent.participantsCount);
   }
 
   void onImagesVisibilityUpdated(bool isPublic, int eventId) {
@@ -619,10 +632,16 @@ class EventRepository {
                 stepState.journeySteps.first.id == currentStepId)
             ? caller?.hasRecordedPositions ?? false
             : false;
+    final totalDistance = _resolveTotalDistance(
+      journeySteps: stepState.journeySteps,
+      fallbackDistance: details.event.distance,
+    );
+    final updatedEvent = details.event.copyWith(distance: totalDistance);
 
     _eventDetailsStreamMapper.add(
       eventId,
       details.copyWith(
+        event: updatedEvent,
         journeySteps: stepState.journeySteps,
         currentStepId: stepState.currentStepId,
         currentJourney: stepState.currentJourney,
@@ -638,6 +657,8 @@ class EventRepository {
                 ),
       ),
     );
+
+    _propagateEventStatsToPreviews(eventId, distance: updatedEvent.distance);
   }
 
   List<EventCallerParticipationStepJourney>? _reconcileCallerStepJourneys(
@@ -693,7 +714,73 @@ class EventRepository {
     }
 
     final refreshedDetails = await eventApi.getEventDetails(eventId);
-    _eventDetailsStreamMapper.add(eventId, refreshedDetails);
+    final resolvedDistance = _resolveTotalDistance(
+      journeySteps: refreshedDetails.journeySteps,
+      fallbackDistance: refreshedDetails.event.distance,
+    );
+    final updatedDetails = refreshedDetails.copyWith(
+      event: refreshedDetails.event.copyWith(distance: resolvedDistance),
+    );
+    _eventDetailsStreamMapper.add(eventId, updatedDetails);
+    _propagateEventStatsToPreviews(
+      eventId,
+      distance: updatedDetails.event.distance,
+      budget: updatedDetails.event.budget,
+      participantsCount: updatedDetails.previewParticipantsCount,
+    );
+  }
+
+  int? _resolveTotalDistance({
+    required List<EventJourneyStep> journeySteps,
+    required int? fallbackDistance,
+  }) {
+    var hasDistance = false;
+    var totalDistance = 0;
+    for (final step in journeySteps) {
+      final stepDistance = step.journey.totalDistance;
+      if (stepDistance == null) {
+        continue;
+      }
+      hasDistance = true;
+      totalDistance += stepDistance;
+    }
+
+    if (hasDistance) {
+      return totalDistance;
+    }
+
+    return fallbackDistance;
+  }
+
+  void _propagateEventStatsToPreviews(
+    int eventId, {
+    int? distance,
+    int? budget,
+    int? participantsCount,
+  }) {
+    for (var counter
+        in [
+              _futureEventsStreamCounter,
+              _archivedEventsStreamCounter,
+              _searchEventsStreamCounter,
+            ] +
+            _userStreamMapper.counters) {
+      counter.add(
+        counter.value
+            .map(
+              (event) =>
+                  event.id == eventId
+                      ? event.copyWith(
+                        distance: distance ?? event.distance,
+                        budget: budget ?? event.budget,
+                        participantsCount:
+                            participantsCount ?? event.participantsCount,
+                      )
+                      : event,
+            )
+            .toList(),
+      );
+    }
   }
 
   Future<UserJourney> terminateUserJourney(int eventId, {int? stepId}) async {
@@ -910,24 +997,9 @@ class EventRepository {
       ),
     );
 
-    _eventDetailsStreamMapper.add(
-      eventId,
-      details.copyWith(
-        event: Event(
-          id: details.event.id,
-          name: details.event.name,
-          description: details.event.description,
-          status: details.event.status,
-          budget: budget,
-          startDate: details.event.startDate,
-          endDate: details.event.endDate,
-          owner: details.event.owner,
-          createdAt: details.event.createdAt,
-          updatedAt: details.event.updatedAt,
-          image: details.event.image,
-        ),
-      ),
-    );
+    final updatedEvent = details.event.copyWith(budget: budget);
+    _eventDetailsStreamMapper.add(eventId, details.copyWith(event: updatedEvent));
+    _propagateEventStatsToPreviews(eventId, budget: updatedEvent.budget);
   }
 
   Future<void> downloadReport(int eventId) async {

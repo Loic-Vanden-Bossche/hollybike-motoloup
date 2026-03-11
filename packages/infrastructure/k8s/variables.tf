@@ -43,6 +43,13 @@ variable "security_secret" {
   sensitive   = true
 }
 
+variable "firebase_admin_credentials_json" {
+  description = "Firebase Admin credentials JSON"
+  type        = string
+  sensitive   = true
+  default     = ""
+}
+
 variable "storage_s3_bucket_name" {
   description = "S3 bucket name"
   type        = string

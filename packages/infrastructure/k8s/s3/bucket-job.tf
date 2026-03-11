@@ -1,6 +1,6 @@
 
-resource "kubernetes_job" "create_minio_bucket" {
-  depends_on = [kubernetes_stateful_set.minio]
+resource "kubernetes_job_v1" "create_minio_bucket" {
+  depends_on = [kubernetes_stateful_set_v1.minio]
 
   metadata {
     name      = "create-minio-bucket"

@@ -1,4 +1,4 @@
-resource "kubernetes_stateful_set" "postgres" {
+resource "kubernetes_stateful_set_v1" "postgres" {
   metadata {
     name      = "postgres"
     namespace = var.namespace
@@ -8,7 +8,7 @@ resource "kubernetes_stateful_set" "postgres" {
   }
 
   spec {
-    service_name = kubernetes_service.postgres.metadata[0].name
+    service_name = kubernetes_service_v1.postgres.metadata[0].name
     replicas     = 1
 
     selector {

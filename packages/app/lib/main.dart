@@ -7,6 +7,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter/services.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
@@ -44,7 +45,6 @@ import 'package:flutter_displaymode/flutter_displaymode.dart';
 import 'positions/background/background_location_facade.dart';
 import 'positions/background/tracking_nav_intent.dart';
 import 'notification/background/notif_facade.dart';
-import 'notification/background/realtime_background_runner.dart';
 
 import 'positions/background/location_background_runner.dart';
 
@@ -60,6 +60,7 @@ void main() async {
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
 
   await FlutterDownloader.initialize(debug: true, ignoreSsl: true);
+  await Firebase.initializeApp();
 
   FlutterNativeSplash.remove();
 
@@ -289,12 +290,5 @@ class _MyAppState extends State<MyApp> {
 Future<void> locationServiceMain() async {
   WidgetsFlutterBinding.ensureInitialized();
   final service = LocationBackgroundRunner();
-  await service.initialize();
-}
-
-@pragma('vm:entry-point')
-Future<void> realtimeServiceMain() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final service = RealtimeBackgroundRunner();
   await service.initialize();
 }

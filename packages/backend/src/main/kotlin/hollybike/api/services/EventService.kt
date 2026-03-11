@@ -718,9 +718,13 @@ class EventService(
 		checkEventTextFields(name, description).onFailure { return Result.failure(it) }
 
 		return transaction(db) {
-			findEventIfOrganizer(eventId, caller).onFailure { return@transaction Result.failure(it) }
+				findEventIfOrganizer(eventId, caller).onFailure { return@transaction Result.failure(it) }
 				.onSuccess { event ->
-					val hasDateChanges = event.startDateTime != startDate || event.endDateTime != endDate
+					// Compare at minute precision because the web calendar input does
+					// not expose seconds and may normalize them when untouched.
+					val hasDateChanges =
+						event.startDateTime.epochSeconds / 60 != startDate.epochSeconds / 60 ||
+							event.endDateTime?.epochSeconds?.div(60) != endDate?.epochSeconds?.div(60)
 					if (hasDateChanges) {
 						val now = Clock.System.now()
 						val computedStatus = EEventStatus.fromEvent(event)
