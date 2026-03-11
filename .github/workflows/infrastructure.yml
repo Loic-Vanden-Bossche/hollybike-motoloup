@@ -58,6 +58,7 @@ concurrency:
 
 env:
   CI: true
+  TF_IN_AUTOMATION: true
   AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
   REGISTRY: ghcr.io
@@ -103,7 +104,7 @@ jobs:
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
         with:
-          terraform_version: latest
+          terraform_version: 1.14.7
 
       - name: Terraform format check
         id: fmt
@@ -111,7 +112,7 @@ jobs:
 
       - name: Terraform init
         id: init
-        run: terraform init
+        run: terraform init -input=false -no-color
 
       - name: Terraform validate
         id: validate
