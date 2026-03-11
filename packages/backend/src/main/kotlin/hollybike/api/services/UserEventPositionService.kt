@@ -36,11 +36,13 @@ import org.jetbrains.exposed.v1.jdbc.Database
 import org.jetbrains.exposed.v1.jdbc.deleteWhere
 import org.jetbrains.exposed.v1.jdbc.selectAll
 import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import java.util.UUID
 import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.hypot
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.sqrt
 import kotlin.time.Instant
 
 class UserEventPositionService(
@@ -48,6 +50,12 @@ class UserEventPositionService(
 	private val scope: CoroutineScope,
 	private val storageService: StorageService
 ) {
+	companion object {
+		// Temporary testing hook. Set to false (or remove related helpers) when no longer needed.
+		private const val ENABLE_RAW_DEBUG_JOURNEY_SAVE = true
+		private const val RAW_DEBUG_NAME_PREFIX = "[DEBUG RAW]"
+	}
+
 	private val receiveChannels: MutableMap<Pair<Int, Int>, Channel<Body>> = mutableMapOf()
 
 	private val sendChannels: MutableMap<Int, MutableSharedFlow<Body>> = mutableMapOf()
@@ -454,25 +462,17 @@ class UserEventPositionService(
 		val filtering = computeFilteringArtifacts(raw)
 		val computed = buildJourneyComputation(raw, filtering.smoothedStates, filtering.origin, filtering.accelMetrics)
 		val file = uploadUserJourney(computed.geoJson, event.id.value, user.id.value)
+		val journey = persistJourney(user, event, stepId, file, computed)
 
-		return persistJourney(user, event, stepId, file, computed)
-	}
-
-	suspend fun terminateUserJourney(user: User, event: Event, stepId: Int): UserJourney {
-		val stepExists = transaction(db) { getStepForEvent(event.id.value, stepId) != null }
-		if (!stepExists) {
-			throw EventJourneyStepNotFoundException("Étape $stepId introuvable")
-		}
-		val raw = loadRawJourneySamples(user, event, stepId)
-		if (raw.size < 2) {
-			throw BadRequestException("Aucune position exploitable pour terminer le trajet")
+		if (ENABLE_RAW_DEBUG_JOURNEY_SAVE) {
+			runCatching {
+				persistRawDebugJourney(user, event, stepId, raw)
+			}.onFailure {
+				println("Failed to persist raw debug journey: ${it.message}")
+			}
 		}
 
-		val filtering = computeFilteringArtifacts(raw)
-		val computed = buildJourneyComputation(raw, filtering.smoothedStates, filtering.origin, filtering.accelMetrics)
-		val file = uploadUserJourney(computed.geoJson, event.id.value, user.id.value)
-
-		return persistJourney(user, event, stepId, file, computed)
+		return journey
 	}
 
 	private fun loadRawJourneySamples(user: User, event: Event, stepId: Int?): List<PositionSample> = transaction(db) {
@@ -834,5 +834,250 @@ class UserEventPositionService(
 		storageService.store(json, path, "application/geo+json")
 		return path
 	}
-}
 
+	private fun buildRawGeoJson(raw: List<PositionSample>): Feature {
+		val coordinates = raw.map { sample -> listOf(sample.lon, sample.lat, sample.alt) }
+		val times = raw.map { sample -> JsonPrimitive(Instant.fromEpochMilliseconds(sample.timeMillis).toString()) }
+		val epochMillis = mutableListOf<JsonPrimitive>()
+		val rawLat = mutableListOf<JsonPrimitive>()
+		val rawLon = mutableListOf<JsonPrimitive>()
+		val rawAlt = mutableListOf<JsonPrimitive>()
+		val rawAccuracy = mutableListOf<JsonPrimitive>()
+		val rawSpeed = mutableListOf<JsonElement>()
+		val rawAx = mutableListOf<JsonElement>()
+		val rawAy = mutableListOf<JsonElement>()
+		val rawAz = mutableListOf<JsonElement>()
+		val rawAccelNorm = mutableListOf<JsonElement>()
+		val rawAccelG = mutableListOf<JsonElement>()
+		val dtSeconds = mutableListOf<JsonPrimitive>()
+		val segmentDistanceM = mutableListOf<JsonPrimitive>()
+		val cumulativeDistanceM = mutableListOf<JsonPrimitive>()
+		val elevationDeltaM = mutableListOf<JsonPrimitive>()
+		val cumulativeElevationGainM = mutableListOf<JsonPrimitive>()
+		val cumulativeElevationLossM = mutableListOf<JsonPrimitive>()
+		val headingDeg = mutableListOf<JsonElement>()
+		val speedFromPositionMps = mutableListOf<JsonElement>()
+		val gpsSpeedDeltaMps = mutableListOf<JsonElement>()
+
+		var prev: PositionSample? = null
+		var cumulativeDistance = 0.0
+		var cumulativeElevationGain = 0.0
+		var cumulativeElevationLoss = 0.0
+		var speedCount = 0
+		var speedValidCount = 0
+		var speedSum = 0.0
+		var speedMin = Double.POSITIVE_INFINITY
+		var speedMax = Double.NEGATIVE_INFINITY
+		var accuracyCount = 0
+		var accuracySum = 0.0
+		var accuracyMin = Double.POSITIVE_INFINITY
+		var accuracyMax = Double.NEGATIVE_INFINITY
+		var accelCount = 0
+		var accelNormSum = 0.0
+		var accelNormMax = Double.NEGATIVE_INFINITY
+
+		raw.forEach { sample ->
+			epochMillis.add(JsonPrimitive(sample.timeMillis))
+			rawLat.add(JsonPrimitive(sample.lat))
+			rawLon.add(JsonPrimitive(sample.lon))
+			rawAlt.add(JsonPrimitive(sample.alt))
+			rawAccuracy.add(JsonPrimitive(sample.accuracyM))
+			rawSpeed.add(sample.speedMps?.let { JsonPrimitive(it) } ?: JsonNull)
+			rawAx.add(sample.ax?.let { JsonPrimitive(it) } ?: JsonNull)
+			rawAy.add(sample.ay?.let { JsonPrimitive(it) } ?: JsonNull)
+			rawAz.add(sample.az?.let { JsonPrimitive(it) } ?: JsonNull)
+
+			if (sample.accuracyM.isFinite()) {
+				accuracyCount++
+				accuracySum += sample.accuracyM
+				accuracyMin = min(accuracyMin, sample.accuracyM)
+				accuracyMax = max(accuracyMax, sample.accuracyM)
+			}
+
+			val accelNorm = if (sample.ax != null && sample.ay != null && sample.az != null) {
+				sqrt(sample.ax * sample.ax + sample.ay * sample.ay + sample.az * sample.az)
+			} else {
+				null
+			}
+			rawAccelNorm.add(accelNorm?.let { JsonPrimitive(it) } ?: JsonNull)
+			rawAccelG.add(accelNorm?.let { JsonPrimitive(it / 9.80665) } ?: JsonNull)
+			if (accelNorm != null && accelNorm.isFinite()) {
+				accelCount++
+				accelNormSum += accelNorm
+				accelNormMax = max(accelNormMax, accelNorm)
+			}
+
+			val previous = prev
+			if (previous == null) {
+				dtSeconds.add(JsonPrimitive(0.0))
+				segmentDistanceM.add(JsonPrimitive(0.0))
+				cumulativeDistanceM.add(JsonPrimitive(0.0))
+				elevationDeltaM.add(JsonPrimitive(0.0))
+				cumulativeElevationGainM.add(JsonPrimitive(0.0))
+				cumulativeElevationLossM.add(JsonPrimitive(0.0))
+				headingDeg.add(JsonNull)
+				speedFromPositionMps.add(JsonNull)
+				gpsSpeedDeltaMps.add(JsonNull)
+			} else {
+				val dt = max(0.0, (sample.timeMillis - previous.timeMillis).toDouble() / 1000.0)
+				dtSeconds.add(JsonPrimitive(dt))
+
+				val segmentDistance = calculateDistance(
+					listOf(
+						listOf(previous.lon, previous.lat),
+						listOf(sample.lon, sample.lat)
+					)
+				)
+				segmentDistanceM.add(JsonPrimitive(segmentDistance))
+				cumulativeDistance += segmentDistance
+				cumulativeDistanceM.add(JsonPrimitive(cumulativeDistance))
+
+				val elevationDelta = sample.alt - previous.alt
+				elevationDeltaM.add(JsonPrimitive(elevationDelta))
+				if (elevationDelta >= 0) {
+					cumulativeElevationGain += elevationDelta
+				} else {
+					cumulativeElevationLoss += -elevationDelta
+				}
+				cumulativeElevationGainM.add(JsonPrimitive(cumulativeElevationGain))
+				cumulativeElevationLossM.add(JsonPrimitive(cumulativeElevationLoss))
+
+				val heading = Math.toDegrees(atan2(sample.lon - previous.lon, sample.lat - previous.lat))
+				headingDeg.add(JsonPrimitive(heading))
+
+				val derivedSpeed = if (dt > 0) segmentDistance / dt else null
+				speedFromPositionMps.add(derivedSpeed?.let { JsonPrimitive(it) } ?: JsonNull)
+
+				val gpsSpeed = sample.speedMps?.takeIf { it.isFinite() && it >= 0.0 }
+				if (gpsSpeed != null) {
+					speedValidCount++
+					speedSum += gpsSpeed
+					speedMin = min(speedMin, gpsSpeed)
+					speedMax = max(speedMax, gpsSpeed)
+				}
+				speedCount++
+				gpsSpeedDeltaMps.add(
+					if (gpsSpeed != null && derivedSpeed != null) {
+						JsonPrimitive(gpsSpeed - derivedSpeed)
+					} else {
+						JsonNull
+					}
+				)
+			}
+
+			prev = sample
+		}
+
+		val bboxValues = Feature(geometry = LineString(coordinates), properties = null).apply { bbox = getBoundingBox() }.bbox
+		val avgGpsSpeed = if (speedValidCount > 0) speedSum / speedValidCount else 0.0
+		val avgAccuracy = if (accuracyCount > 0) accuracySum / accuracyCount else 0.0
+		val avgAccelNorm = if (accelCount > 0) accelNormSum / accelCount else 0.0
+
+		return Feature(
+			geometry = LineString(coordinates),
+			properties = JsonObject(
+				mapOf(
+					"coordTimes" to JsonArray(times),
+					"epochMillis" to JsonArray(epochMillis),
+					"rawLatitude" to JsonArray(rawLat),
+					"rawLongitude" to JsonArray(rawLon),
+					"rawAltitude" to JsonArray(rawAlt),
+					"rawAccuracyM" to JsonArray(rawAccuracy),
+					"rawSpeedMps" to JsonArray(rawSpeed),
+					"rawAccelerationXMps2" to JsonArray(rawAx),
+					"rawAccelerationYMps2" to JsonArray(rawAy),
+					"rawAccelerationZMps2" to JsonArray(rawAz),
+					"rawAccelerationNormMps2" to JsonArray(rawAccelNorm),
+					"rawAccelerationNormG" to JsonArray(rawAccelG),
+					"dtSeconds" to JsonArray(dtSeconds),
+					"segmentDistanceM" to JsonArray(segmentDistanceM),
+					"cumulativeDistanceM" to JsonArray(cumulativeDistanceM),
+					"speedFromPositionMps" to JsonArray(speedFromPositionMps),
+					"gpsSpeedDeltaMps" to JsonArray(gpsSpeedDeltaMps),
+					"headingDeg" to JsonArray(headingDeg),
+					"elevationDeltaM" to JsonArray(elevationDeltaM),
+					"cumulativeElevationGainM" to JsonArray(cumulativeElevationGainM),
+					"cumulativeElevationLossM" to JsonArray(cumulativeElevationLossM),
+					"summary" to JsonObject(
+						mapOf(
+							"pointCount" to JsonPrimitive(coordinates.size),
+							"startEpochMillis" to JsonPrimitive(raw.first().timeMillis),
+							"endEpochMillis" to JsonPrimitive(raw.last().timeMillis),
+							"totalTimeSeconds" to JsonPrimitive((raw.last().timeMillis - raw.first().timeMillis) / 1000.0),
+							"totalDistanceMeters" to JsonPrimitive(cumulativeDistance),
+							"totalDistanceFromGeometryMeters" to JsonPrimitive(calculateDistance(coordinates)),
+							"totalElevationGainM" to JsonPrimitive(cumulativeElevationGain),
+							"totalElevationLossM" to JsonPrimitive(cumulativeElevationLoss),
+							"bbox" to (bboxValues?.let { JsonArray(it.map { value -> JsonPrimitive(value) }) } ?: JsonNull),
+							"averageGpsSpeedMps" to JsonPrimitive(avgGpsSpeed),
+							"minGpsSpeedMps" to JsonPrimitive(if (speedMin.isFinite()) speedMin else 0.0),
+							"maxGpsSpeedMps" to JsonPrimitive(if (speedMax.isFinite()) speedMax else 0.0),
+							"samplesWithValidGpsSpeed" to JsonPrimitive(speedValidCount),
+							"samplesWithAnySpeed" to JsonPrimitive(speedCount),
+							"averageAccuracyM" to JsonPrimitive(avgAccuracy),
+							"minAccuracyM" to JsonPrimitive(if (accuracyMin.isFinite()) accuracyMin else 0.0),
+							"maxAccuracyM" to JsonPrimitive(if (accuracyMax.isFinite()) accuracyMax else 0.0),
+							"samplesWithFiniteAccuracy" to JsonPrimitive(accuracyCount),
+							"averageAccelerationNormMps2" to JsonPrimitive(avgAccelNorm),
+							"maxAccelerationNormMps2" to JsonPrimitive(if (accelNormMax.isFinite()) accelNormMax else 0.0),
+							"samplesWithAccelerationVector" to JsonPrimitive(accelCount)
+						)
+					)
+				)
+			)
+		).apply {
+			this.bbox = getBoundingBox()
+		}
+	}
+
+	private suspend fun uploadRawDebugJourney(geoJson: GeoJson, eventId: Int, userId: Int): String {
+		val json = json.encodeToString(geoJson).toByteArray()
+		val path = "e/$eventId/u/$userId/j-raw-${UUID.randomUUID()}"
+		storageService.store(json, path, "application/geo+json")
+		return path
+	}
+
+	private suspend fun persistRawDebugJourney(
+		user: User,
+		event: Event,
+		stepId: Int?,
+		raw: List<PositionSample>
+	): UserJourney {
+		val rawGeoJson = buildRawGeoJson(raw)
+		val path = uploadRawDebugJourney(rawGeoJson, event.id.value, user.id.value)
+		val totalTime = if (raw.size >= 2) {
+			(raw.last().timeMillis - raw.first().timeMillis) / 1000
+		} else {
+			0L
+		}
+		val speeds = raw.mapNotNull { sample -> sample.speedMps?.takeIf { it.isFinite() && it >= 0.0 } }
+		val maxSpeed = speeds.maxOrNull() ?: 0.0
+		val avgSpeed = if (speeds.isEmpty()) 0.0 else speeds.average()
+		val elevation = rawGeoJson.minMaxAltitude
+		val (elevationGain, elevationLoss) = rawGeoJson.totalHeightDifference
+
+		return transaction(db) {
+			UserJourney.new {
+				this.journey = path
+				this.avgSpeed = avgSpeed
+				this.totalElevationGain = elevationGain
+				this.totalElevationLoss = elevationLoss
+				this.totalDistance = rawGeoJson.totalDistance
+				this.minElevation = elevation?.first
+				this.maxElevation = elevation?.second
+				this.totalTime = totalTime
+				this.maxSpeed = maxSpeed
+				this.avgGForce = null
+				this.maxGForce = null
+				this.user = user
+				this.event = null
+				this.eventJourneyStep = null
+				this.name = if (stepId != null) {
+					"$RAW_DEBUG_NAME_PREFIX ${event.name} (step $stepId)"
+				} else {
+					"$RAW_DEBUG_NAME_PREFIX ${event.name}"
+				}
+			}
+		}
+	}
+}
