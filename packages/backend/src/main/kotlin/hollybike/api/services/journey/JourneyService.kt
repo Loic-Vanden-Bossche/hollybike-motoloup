@@ -223,23 +223,12 @@ class JourneyService(
 			return "[$encodedBbox]"
 		}
 
-		val token = conf.publicAccessTokenSecret ?: run {
-			return Result.failure(Exception("Mapbox public access token not found"))
-		}
-
-		val simplifiedGeoJson = geoJson
-			.clean()
-			.simplifyToUrlSafe()
-			.keepLargestCoordinateElement()
-			.updateGeoJsonProperties(
-				"stroke",
-				JsonPrimitive("#94e2d5")
-			)
-
-		val bboxURL = encodeBoundingBox(simplifiedGeoJson.getBoundingBox(withoutElevation = true))
-
-		val response = client.get {
-			url {
+		fun buildStaticImageUrl(
+			simplifiedGeoJson: GeoJson,
+			token: String
+		): String {
+			val bboxURL = encodeBoundingBox(simplifiedGeoJson.getBoundingBox(withoutElevation = true))
+			return URLBuilder().apply {
 				protocol = URLProtocol.HTTPS
 				host = "api.mapbox.com"
 				path(
@@ -252,17 +241,57 @@ class JourneyService(
 					bboxURL,
 					"500x300"
 				)
-
 				parameters.append("padding", "50,50,50,50")
 				parameters.append("access_token", token)
+			}.buildString()
+		}
+
+		val token = conf.publicAccessTokenSecret ?: run {
+			return Result.failure(Exception("Mapbox public access token not found"))
+		}
+		val maxStaticUrlLength = 8192
+
+		val baseGeoJson = geoJson
+			.clean()
+			.keepLargestCoordinateElement()
+			.updateGeoJsonProperties(
+				"stroke",
+				JsonPrimitive("#94e2d5")
+			)
+
+		val simplifyLevels = listOf(7000, 5500, 4200, 3200, 2400, 1800, 1300, 900)
+		var lastFailureStatus: HttpStatusCode? = null
+		var shortestCandidateLength = Int.MAX_VALUE
+
+		for (maxChars in simplifyLevels) {
+			val simplifiedGeoJson = baseGeoJson
+				.simplifyToUrlSafe(maxChars)
+				.roundCoordinatePrecision(6)
+
+			val urlString = buildStaticImageUrl(simplifiedGeoJson, token)
+			shortestCandidateLength = minOf(shortestCandidateLength, urlString.length)
+			if (urlString.length > maxStaticUrlLength) {
+				continue
+			}
+
+			val response = client.get(urlString)
+			if (response.status == HttpStatusCode.OK) {
+				return Result.success(response.readRawBytes())
+			}
+
+			lastFailureStatus = response.status
+			if (response.status != HttpStatusCode.RequestURITooLong) {
+				return Result.failure(Exception("Failed to generate image from GeoJson (${response.status})"))
 			}
 		}
 
-		if (response.status != HttpStatusCode.OK) {
-			return Result.failure(Exception("Failed to generate image from GeoJson"))
-		}
-
-		return Result.success(response.readRawBytes())
+		return Result.failure(
+			Exception(
+				"Failed to generate image from GeoJson. " +
+					"Shortest generated URL length=$shortestCandidateLength, max allowed=$maxStaticUrlLength, " +
+					"last status=${lastFailureStatus ?: "none"}"
+			)
+		)
 	}
 }
 

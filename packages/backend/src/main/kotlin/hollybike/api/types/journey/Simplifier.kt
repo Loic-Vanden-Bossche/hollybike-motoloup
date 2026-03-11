@@ -9,6 +9,8 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlin.math.abs
 import kotlin.math.min
+import kotlin.math.pow
+import kotlin.math.round
 
 
 fun triangleArea(p1: Pair<Double, Double>, p2: Pair<Double, Double>, p3: Pair<Double, Double>): Double {
@@ -164,6 +166,28 @@ fun GeoJson.clean(): GeoJson {
 		is FeatureCollection -> this.copy(features = this.features.map { it.clean() })
 		is GeometryCollection -> this.copy(geometries = this.geometries.map { it.clean() as GeometryShape })
 		else -> this
+	}
+}
+
+private fun Double.roundTo(decimals: Int): Double {
+	val factor = 10.0.pow(decimals)
+	return round(this * factor) / factor
+}
+
+private fun GeoJsonCoordinates.roundCoordinates(decimals: Int): GeoJsonCoordinates =
+	this.map { coordinate -> coordinate.roundTo(decimals) }
+
+fun GeoJson.roundCoordinatePrecision(decimals: Int = 6): GeoJson {
+	return when (this) {
+		is Point -> this.copy(coordinates = this.coordinates.roundCoordinates(decimals))
+		is LineString -> this.copy(coordinates = this.coordinates.map { it.roundCoordinates(decimals) })
+		is MultiPoint -> this.copy(coordinates = this.coordinates.map { it.roundCoordinates(decimals) })
+		is Polygon -> this.copy(coordinates = this.coordinates.map { ring -> ring.map { it.roundCoordinates(decimals) } })
+		is MultiLineString -> this.copy(coordinates = this.coordinates.map { line -> line.map { it.roundCoordinates(decimals) } })
+		is MultiPolygon -> this.copy(coordinates = this.coordinates.map { polygon -> polygon.map { ring -> ring.map { it.roundCoordinates(decimals) } } })
+		is GeometryCollection -> this.copy(geometries = this.geometries.map { it.roundCoordinatePrecision(decimals) as GeometryShape })
+		is Feature -> this.copy(geometry = this.geometry?.let { it.roundCoordinatePrecision(decimals) as GeometryShape })
+		is FeatureCollection -> this.copy(features = this.features.map { it.roundCoordinatePrecision(decimals) })
 	}
 }
 
