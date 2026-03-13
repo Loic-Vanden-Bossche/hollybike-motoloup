@@ -33,7 +33,7 @@
     "@tailwindcss/postcss": "^4.1.18",
     "@types/node": "^25.2.3",
     "@typescript-eslint/eslint-plugin": "^8.55.0",
-    "autoprefixer": "^10.4.24",
+    "autoprefixer": "^10.4.27",
     "eslint": "^10.0.0",
     "eslint-config-preact": "^2.0.0",
     "eslint-config-standard-with-typescript": "^43.0.1",
