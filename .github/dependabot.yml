@@ -8,7 +8,7 @@ updates:
       time: "06:00"
       timezone: "Europe/Paris"
 
-  - package-ecosystem: "npm"
+  - package-ecosystem: "bun"
     directory: "/packages/frontend"
     schedule:
       interval: "weekly"
@@ -30,6 +30,14 @@ updates:
       interval: "weekly"
       day: "monday"
       time: "06:30"
+      timezone: "Europe/Paris"
+
+  - package-ecosystem: "terraform"
+    directory: "/packages/infrastructure/aws"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:40"
       timezone: "Europe/Paris"
 
   - package-ecosystem: "terraform"
