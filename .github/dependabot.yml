@@ -7,6 +7,11 @@ updates:
       day: "monday"
       time: "06:00"
       timezone: "Europe/Paris"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: "bun"
     directory: "/packages/frontend"
@@ -15,6 +20,11 @@ updates:
       day: "monday"
       time: "06:10"
       timezone: "Europe/Paris"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: "pub"
     directory: "/packages/app"
@@ -23,6 +33,11 @@ updates:
       day: "monday"
       time: "06:20"
       timezone: "Europe/Paris"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: "terraform"
     directory: "/packages/infrastructure/k8s"
@@ -31,6 +46,11 @@ updates:
       day: "monday"
       time: "06:30"
       timezone: "Europe/Paris"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: "terraform"
     directory: "/packages/infrastructure/aws"
@@ -39,6 +59,11 @@ updates:
       day: "monday"
       time: "06:40"
       timezone: "Europe/Paris"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
 
   - package-ecosystem: "terraform"
     directory: "/packages/infrastructure/init_backend"
@@ -47,3 +72,8 @@ updates:
       day: "monday"
       time: "06:50"
       timezone: "Europe/Paris"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
