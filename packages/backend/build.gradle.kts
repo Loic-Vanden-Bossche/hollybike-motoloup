@@ -129,7 +129,7 @@ dependencies {
 	implementation("com.google.firebase:firebase-admin:9.8.0") {
 		exclude(group = "io.grpc", module = "grpc-netty-shaded")
 	}
-	implementation("io.grpc:grpc-okhttp:1.71.0")
+	implementation("io.grpc:grpc-okhttp:1.79.0")
 	ksp(project(":processor"))
 
 	liquibaseRuntime("org.liquibase:liquibase-core:5.0.1")
