@@ -1,38 +1,52 @@
 # AGENTS.md
 
-This file is the single operating guide for coding agents in this repository.
-Goal: maximize correctness with minimum token usage.
+This is the operating guide for coding agents in this repository.
+Primary objective: **high-confidence changes with minimal scope and minimal token use**.
 
-## 1) Project Snapshot
+## 1) Repository Snapshot (authoritative)
 
-Monorepo with 6 active packages:
-- `packages/backend`: Kotlin/Ktor API (Gradle, GraalVM native build, Liquibase).
-- `packages/frontend`: Preact + TypeScript + Vite (Bun, ESLint).
-- `packages/app`: Flutter Android app (BLoC, freezed/json_serializable/auto_route generated files committed).
-- `packages/infrastructure`: Terraform (`k8s`, `aws`, `init_backend`).
-- `packages/doc`: Docusaurus documentation.
-- `packages/tools/reflect-merger`: TypeScript utility.
+This is a **Moonrepo-managed monorepo** (`@moonrepo/cli` at root), with 4 active projects:
 
-Root docs/config worth reading first:
-- `README.md`
-- `CLAUDE.md`
-- `design-system.md`
-- `.github/workflows/*.yml`
+- `packages/backend` — Kotlin/Ktor API (Gradle, Liquibase SQL changelog, GraalVM native-image pipeline)
+- `packages/frontend` — Preact + TypeScript + Vite (Bun)
+- `packages/app` — Flutter Android app (BLoC + AutoRoute + freezed/json_serializable generated code committed)
+- `packages/infrastructure` — Terraform projects (`k8s`, `aws`, `init_backend`)
 
-## 2) Token-Efficient Workflow (Mandatory)
+Moon project mapping is defined in `.moon/workspace.yml`.
 
-1. Route to one package first. Do not scan entire repo unless explicitly requested.
+## 2) Monorepo Execution Model
+
+Prefer **Moon tasks** for consistency with CI:
+
+- `bunx @moonrepo/cli run <project>:<task>`
+- `bunx @moonrepo/cli projects`
+- `bunx @moonrepo/cli tasks`
+
+Root toolchain and automation:
+
+- Bun + Node (root `package.json`)
+- Husky + lint-staged + commitlint
+- GitHub Actions workflows in `.github/workflows/`
+
+## 3) Mandatory Token-Efficient Workflow
+
+1. Route to **one package first**.
 2. Read only:
-- this file,
-- target package manifest/build file,
-- directly impacted files.
-3. Prefer narrow search commands:
-- `rg "<pattern>" <package-path>`
-- `rg --files <package-path>`
-4. Run minimal validation matching changed area (see section 6).
-5. In final report, list only touched files + commands run + result.
+   - this file,
+   - root files required for the task,
+   - target package manifest/build file,
+   - directly impacted files.
+3. Use narrow search:
+   - `rg "<pattern>" <package-path>`
+   - `rg --files <package-path>`
+4. Run minimal validation for touched area only (section 8).
+5. In your final response, include only:
+   - what changed,
+   - files changed,
+   - commands run + pass/fail,
+   - blockers/assumptions.
 
-## 3) Hard Ignore Paths (Do Not Read Unless Explicitly Required)
+## 4) Hard Ignore Paths (unless explicitly requested)
 
 - `**/node_modules/**`
 - `**/build/**`
@@ -44,50 +58,49 @@ Root docs/config worth reading first:
 - `**/.vscode/**`
 - `**/.git/**`
 
-Also avoid binary/media inspection unless task needs it:
+Avoid binary/media inspection unless task requires it:
 - `**/*.png`, `**/*.jpg`, `**/*.webp`, `**/*.svg`, `**/*.jar`
 
-## 4) Generated Files Policy
+## 5) Generated Files Policy
 
-Never hand-edit generated files unless user explicitly asks.
+Do **not** hand-edit generated files unless explicitly requested.
 
-Flutter generated files (committed):
+Flutter generated (committed):
 - `packages/app/lib/**/*.g.dart`
 - `packages/app/lib/**/*.freezed.dart`
 - `packages/app/lib/**/*.gr.dart`
 
-Regenerate with:
-- `cd packages/app`
-- `dart run build_runner build --delete-conflicting-outputs`
+Regenerate when needed:
+- `cd packages/app && dart run build_runner build --delete-conflicting-outputs`
 
-Backend native-image generated configs (usually generated/merged):
+Backend native-image generated/merged configs:
 - `packages/backend/src/main/resources/jni-config.json`
 - `packages/backend/src/main/resources/proxy-config.json`
 - `packages/backend/src/main/resources/resource-config.json`
 - `packages/backend/processor/src/main/resources/reflect-config-sample.json`
 
-## 5) Task Routing
+## 6) Package Routing + First Files to Read
 
 ### Backend (`packages/backend`)
-Use for API, DB, auth, websocket, mail, Ktor, Liquibase, native build.
+Use for API/auth/db/websocket/mail/Liquibase/native-image concerns.
 
 Read first:
 - `packages/backend/build.gradle.kts`
 - `packages/backend/gradle.properties`
 - `packages/backend/src/main/resources/liquibase-changelog.sql`
 
-Key commands:
-- Do not run the entire backend test suite.
-- Run only targeted backend test suites with Gradle filters.
-- For granular runs, filter by class, `context`, and `test` names.
-- Example:
-  - `cd packages/backend && ./gradlew test --tests "hollybike.api.EventTest"`
-  - `cd packages/backend && ./gradlew test --tests "hollybike.api.EventTest" --tests "*Get all events*"`
-  - `cd packages/backend && ./gradlew test --tests "hollybike.api.EventTest" --tests "*Should create an event*"`
+Preferred task entrypoints:
+- `bunx @moonrepo/cli run backend:lint`
+- `bunx @moonrepo/cli run backend:test`
+- `bunx @moonrepo/cli run backend:build`
+- `bunx @moonrepo/cli run backend:package`
 
-DB convention reminders:
-- Liquibase changelog is SQL only: `packages/backend/src/main/resources/liquibase-changelog.sql`
-- Keep `--changeset author:id [context:...]` format.
+Direct Gradle (only if needed):
+- `cd packages/backend && ./gradlew test --tests "hollybike.api.EventTest" --no-daemon`
+- `cd packages/backend && ./gradlew test --tests "hollybike.api.EventTest" --tests "*Should create an event*" --no-daemon`
+
+DB convention reminder:
+- Liquibase changelog is SQL-only and uses `--changeset author:id [context:...]`.
 
 ### Frontend (`packages/frontend`)
 Use for back-office web UI.
@@ -96,15 +109,17 @@ Read first:
 - `packages/frontend/package.json`
 - `packages/frontend/eslint.config.js`
 - `packages/frontend/src/config/backendBaseUrl.ts`
-- `design-system.md` (for style consistency)
+- `design-system.md` (if UI/style changes)
 
-Key commands:
-- `cd packages/frontend && bun install --frozen-lockfile`
+Preferred task entrypoints:
+- `bunx @moonrepo/cli run frontend:lint`
+- `bunx @moonrepo/cli run frontend:build`
+
+Direct package commands (fallback):
 - `cd packages/frontend && bun run lint`
 - `cd packages/frontend && bun run build`
-- `cd packages/frontend && bun run dev`
 
-Env commonly needed:
+Common env:
 - `VITE_BACKEND_BASE_URL`
 - `VITE_MAPBOX_KEY`
 
@@ -116,74 +131,118 @@ Read first:
 - `packages/app/analysis_options.yaml`
 - `packages/app/lib/app/app_router.dart`
 
-Key commands:
-- `cd packages/app && flutter pub get`
-- `cd packages/app && flutter test`
+Preferred task entrypoints:
+- `bunx @moonrepo/cli run app:lint`
+- `bunx @moonrepo/cli run app:test`
+
+Direct package commands (fallback):
 - `cd packages/app && flutter analyze`
-- `cd packages/app && dart run build_runner build --delete-conflicting-outputs` (only when needed)
+- `cd packages/app && flutter test`
+- `cd packages/app && flutter pub get`
+
+Packaging tasks require env values (ex: `VERSION`, `MAPBOX_PUBLIC_ACCESS_TOKEN`).
 
 ### Infrastructure (`packages/infrastructure`)
-Use for Terraform.
+Use for Terraform work.
 
-Scope:
-- Active CI deploy target is `packages/infrastructure/k8s`.
-- `aws` and `init_backend` are separate Terraform projects.
+Read first:
+- `packages/infrastructure/moon.yml`
+- `packages/infrastructure/k8s/*.tf` (only files relevant to change)
 
-Key commands:
+Preferred task entrypoints:
+- `bunx @moonrepo/cli run infrastructure:lint`
+- `bunx @moonrepo/cli run infrastructure:validate`
+- `bunx @moonrepo/cli run infrastructure:plan`
+
+Direct Terraform commands (fallback):
 - `cd packages/infrastructure/k8s && terraform fmt -check -recursive`
-- `cd packages/infrastructure/k8s && terraform validate`
+- `cd packages/infrastructure/k8s && terraform init -input=false -no-color`
+- `cd packages/infrastructure/k8s && terraform validate -no-color`
 
 Never run `terraform apply` unless explicitly requested.
 
-### Docs (`packages/doc`)
-Use for Docusaurus docs.
+## 7) Installed External Skill (ClawHub)
 
-Key commands:
-- `cd packages/doc && npm ci`
-- `cd packages/doc && npm run build`
-- `cd packages/doc && npm run start`
+### `monorepo`
 
-### Tools (`packages/tools/reflect-merger`)
-Use for reflect config merge utility.
+Installed skill location:
+- `C:\Users\loic\.openclaw\workspace\skills\monorepo\SKILL.md`
 
-Key commands:
-- `cd packages/tools/reflect-merger && npm ci`
-- `cd packages/tools/reflect-merger && npm run start -- <jsonA> <jsonB>`
+Use this skill as a strategy reference for:
+- dependency/workspace hygiene,
+- task graph/caching improvements,
+- CI optimization,
+- package/versioning workflows.
 
-## 6) Minimal Validation Matrix
+Important: this repo’s orchestrator is **Moonrepo**, not Turborepo/Nx.
+Apply `monorepo` principles, but keep implementation aligned with existing Moon + package-local tooling.
+
+## 8) Minimal Validation Matrix
 
 Run only what matches touched area:
 
 - Frontend TS/TSX/CSS:
-- `cd packages/frontend && bun run lint`
-- `cd packages/frontend && bun run build` (if behavior or types changed)
+  - `bunx @moonrepo/cli run frontend:lint`
+  - `bunx @moonrepo/cli run frontend:build` (if behavior/types/build output impacted)
+
+- Backend Kotlin/API/DB:
+  - Prefer targeted Gradle tests (class/test filter), avoid full suite unless requested.
+  - `bunx @moonrepo/cli run backend:test` only when scope justifies.
 
 - Flutter Dart:
-- `cd packages/app && flutter test`
-- `cd packages/app && flutter analyze` (recommended for non-trivial changes)
+  - `bunx @moonrepo/cli run app:test`
+  - `bunx @moonrepo/cli run app:lint`
 
 - Terraform:
-- `cd packages/infrastructure/<project> && terraform fmt -check -recursive`
-- `cd packages/infrastructure/<project> && terraform validate`
+  - `bunx @moonrepo/cli run infrastructure:lint`
+  - `bunx @moonrepo/cli run infrastructure:validate`
+  - `bunx @moonrepo/cli run infrastructure:plan` (if planning impact is relevant)
 
-- Docs:
-- `cd packages/doc && npm run build`
+If a required tool is missing locally, state that explicitly.
 
-If any required tool is missing locally, state it explicitly.
+## 9) CI Parity Notes
 
-## 7) CI Parity Notes
+Keep local validation consistent with workflows in `.github/workflows/`, including:
 
-To stay aligned with GitHub Actions:
-- Frontend CI runs `bun run lint` then `bun run build` with Mapbox/backend envs.
-- App CI runs `flutter test`.
-- Infra CI runs `terraform fmt`, `init`, `validate`, then plan/apply in workflow context.
+- `build-frontend.yml`
+- `build-backend.yml`
+- `build-backend-on-premises.yml`
+- `app.yml` / `app-build.yml` / `app-deploy.yml`
+- `infrastructure.yml`
+- `release.yml`
+- `backend-frontend*.yml`
 
-## 8) Output Format for Agent Responses
+When uncertain, inspect the exact workflow job before changing commands or assumptions.
+
+## 10) Git Execution Policy
+
+Commit behavior:
+- Agents should commit as often as practical.
+- Default granularity is **one commit per logical change**.
+- Use short conventional commit messages compatible with commitlint (`feat:`, `fix:`, `refactor:`, `docs:`, `chore:`, etc.).
+- Keep commit subjects concise and task-scoped.
+
+Identity requirements:
+- Use the configured repo/global git identity (`git config user.name` and `git config user.email`).
+- Do **not** set temporary "Codex" author/committer identity.
+- If identity is missing, stop and report a blocker instead of committing with a fallback identity.
+
+Safety gates before commit:
+- Commit only files directly related to the current task.
+- Run minimal touched-area validation before each commit when possible.
+- If checks cannot run, commits are allowed only if the final report explicitly states what did not run and why.
+
+Push/history restrictions:
+- Never run `git push` (including `--force`, tags, or creating remote branches).
+- Never rewrite history (`commit --amend`, rebase, reset, or force-update refs) unless explicitly requested.
+
+## 11) Response Format for Agent Outputs
 
 Keep responses concise and deterministic:
+
 1. What changed.
 2. Files changed.
 3. Commands run + pass/fail.
-4. Any blockers or assumptions.
+4. Blockers or assumptions.
 
-Avoid long narrative and avoid quoting large file contents unless requested.
+Avoid long narrative. Avoid dumping large file contents unless requested.
