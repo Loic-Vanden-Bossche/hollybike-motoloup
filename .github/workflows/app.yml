@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: false
+      release-notes:
+        description: "Generated release notes content"
+        required: false
+        type: string
+        default: ""
     secrets:
       ANDROID_KEYSTORE:
         description: "Android keystore (base64)"
@@ -212,12 +217,21 @@ jobs:
       - name: Decode service account file
         run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > "${{ env.SERVICE_ACCOUNT_PATH }}"
 
+      - name: Write Play Store release notes
+        if: inputs.release-notes != ''
+        run: |
+          mkdir -p whatsnew/en-US
+          cat > whatsnew/en-US/default.txt <<'EOF'
+          ${{ inputs.release-notes }}
+          EOF
+
       - name: Deploy to Play Store (internal testing)
         uses: r0adkll/upload-google-play@v1
         with:
           serviceAccountJson: packages/app/${{ env.SERVICE_ACCOUNT_PATH }}
           packageName: com.hollybike.hollybike
           releaseFiles: ${{ env.AAB_PATH }}
+          whatsNewDirectory: packages/app/whatsnew
           track: internal
           status: draft
           changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
