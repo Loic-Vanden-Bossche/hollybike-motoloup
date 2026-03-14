@@ -10,9 +10,9 @@ plugins {
 	kotlin("jvm") version "2.3.10"
 	id("com.github.ben-manes.versions") version "0.53.0"
 
-	id("io.ktor.plugin") version "3.4.0"
+	id("io.ktor.plugin") version "3.4.1"
 	id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
-	id("org.graalvm.buildtools.native") version "0.11.4"
+	id("org.graalvm.buildtools.native") version "0.11.5"
 	id("com.google.devtools.ksp") version "2.3.6"
 	id("org.liquibase.gradle") version "3.1.0"
 }
@@ -106,7 +106,7 @@ dependencies {
 	implementation("io.ktor:ktor-client-serialization:$ktorVersion")
 
 	implementation("de.nycode:bcrypt:2.3.0")
-	implementation("io.micrometer:micrometer-registry-prometheus:1.16.3")
+	implementation("io.micrometer:micrometer-registry-prometheus:1.16.4")
 	implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
 	implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 	implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
@@ -129,7 +129,7 @@ dependencies {
 	implementation("com.google.firebase:firebase-admin:9.8.0") {
 		exclude(group = "io.grpc", module = "grpc-netty-shaded")
 	}
-	implementation("io.grpc:grpc-okhttp:1.71.0")
+	implementation("io.grpc:grpc-okhttp:1.79.0")
 	ksp(project(":processor"))
 
 	liquibaseRuntime("org.liquibase:liquibase-core:5.0.1")
@@ -141,7 +141,7 @@ dependencies {
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
 	testImplementation("io.ktor:ktor-server-test-host-jvm:3.4.0")
 	testImplementation("org.testcontainers:junit-jupiter:1.21.4")
-	testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.2")
+	testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
 	testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 	testImplementation("org.testcontainers:postgresql:1.21.4")
 	testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.6")
