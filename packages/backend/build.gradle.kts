@@ -106,7 +106,7 @@ dependencies {
 	implementation("io.ktor:ktor-client-serialization:$ktorVersion")
 
 	implementation("de.nycode:bcrypt:2.3.0")
-	implementation("io.micrometer:micrometer-registry-prometheus:1.16.3")
+	implementation("io.micrometer:micrometer-registry-prometheus:1.16.4")
 	implementation("org.jetbrains.exposed:exposed-core:$exposedVersion")
 	implementation("org.jetbrains.exposed:exposed-jdbc:$exposedVersion")
 	implementation("org.jetbrains.exposed:exposed-dao:$exposedVersion")
