@@ -105,7 +105,7 @@ jobs:
           node-version: '20'
 
       - name: Set up Bun
-        uses: oven-sh/setup-bun@v1
+        uses: oven-sh/setup-bun@v2
         with:
           bun-version: "1.3.10"
 
@@ -214,10 +214,6 @@ jobs:
           TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.backend }}:${{ steps.backend-image-version.outputs.tag }}
         run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:deploy
 
-      - name: Fail fast - cancel workflow run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+
 
 

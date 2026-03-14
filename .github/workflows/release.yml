@@ -116,11 +116,6 @@ jobs:
           path: RELEASE_NOTES.md
           retention-days: 1
 
-      - name: Fail fast - cancel workflow run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
   deploy-app:
     name: 3) Deploy Android
@@ -168,11 +163,6 @@ jobs:
           status: draft
           changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
 
-      - name: Fail fast - cancel workflow run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
   update-image-descriptions:
     name: 3) Update Image Descriptions
@@ -221,11 +211,6 @@ jobs:
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:latest" RELEASE_NOTES.md
 
-      - name: Fail fast - cancel workflow run
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
   create-release:
     name: 4) Create GitHub Release

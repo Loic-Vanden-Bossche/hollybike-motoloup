@@ -1,0 +1,42 @@
+name: Cancel Parallel On Failure
+
+on:
+  check_run:
+    types:
+      - completed
+
+permissions:
+  actions: write
+  contents: read
+
+concurrency:
+  group: cancel-on-failure-${{ github.event.check_run.id }}
+  cancel-in-progress: true
+
+jobs:
+  cancel-run:
+    name: Cancel Run When Any Job Fails
+    if: >
+      github.event.check_run.conclusion == 'failure' &&
+      github.event.check_run.app.slug == 'github-actions' &&
+      contains(github.event.check_run.details_url, '/actions/runs/')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Cancel failed run
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DETAILS_URL: ${{ github.event.check_run.details_url }}
+        run: |
+          RUN_ID="$(echo "${DETAILS_URL}" | sed -E 's|.*/actions/runs/([0-9]+).*|\1|')"
+          if [ -z "${RUN_ID}" ] || [ "${RUN_ID}" = "${DETAILS_URL}" ]; then
+            echo "Could not parse run ID from details URL: ${DETAILS_URL}"
+            exit 0
+          fi
+
+          status="$(gh api "/repos/${{ github.repository }}/actions/runs/${RUN_ID}" --jq '.status' || echo "unknown")"
+          if [ "${status}" = "in_progress" ] || [ "${status}" = "queued" ]; then
+            gh api -X POST "/repos/${{ github.repository }}/actions/runs/${RUN_ID}/cancel"
+            echo "Canceled run ${RUN_ID} after job failure."
+          else
+            echo "Run ${RUN_ID} is already ${status}, nothing to cancel."
+          fi
