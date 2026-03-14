@@ -90,3 +90,5 @@ fabric.properties
 *.vsix
 
 packages/app/android/app/google-services.json
+
+node_modules

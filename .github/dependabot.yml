@@ -14,6 +14,19 @@ updates:
           - "*"
 
   - package-ecosystem: "bun"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:05"
+      timezone: "Europe/Paris"
+    groups:
+      security-updates:
+        applies-to: security-updates
+        patterns:
+          - "*"
+
+  - package-ecosystem: "bun"
     directory: "/packages/frontend"
     schedule:
       interval: "weekly"
