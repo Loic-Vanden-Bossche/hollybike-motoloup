@@ -12,6 +12,11 @@ on:
         description: "Release version"
         required: true
         type: string
+      image_description:
+        description: "OCI image description"
+        required: false
+        type: string
+        default: ""
     secrets:
       MAPBOX_PUBLIC_ACCESS_TOKEN:
         description: "Mapbox public token"
@@ -97,6 +102,7 @@ jobs:
         if: inputs.externall_call
         env:
           VERSION: ${{ inputs.version }}
+          IMAGE_DESCRIPTION: ${{ inputs.image_description }}
         run: |
           IMAGE_NAME="$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
           bunx @moonrepo/cli@${{ env.MOON_VERSION }} run frontend:package

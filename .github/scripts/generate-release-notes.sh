@@ -62,7 +62,7 @@ Requirements:
 EOF
 
 if [ -n "${OPENAI_API_KEY:-}" ]; then
-  PROMPT_FILE="$prompt_file" OUTPUT_FILE="$OUTPUT_FILE" OPENAI_MODEL="$OPENAI_MODEL" python - <<'PY'
+  PROMPT_FILE="$prompt_file" OUTPUT_FILE="$OUTPUT_FILE" OPENAI_MODEL="$OPENAI_MODEL" COMMIT_COUNT="$commit_count" COMMIT_LOG="$commit_log" python - <<'PY'
 import json
 import os
 import urllib.request
@@ -71,6 +71,8 @@ api_key = os.environ["OPENAI_API_KEY"]
 model = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 prompt = open(os.environ["PROMPT_FILE"], "r", encoding="utf-8").read()
 output_file = os.environ["OUTPUT_FILE"]
+commit_count = int(os.environ.get("COMMIT_COUNT", "0") or "0")
+commit_log = os.environ.get("COMMIT_LOG", "")
 
 payload = {
     "model": model,
@@ -95,7 +97,35 @@ with urllib.request.urlopen(req) as resp:
 
 text = data.get("output_text", "").strip()
 if not text:
-    text = "## ✨ Highlights\n- No notable changes.\n\n## 🚀 User-Facing Changes\n- No notable changes.\n\n## 🛠️ Technical Improvements\n- No notable changes.\n\n## ⚠️ Upgrade Notes\n- No notable changes."
+    # Fallback for Responses payload variants where output_text is empty.
+    chunks = []
+    for item in data.get("output", []):
+        if item.get("type") != "message":
+            continue
+        for content in item.get("content", []):
+            if content.get("type") in ("output_text", "text") and isinstance(content.get("text"), str):
+                chunks.append(content["text"].strip())
+            elif isinstance(content.get("text"), str):
+                chunks.append(content["text"].strip())
+    text = "\n".join(c for c in chunks if c).strip()
+
+if not text:
+    if commit_count > 0:
+        commits = [line for line in commit_log.splitlines() if line.strip()]
+        top_commits = commits[:20]
+        commit_section = "\n".join(top_commits) if top_commits else "- Internal changes and maintenance updates."
+        text = (
+            "## ✨ Highlights\n"
+            f"- This release includes {commit_count} commits.\n\n"
+            "## 🚀 User-Facing Changes\n"
+            "- Improvements were shipped across app, backend, frontend, and infrastructure layers.\n\n"
+            "## 🛠️ Technical Improvements\n"
+            f"{commit_section}\n\n"
+            "## ⚠️ Upgrade Notes\n"
+            "- Review the commit list for migration-sensitive changes before production rollout."
+        )
+    else:
+        text = "## ✨ Highlights\n- No notable changes.\n\n## 🚀 User-Facing Changes\n- No notable changes.\n\n## 🛠️ Technical Improvements\n- No notable changes.\n\n## ⚠️ Upgrade Notes\n- No notable changes."
 
 with open(output_file, "w", encoding="utf-8") as fh:
     fh.write(text + "\n")

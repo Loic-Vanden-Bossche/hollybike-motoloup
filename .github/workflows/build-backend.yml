@@ -12,6 +12,11 @@ on:
         description: "Release version"
         required: true
         type: string
+      image_description:
+        description: "OCI image description"
+        required: false
+        type: string
+        default: ""
   pull_request:
     branches:
       - main
@@ -96,6 +101,7 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           EXECUTABLE: hollybike_server
+          IMAGE_DESCRIPTION: ${{ inputs.image_description }}
         run: |
           IMAGE_NAME="$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
           bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:publish

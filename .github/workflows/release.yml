@@ -31,66 +31,12 @@ env:
   CI: true
 
 jobs:
-  build-backend:
-    name: 1) API Build
-    permissions:
-      actions: write
-      contents: read
-      packages: write
-    uses: ./.github/workflows/build-backend.yml
-    with:
-      version: ${{ inputs.version }}
-
-  build-frontend:
-    name: 1) Web Build
-    permissions:
-      actions: write
-      contents: read
-      packages: write
-    uses: ./.github/workflows/build-frontend.yml
-    with:
-      version: ${{ inputs.version }}
-    secrets:
-      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-
-  build-backend-on-premises:
-    name: 1) API On-Prem Build
-    if: inputs.create-executables
-    needs:
-      - build-frontend
-    permissions:
-      actions: write
-      contents: read
-    uses: ./.github/workflows/build-backend-on-premises.yml
-    with:
-      version: ${{ inputs.version }}
-
-  build-app:
-    name: 1) Android Build
-    permissions:
-      actions: write
-      contents: read
-    uses: ./.github/workflows/app-build.yml
-    with:
-      version: ${{ inputs.version }}
-      create-executables: ${{ inputs.create-executables }}
-    secrets:
-      ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
-      ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
-      ANDROID_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
-      MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
-      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-
   generate-changelog:
-    name: 2) Generate Changelog
+    name: 1) Generate Changelog
     runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: read
-    needs:
-      - build-backend
-      - build-frontend
-      - build-app
     outputs:
       notes: ${{ steps.changelog-output.outputs.notes }}
     env:
@@ -133,6 +79,64 @@ jobs:
             -f ref="${{ github.event.repository.default_branch }}" \
             -f inputs[run_id]="${{ github.run_id }}"
 
+  build-backend:
+    name: 2) API Build
+    needs:
+      - generate-changelog
+    permissions:
+      actions: write
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-backend.yml
+    with:
+      version: ${{ inputs.version }}
+      image_description: ${{ needs.generate-changelog.outputs.notes }}
+
+  build-frontend:
+    name: 2) Web Build
+    needs:
+      - generate-changelog
+    permissions:
+      actions: write
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-frontend.yml
+    with:
+      version: ${{ inputs.version }}
+      image_description: ${{ needs.generate-changelog.outputs.notes }}
+    secrets:
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+
+  build-backend-on-premises:
+    name: 2) API On-Prem Build
+    if: inputs.create-executables
+    needs:
+      - build-frontend
+    permissions:
+      actions: write
+      contents: read
+    uses: ./.github/workflows/build-backend-on-premises.yml
+    with:
+      version: ${{ inputs.version }}
+
+  build-app:
+    name: 2) Android Build
+    needs:
+      - generate-changelog
+    permissions:
+      actions: write
+      contents: read
+    uses: ./.github/workflows/app-build.yml
+    with:
+      version: ${{ inputs.version }}
+      create-executables: ${{ inputs.create-executables }}
+    secrets:
+      ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+      ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+      ANDROID_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+      MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+
   deploy-app:
     name: 3) Deploy Android
     permissions:
@@ -172,84 +176,26 @@ jobs:
       FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
-  update-image-descriptions:
-    name: 4) Update Image Descriptions
-    runs-on: ubuntu-latest
-    needs:
-      - deploy-infrastructure
-      - generate-changelog
-    permissions:
-      actions: write
-      packages: write
-      contents: read
-    env:
-      VERSION: ${{ inputs.version }}
-      REGISTRY: ghcr.io
-      FRONTEND_IMAGE: ${{ github.repository }}-frontend
-      BACKEND_IMAGE: ${{ github.repository }}-backend
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v4
-
-      - name: Log in to container registry
-        uses: docker/login-action@v4
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Write release notes file
-        run: |
-          cat > RELEASE_NOTES.md <<'EOF'
-          ${{ needs.generate-changelog.outputs.notes }}
-          EOF
-
-      - name: Apply OCI description annotations
-        run: |
-          FRONTEND_IMAGE="$(echo "${FRONTEND_IMAGE}" | tr '[:upper:]' '[:lower:]')"
-          BACKEND_IMAGE="$(echo "${BACKEND_IMAGE}" | tr '[:upper:]' '[:lower:]')"
-          chmod +x .github/scripts/apply-image-description.sh
-          ./.github/scripts/apply-image-description.sh "${REGISTRY}/${FRONTEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
-          ./.github/scripts/apply-image-description.sh "${REGISTRY}/${FRONTEND_IMAGE}:latest" RELEASE_NOTES.md
-          ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
-          ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:latest" RELEASE_NOTES.md
-
-      - name: Request run cancellation
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
-            -f ref="${{ github.event.repository.default_branch }}" \
-            -f inputs[run_id]="${{ github.run_id }}"
-
   create-release:
-    name: 5) Create GitHub Release
+    name: 4) Create GitHub Release
     if: >
       always() &&
+      needs.generate-changelog.result == 'success' &&
       needs.build-backend.result == 'success' &&
       needs.build-frontend.result == 'success' &&
       needs.build-app.result == 'success' &&
-      needs.generate-changelog.result == 'success' &&
       needs.deploy-app.result == 'success' &&
       needs.deploy-infrastructure.result == 'success' &&
-      needs.update-image-descriptions.result == 'success' &&
       (needs.build-backend-on-premises.result == 'success' || needs.build-backend-on-premises.result == 'skipped')
     runs-on: ubuntu-latest
     needs:
+      - generate-changelog
       - build-backend
       - build-frontend
-      - build-app
       - build-backend-on-premises
-      - generate-changelog
+      - build-app
       - deploy-app
       - deploy-infrastructure
-      - update-image-descriptions
     permissions:
       contents: write
     env:
