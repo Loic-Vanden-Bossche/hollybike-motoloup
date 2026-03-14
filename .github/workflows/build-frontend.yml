@@ -44,6 +44,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -104,4 +106,3 @@ jobs:
           path: packages/frontend/dist
           retention-days: 1
           if-no-files-found: error
-

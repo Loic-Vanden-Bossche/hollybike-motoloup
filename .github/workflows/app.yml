@@ -74,6 +74,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up Java
         uses: actions/setup-java@v5
@@ -98,16 +100,16 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: |
-          cd ../..
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci app:build
-          else
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:build
-          fi
+        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:build
 
       - name: Patch native_qr manifest
-        run: sed -i 's/\s*package="team.ion.native_qr"//' /home/runner/.pub-cache/hosted/pub.dev/native_qr-0.0.3/android/src/main/AndroidManifest.xml
+        run: |
+          manifest_path="$(find "$HOME/.pub-cache/hosted/pub.dev" -path "*/native_qr-*/android/src/main/AndroidManifest.xml" | head -n 1)"
+          if [ -f "$manifest_path" ]; then
+            sed -i 's/\s*package="team.ion.native_qr"//' "$manifest_path"
+          else
+            echo "native_qr manifest not found; skipping patch."
+          fi
 
       - name: Run tests
         run: |
@@ -198,6 +200,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Download AAB artifact
         uses: actions/download-artifact@v7

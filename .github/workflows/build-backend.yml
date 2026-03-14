@@ -41,6 +41,8 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v6
@@ -94,4 +96,3 @@ jobs:
           VERSION: ${{ inputs.version }}
           EXECUTABLE: hollybike_server
         run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:publish
-
