@@ -83,6 +83,7 @@ jobs:
     name: Terraform Infrastructure
     runs-on: self-hosted
     permissions:
+      actions: write
       contents: read
       packages: read
       pull-requests: write
@@ -212,4 +213,10 @@ jobs:
           TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.frontend }}:${{ steps.frontend-image-version.outputs.tag }}
           TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.backend }}:${{ steps.backend-image-version.outputs.tag }}
         run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:deploy
+
+      - name: Cancel workflow run on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 

@@ -37,39 +37,6 @@ permissions:
   pull-requests: write
 
 jobs:
-  cancel-on-failure:
-    name: Cancel On Failure
-    runs-on: ubuntu-latest
-    permissions:
-      actions: write
-      contents: read
-    env:
-      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      REPO: ${{ github.repository }}
-      RUN_ID: ${{ github.run_id }}
-    steps:
-      - name: Watch and cancel run on first failure
-        run: |
-          set -euo pipefail
-          while true; do
-            data="$(gh api "/repos/${REPO}/actions/runs/${RUN_ID}/jobs?per_page=100")"
-
-            failed="$(echo "$data" | jq '[.jobs[] | select(.name != "Cancel On Failure" and .conclusion == "failure")] | length')"
-            if [ "$failed" -gt 0 ]; then
-              echo "Detected failing job. Cancelling workflow run ${RUN_ID}."
-              gh api -X POST "/repos/${REPO}/actions/runs/${RUN_ID}/cancel"
-              exit 0
-            fi
-
-            active="$(echo "$data" | jq '[.jobs[] | select(.name != "Cancel On Failure" and .status != "completed")] | length')"
-            if [ "$active" -eq 0 ]; then
-              echo "All jobs completed without failure."
-              exit 0
-            fi
-
-            sleep 10
-          done
-
   build-frontend-backend:
     name: Frontend + Backend
     uses: ./.github/workflows/backend-frontend.yml
@@ -144,6 +111,12 @@ jobs:
           path: RELEASE_NOTES.md
           retention-days: 1
 
+      - name: Cancel workflow run on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+
   deploy-app:
     name: Deploy Android App
     runs-on: ubuntu-latest
@@ -151,6 +124,7 @@ jobs:
       - build-app
       - generate-changelog
     permissions:
+      actions: write
       contents: read
     env:
       AAB_PATH: packages/app/hollybike-Android-${{ inputs.version }}.aab
@@ -189,6 +163,12 @@ jobs:
           status: draft
           changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
 
+      - name: Cancel workflow run on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+
   update-image-descriptions:
     name: Update Docker Image Descriptions
     runs-on: ubuntu-latest
@@ -196,6 +176,7 @@ jobs:
       - build-frontend-backend
       - generate-changelog
     permissions:
+      actions: write
       packages: write
       contents: read
     env:
@@ -234,6 +215,12 @@ jobs:
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${FRONTEND_IMAGE}:latest" RELEASE_NOTES.md
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:latest" RELEASE_NOTES.md
+
+      - name: Cancel workflow run on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
   create-release:
     name: Create GitHub Release

@@ -38,6 +38,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     permissions:
+      actions: write
       contents: read
       packages: write
 
@@ -108,3 +109,9 @@ jobs:
           path: packages/frontend/dist
           retention-days: 1
           if-no-files-found: error
+
+      - name: Cancel workflow run on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"

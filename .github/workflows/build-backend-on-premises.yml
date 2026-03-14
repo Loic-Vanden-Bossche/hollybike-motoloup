@@ -16,6 +16,7 @@ jobs:
     name: Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     permissions:
+      actions: write
       contents: read
     strategy:
       fail-fast: false
@@ -81,4 +82,10 @@ jobs:
           path: packages/backend/build/native/nativeCompile/${{ steps.executable.outputs.name }}${{ matrix.executable-suffix }}
           retention-days: 1
           if-no-files-found: error
+
+      - name: Cancel workflow run on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
