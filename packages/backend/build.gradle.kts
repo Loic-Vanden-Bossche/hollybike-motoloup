@@ -10,7 +10,7 @@ plugins {
 	kotlin("jvm") version "2.3.10"
 	id("com.github.ben-manes.versions") version "0.53.0"
 
-	id("io.ktor.plugin") version "3.4.0"
+	id("io.ktor.plugin") version "3.4.1"
 	id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
 	id("org.graalvm.buildtools.native") version "0.11.4"
 	id("com.google.devtools.ksp") version "2.3.6"
