@@ -1,0 +1,180 @@
+name: Android App Build
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Release version"
+        required: true
+        type: string
+      create-executables:
+        description: "Build APK for release assets"
+        required: true
+        type: boolean
+    secrets:
+      ANDROID_KEYSTORE:
+        description: "Android keystore (base64)"
+        required: true
+      ANDROID_KEY_PROPERTIES:
+        description: "Android signing properties (base64)"
+        required: true
+      ANDROID_GOOGLE_SERVICES_JSON:
+        description: "Android Firebase google-services.json (base64)"
+        required: true
+      MAPBOX_DOWNLOADS_TOKEN:
+        description: "Mapbox downloads token"
+        required: true
+      MAPBOX_PUBLIC_ACCESS_TOKEN:
+        description: "Mapbox public access token"
+        required: true
+  pull_request:
+    branches:
+      - main
+    paths:
+      - "packages/app/**"
+      - ".github/workflows/app-build.yml"
+
+concurrency:
+  group: app-build-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CI: true
+  MOON_VERSION: "2.0.4"
+
+jobs:
+  build:
+    name: Android Build
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    defaults:
+      run:
+        working-directory: packages/app
+        shell: bash
+    env:
+      KEYSTORE_PATH: android/upload-keystore.jks
+      KEY_PROPS_PATH: android/key.properties
+      GOOGLE_SERVICES_PATH: android/app/google-services.json
+      AAB_PATH: build/app/outputs/bundle/release/app-release.aab
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@v5
+        with:
+          distribution: corretto
+          java-version: "17"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: "1.3.10"
+
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:build
+
+      - name: Patch native_qr manifest
+        run: |
+          manifest_path="$(find "$HOME/.pub-cache/hosted/pub.dev" -path "*/native_qr-*/android/src/main/AndroidManifest.xml" | head -n 1)"
+          if [ -f "$manifest_path" ]; then
+            sed -i 's/\s*package="team.ion.native_qr"//' "$manifest_path"
+          else
+            echo "native_qr manifest not found; skipping patch."
+          fi
+
+      - name: Run tests
+        run: |
+          cd ../..
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci app:test
+          else
+            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:test
+          fi
+
+      - name: Decode Android keystore
+        if: github.event_name != 'pull_request'
+        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > "${{ env.KEYSTORE_PATH }}"
+
+      - name: Install keystore
+        if: github.event_name != 'pull_request'
+        run: cp "${{ env.KEYSTORE_PATH }}" android/app/upload-keystore.jks
+
+      - name: Decode Android key properties
+        if: github.event_name != 'pull_request'
+        run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > "${{ env.KEY_PROPS_PATH }}"
+
+      - name: Decode google-services.json
+        if: github.event_name != 'pull_request'
+        run: echo "${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}" | base64 --decode > "${{ env.GOOGLE_SERVICES_PATH }}"
+
+      - name: Configure Gradle credentials
+        if: github.event_name != 'pull_request'
+        run: |
+          mkdir -p ~/.gradle
+          echo "MAPBOX_DOWNLOADS_TOKEN=${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}" >> ~/.gradle/gradle.properties
+
+      - name: Build app bundle
+        if: github.event_name != 'pull_request'
+        env:
+          VERSION: ${{ inputs.version }}
+          MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:package-aab
+
+      - name: Rename AAB
+        if: github.event_name != 'pull_request'
+        run: mv "${{ env.AAB_PATH }}" "hollybike-Android-${{ inputs.version }}.aab"
+
+      - name: Upload AAB artifact
+        if: github.event_name != 'pull_request'
+        uses: actions/upload-artifact@v6
+        with:
+          name: HollyBike-${{ inputs.version }}-Android-AAB
+          path: packages/app/hollybike-Android-${{ inputs.version }}.aab
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Build APK
+        if: github.event_name != 'pull_request' && inputs.create-executables
+        env:
+          VERSION: ${{ inputs.version }}
+          MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:package-apk
+
+      - name: Rename APK
+        if: github.event_name != 'pull_request' && inputs.create-executables
+        run: mv build/app/outputs/flutter-apk/app-release.apk "hollybike-Android-${{ inputs.version }}.apk"
+
+      - name: Upload APK artifact
+        if: github.event_name != 'pull_request' && inputs.create-executables
+        uses: actions/upload-artifact@v6
+        with:
+          name: HollyBike-${{ inputs.version }}-Android
+          path: packages/app/hollybike-Android-${{ inputs.version }}.apk
+          retention-days: 1
+          if-no-files-found: error
+
+      - name: Request run cancellation
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
+            -f ref="${{ github.event.repository.default_branch }}" \
+            -f inputs[run_id]="${{ github.run_id }}"

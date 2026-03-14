@@ -1,0 +1,55 @@
+name: Core Stack Build
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Release version"
+        required: true
+        type: string
+      create-executables:
+        description: "Whether to build on-premises executables"
+        required: true
+        type: boolean
+    secrets:
+      MAPBOX_PUBLIC_ACCESS_TOKEN:
+        description: "Mapbox public token"
+        required: true
+
+env:
+  CI: true
+
+jobs:
+  build-backend:
+    name: API
+    permissions:
+      actions: write
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-backend.yml
+    with:
+      version: ${{ inputs.version }}
+
+  build-frontend:
+    name: Web
+    permissions:
+      actions: write
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-frontend.yml
+    with:
+      version: ${{ inputs.version }}
+    secrets:
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+
+  build-backend-on-premises:
+    name: API On-Prem
+    if: inputs.create-executables
+    needs:
+      - build-frontend
+    permissions:
+      actions: write
+      contents: read
+    uses: ./.github/workflows/build-backend-on-premises.yml
+    with:
+      version: ${{ inputs.version }}

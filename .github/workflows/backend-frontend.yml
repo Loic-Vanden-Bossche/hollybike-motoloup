@@ -52,25 +52,16 @@ env:
   CI: true
 
 jobs:
-  build-backend:
-    name: API
+  build-core:
+    name: Build Core
     permissions:
       actions: write
       contents: read
       packages: write
-    uses: ./.github/workflows/build-backend.yml
+    uses: ./.github/workflows/backend-frontend-build.yml
     with:
       version: ${{ inputs.version }}
-
-  build-frontend:
-    name: Web
-    permissions:
-      actions: write
-      contents: read
-      packages: write
-    uses: ./.github/workflows/build-frontend.yml
-    with:
-      version: ${{ inputs.version }}
+      create-executables: ${{ inputs.create-executables }}
     secrets:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
@@ -78,8 +69,7 @@ jobs:
     name: Infra
     if: ${{ inputs['deploy-infra'] }}
     needs:
-      - build-backend
-      - build-frontend
+      - build-core
     permissions:
       actions: write
       contents: read
@@ -98,14 +88,3 @@ jobs:
       FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
-  build-backend-on-premises:
-    name: API On-Prem
-    if: inputs.create-executables
-    needs:
-      - build-frontend
-    permissions:
-      actions: write
-      contents: read
-    uses: ./.github/workflows/build-backend-on-premises.yml
-    with:
-      version: ${{ inputs.version }}

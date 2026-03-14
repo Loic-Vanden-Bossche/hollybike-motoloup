@@ -50,12 +50,6 @@ on:
       MAPBOX_PUBLIC_ACCESS_TOKEN:
         description: "Mapbox public access token"
         required: true
-  pull_request:
-    branches:
-      - main
-    paths:
-      - "packages/app/**"
-      - ".github/workflows/app.yml"
 
 concurrency:
   group: app-${{ github.workflow }}-${{ github.ref }}
@@ -63,205 +57,35 @@ concurrency:
 
 env:
   CI: true
-  MOON_VERSION: "2.0.4"
 
 jobs:
   build:
     name: Android Build
-    runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: read
-    defaults:
-      run:
-        working-directory: packages/app
-        shell: bash
-    env:
-      KEYSTORE_PATH: android/upload-keystore.jks
-      KEY_PROPS_PATH: android/key.properties
-      GOOGLE_SERVICES_PATH: android/app/google-services.json
-      AAB_PATH: build/app/outputs/bundle/release/app-release.aab
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Set up Java
-        uses: actions/setup-java@v5
-        with:
-          distribution: corretto
-          java-version: "17"
-
-      - name: Set up Node.js
-        uses: actions/setup-node@v6
-        with:
-          node-version: "24"
-
-      - name: Set up Bun
-        uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: "1.3.10"
-
-      - name: Set up Flutter
-        uses: subosito/flutter-action@v2
-        with:
-          channel: stable
-          cache: true
-
-      - name: Install dependencies
-        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:build
-
-      - name: Patch native_qr manifest
-        run: |
-          manifest_path="$(find "$HOME/.pub-cache/hosted/pub.dev" -path "*/native_qr-*/android/src/main/AndroidManifest.xml" | head -n 1)"
-          if [ -f "$manifest_path" ]; then
-            sed -i 's/\s*package="team.ion.native_qr"//' "$manifest_path"
-          else
-            echo "native_qr manifest not found; skipping patch."
-          fi
-
-      - name: Run tests
-        run: |
-          cd ../..
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci app:test
-          else
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:test
-          fi
-
-      - name: Decode Android keystore
-        if: inputs.externall_call
-        run: echo "${{ secrets.ANDROID_KEYSTORE }}" | base64 --decode > "${{ env.KEYSTORE_PATH }}"
-
-      - name: Install keystore
-        if: inputs.externall_call
-        run: cp "${{ env.KEYSTORE_PATH }}" android/app/upload-keystore.jks
-
-      - name: Decode Android key properties
-        if: inputs.externall_call
-        run: echo "${{ secrets.ANDROID_KEY_PROPERTIES }}" | base64 --decode > "${{ env.KEY_PROPS_PATH }}"
-
-      - name: Decode google-services.json
-        if: inputs.externall_call || inputs.create-executables
-        run: echo "${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}" | base64 --decode > "${{ env.GOOGLE_SERVICES_PATH }}"
-
-      - name: Configure Gradle credentials
-        if: inputs.externall_call || inputs.create-executables
-        run: |
-          mkdir -p ~/.gradle
-          echo "MAPBOX_DOWNLOADS_TOKEN=${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}" >> ~/.gradle/gradle.properties
-
-      - name: Build app bundle
-        if: inputs.externall_call
-        env:
-          VERSION: ${{ inputs.version }}
-          MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:package-aab
-
-      - name: Rename AAB
-        if: inputs.externall_call
-        run: mv "${{ env.AAB_PATH }}" "hollybike-Android-${{ inputs.version }}.aab"
-
-      - name: Upload AAB artifact
-        if: inputs.externall_call
-        uses: actions/upload-artifact@v6
-        with:
-          name: HollyBike-${{ inputs.version }}-Android-AAB
-          path: packages/app/hollybike-Android-${{ inputs.version }}.aab
-          retention-days: 1
-          if-no-files-found: error
-
-      - name: Build APK
-        if: inputs.create-executables
-        env:
-          VERSION: ${{ inputs.version }}
-          MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:package-apk
-
-      - name: Rename APK
-        if: inputs.create-executables
-        run: mv build/app/outputs/flutter-apk/app-release.apk "hollybike-Android-${{ inputs.version }}.apk"
-
-      - name: Upload APK artifact
-        if: inputs.create-executables
-        uses: actions/upload-artifact@v6
-        with:
-          name: HollyBike-${{ inputs.version }}-Android
-          path: packages/app/hollybike-Android-${{ inputs.version }}.apk
-          retention-days: 1
-          if-no-files-found: error
-
-      - name: Request run cancellation
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
-            -f ref="${{ github.event.repository.default_branch }}" \
-            -f inputs[run_id]="${{ github.run_id }}"
-
+    uses: ./.github/workflows/app-build.yml
+    with:
+      version: ${{ inputs.version }}
+      create-executables: ${{ inputs.create-executables }}
+    secrets:
+      ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+      ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+      ANDROID_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+      MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
   deploy:
     name: Play Store Deploy
     if: ${{ inputs.externall_call && inputs['deploy-to-play'] }}
     needs: build
-    runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: read
-    defaults:
-      run:
-        working-directory: packages/app
-        shell: bash
-    env:
-      AAB_PATH: packages/app/hollybike-Android-${{ inputs.version }}.aab
-      SERVICE_ACCOUNT_PATH: store_credentials.json
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Download AAB artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: HollyBike-${{ inputs.version }}-Android-AAB
-          path: packages/app
-
-      - name: Decode service account file
-        run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > "${{ env.SERVICE_ACCOUNT_PATH }}"
-
-      - name: Write Play Store release notes
-        if: inputs.release-notes != ''
-        run: |
-          mkdir -p whatsnew/en-US
-          cat > whatsnew/en-US/default.txt <<'EOF'
-          ${{ inputs.release-notes }}
-          EOF
-
-      - name: Deploy to Play Store (internal testing)
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJson: packages/app/${{ env.SERVICE_ACCOUNT_PATH }}
-          packageName: com.hollybike.hollybike
-          releaseFiles: ${{ env.AAB_PATH }}
-          whatsNewDirectory: packages/app/whatsnew
-          track: internal
-          status: draft
-          changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
-
-      - name: Request run cancellation
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
-            -f ref="${{ github.event.repository.default_branch }}" \
-            -f inputs[run_id]="${{ github.run_id }}"
-
-
-
-
+    uses: ./.github/workflows/app-deploy.yml
+    with:
+      version: ${{ inputs.version }}
+      play_changes_not_sent_for_review: ${{ inputs.play_changes_not_sent_for_review }}
+      release-notes: ${{ inputs.release-notes }}
+    secrets:
+      PRODUCTION_CREDENTIAL_FILE: ${{ secrets.PRODUCTION_CREDENTIAL_FILE }}

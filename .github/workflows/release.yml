@@ -38,39 +38,26 @@ jobs:
       contents: read
       packages: write
       pull-requests: write
-    uses: ./.github/workflows/backend-frontend.yml
+    uses: ./.github/workflows/backend-frontend-build.yml
     with:
       version: ${{ inputs.version }}
       create-executables: ${{ inputs.create-executables }}
-      deploy-infra: false
     secrets:
-      SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
-      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-      MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
-      MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
-      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
-      FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
-      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
   build-app:
     name: 1) Android Build
     permissions:
       actions: write
       contents: read
-    uses: ./.github/workflows/app.yml
+    uses: ./.github/workflows/app-build.yml
     with:
       version: ${{ inputs.version }}
       create-executables: ${{ inputs.create-executables }}
-      play_changes_not_sent_for_review: ${{ inputs.play_changes_not_sent_for_review }}
-      deploy-to-play: false
     secrets:
       ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
       ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
       ANDROID_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
-      PRODUCTION_CREDENTIAL_FILE: ${{ secrets.PRODUCTION_CREDENTIAL_FILE }}
       MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 

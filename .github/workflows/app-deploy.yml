@@ -1,0 +1,84 @@
+name: Android App Deploy
+
+on:
+  workflow_call:
+    inputs:
+      version:
+        description: "Release version"
+        required: true
+        type: string
+      play_changes_not_sent_for_review:
+        description: "Set true when Play Console requires changesNotSentForReview"
+        required: false
+        type: boolean
+        default: false
+      release-notes:
+        description: "Generated release notes content"
+        required: false
+        type: string
+        default: ""
+    secrets:
+      PRODUCTION_CREDENTIAL_FILE:
+        description: "Google Play service account JSON (base64)"
+        required: true
+
+env:
+  CI: true
+
+jobs:
+  deploy:
+    name: Play Store Deploy
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    defaults:
+      run:
+        working-directory: packages/app
+        shell: bash
+    env:
+      AAB_PATH: packages/app/hollybike-Android-${{ inputs.version }}.aab
+      SERVICE_ACCOUNT_PATH: store_credentials.json
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: HollyBike-${{ inputs.version }}-Android-AAB
+          path: packages/app
+
+      - name: Decode service account file
+        run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > "${{ env.SERVICE_ACCOUNT_PATH }}"
+
+      - name: Write Play Store release notes
+        if: inputs.release-notes != ''
+        run: |
+          mkdir -p whatsnew/en-US
+          cat > whatsnew/en-US/default.txt <<'EOF'
+          ${{ inputs.release-notes }}
+          EOF
+
+      - name: Deploy to Play Store (internal testing)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: packages/app/${{ env.SERVICE_ACCOUNT_PATH }}
+          packageName: com.hollybike.hollybike
+          releaseFiles: ${{ env.AAB_PATH }}
+          whatsNewDirectory: packages/app/whatsnew
+          track: internal
+          status: draft
+          changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
+
+      - name: Request run cancellation
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
+            -f ref="${{ github.event.repository.default_branch }}" \
+            -f inputs[run_id]="${{ github.run_id }}"
