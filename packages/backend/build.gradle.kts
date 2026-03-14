@@ -288,8 +288,7 @@ tasks.register("mergeNativeAgentConfigs") {
 					jdksDir.listFiles()
 						?.filter { it.isDirectory && it.name.contains("graalvm", ignoreCase = true) }
 						?.sortedByDescending { it.lastModified() }
-						?.mapNotNull { candidateFromJavaHome(it.absolutePath) }
-						?.firstOrNull()
+						?.firstNotNullOfOrNull { candidateFromJavaHome(it.absolutePath) }
 				} else {
 					null
 				}
@@ -307,9 +306,9 @@ tasks.register("mergeNativeAgentConfigs") {
 		)
 
 		try {
-			exec {
+			project.providers.exec {
 				commandLine(resolvedNativeImageConfigure, "command-file", argsFile.absolutePath)
-			}
+			}.result.get().assertNormalExitValue()
 		} catch (e: Exception) {
 			throw GradleException(
 				"Unable to execute native-image-configure. " +
