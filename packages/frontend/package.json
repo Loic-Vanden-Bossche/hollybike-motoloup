@@ -17,7 +17,7 @@
     "echarts": "^6.0.0",
     "lucide-preact": "^0.577.0",
     "mapbox-gl": "^3.18.1",
-    "preact": "^10.28.3",
+    "preact": "^10.29.0",
     "qrcode.react": "^4.2.0",
     "react-map-gl": "^8.1.0",
     "react-router-dom": "^7.13.1",
