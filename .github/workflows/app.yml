@@ -21,6 +21,11 @@ on:
         required: false
         type: boolean
         default: false
+      deploy-to-play:
+        description: "Deploy AAB to Play Console after build"
+        required: false
+        type: boolean
+        default: true
       release-notes:
         description: "Generated release notes content"
         required: false
@@ -189,7 +194,7 @@ jobs:
 
   deploy:
     name: Deploy
-    if: inputs.externall_call
+    if: inputs.externall_call && inputs.deploy-to-play
     needs: build
     runs-on: ubuntu-latest
     permissions:

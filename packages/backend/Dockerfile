@@ -1,6 +1,9 @@
 FROM debian:bookworm-slim
 
 ARG EXECUTABLE
+ARG OCI_IMAGE_DESCRIPTION="HollyBike backend API"
+
+LABEL org.opencontainers.image.description="${OCI_IMAGE_DESCRIPTION}"
 
 COPY build/native/nativeCompile/$EXECUTABLE /app/hollybike_server
 

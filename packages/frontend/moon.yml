@@ -16,6 +16,8 @@ tasks:
         --push \
         -t "$REGISTRY/$IMAGE_NAME:latest" \
         -t "$REGISTRY/$IMAGE_NAME:$VERSION" \
+        --build-arg OCI_IMAGE_DESCRIPTION="${IMAGE_DESCRIPTION:-HollyBike frontend web application}" \
+        --annotation "index:org.opencontainers.image.description=${IMAGE_DESCRIPTION:-HollyBike frontend web application}" \
         .
     deps:
       - "build"

@@ -25,6 +25,8 @@ tasks:
         -t "$REGISTRY/$IMAGE_NAME:latest" \
         -t "$REGISTRY/$IMAGE_NAME:$VERSION" \
         --build-arg EXECUTABLE=${EXECUTABLE:-hollybike_server} \
+        --build-arg OCI_IMAGE_DESCRIPTION="${IMAGE_DESCRIPTION:-HollyBike backend API}" \
+        --annotation "index:org.opencontainers.image.description=${IMAGE_DESCRIPTION:-HollyBike backend API}" \
         .
     deps:
       - "package"

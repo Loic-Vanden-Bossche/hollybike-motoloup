@@ -36,9 +36,46 @@ permissions:
   pull-requests: write
 
 jobs:
+  build-frontend-backend:
+    name: Frontend + Backend
+    uses: ./.github/workflows/backend-frontend.yml
+    with:
+      version: ${{ inputs.version }}
+      create-executables: ${{ inputs.create-executables }}
+    secrets:
+      SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
+      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+      MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
+      MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
+      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
+      FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
+  build-app:
+    name: Android App
+    uses: ./.github/workflows/app.yml
+    with:
+      version: ${{ inputs.version }}
+      create-executables: ${{ inputs.create-executables }}
+      play_changes_not_sent_for_review: ${{ inputs.play_changes_not_sent_for_review }}
+      deploy-to-play: false
+    secrets:
+      ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
+      ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
+      ANDROID_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
+      PRODUCTION_CREDENTIAL_FILE: ${{ secrets.PRODUCTION_CREDENTIAL_FILE }}
+      MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+
   generate-changelog:
     name: Generate Changelog
     runs-on: ubuntu-latest
+    needs:
+      - build-app
+      - build-frontend-backend
     outputs:
       notes: ${{ steps.changelog-output.outputs.notes }}
     env:
@@ -73,52 +110,105 @@ jobs:
           path: RELEASE_NOTES.md
           retention-days: 1
 
-  build-frontend-backend:
-    name: Frontend + Backend
+  deploy-app:
+    name: Deploy Android App
+    runs-on: ubuntu-latest
     needs:
+      - build-app
       - generate-changelog
-    uses: ./.github/workflows/backend-frontend.yml
-    with:
-      version: ${{ inputs.version }}
-      create-executables: ${{ inputs.create-executables }}
-    secrets:
-      SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
-      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
-      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
-      MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
-      MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
-      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
-      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
-      BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
-      FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
-      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+    permissions:
+      contents: read
+    env:
+      AAB_PATH: packages/app/hollybike-Android-${{ inputs.version }}.aab
+      SERVICE_ACCOUNT_PATH: store_credentials.json
 
-  build-app:
-    name: Android App
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Download AAB artifact
+        uses: actions/download-artifact@v7
+        with:
+          name: HollyBike-${{ inputs.version }}-Android-AAB
+          path: packages/app
+
+      - name: Decode service account file
+        run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > "${{ env.SERVICE_ACCOUNT_PATH }}"
+
+      - name: Write Play Store release notes
+        run: |
+          mkdir -p packages/app/whatsnew/en-US
+          cat > packages/app/whatsnew/en-US/default.txt <<'EOF'
+          ${{ needs.generate-changelog.outputs.notes }}
+          EOF
+
+      - name: Deploy to Play Store (internal testing)
+        uses: r0adkll/upload-google-play@v1
+        with:
+          serviceAccountJson: ${{ env.SERVICE_ACCOUNT_PATH }}
+          packageName: com.hollybike.hollybike
+          releaseFiles: ${{ env.AAB_PATH }}
+          whatsNewDirectory: packages/app/whatsnew
+          track: internal
+          status: draft
+          changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
+
+  update-image-descriptions:
+    name: Update Docker Image Descriptions
+    runs-on: ubuntu-latest
     needs:
+      - build-frontend-backend
       - generate-changelog
-    uses: ./.github/workflows/app.yml
-    with:
-      version: ${{ inputs.version }}
-      create-executables: ${{ inputs.create-executables }}
-      play_changes_not_sent_for_review: ${{ inputs.play_changes_not_sent_for_review }}
-      release-notes: ${{ needs.generate-changelog.outputs.notes }}
-    secrets:
-      ANDROID_KEYSTORE: ${{ secrets.ANDROID_KEYSTORE }}
-      ANDROID_KEY_PROPERTIES: ${{ secrets.ANDROID_KEY_PROPERTIES }}
-      ANDROID_GOOGLE_SERVICES_JSON: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON }}
-      PRODUCTION_CREDENTIAL_FILE: ${{ secrets.PRODUCTION_CREDENTIAL_FILE }}
-      MAPBOX_DOWNLOADS_TOKEN: ${{ secrets.MAPBOX_DOWNLOADS_TOKEN }}
-      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+    permissions:
+      packages: write
+      contents: read
+    env:
+      VERSION: ${{ inputs.version }}
+      REGISTRY: ghcr.io
+      FRONTEND_IMAGE: ${{ github.repository }}-frontend
+      BACKEND_IMAGE: ${{ github.repository }}-backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Write release notes file
+        run: |
+          cat > RELEASE_NOTES.md <<'EOF'
+          ${{ needs.generate-changelog.outputs.notes }}
+          EOF
+
+      - name: Apply OCI description annotations
+        run: |
+          chmod +x .github/scripts/apply-image-description.sh
+          ./.github/scripts/apply-image-description.sh "${REGISTRY}/${FRONTEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
+          ./.github/scripts/apply-image-description.sh "${REGISTRY}/${FRONTEND_IMAGE}:latest" RELEASE_NOTES.md
+          ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
+          ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:latest" RELEASE_NOTES.md
 
   create-release:
     name: Create GitHub Release
     runs-on: ubuntu-latest
     needs:
-      - generate-changelog
       - build-app
       - build-frontend-backend
-    if: always() && needs.generate-changelog.result == 'success' && needs.build-app.result == 'success' && needs.build-frontend-backend.result == 'success'
+      - generate-changelog
+      - deploy-app
+      - update-image-descriptions
+    if: always() && needs.build-app.result == 'success' && needs.build-frontend-backend.result == 'success' && needs.generate-changelog.result == 'success' && needs.deploy-app.result == 'success' && needs.update-image-descriptions.result == 'success'
     permissions:
       contents: write
     env:
