@@ -13,7 +13,7 @@ plugins {
 	id("io.ktor.plugin") version "3.4.0"
 	id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
 	id("org.graalvm.buildtools.native") version "0.11.4"
-	id("com.google.devtools.ksp") version "2.3.5"
+	id("com.google.devtools.ksp") version "2.3.6"
 	id("org.liquibase.gradle") version "3.1.0"
 }
 
@@ -121,10 +121,10 @@ dependencies {
 
 	implementation("org.postgresql:postgresql:42.7.10")
 	implementation("org.liquibase:liquibase-core:5.0.1")
-	implementation("software.amazon.awssdk:cloudfront:2.41.29") {
+	implementation("software.amazon.awssdk:cloudfront:2.42.13") {
 		exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
 	}
-	implementation("software.amazon.awssdk:url-connection-client:2.41.29")
+	implementation("software.amazon.awssdk:url-connection-client:2.42.13")
 	implementation("org.simplejavamail:simple-java-mail:8.12.6")
 	implementation("com.google.firebase:firebase-admin:9.8.0") {
 		exclude(group = "io.grpc", module = "grpc-netty-shaded")
@@ -144,8 +144,8 @@ dependencies {
 	testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.2")
 	testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 	testImplementation("org.testcontainers:postgresql:1.21.4")
-	testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.3")
-	testImplementation("io.kotest:kotest-assertions-core:6.1.3")
+	testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.6")
+	testImplementation("io.kotest:kotest-assertions-core:6.1.6")
 }
 
 liquibase {
