@@ -143,7 +143,7 @@ jobs:
 
       - name: Upload AAB artifact
         if: github.event_name != 'pull_request'
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: HollyBike-${{ inputs.version }}-Android-AAB
           path: packages/app/hollybike-Android-${{ inputs.version }}.aab
@@ -163,7 +163,7 @@ jobs:
 
       - name: Upload APK artifact
         if: github.event_name != 'pull_request' && inputs.create-executables
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: HollyBike-${{ inputs.version }}-Android
           path: packages/app/hollybike-Android-${{ inputs.version }}.apk

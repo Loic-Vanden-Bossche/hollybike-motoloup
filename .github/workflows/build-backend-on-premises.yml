@@ -65,7 +65,7 @@ jobs:
         run: echo "name=hollybike-${{ runner.os }}-${{ inputs.version }}-x86_64" >> "$GITHUB_OUTPUT"
 
       - name: Download frontend artifact
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: HollyBike-Frontend-${{ inputs.version }}
           path: packages/backend/src/main/resources/front
@@ -76,7 +76,7 @@ jobs:
         run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:package-on-prem
 
       - name: Upload executable artifact
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: HollyBike-${{ inputs.version }}-Backend-${{ runner.os }}
           path: packages/backend/build/native/nativeCompile/${{ steps.executable.outputs.name }}${{ matrix.executable-suffix }}
