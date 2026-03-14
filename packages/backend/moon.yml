@@ -1,0 +1,30 @@
+tasks:
+  lint:
+    command: "./gradlew help --warning-mode all --no-daemon"
+
+  build:
+    command: "./gradlew build -Pis_on_premise=true --no-daemon"
+
+  test:
+    command: "./gradlew test -Pis_on_premise=true --no-daemon"
+
+  package:
+    script: "./gradlew nativeCompile -Pimage_name=${IMAGE_NAME:-hollybike_server} --no-daemon"
+    deps:
+      - "test"
+
+  package-on-prem:
+    script: "./gradlew nativeCompile -Pimage_name=${IMAGE_NAME:-hollybike_server} -Pis_on_premise=true --no-daemon"
+    deps:
+      - "test"
+
+  publish:
+    script: |
+      docker buildx build \
+        --push \
+        -t "$REGISTRY/$IMAGE_NAME:latest" \
+        -t "$REGISTRY/$IMAGE_NAME:$VERSION" \
+        --build-arg EXECUTABLE=${EXECUTABLE:-hollybike_server} \
+        .
+    deps:
+      - "package"

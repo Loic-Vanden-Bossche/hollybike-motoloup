@@ -8,6 +8,9 @@ on:
         required: true
         type: string
 
+env:
+  MOON_VERSION: "2.0.4"
+
 jobs:
   build-backend-on-premises:
     name: Build (${{ matrix.os }})
@@ -27,14 +30,19 @@ jobs:
             executable-suffix: ""
           - os: windows-latest
             executable-suffix: ".exe"
-    defaults:
-      run:
-        working-directory: packages/backend
-        shell: bash
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.3.10"
 
       - name: Set up GraalVM (Java ${{ matrix.java-version }})
         uses: graalvm/setup-graalvm@v1
@@ -46,6 +54,7 @@ jobs:
           cache: gradle
 
       - name: Ensure Gradle wrapper is executable
+        working-directory: packages/backend
         run: chmod +x gradlew
 
       - name: Compute executable name
@@ -59,7 +68,9 @@ jobs:
           path: packages/backend/src/main/resources/front
 
       - name: Build native executable
-        run: ./gradlew nativeCompile -Pimage_name="${{ steps.executable.outputs.name }}" -Pis_on_premise=true
+        env:
+          IMAGE_NAME: ${{ steps.executable.outputs.name }}
+        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:package-on-prem
 
       - name: Upload executable artifact
         uses: actions/upload-artifact@v4
@@ -68,3 +79,4 @@ jobs:
           path: packages/backend/build/native/nativeCompile/${{ steps.executable.outputs.name }}${{ matrix.executable-suffix }}
           retention-days: 1
           if-no-files-found: error
+

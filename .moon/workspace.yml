@@ -1,0 +1,9 @@
+projects:
+  app: "packages/app"
+  backend: "packages/backend"
+  frontend: "packages/frontend"
+  infrastructure: "packages/infrastructure"
+
+vcs:
+  defaultBranch: "main"
+  provider: "github"

@@ -1,0 +1,27 @@
+tasks:
+  lint:
+    script: |
+      cd k8s
+      terraform fmt -check -recursive
+
+  validate:
+    script: |
+      cd k8s
+      terraform init -input=false -no-color
+      terraform validate -no-color
+    deps:
+      - "lint"
+
+  plan:
+    script: |
+      cd k8s
+      terraform plan -no-color -input=false
+    deps:
+      - "validate"
+
+  deploy:
+    script: |
+      cd k8s
+      terraform apply -auto-approve -input=false
+    deps:
+      - "validate"

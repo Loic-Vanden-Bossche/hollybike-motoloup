@@ -28,6 +28,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-backend
   JAVA_VERSION: "21"
+  MOON_VERSION: "2.0.4"
 
 jobs:
   build:
@@ -36,14 +37,20 @@ jobs:
     permissions:
       contents: read
       packages: write
-    defaults:
-      run:
-        working-directory: packages/backend
-        shell: bash
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.3.10"
 
       - name: Set up GraalVM (Java ${{ env.JAVA_VERSION }})
         uses: graalvm/setup-graalvm@v1
@@ -52,14 +59,22 @@ jobs:
           cache: gradle
 
       - name: Ensure Gradle wrapper is executable
+        working-directory: packages/backend
         run: chmod +x gradlew
 
       - name: Run tests
-        run: ./gradlew test -Pis_on_premise=true --no-daemon
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci backend:test
+          else
+            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:test
+          fi
 
       - name: Build native executable
         if: inputs.externall_call
-        run: ./gradlew nativeCompile -Pimage_name=hollybike_server --no-daemon
+        env:
+          IMAGE_NAME: hollybike_server
+        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:package
 
       - name: Set up Docker Buildx
         if: inputs.externall_call
@@ -73,23 +88,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Extract Docker metadata
-        if: inputs.externall_call
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=raw,value=latest
-            type=raw,value=${{ inputs.version }}
-
       - name: Build and push container image
         if: inputs.externall_call
-        uses: docker/build-push-action@v6
-        with:
-          context: packages/backend
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          build-args: |
-            EXECUTABLE=hollybike_server
+        env:
+          VERSION: ${{ inputs.version }}
+          EXECUTABLE: hollybike_server
+        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:publish
+

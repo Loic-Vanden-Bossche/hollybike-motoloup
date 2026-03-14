@@ -1,0 +1,29 @@
+tasks:
+  lint:
+    command: "flutter analyze"
+
+  test:
+    command: "flutter test"
+
+  build:
+    command: "flutter pub get"
+
+  package-aab:
+    script: |
+      flutter build appbundle \
+        --release \
+        --build-name="$VERSION" \
+        --build-number="$(echo "$VERSION" | tr -d .)" \
+        --dart-define=PUBLIC_ACCESS_TOKEN="$MAPBOX_PUBLIC_ACCESS_TOKEN"
+    deps:
+      - "test"
+
+  package-apk:
+    script: |
+      flutter build apk \
+        --release \
+        --build-name="$VERSION" \
+        --build-number="$(echo "$VERSION" | tr -d .)" \
+        --dart-define=PUBLIC_ACCESS_TOKEN="$MAPBOX_PUBLIC_ACCESS_TOKEN"
+    deps:
+      - "test"

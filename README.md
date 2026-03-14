@@ -1,198 +1,156 @@
-# HollyBike
+# HollyBike Monorepo
 
-## Frontend
+HollyBike is a multi-package repository orchestrated with [Moonrepo](https://moonrepo.dev/).
 
-Frontend de l'application HollyBike. Développé avec Preact. <br>
+## Packages
 
-Le frontend utilise `Bun` et `Vite` pour le développement.
+- `packages/frontend`: Preact + TypeScript + Vite (Bun)
+- `packages/backend`: Kotlin + Ktor + Gradle + GraalVM native build
+- `packages/app`: Flutter Android app
+- `packages/infrastructure`: Terraform (`k8s`, `aws`, `init_backend`)
 
-### Installation des dépendances
+## Monorepo Tooling
 
-```shell
-bun i
+- Task orchestrator: `moon` (`@moonrepo/cli` pinned to `2.0.4`)
+- JavaScript runtime: Bun `1.3.10`
+- Node runtime: Node `20.19.0`
+- Git hooks: Husky + lint-staged + commitlint
+
+Moon configuration lives in `.moon/` and each package defines tasks in `packages/*/moon.yml`.
+
+## Prerequisites
+
+Install these tools locally:
+
+- Bun `>= 1.3.x`
+- Node `>= 20`
+- Java 21 (backend)
+- Flutter stable (app)
+- Terraform (infrastructure)
+- Docker + Buildx (image/package tasks)
+
+## Getting Started
+
+Install root dependencies:
+
+```bash
+bun install
 ```
 
-### Lancer le frontend pour le développement
+List all Moon projects:
 
-Pour lancer le frontend en mode développement (avec vite).
-
-```shell
-bun run dev
+```bash
+bunx @moonrepo/cli projects
 ```
 
-## Backend
+List all Moon tasks:
 
-Backend de l'application HollyBike. Développé en kotlin avec le framework Ktor. <br>
-
-Le backend est compilé avec GraalVM pour être exécuté en tant que binaire natif.
-
-### Lancer le backend
-
-Pour lancer le backend, vous pouvez utiliser le script Gradle `run`.
-Pour changes les variables d'environnements, vous pouvez mettre à jour le fichier `app.json` à la racine du projet.
-
-```shell
-./gradlew run
+```bash
+bunx @moonrepo/cli tasks
 ```
 
-### Compiler le backend
+## Common Commands
 
-#### Prérequis
+### Frontend
 
-Pour compiler le backend en tant que binaire natif, vous devez avoir GraalVM installé sur votre machine. <br>
-
-Vous devez également avoir un JDK 21 installé sur votre machine.
-
-#### Compilation
-
-Pour compiler le backend, vous pouvez utiliser le script Gradle `nativeCompile`.
-
-```shell
-./gradlew nativeCompile
+```bash
+bunx @moonrepo/cli run frontend:lint
+bunx @moonrepo/cli run frontend:build
 ```
 
-#### Lancer le binaire natif
+### Backend
 
-Pour lancer le binaire natif, vous pouvez utiliser le binaire généré dans le dossier `build/native/nativeCompile`.
-
-```shell
-./build/native/nativeCompile/hollybike_server
+```bash
+bunx @moonrepo/cli run backend:test
+bunx @moonrepo/cli run backend:package
 ```
 
-### Lancement de l'agent GraalVM
+### Mobile App
 
-Pour lancer l'agent GraalVM, vous pouvez utiliser l'option -Pagent sur les tests par exemple.
-
-```shell
-./gradlew -Pagent test
+```bash
+bunx @moonrepo/cli run app:test
+bunx @moonrepo/cli run app:lint
 ```
 
-Pour copier les métadatas générées par l'agent, vous pouvez utiliser la tâche `metadataCopy`.
+### Infrastructure
 
-```shell
-./gradlew metadataCopy
+```bash
+bunx @moonrepo/cli run infrastructure:lint
+bunx @moonrepo/cli run infrastructure:validate
+bunx @moonrepo/cli run infrastructure:plan
 ```
 
-## Base de donnée
+## Packaging and Deploy Tasks
 
-Base de donnée utilisée : PostgreSQL
+These tasks require environment variables/secrets (usually from CI):
 
-### Nomenclature
+### Frontend image publish
 
-- Les noms de tables sont au pluriel.
-- Les clés primaires sont des entiers auto-increment nommés `id_<nom_de_l'entité_au_singulier>`.
-- Les tables de jointures sont nommées par le nom des 2 tables jointes au pluriel séparé par un verbe à l'infinitif.
-- Les clés étrangères sont nommées par l'entité pointée.
-- Privilégier les majuscules pour les mots clé SQL dans le changelog.
-- Privilégier le plus possible l'utilisation de `IF NOT EXIST` afin de pouvoir exécuter à nouveau les scripts en cas de
-  problème quelconque sur la base.
-
-### Docker
-
-Pour lancer une base de donnée PostgreSQL en local, vous pouvez utiliser le docker-compose fourni.
-
-```shell
-docker-compose up -d
+```bash
+REGISTRY=ghcr.io IMAGE_NAME=<owner/repo-frontend> VERSION=v1.2.3 \
+  bunx @moonrepo/cli run frontend:package
 ```
 
-### Changelog
+### Backend native + image publish
 
-Le changelog doit être écrit à la main dans le fichier `backend/src/main/resources/liquibase-changelog.sql`  
-Un nouveau changeset dans le changelog doit commencer par un commentaire contenant le nom de l'auteur du changeset,
-ainsi que l'id du changeset (entier incrémenté de 1 en 1), et le cas échant le contexte dans lequel il doit s'exécuter.
+```bash
+IMAGE_NAME=hollybike_server bunx @moonrepo/cli run backend:package
 
-#### Contexte
-
-Il existe 3 contextes différents
-- `dev`
-- `cloud`
-- `premise`
-
-Le contexte `dev` ne s'exécute qu'en environnement de dev (le mode développement de l'API doit être activé).
-
-Le contexte `cloud` s'exécute en version cloud (présence de la variable d'environnement `CLOUD=true`).  
-Dans le cas contraire le contexte `premise` est exécuté.
-
-Pour ne pas sélectionner un contexte, utiliser un `!` devant le contexte.
-
-Les mots clé `all` et `none` sont également disponible pour sélectionner respectivement tout et aucun contexte.
-
-#### Exemples
-
-`--changeset author:id [context:context1[,context2]]`
-
-`--changeset denis:1`
-
-`--changeset denis:2 context:dev`
-
-`--changeset denis:3 context:dev,!premise`
-
-`--changeset denis:4 context:none`
-
-### Lancer la migration
-
-La migration de la base de données est faites automatiquement au lancement du backend.
-
-## Infrastructure
-
-L'infrastructure est gérée avec Terraform.
-
-Pour définir les variables Terraform, créer un fichier `terraform.tfvars` à la racine du
-dossier `packages/infrastructure/project`.
-
-Le projet nécessite les credentials configurés AWS pour fonctionner.
-
-### Schéma
-
-![image](images/terraform.png)
-
-### Appliquer les changements
-
-Pour appliquer les changements Terraform, il est recommandé de laisser la CI/CI s'en charger.
-
-## Application Flutter
-
-L'application mobile est développée en Flutter.
-
-### Installation des dépendances
-
-```shell
-flutter pub get
+REGISTRY=ghcr.io IMAGE_NAME=<owner/repo-backend> VERSION=v1.2.3 EXECUTABLE=hollybike_server \
+  bunx @moonrepo/cli run backend:publish
 ```
 
-### Lancer l'application
+### App artifacts
 
-Utiliser les outils fournis par Android Studio.
+```bash
+VERSION=v1.2.3 MAPBOX_PUBLIC_ACCESS_TOKEN=<token> \
+  bunx @moonrepo/cli run app:package-aab
+
+VERSION=v1.2.3 MAPBOX_PUBLIC_ACCESS_TOKEN=<token> \
+  bunx @moonrepo/cli run app:package-apk
+```
+
+### Infrastructure apply
+
+```bash
+bunx @moonrepo/cli run infrastructure:deploy
+```
+
+## Git Hooks
+
+- Pre-commit runs `lint-staged`.
+- Commit messages are validated by commitlint (`@commitlint/config-conventional`).
+
+Manual run:
+
+```bash
+bun run lint-staged
+```
 
 ## CI/CD
 
-### Pull Request
+GitHub Actions workflows remain split by domain and call Moon tasks internally:
 
-À la création d'une PR, un pipeline est déclenché pour vérifier la qualité du code.
+- `.github/workflows/build-frontend.yml`
+- `.github/workflows/build-backend.yml`
+- `.github/workflows/build-backend-on-premises.yml`
+- `.github/workflows/app.yml`
+- `.github/workflows/infrastructure.yml`
+- `.github/workflows/release.yml`
 
-Un filtre est appliquer pour ne lancer la pipeline que sur les packages concernés par les changements.
+PR workflows use Moon affected/CI mode where configured (`moon ci ...`), while release/deploy paths use explicit `moon run ...` task targets.
 
-### Merge
+## Dependabot
 
-À la fusion d'une PR, un pipeline est déclenché pour déployer l'infrastructure avec Terraform.
+Dependabot is configured in `.github/dependabot.yml` for:
 
-### Release
+- Gradle (`/packages/backend`)
+- Bun (`/` and `/packages/frontend`)
+- Pub (`/packages/app`)
+- Terraform (`/packages/infrastructure/k8s`, `/aws`, `/init_backend`)
 
-Pour créer une release et déployer le projet, il suffit de lancer le workflow Manuel `Release & Deploy` et de mettre en
-paramètre le numéro de version de la release.
+## Notes
 
-# Contributors
-
-<table>
-  <tbody>
-    <tr>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/MacaronFR"><img src="https://avatars.githubusercontent.com/u/60406911?v=4?s=100" width="100px;" alt="MacaronFR"/><br /><sub><b>MacaronFR</b></sub></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/enzoSoa"><img src="https://avatars.githubusercontent.com/u/40230973?v=4?s=100" width="100px;" alt="Enzo Ayrton Soares
-"/><br /><sub><b>Enzo Ayrton Soares
-</b></sub></a></td>
-      <td align="center" valign="top" width="14.28%"><a href="https://github.com/Loic-Vanden-Bossche"><img src="https://avatars.githubusercontent.com/u/40357859?v=4?s=100" width="100px;" alt="Loïc Vanden Bossche
-"/><br /><sub><b>Loïc Vanden Bossche
-</b></sub></a></td>
-    </tr>
-  </tbody>
-</table>
+- Liquibase changelog file is `packages/backend/src/main/resources/liquibase-changelog.sql`.
+- Flutter generated files are committed in this repo (`*.g.dart`, `*.freezed.dart`, `*.gr.dart`).
+- Terraform apply is expected to run in CI unless explicitly needed locally.

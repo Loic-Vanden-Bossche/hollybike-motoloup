@@ -52,7 +52,7 @@ export default [
       "@stylistic/jsx-quotes": ["error", "prefer-double"],
       "@stylistic/key-spacing": ["error", {beforeColon: false, afterColon: true, mode: "strict",}],
       "@stylistic/keyword-spacing": ["error", {before: true, after: true}],
-      "@stylistic/linebreak-style": ["error", "unix"],
+      "@stylistic/linebreak-style": ["off"],
       "@stylistic/no-extra-parens": ["error", "all"],
       "@stylistic/no-extra-semi": ["error"],
       "@stylistic/no-floating-decimal": ["error"],

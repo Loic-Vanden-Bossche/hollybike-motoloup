@@ -1,0 +1,21 @@
+tasks:
+  lint:
+    command: "bun run lint"
+
+  build:
+    command: "bun run build"
+    deps:
+      - "lint"
+
+  test:
+    command: "bun run lint"
+
+  package:
+    script: |
+      docker buildx build \
+        --push \
+        -t "$REGISTRY/$IMAGE_NAME:latest" \
+        -t "$REGISTRY/$IMAGE_NAME:$VERSION" \
+        .
+    deps:
+      - "build"

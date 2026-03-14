@@ -1,6 +1,7 @@
 {
   "dependencies": {},
   "devDependencies": {
+    "@moonrepo/cli": "2.0.4",
     "@commitlint/cli": "^20.4.4",
     "@commitlint/config-conventional": "^20.4.4",
     "husky": "^9.1.7",
@@ -8,6 +9,7 @@
   },
   "scripts": {
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "moon": "moon"
   }
 }

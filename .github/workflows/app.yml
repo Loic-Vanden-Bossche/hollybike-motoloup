@@ -53,6 +53,7 @@ concurrency:
 
 env:
   CI: true
+  MOON_VERSION: "2.0.4"
 
 jobs:
   build:
@@ -80,6 +81,16 @@ jobs:
           distribution: corretto
           java-version: "17"
 
+      - name: Set up Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: "24"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v1
+        with:
+          bun-version: "1.3.10"
+
       - name: Set up Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -87,13 +98,25 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: flutter pub get
+        run: |
+          cd ../..
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci app:build
+          else
+            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:build
+          fi
 
       - name: Patch native_qr manifest
         run: sed -i 's/\s*package="team.ion.native_qr"//' /home/runner/.pub-cache/hosted/pub.dev/native_qr-0.0.3/android/src/main/AndroidManifest.xml
 
       - name: Run tests
-        run: flutter test
+        run: |
+          cd ../..
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci app:test
+          else
+            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:test
+          fi
 
       - name: Decode Android keystore
         if: inputs.externall_call
@@ -119,12 +142,10 @@ jobs:
 
       - name: Build app bundle
         if: inputs.externall_call
-        run: |
-          flutter build appbundle \
-            --release \
-            --build-name="${{ inputs.version }}" \
-            --build-number="$(echo "${{ inputs.version }}" | tr -d .)" \
-            --dart-define=PUBLIC_ACCESS_TOKEN="${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}"
+        env:
+          VERSION: ${{ inputs.version }}
+          MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:package-aab
 
       - name: Rename AAB
         if: inputs.externall_call
@@ -141,12 +162,10 @@ jobs:
 
       - name: Build APK
         if: inputs.create-executables
-        run: |
-          flutter build apk \
-            --release \
-            --build-name="${{ inputs.version }}" \
-            --build-number="$(echo "${{ inputs.version }}" | tr -d .)" \
-            --dart-define=PUBLIC_ACCESS_TOKEN="${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}"
+        env:
+          VERSION: ${{ inputs.version }}
+          MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:package-apk
 
       - name: Rename APK
         if: inputs.create-executables
@@ -198,3 +217,4 @@ jobs:
           track: internal
           status: draft
           changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
+

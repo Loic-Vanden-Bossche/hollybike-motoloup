@@ -1,8 +1,6 @@
-const quote = (value) => `"${value.replace(/(["\\$`])/g, "\\$1")}"`;
-
 export default {
   "packages/frontend/**/*.{js,jsx,ts,tsx,css}": () => [
-    "cd packages/frontend && bun run lint",
+    "bunx @moonrepo/cli run frontend:lint",
   ],
   "packages/app/**/*.dart": (files) => {
     const nonGeneratedFiles = files.filter(
@@ -16,13 +14,12 @@ export default {
       return [];
     }
 
-    return ["cd packages/app && flutter analyze"];
+    return ["bunx @moonrepo/cli run app:lint"];
   },
   "packages/backend/**/*.{kt,kts}": () => [
-    "cd packages/backend && ./gradlew compileKotlin --quiet",
+    "bunx @moonrepo/cli run backend:lint",
   ],
-  "packages/infrastructure/**/*.tf": (files) => {
-    const allFiles = files.map(quote).join(" ");
-    return [`terraform fmt ${allFiles}`, `git add ${allFiles}`];
-  },
+  "packages/infrastructure/**/*.tf": () => [
+    "bunx @moonrepo/cli run infrastructure:lint",
+  ],
 };

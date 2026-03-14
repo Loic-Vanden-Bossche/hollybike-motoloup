@@ -92,3 +92,6 @@ fabric.properties
 packages/app/android/app/google-services.json
 
 node_modules
+# moon
+.moon/cache
+.moon/docker
