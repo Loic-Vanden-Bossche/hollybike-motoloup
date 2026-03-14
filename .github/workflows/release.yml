@@ -116,6 +116,15 @@ jobs:
           path: RELEASE_NOTES.md
           retention-days: 1
 
+      - name: Request run cancellation
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
+            -f ref="${{ github.event.repository.default_branch }}" \
+            -f inputs[run_id]="${{ github.run_id }}"
+
 
   deploy-app:
     name: 3) Deploy Android
@@ -162,6 +171,15 @@ jobs:
           track: internal
           status: draft
           changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
+
+      - name: Request run cancellation
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
+            -f ref="${{ github.event.repository.default_branch }}" \
+            -f inputs[run_id]="${{ github.run_id }}"
 
 
   update-image-descriptions:
@@ -210,6 +228,15 @@ jobs:
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${FRONTEND_IMAGE}:latest" RELEASE_NOTES.md
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:latest" RELEASE_NOTES.md
+
+      - name: Request run cancellation
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
+            -f ref="${{ github.event.repository.default_branch }}" \
+            -f inputs[run_id]="${{ github.run_id }}"
 
 
   create-release:

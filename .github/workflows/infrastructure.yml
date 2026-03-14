@@ -214,6 +214,15 @@ jobs:
           TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.backend }}:${{ steps.backend-image-version.outputs.tag }}
         run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:deploy
 
+      - name: Request run cancellation
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
+            -f ref="${{ github.event.repository.default_branch }}" \
+            -f inputs[run_id]="${{ github.run_id }}"
+
 
 
 
