@@ -5,26 +5,46 @@ VERSION="${1:?Version is required}"
 OUTPUT_FILE="${2:-RELEASE_NOTES.md}"
 OPENAI_MODEL="${OPENAI_MODEL:-gpt-4o-mini}"
 
-previous_tag="$(git tag --sort=-v:refname | grep -v "^${VERSION}$" | head -n 1 || true)"
-if [ -n "$previous_tag" ]; then
-  commit_log="$(git log --no-merges --pretty=format:'- %s (%h)' "${previous_tag}..HEAD")"
-  range_label="${previous_tag}..HEAD"
+# Choose the latest release tag reachable from HEAD, excluding current version.
+previous_tag="$({
+  git tag --merged HEAD --sort=-v:refname \
+    | grep -E '^v?[0-9]' \
+    | grep -vx "${VERSION}" \
+    | head -n 1;
+} || true)"
+
+if [ -n "${previous_tag}" ]; then
+  range="${previous_tag}..HEAD"
+  range_label="${range}"
+  commit_count="$(git rev-list --count "${range}" || echo 0)"
+  commit_log="$(git log --no-merges --pretty=format:'- %s (%h)' "${range}")"
+  changed_files="$(git diff --name-only "${range}" | sed 's/^/- /' | head -n 300)"
 else
-  commit_log="$(git log --no-merges --pretty=format:'- %s (%h)' -n 200)"
   range_label="last 200 commits"
+  commit_count="$(git rev-list --count HEAD~200..HEAD 2>/dev/null || git rev-list --count HEAD || echo 0)"
+  commit_log="$(git log --no-merges --pretty=format:'- %s (%h)' -n 200)"
+  changed_files="$(git diff --name-only HEAD~200..HEAD 2>/dev/null | sed 's/^/- /' | head -n 300 || true)"
 fi
 
-if [ -z "$commit_log" ]; then
+if [ -z "${commit_log}" ]; then
   commit_log="- Internal changes and maintenance updates."
+fi
+
+if [ -z "${changed_files}" ]; then
+  changed_files="- (No file list available)"
 fi
 
 prompt_file="$(mktemp)"
 cat > "$prompt_file" <<EOF
 You are generating release notes for version ${VERSION}.
 Use this commit range: ${range_label}
+Commit count: ${commit_count}
 
 Commits:
 ${commit_log}
+
+Changed files:
+${changed_files}
 
 Requirements:
 - Output in Markdown.
@@ -37,7 +57,8 @@ Requirements:
   3) 🛠️ Technical Improvements
   4) ⚠️ Upgrade Notes
 - Use bullet points.
-- If a section has no clear items, write "- No notable changes."
+- If commit count is greater than 0, include concrete bullets sourced from commits/files.
+- Only write "- No notable changes." for a section when truly empty.
 EOF
 
 if [ -n "${OPENAI_API_KEY:-}" ]; then
@@ -82,7 +103,7 @@ PY
 else
   {
     echo "## ✨ Highlights"
-    echo "- 🤖 OpenAI key not configured; using commit summary fallback."
+    echo "- OpenAI key not configured; using commit summary fallback."
     echo
     echo "## 🚀 User-Facing Changes"
     echo "- Review commit list below."

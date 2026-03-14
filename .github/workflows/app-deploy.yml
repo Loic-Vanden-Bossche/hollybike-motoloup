@@ -56,11 +56,14 @@ jobs:
         run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > "${{ env.SERVICE_ACCOUNT_PATH }}"
 
       - name: Write Play Store release notes
-        if: inputs.release-notes != ''
+        if: inputs['release-notes'] != ''
         run: |
-          mkdir -p whatsnew/en-US
+          mkdir -p whatsnew/fr-FR whatsnew/en-US
+          cat > whatsnew/fr-FR/default.txt <<'EOF'
+          ${{ inputs['release-notes'] }}
+          EOF
           cat > whatsnew/en-US/default.txt <<'EOF'
-          ${{ inputs.release-notes }}
+          ${{ inputs['release-notes'] }}
           EOF
 
       - name: Deploy to Play Store (internal testing)
