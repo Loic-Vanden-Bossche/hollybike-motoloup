@@ -11,6 +11,11 @@ on:
         description: "Whether to build on-premises executables"
         required: true
         type: boolean
+      deploy-infra:
+        description: "Whether to deploy infrastructure"
+        required: false
+        type: boolean
+        default: true
     secrets:
       SCW_ACCESS_KEY_ID:
         description: "Scaleway access key ID"
@@ -71,6 +76,7 @@ jobs:
 
   deploy-k8s-infrastructure:
     name: Infra
+    if: inputs.deploy-infra
     needs:
       - build-backend
       - build-frontend

@@ -42,6 +42,7 @@ jobs:
     with:
       version: ${{ inputs.version }}
       create-executables: ${{ inputs.create-executables }}
+      deploy-infra: false
     secrets:
       SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
       SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
@@ -181,12 +182,35 @@ jobs:
             -f ref="${{ github.event.repository.default_branch }}" \
             -f inputs[run_id]="${{ github.run_id }}"
 
-
-  update-image-descriptions:
-    name: 3) Update Image Descriptions
-    runs-on: ubuntu-latest
+  deploy-infrastructure:
+    name: 3) Deploy Terraform
+    permissions:
+      actions: write
+      contents: read
+      packages: read
+      pull-requests: write
     needs:
       - build-frontend-backend
+    uses: ./.github/workflows/infrastructure.yml
+    secrets:
+      SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
+      SCW_SECRET_KEY: ${{ secrets.SCW_SECRET_KEY }}
+      MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
+      MINIO_USERNAME: ${{ secrets.MINIO_USERNAME }}
+      MINIO_PASSWORD: ${{ secrets.MINIO_PASSWORD }}
+      DATABASE_USERNAME: ${{ secrets.DATABASE_USERNAME }}
+      DATABASE_PASSWORD: ${{ secrets.DATABASE_PASSWORD }}
+      BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
+      FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
+      KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
+
+
+  update-image-descriptions:
+    name: 4) Update Image Descriptions
+    runs-on: ubuntu-latest
+    needs:
+      - deploy-app
+      - deploy-infrastructure
       - generate-changelog
     permissions:
       actions: write
@@ -240,13 +264,14 @@ jobs:
 
 
   create-release:
-    name: 4) Create GitHub Release
+    name: 5) Create GitHub Release
     runs-on: ubuntu-latest
     needs:
       - build-app
       - build-frontend-backend
       - generate-changelog
       - deploy-app
+      - deploy-infrastructure
       - update-image-descriptions
     permissions:
       contents: write
