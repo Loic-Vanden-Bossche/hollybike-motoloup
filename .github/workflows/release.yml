@@ -31,17 +31,25 @@ env:
   CI: true
 
 jobs:
-  build-frontend-backend:
-    name: 1) Core Stack
+  build-backend:
+    name: 1) API Build
     permissions:
       actions: write
       contents: read
       packages: write
-      pull-requests: write
-    uses: ./.github/workflows/backend-frontend-build.yml
+    uses: ./.github/workflows/build-backend.yml
     with:
       version: ${{ inputs.version }}
-      create-executables: false
+
+  build-frontend:
+    name: 1) Web Build
+    permissions:
+      actions: write
+      contents: read
+      packages: write
+    uses: ./.github/workflows/build-frontend.yml
+    with:
+      version: ${{ inputs.version }}
     secrets:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
@@ -49,7 +57,7 @@ jobs:
     name: 1) API On-Prem Build
     if: inputs.create-executables
     needs:
-      - build-frontend-backend
+      - build-frontend
     permissions:
       actions: write
       contents: read
@@ -80,8 +88,9 @@ jobs:
       actions: write
       contents: read
     needs:
+      - build-backend
+      - build-frontend
       - build-app
-      - build-frontend-backend
     outputs:
       notes: ${{ steps.changelog-output.outputs.notes }}
     env:
@@ -95,7 +104,6 @@ jobs:
           fetch-depth: 0
 
       - name: Generate release notes with OpenAI
-        id: changelog
         run: |
           chmod +x .github/scripts/generate-release-notes.sh
           ./.github/scripts/generate-release-notes.sh "${VERSION}" "RELEASE_NOTES.md"
@@ -125,61 +133,21 @@ jobs:
             -f ref="${{ github.event.repository.default_branch }}" \
             -f inputs[run_id]="${{ github.run_id }}"
 
-
   deploy-app:
     name: 3) Deploy Android
-    runs-on: ubuntu-latest
-    needs:
-      - build-app
-      - generate-changelog
     permissions:
       actions: write
       contents: read
-    env:
-      AAB_PATH: packages/app/hollybike-Android-${{ inputs.version }}.aab
-      SERVICE_ACCOUNT_PATH: store_credentials.json
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Download AAB artifact
-        uses: actions/download-artifact@v7
-        with:
-          name: HollyBike-${{ inputs.version }}-Android-AAB
-          path: packages/app
-
-      - name: Decode service account file
-        run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > "${{ env.SERVICE_ACCOUNT_PATH }}"
-
-      - name: Write Play Store release notes
-        run: |
-          mkdir -p packages/app/whatsnew/en-US
-          cat > packages/app/whatsnew/en-US/default.txt <<'EOF'
-          ${{ needs.generate-changelog.outputs.notes }}
-          EOF
-
-      - name: Deploy to Play Store (internal testing)
-        uses: r0adkll/upload-google-play@v1
-        with:
-          serviceAccountJson: ${{ env.SERVICE_ACCOUNT_PATH }}
-          packageName: com.hollybike.hollybike
-          releaseFiles: ${{ env.AAB_PATH }}
-          whatsNewDirectory: packages/app/whatsnew
-          track: internal
-          status: draft
-          changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
-
-      - name: Request run cancellation
-        if: failure()
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
-            -f ref="${{ github.event.repository.default_branch }}" \
-            -f inputs[run_id]="${{ github.run_id }}"
+    needs:
+      - build-app
+      - generate-changelog
+    uses: ./.github/workflows/app-deploy.yml
+    with:
+      version: ${{ inputs.version }}
+      play_changes_not_sent_for_review: ${{ inputs.play_changes_not_sent_for_review }}
+      release-notes: ${{ needs.generate-changelog.outputs.notes }}
+    secrets:
+      PRODUCTION_CREDENTIAL_FILE: ${{ secrets.PRODUCTION_CREDENTIAL_FILE }}
 
   deploy-infrastructure:
     name: 3) Deploy Terraform
@@ -189,7 +157,8 @@ jobs:
       packages: read
       pull-requests: write
     needs:
-      - build-frontend-backend
+      - build-backend
+      - build-frontend
     uses: ./.github/workflows/infrastructure.yml
     secrets:
       SCW_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
@@ -202,7 +171,6 @@ jobs:
       BACKEND_SECUTIRY_SECRET: ${{ secrets.BACKEND_SECUTIRY_SECRET }}
       FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
-
 
   update-image-descriptions:
     name: 4) Update Image Descriptions
@@ -260,52 +228,23 @@ jobs:
             -f ref="${{ github.event.repository.default_branch }}" \
             -f inputs[run_id]="${{ github.run_id }}"
 
-
   create-release:
     name: 5) Create GitHub Release
-    if: ${{ !inputs.create-executables }}
+    if: >
+      always() &&
+      needs.build-backend.result == 'success' &&
+      needs.build-frontend.result == 'success' &&
+      needs.build-app.result == 'success' &&
+      needs.generate-changelog.result == 'success' &&
+      needs.deploy-app.result == 'success' &&
+      needs.deploy-infrastructure.result == 'success' &&
+      needs.update-image-descriptions.result == 'success' &&
+      (needs.build-backend-on-premises.result == 'success' || needs.build-backend-on-premises.result == 'skipped')
     runs-on: ubuntu-latest
     needs:
+      - build-backend
+      - build-frontend
       - build-app
-      - build-frontend-backend
-      - generate-changelog
-      - deploy-app
-      - deploy-infrastructure
-      - update-image-descriptions
-    permissions:
-      contents: write
-    env:
-      VERSION: ${{ inputs.version }}
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v6
-        with:
-          fetch-depth: 0
-
-      - name: Write release notes file
-        run: |
-          cat > RELEASE_NOTES.md <<'EOF'
-          ${{ needs.generate-changelog.outputs.notes }}
-          EOF
-
-      - name: Create release
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          title="${GITHUB_REPOSITORY#*/}-${VERSION#v}"
-          gh release create "$VERSION" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "$title" \
-            --notes-file RELEASE_NOTES.md
-
-  create-release-with-executables:
-    name: 5) Create GitHub Release
-    if: ${{ inputs.create-executables }}
-    runs-on: ubuntu-latest
-    needs:
-      - build-app
-      - build-frontend-backend
       - build-backend-on-premises
       - generate-changelog
       - deploy-app
@@ -323,6 +262,7 @@ jobs:
           fetch-depth: 0
 
       - name: Download release artifacts
+        if: inputs.create-executables
         uses: actions/download-artifact@v7
         with:
           pattern: HollyBike-${{ env.VERSION }}-*
@@ -339,12 +279,19 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
-          title="${GITHUB_REPOSITORY#*/}-${VERSION#v} (production only)"
-          gh release create "$VERSION" \
-            --repo "$GITHUB_REPOSITORY" \
-            --title "$title" \
-            --notes-file RELEASE_NOTES.md \
-            "hollybike-Android-${VERSION}.apk" \
-            "hollybike-Windows-${VERSION}-x86_64.exe" \
-            "hollybike-Linux-${VERSION}-x86_64"
-
+          title="${GITHUB_REPOSITORY#*/}-${VERSION#v}"
+          if [[ "${{ inputs.create-executables }}" == "true" ]]; then
+            title="$title (production only)"
+            gh release create "$VERSION" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$title" \
+              --notes-file RELEASE_NOTES.md \
+              "hollybike-Android-${VERSION}.apk" \
+              "hollybike-Windows-${VERSION}-x86_64.exe" \
+              "hollybike-Linux-${VERSION}-x86_64"
+          else
+            gh release create "$VERSION" \
+              --repo "$GITHUB_REPOSITORY" \
+              --title "$title" \
+              --notes-file RELEASE_NOTES.md
+          fi
