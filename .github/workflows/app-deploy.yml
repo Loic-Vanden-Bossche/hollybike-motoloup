@@ -21,14 +21,61 @@ on:
       PRODUCTION_CREDENTIAL_FILE:
         description: "Google Play service account JSON (base64)"
         required: true
+      OPENAI_API_KEY:
+        description: "OpenAI API key for app release notes generation"
+        required: false
 
 env:
   CI: true
 
 jobs:
+  generate-app-release-notes:
+    name: Generate App Release Notes
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    outputs:
+      app_notes: ${{ steps.notes-output.outputs.app_notes }}
+    env:
+      VERSION: ${{ inputs.version }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-4o-mini
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Generate app release notes
+        run: |
+          chmod +x .github/scripts/generate-release-notes.sh
+          ./.github/scripts/generate-release-notes.sh "${VERSION}" "APP_RELEASE_NOTES.txt" "app"
+
+      - name: Export app notes output
+        id: notes-output
+        run: |
+          {
+            echo "app_notes<<EOF"
+            cat APP_RELEASE_NOTES.txt
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Request run cancellation
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
+            -f ref="${{ github.event.repository.default_branch }}" \
+            -f inputs[run_id]="${{ github.run_id }}"
+
   deploy:
     name: Play Store Deploy
     runs-on: ubuntu-latest
+    needs:
+      - generate-app-release-notes
     permissions:
       actions: write
       contents: read
@@ -56,15 +103,38 @@ jobs:
         run: echo "${{ secrets.PRODUCTION_CREDENTIAL_FILE }}" | base64 --decode > "${{ env.SERVICE_ACCOUNT_PATH }}"
 
       - name: Write Play Store release notes
-        if: inputs['release-notes'] != ''
+        env:
+          GENERATED_APP_NOTES: ${{ needs.generate-app-release-notes.outputs.app_notes }}
+          INPUT_RELEASE_NOTES: ${{ inputs['release-notes'] }}
         run: |
-          mkdir -p whatsnew/fr-FR whatsnew/en-US
-          cat > whatsnew/fr-FR/default.txt <<'EOF'
-          ${{ inputs['release-notes'] }}
-          EOF
-          cat > whatsnew/en-US/default.txt <<'EOF'
-          ${{ inputs['release-notes'] }}
-          EOF
+          mkdir -p distribution/whatsnew
+
+          notes=""
+
+          if [ -n "${GENERATED_APP_NOTES}" ]; then
+            notes="${GENERATED_APP_NOTES}"
+          elif [ -n "${INPUT_RELEASE_NOTES}" ]; then
+            notes="${INPUT_RELEASE_NOTES}"
+          else
+            notes="Improvements and fixes."
+          fi
+
+          # Convert markdown-like content to a Play Store "What's new" plain text.
+          sanitized="$(
+            printf '%s\n' "$notes" \
+              | sed -E 's/^#{1,6}[[:space:]]*//; s/^-[[:space:]]*//; s/^\*[[:space:]]*//' \
+              | sed '/^[[:space:]]*$/d' \
+              | paste -sd ' ' - \
+              | sed -E 's/[[:space:]]+/ /g; s/^[[:space:]]+//; s/[[:space:]]+$//'
+          )"
+
+          if [ -z "$sanitized" ]; then
+            sanitized="Improvements and fixes."
+          fi
+
+          # Play listing "What's new" should remain short; keep it safe.
+          printf '%s' "$sanitized" | cut -c1-500 > distribution/whatsnew/whatsnew-fr-FR
+          printf '%s' "$sanitized" | cut -c1-500 > distribution/whatsnew/whatsnew-en-US
 
       - name: Deploy to Play Store (internal testing)
         uses: r0adkll/upload-google-play@v1
@@ -72,7 +142,7 @@ jobs:
           serviceAccountJson: packages/app/${{ env.SERVICE_ACCOUNT_PATH }}
           packageName: com.hollybike.hollybike
           releaseFiles: ${{ env.AAB_PATH }}
-          whatsNewDirectory: packages/app/whatsnew
+          whatsNewDirectory: packages/app/distribution/whatsnew
           track: internal
           status: draft
           changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}

@@ -31,14 +31,14 @@ env:
   CI: true
 
 jobs:
-  generate-changelog:
-    name: 1) Generate Changelog
+  generate-image-changelog:
+    name: 1) Generate Image Changelog
     runs-on: ubuntu-latest
     permissions:
       actions: write
       contents: read
     outputs:
-      notes: ${{ steps.changelog-output.outputs.notes }}
+      image_notes: ${{ steps.changelog-output.outputs.image_notes }}
     env:
       VERSION: ${{ inputs.version }}
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
@@ -52,23 +52,16 @@ jobs:
       - name: Generate release notes with OpenAI
         run: |
           chmod +x .github/scripts/generate-release-notes.sh
-          ./.github/scripts/generate-release-notes.sh "${VERSION}" "RELEASE_NOTES.md"
+          ./.github/scripts/generate-release-notes.sh "${VERSION}" "IMAGE_RELEASE_NOTES.txt" "image"
 
       - name: Export changelog output
         id: changelog-output
         run: |
           {
-            echo "notes<<EOF"
-            cat RELEASE_NOTES.md
+            echo "image_notes<<EOF"
+            cat IMAGE_RELEASE_NOTES.txt
             echo "EOF"
           } >> "$GITHUB_OUTPUT"
-
-      - name: Upload generated release notes artifact
-        uses: actions/upload-artifact@v7
-        with:
-          name: HollyBike-${{ inputs.version }}-ReleaseNotes
-          path: RELEASE_NOTES.md
-          retention-days: 1
 
       - name: Request run cancellation
         if: failure()
@@ -82,7 +75,7 @@ jobs:
   build-backend:
     name: 2) API Build
     needs:
-      - generate-changelog
+      - generate-image-changelog
     permissions:
       actions: write
       contents: read
@@ -90,12 +83,12 @@ jobs:
     uses: ./.github/workflows/build-backend.yml
     with:
       version: ${{ inputs.version }}
-      image_description: ${{ needs.generate-changelog.outputs.notes }}
+      image_description: ${{ needs.generate-image-changelog.outputs.image_notes }}
 
   build-frontend:
     name: 2) Web Build
     needs:
-      - generate-changelog
+      - generate-image-changelog
     permissions:
       actions: write
       contents: read
@@ -103,7 +96,7 @@ jobs:
     uses: ./.github/workflows/build-frontend.yml
     with:
       version: ${{ inputs.version }}
-      image_description: ${{ needs.generate-changelog.outputs.notes }}
+      image_description: ${{ needs.generate-image-changelog.outputs.image_notes }}
     secrets:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
@@ -121,8 +114,6 @@ jobs:
 
   build-app:
     name: 2) Android Build
-    needs:
-      - generate-changelog
     permissions:
       actions: write
       contents: read
@@ -144,14 +135,13 @@ jobs:
       contents: read
     needs:
       - build-app
-      - generate-changelog
     uses: ./.github/workflows/app-deploy.yml
     with:
       version: ${{ inputs.version }}
       play_changes_not_sent_for_review: ${{ inputs.play_changes_not_sent_for_review }}
-      release-notes: ${{ needs.generate-changelog.outputs.notes }}
     secrets:
       PRODUCTION_CREDENTIAL_FILE: ${{ secrets.PRODUCTION_CREDENTIAL_FILE }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
 
   deploy-infrastructure:
     name: 3) Deploy Terraform
@@ -176,11 +166,63 @@ jobs:
       FIREBASE_ADMIN_CREDENTIALS_JSON: ${{ secrets.FIREBASE_ADMIN_CREDENTIALS_JSON }}
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
+  generate-release-changelog:
+    name: 4) Generate Release Changelog
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    needs:
+      - deploy-app
+      - deploy-infrastructure
+    outputs:
+      notes: ${{ steps.changelog-output.outputs.notes }}
+    env:
+      VERSION: ${{ inputs.version }}
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      OPENAI_MODEL: gpt-4o-mini
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Generate release notes with OpenAI
+        run: |
+          chmod +x .github/scripts/generate-release-notes.sh
+          ./.github/scripts/generate-release-notes.sh "${VERSION}" "RELEASE_NOTES.md" "full"
+
+      - name: Export release changelog output
+        id: changelog-output
+        run: |
+          {
+            echo "notes<<EOF"
+            cat RELEASE_NOTES.md
+            echo "EOF"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Upload generated release notes artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: HollyBike-${{ inputs.version }}-ReleaseNotes
+          path: RELEASE_NOTES.md
+          retention-days: 1
+
+      - name: Request run cancellation
+        if: failure()
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh api -X POST "/repos/${{ github.repository }}/actions/workflows/cancel-on-job-failure.yml/dispatches" \
+            -f ref="${{ github.event.repository.default_branch }}" \
+            -f inputs[run_id]="${{ github.run_id }}"
+
   create-release:
-    name: 4) Create GitHub Release
+    name: 5) Create GitHub Release
     if: >
       always() &&
-      needs.generate-changelog.result == 'success' &&
+      needs.generate-image-changelog.result == 'success' &&
+      needs.generate-release-changelog.result == 'success' &&
       needs.build-backend.result == 'success' &&
       needs.build-frontend.result == 'success' &&
       needs.build-app.result == 'success' &&
@@ -189,7 +231,8 @@ jobs:
       (needs.build-backend-on-premises.result == 'success' || needs.build-backend-on-premises.result == 'skipped')
     runs-on: ubuntu-latest
     needs:
-      - generate-changelog
+      - generate-image-changelog
+      - generate-release-changelog
       - build-backend
       - build-frontend
       - build-backend-on-premises
@@ -218,7 +261,7 @@ jobs:
       - name: Write release notes file
         run: |
           cat > RELEASE_NOTES.md <<'EOF'
-          ${{ needs.generate-changelog.outputs.notes }}
+          ${{ needs.generate-release-changelog.outputs.notes }}
           EOF
 
       - name: Create release
