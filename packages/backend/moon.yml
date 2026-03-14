@@ -3,18 +3,18 @@ tasks:
     command: "./gradlew help --warning-mode all --no-daemon"
 
   build:
-    command: "./gradlew build -Pis_on_premise=true --no-daemon"
+    command: "./gradlew build --project-prop=is_on_premise=true --no-daemon"
 
   test:
-    command: "./gradlew test -Pis_on_premise=true --no-daemon"
+    command: "./gradlew test --project-prop=is_on_premise=true --no-daemon"
 
   package:
-    script: "./gradlew nativeCompile -Pimage_name=${IMAGE_NAME:-hollybike_server} --no-daemon"
+    script: "./gradlew nativeCompile --project-prop=image_name=${IMAGE_NAME:-hollybike_server} --no-daemon"
     deps:
       - "test"
 
   package-on-prem:
-    script: "./gradlew nativeCompile -Pimage_name=${IMAGE_NAME:-hollybike_server} -Pis_on_premise=true --no-daemon"
+    script: "./gradlew nativeCompile --project-prop=image_name=${IMAGE_NAME:-hollybike_server} --project-prop=is_on_premise=true --no-daemon"
     deps:
       - "test"
 
