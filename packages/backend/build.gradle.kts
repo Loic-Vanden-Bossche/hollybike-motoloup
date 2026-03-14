@@ -12,7 +12,7 @@ plugins {
 
 	id("io.ktor.plugin") version "3.4.0"
 	id("org.jetbrains.kotlin.plugin.serialization") version "2.3.10"
-	id("org.graalvm.buildtools.native") version "0.11.4"
+	id("org.graalvm.buildtools.native") version "0.11.5"
 	id("com.google.devtools.ksp") version "2.3.6"
 	id("org.liquibase.gradle") version "3.1.0"
 }
