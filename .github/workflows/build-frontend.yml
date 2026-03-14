@@ -96,7 +96,9 @@ jobs:
         if: inputs.externall_call
         env:
           VERSION: ${{ inputs.version }}
-        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run frontend:package
+        run: |
+          IMAGE_NAME="$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
+          bunx @moonrepo/cli@${{ env.MOON_VERSION }} run frontend:package
 
       - name: Upload frontend artifact
         if: inputs.externall_call

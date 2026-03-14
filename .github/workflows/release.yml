@@ -56,6 +56,8 @@ jobs:
 
   build-app:
     name: Android App
+    needs:
+      - build-frontend-backend
     uses: ./.github/workflows/app.yml
     with:
       version: ${{ inputs.version }}
@@ -193,6 +195,8 @@ jobs:
 
       - name: Apply OCI description annotations
         run: |
+          FRONTEND_IMAGE="$(echo "${FRONTEND_IMAGE}" | tr '[:upper:]' '[:lower:]')"
+          BACKEND_IMAGE="$(echo "${BACKEND_IMAGE}" | tr '[:upper:]' '[:lower:]')"
           chmod +x .github/scripts/apply-image-description.sh
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${FRONTEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${FRONTEND_IMAGE}:latest" RELEASE_NOTES.md
@@ -208,7 +212,6 @@ jobs:
       - generate-changelog
       - deploy-app
       - update-image-descriptions
-    if: always() && needs.build-app.result == 'success' && needs.build-frontend-backend.result == 'success' && needs.generate-changelog.result == 'success' && needs.deploy-app.result == 'success' && needs.update-image-descriptions.result == 'success'
     permissions:
       contents: write
     env:

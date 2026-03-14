@@ -95,4 +95,6 @@ jobs:
         env:
           VERSION: ${{ inputs.version }}
           EXECUTABLE: hollybike_server
-        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:publish
+        run: |
+          IMAGE_NAME="$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
+          bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:publish

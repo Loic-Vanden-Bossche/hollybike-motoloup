@@ -55,6 +55,8 @@ jobs:
 
   build-frontend:
     name: Build Frontend
+    needs:
+      - build-backend
     uses: ./.github/workflows/build-frontend.yml
     with:
       version: ${{ inputs.version }}
@@ -87,6 +89,7 @@ jobs:
     name: Build Backend On-Premises
     if: inputs.create-executables
     needs:
+      - build-backend
       - build-frontend
     uses: ./.github/workflows/build-backend-on-premises.yml
     with:

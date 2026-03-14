@@ -131,6 +131,12 @@ jobs:
             bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:validate
           fi
 
+      - name: Normalize image names
+        id: image-names
+        run: |
+          echo "frontend=$(echo "${{ env.FRONTEND_IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "backend=$(echo "${{ env.BACKEND_IMAGE_NAME }}" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+
       - name: Get latest frontend image tag
         id: frontend-image-version
         working-directory: .github/scripts
@@ -138,7 +144,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           chmod +x get-latest-tag.sh
-          package_name="$(echo "${{ env.FRONTEND_IMAGE_NAME }}" | cut -d'/' -f2)"
+          package_name="$(echo "${{ steps.image-names.outputs.frontend }}" | cut -d'/' -f2)"
           echo "tag=$(./get-latest-tag.sh "$package_name")" >> "$GITHUB_OUTPUT"
 
       - name: Get latest backend image tag
@@ -148,7 +154,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           chmod +x get-latest-tag.sh
-          package_name="$(echo "${{ env.BACKEND_IMAGE_NAME }}" | cut -d'/' -f2)"
+          package_name="$(echo "${{ steps.image-names.outputs.backend }}" | cut -d'/' -f2)"
           echo "tag=$(./get-latest-tag.sh "$package_name")" >> "$GITHUB_OUTPUT"
 
       - name: Terraform plan
@@ -156,8 +162,8 @@ jobs:
         if: github.event_name == 'pull_request'
         continue-on-error: true
         env:
-          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.frontend-image-version.outputs.tag }}
-          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.backend-image-version.outputs.tag }}
+          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.frontend }}:${{ steps.frontend-image-version.outputs.tag }}
+          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.backend }}:${{ steps.backend-image-version.outputs.tag }}
         run: |
           set +e
           PLAN_OUTPUT=$(bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:plan 2>&1)
@@ -203,7 +209,7 @@ jobs:
       - name: Terraform apply
         if: inputs.externall_call || (github.ref == 'refs/heads/main' && github.event_name == 'push')
         env:
-          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ env.FRONTEND_IMAGE_NAME }}:${{ steps.frontend-image-version.outputs.tag }}
-          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ env.BACKEND_IMAGE_NAME }}:${{ steps.backend-image-version.outputs.tag }}
+          TF_VAR_frontend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.frontend }}:${{ steps.frontend-image-version.outputs.tag }}
+          TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.backend }}:${{ steps.backend-image-version.outputs.tag }}
         run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:deploy
 
