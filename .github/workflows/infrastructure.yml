@@ -1,4 +1,4 @@
-name: Infrastructure CI/CD
+name: Infrastructure
 
 on:
   workflow_call:
@@ -80,7 +80,7 @@ defaults:
 
 jobs:
   deploy:
-    name: Terraform Infrastructure
+    name: Terraform Deploy
     runs-on: self-hosted
     permissions:
       actions: write
@@ -214,9 +214,10 @@ jobs:
           TF_VAR_backend_image: ${{ env.REGISTRY }}/${{ steps.image-names.outputs.backend }}:${{ steps.backend-image-version.outputs.tag }}
         run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:deploy
 
-      - name: Cancel workflow run on failure
+      - name: Fail fast - cancel workflow run
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+
 

@@ -1,4 +1,4 @@
-name: Backend CI/CD
+name: Backend
 
 on:
   workflow_call:
@@ -32,7 +32,7 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: API Build & Publish
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -100,8 +100,9 @@ jobs:
           IMAGE_NAME="$(echo "${IMAGE_NAME}" | tr '[:upper:]' '[:lower:]')"
           bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:publish
 
-      - name: Cancel workflow run on failure
+      - name: Fail fast - cancel workflow run
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+

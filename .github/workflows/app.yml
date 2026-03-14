@@ -1,4 +1,4 @@
-name: App CI/CD
+name: Android App
 
 on:
   workflow_call:
@@ -67,7 +67,7 @@ env:
 
 jobs:
   build:
-    name: Build
+    name: Android Build
     runs-on: ubuntu-latest
     permissions:
       actions: write
@@ -193,14 +193,14 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      - name: Cancel workflow run on failure
+      - name: Fail fast - cancel workflow run
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
   deploy:
-    name: Deploy
+    name: Play Store Deploy
     if: inputs.externall_call && inputs.deploy-to-play
     needs: build
     runs-on: ubuntu-latest
@@ -249,9 +249,10 @@ jobs:
           status: draft
           changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
 
-      - name: Cancel workflow run on failure
+      - name: Fail fast - cancel workflow run
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+
 

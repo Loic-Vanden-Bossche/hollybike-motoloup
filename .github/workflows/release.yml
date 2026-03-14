@@ -1,4 +1,4 @@
-name: Release & Deploy
+name: Release Pipeline
 
 run-name: >
   Release v${{ inputs.version }}
@@ -30,15 +30,14 @@ concurrency:
 env:
   CI: true
 
-permissions:
-  actions: write
-  contents: write
-  packages: write
-  pull-requests: write
-
 jobs:
   build-frontend-backend:
-    name: Frontend + Backend
+    name: 1) Core Stack
+    permissions:
+      actions: write
+      contents: read
+      packages: write
+      pull-requests: write
     uses: ./.github/workflows/backend-frontend.yml
     with:
       version: ${{ inputs.version }}
@@ -56,7 +55,10 @@ jobs:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
   build-app:
-    name: Android App
+    name: 1) Android Build
+    permissions:
+      actions: write
+      contents: read
     uses: ./.github/workflows/app.yml
     with:
       version: ${{ inputs.version }}
@@ -72,8 +74,11 @@ jobs:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
   generate-changelog:
-    name: Generate Changelog
+    name: 2) Generate Changelog
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
     needs:
       - build-app
       - build-frontend-backend
@@ -111,14 +116,14 @@ jobs:
           path: RELEASE_NOTES.md
           retention-days: 1
 
-      - name: Cancel workflow run on failure
+      - name: Fail fast - cancel workflow run
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
   deploy-app:
-    name: Deploy Android App
+    name: 3) Deploy Android
     runs-on: ubuntu-latest
     needs:
       - build-app
@@ -163,14 +168,14 @@ jobs:
           status: draft
           changesNotSentForReview: ${{ inputs.play_changes_not_sent_for_review }}
 
-      - name: Cancel workflow run on failure
+      - name: Fail fast - cancel workflow run
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
   update-image-descriptions:
-    name: Update Docker Image Descriptions
+    name: 3) Update Image Descriptions
     runs-on: ubuntu-latest
     needs:
       - build-frontend-backend
@@ -216,14 +221,14 @@ jobs:
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:${VERSION}" RELEASE_NOTES.md
           ./.github/scripts/apply-image-description.sh "${REGISTRY}/${BACKEND_IMAGE}:latest" RELEASE_NOTES.md
 
-      - name: Cancel workflow run on failure
+      - name: Fail fast - cancel workflow run
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
 
   create-release:
-    name: Create GitHub Release
+    name: 4) Create GitHub Release
     runs-on: ubuntu-latest
     needs:
       - build-app
@@ -276,3 +281,4 @@ jobs:
               --title "$title" \
               --notes-file RELEASE_NOTES.md
           fi
+

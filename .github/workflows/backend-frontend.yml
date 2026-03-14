@@ -1,4 +1,4 @@
-name: Backend + Frontend CI/CD
+name: Core Stack
 
 on:
   workflow_call:
@@ -48,13 +48,21 @@ env:
 
 jobs:
   build-backend:
-    name: Build Backend
+    name: API
+    permissions:
+      actions: write
+      contents: read
+      packages: write
     uses: ./.github/workflows/build-backend.yml
     with:
       version: ${{ inputs.version }}
 
   build-frontend:
-    name: Build Frontend
+    name: Web
+    permissions:
+      actions: write
+      contents: read
+      packages: write
     uses: ./.github/workflows/build-frontend.yml
     with:
       version: ${{ inputs.version }}
@@ -62,11 +70,12 @@ jobs:
       MAPBOX_PUBLIC_ACCESS_TOKEN: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
 
   deploy-k8s-infrastructure:
-    name: Deploy Infrastructure
+    name: Infra
     needs:
       - build-backend
       - build-frontend
     permissions:
+      actions: write
       contents: read
       packages: read
       pull-requests: write
@@ -84,10 +93,13 @@ jobs:
       KUBE_CONFIG: ${{ secrets.KUBE_CONFIG }}
 
   build-backend-on-premises:
-    name: Build Backend On-Premises
+    name: API On-Prem
     if: inputs.create-executables
     needs:
       - build-frontend
+    permissions:
+      actions: write
+      contents: read
     uses: ./.github/workflows/build-backend-on-premises.yml
     with:
       version: ${{ inputs.version }}

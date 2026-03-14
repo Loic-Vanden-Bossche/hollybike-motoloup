@@ -1,4 +1,4 @@
-name: Build Backend On-Premises
+name: Backend On-Prem
 
 on:
   workflow_call:
@@ -13,7 +13,7 @@ env:
 
 jobs:
   build-backend-on-premises:
-    name: Build (${{ matrix.os }})
+    name: Native Build (${{ matrix.os }})
     runs-on: ${{ matrix.os }}
     permissions:
       actions: write
@@ -83,9 +83,10 @@ jobs:
           retention-days: 1
           if-no-files-found: error
 
-      - name: Cancel workflow run on failure
+      - name: Fail fast - cancel workflow run
         if: failure()
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: gh api -X POST "/repos/${{ github.repository }}/actions/runs/${{ github.run_id }}/cancel"
+
 
