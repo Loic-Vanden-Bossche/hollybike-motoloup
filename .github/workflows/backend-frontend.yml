@@ -76,7 +76,7 @@ jobs:
 
   deploy-k8s-infrastructure:
     name: Infra
-    if: inputs.deploy-infra
+    if: ${{ inputs['deploy-infra'] }}
     needs:
       - build-backend
       - build-frontend

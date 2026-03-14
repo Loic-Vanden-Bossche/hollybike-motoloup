@@ -205,7 +205,7 @@ jobs:
 
   deploy:
     name: Play Store Deploy
-    if: inputs.externall_call && inputs.deploy-to-play
+    if: ${{ inputs.externall_call && inputs['deploy-to-play'] }}
     needs: build
     runs-on: ubuntu-latest
     permissions:
