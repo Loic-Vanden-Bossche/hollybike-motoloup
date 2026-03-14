@@ -31,11 +31,45 @@ env:
   CI: true
 
 permissions:
+  actions: write
   contents: write
   packages: write
   pull-requests: write
 
 jobs:
+  cancel-on-failure:
+    name: Cancel On Failure
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+      contents: read
+    env:
+      GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      REPO: ${{ github.repository }}
+      RUN_ID: ${{ github.run_id }}
+    steps:
+      - name: Watch and cancel run on first failure
+        run: |
+          set -euo pipefail
+          while true; do
+            data="$(gh api "/repos/${REPO}/actions/runs/${RUN_ID}/jobs?per_page=100")"
+
+            failed="$(echo "$data" | jq '[.jobs[] | select(.name != "Cancel On Failure" and .conclusion == "failure")] | length')"
+            if [ "$failed" -gt 0 ]; then
+              echo "Detected failing job. Cancelling workflow run ${RUN_ID}."
+              gh api -X POST "/repos/${REPO}/actions/runs/${RUN_ID}/cancel"
+              exit 0
+            fi
+
+            active="$(echo "$data" | jq '[.jobs[] | select(.name != "Cancel On Failure" and .status != "completed")] | length')"
+            if [ "$active" -eq 0 ]; then
+              echo "All jobs completed without failure."
+              exit 0
+            fi
+
+            sleep 10
+          done
+
   build-frontend-backend:
     name: Frontend + Backend
     uses: ./.github/workflows/backend-frontend.yml
@@ -56,8 +90,6 @@ jobs:
 
   build-app:
     name: Android App
-    needs:
-      - build-frontend-backend
     uses: ./.github/workflows/app.yml
     with:
       version: ${{ inputs.version }}
