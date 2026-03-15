@@ -239,6 +239,7 @@ Push/history restrictions:
 Pull request workflow (explicit user request only):
 - If the user explicitly says "create a PR", use GitHub CLI (`gh`) to create the PR.
 - This explicit request is the only allowed exception to the no-push default: push the current branch only as needed to open the PR.
+- If the user does not specify a base branch, always create the PR against `main` (for example with `gh pr create --base main`).
 - Create a strong PR title: concise, imperative, and scoped to the main change.
 - Create a complete PR description with: summary, files changed, validation performed, and known risks/blockers.
 - Add relevant labels by listing available labels first (`gh label list`) and applying best matches for impacted area and change type (for example: `backend`, `frontend`, `app`, `infrastructure`, `docs`, `bug`, `enhancement`, `refactor`, `ci`).
