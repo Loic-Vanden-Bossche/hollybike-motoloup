@@ -236,6 +236,14 @@ Push/history restrictions:
 - Never run `git push` (including `--force`, tags, or creating remote branches).
 - Never rewrite history (`commit --amend`, rebase, reset, or force-update refs) unless explicitly requested.
 
+Pull request workflow (explicit user request only):
+- If the user explicitly says "create a PR", use GitHub CLI (`gh`) to create the PR.
+- This explicit request is the only allowed exception to the no-push default: push the current branch only as needed to open the PR.
+- Create a strong PR title: concise, imperative, and scoped to the main change.
+- Create a complete PR description with: summary, files changed, validation performed, and known risks/blockers.
+- Add relevant labels by listing available labels first (`gh label list`) and applying best matches for impacted area and change type (for example: `backend`, `frontend`, `app`, `infrastructure`, `docs`, `bug`, `enhancement`, `refactor`, `ci`).
+- If a desired label does not exist in the repository, skip it and continue without failing PR creation.
+
 ## 11) Response Format for Agent Outputs
 
 Keep responses concise and deterministic:
