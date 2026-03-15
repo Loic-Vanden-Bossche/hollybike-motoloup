@@ -84,6 +84,13 @@ Backend native-image generated/merged configs:
 ### Backend (`packages/backend`)
 Use for API/auth/db/websocket/mail/Liquibase/native-image concerns.
 
+Execution prerequisite:
+- Backend tasks require Java 21. If local `JAVA_HOME` is 17, override per command (do not change global config) before running backend Moon/Gradle tasks.
+- PowerShell helper pattern:
+  - `$jdk21 = Get-ChildItem "$env:USERPROFILE\\.jdks" -Directory | Where-Object { $_.Name -match '21' } | Sort-Object Name -Descending | Select-Object -First 1`
+  - `$env:JAVA_HOME = $jdk21.FullName; $env:PATH = "$env:JAVA_HOME\\bin;$env:PATH"`
+  - then run `bunx @moonrepo/cli run backend:<task>` or `./gradlew ...`
+
 Read first:
 - `packages/backend/build.gradle.kts`
 - `packages/backend/gradle.properties`
@@ -109,7 +116,7 @@ Read first:
 - `packages/frontend/package.json`
 - `packages/frontend/eslint.config.js`
 - `packages/frontend/src/config/backendBaseUrl.ts`
-- `design-system.md` (if UI/style changes)
+- `docs/design-system.md` (if UI/style changes)
 
 Preferred task entrypoints:
 - `bunx @moonrepo/cli run frontend:lint`
@@ -212,6 +219,10 @@ Keep local validation consistent with workflows in `.github/workflows/`, includi
 - `release.yml`
 - `backend-frontend*.yml`
 
+Execution mode reminder:
+- For PR-equivalent local checks, prefer `bunx @moonrepo/cli ci <project>:<task>` when feasible.
+- Use `bunx @moonrepo/cli run <project>:<task>` for non-PR/local ad-hoc execution.
+
 When uncertain, inspect the exact workflow job before changing commands or assumptions.
 
 ## 10) Git Execution Policy
@@ -243,6 +254,7 @@ Pull request workflow (explicit user request only):
 - Create a strong PR title: concise, imperative, and scoped to the main change.
 - Create a complete PR description with: summary, files changed, validation performed, and known risks/blockers.
 - Add relevant labels by listing available labels first (`gh label list`) and applying best matches for impacted area and change type (for example: `backend`, `frontend`, `app`, `infrastructure`, `docs`, `bug`, `enhancement`, `refactor`, `ci`).
+- If `gh pr edit --add-label` fails due GitHub GraphQL/project metadata issues, fallback to REST: `gh api repos/<owner>/<repo>/issues/<pr_number>/labels -X POST -f labels[]=<label>`.
 - If a desired label does not exist in the repository, skip it and continue without failing PR creation.
 
 ## 11) Response Format for Agent Outputs
