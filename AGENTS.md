@@ -168,22 +168,16 @@ Direct Terraform commands (fallback):
 
 Never run `terraform apply` unless explicitly requested.
 
-## 7) Installed External Skill (ClawHub)
+## 7) Optional Local Skills
 
-### `monorepo`
-
-Installed skill location:
-- `C:\Users\loic\.openclaw\workspace\skills\monorepo\SKILL.md`
-
-Use this skill as a strategy reference for:
+If local coding-agent skills are available in your environment, use them selectively for:
 - dependency/workspace hygiene,
 - task graph/caching improvements,
 - CI optimization,
 - package/versioning workflows.
 
-Important: this repo’s orchestrator is **Moonrepo**, not Turborepo/Nx.
-Apply `monorepo` principles, but keep implementation aligned with existing Moon + package-local tooling.
-
+Important: this repo's orchestrator is **Moonrepo**, not Turborepo/Nx.
+Apply general monorepo principles, but keep implementation aligned with existing Moon + package-local tooling.
 ## 8) Minimal Validation Matrix
 
 Run only what matches touched area:
