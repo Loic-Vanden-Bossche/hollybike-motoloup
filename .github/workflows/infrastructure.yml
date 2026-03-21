@@ -116,21 +116,11 @@ jobs:
 
       - name: Terraform format check
         id: fmt
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci infrastructure:lint
-          else
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:lint
-          fi
+        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:lint
 
       - name: Terraform validate
         id: validate
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci infrastructure:validate
-          else
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:validate
-          fi
+        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run infrastructure:validate
 
       - name: Normalize image names
         id: image-names

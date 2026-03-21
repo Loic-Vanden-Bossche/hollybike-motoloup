@@ -72,12 +72,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Run tests
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci backend:test
-          else
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:test
-          fi
+        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run backend:test
 
       - name: Build native executable
         if: inputs.externall_call
