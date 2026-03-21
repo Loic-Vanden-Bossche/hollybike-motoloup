@@ -120,7 +120,7 @@ dependencies {
 	implementation("org.apache.commons:commons-imaging:1.0.0-alpha6")
 
 	implementation("org.postgresql:postgresql:42.7.10")
-	implementation("org.liquibase:liquibase-core:5.0.1")
+	implementation("org.liquibase:liquibase-core:5.0.2")
 	implementation("software.amazon.awssdk:cloudfront:2.42.13") {
 		exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
 	}
@@ -132,7 +132,7 @@ dependencies {
 	implementation("io.grpc:grpc-okhttp:1.79.0")
 	ksp(project(":processor"))
 
-	liquibaseRuntime("org.liquibase:liquibase-core:5.0.1")
+	liquibaseRuntime("org.liquibase:liquibase-core:5.0.2")
 	liquibaseRuntime("info.picocli:picocli:4.7.7")
 	liquibaseRuntime("org.yaml:snakeyaml:2.5")
 	liquibaseRuntime("org.postgresql:postgresql:42.7.10")
@@ -410,7 +410,7 @@ graalvmNative {
 
 buildscript {
 	dependencies {
-		classpath("org.liquibase:liquibase-core:5.0.1")
+		classpath("org.liquibase:liquibase-core:5.0.2")
 	}
 }
 
