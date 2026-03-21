@@ -100,13 +100,7 @@ jobs:
           fi
 
       - name: Run tests
-        run: |
-          cd ../..
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci app:test
-          else
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:test
-          fi
+        run: cd ../.. && bunx @moonrepo/cli@${{ env.MOON_VERSION }} run app:test
 
       - name: Decode Android keystore
         if: github.event_name != 'pull_request'
