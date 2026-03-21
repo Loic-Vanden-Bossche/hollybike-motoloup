@@ -9,7 +9,8 @@ on:
         type: string
 
 env:
-  MOON_VERSION: "2.0.4"
+  MOON_VERSION: "2.1.1"
+  GRADLE_OPTS: "-Dkotlin.compiler.execution.strategy=in-process"
 
 jobs:
   build-backend-on-premises:
