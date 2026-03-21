@@ -12,6 +12,8 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:permission_handler/permission_handler.dart';
 
+import '../../shared/utils/one_shot_guard.dart';
+
 @RoutePage()
 class ImportGpxToolScreen extends StatefulWidget {
   final String url;
@@ -34,6 +36,7 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
 
   bool _popped = false;
   bool _allowSystemPop = true;
+  final OneShotGuard _gpxDownloadGuard = OneShotGuard();
 
   void _log(String msg) => debugPrint('[HollybikeWebView] $msg');
 
@@ -429,10 +432,31 @@ class _ImportGpxToolScreenState extends State<ImportGpxToolScreen> {
   }
 
   void _onGpxDownloaded(BuildContext context, File file) async {
+    if (!handleGpxDownloadOnce(
+      guard: _gpxDownloadGuard,
+      file: file,
+      onClose: _forceClose,
+      onGpxDownloaded: widget.onGpxDownloaded,
+    )) {
+      _log('Ignoring duplicate GPX callback');
+      return;
+    }
+
     _log('GPX ready -> popping and invoking callback');
-
-    _forceClose();
-
-    widget.onGpxDownloaded(file);
   }
+}
+
+bool handleGpxDownloadOnce({
+  required OneShotGuard guard,
+  required File file,
+  required void Function() onClose,
+  required void Function(File file) onGpxDownloaded,
+}) {
+  if (!guard.consume()) {
+    return false;
+  }
+
+  onClose();
+  onGpxDownloaded(file);
+  return true;
 }
