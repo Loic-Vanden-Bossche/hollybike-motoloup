@@ -33,7 +33,7 @@ env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}-backend
   JAVA_VERSION: "21"
-  MOON_VERSION: "2.0.4"
+  MOON_VERSION: "2.1.1"
   GRADLE_OPTS: "-Dkotlin.compiler.execution.strategy=in-process"
 
 jobs:

@@ -59,7 +59,7 @@ concurrency:
 env:
   CI: true
   TF_IN_AUTOMATION: true
-  MOON_VERSION: "2.0.4"
+  MOON_VERSION: "2.1.1"
   AWS_ACCESS_KEY_ID: ${{ secrets.SCW_ACCESS_KEY_ID }}
   AWS_SECRET_ACCESS_KEY: ${{ secrets.SCW_SECRET_KEY }}
   REGISTRY: ghcr.io
