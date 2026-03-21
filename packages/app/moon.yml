@@ -10,20 +10,30 @@ tasks:
 
   package-aab:
     script: |
+      build_name="${VERSION:-0.0.0}"
+      build_number="$(printf '%s' "$build_name" | tr -cd '0-9')"
+      if [ -z "$build_number" ]; then
+        build_number="1"
+      fi
       flutter build appbundle \
         --release \
-        --build-name="$VERSION" \
-        --build-number="$(echo "$VERSION" | tr -d .)" \
+        --build-name="$build_name" \
+        --build-number="$build_number" \
         --dart-define=PUBLIC_ACCESS_TOKEN="$MAPBOX_PUBLIC_ACCESS_TOKEN"
     deps:
       - "test"
 
   package-apk:
     script: |
+      build_name="${VERSION:-0.0.0}"
+      build_number="$(printf '%s' "$build_name" | tr -cd '0-9')"
+      if [ -z "$build_number" ]; then
+        build_number="1"
+      fi
       flutter build apk \
         --release \
-        --build-name="$VERSION" \
-        --build-number="$(echo "$VERSION" | tr -d .)" \
+        --build-name="$build_name" \
+        --build-number="$build_number" \
         --dart-define=PUBLIC_ACCESS_TOKEN="$MAPBOX_PUBLIC_ACCESS_TOKEN"
     deps:
       - "test"
