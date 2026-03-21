@@ -10,7 +10,7 @@ repositories {
 }
 
 dependencies {
-	implementation("com.google.devtools.ksp:symbol-processing-api:2.3.5")
+	implementation("com.google.devtools.ksp:symbol-processing-api:2.3.6")
 }
 
 tasks.test {
