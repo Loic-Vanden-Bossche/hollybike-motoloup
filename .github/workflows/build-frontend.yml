@@ -68,23 +68,13 @@ jobs:
         run: bun install --frozen-lockfile
 
       - name: Run linter
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci frontend:lint
-          else
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run frontend:lint
-          fi
+        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run frontend:lint
 
       - name: Build frontend
         env:
           VITE_MAPBOX_KEY: ${{ secrets.MAPBOX_PUBLIC_ACCESS_TOKEN }}
           VITE_BACKEND_BASE_URL: https://api.hollybike.chbrx.com/api
-        run: |
-          if [ "${{ github.event_name }}" = "pull_request" ]; then
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} ci frontend:build
-          else
-            bunx @moonrepo/cli@${{ env.MOON_VERSION }} run frontend:build
-          fi
+        run: bunx @moonrepo/cli@${{ env.MOON_VERSION }} run frontend:build
 
       - name: Set up Docker Buildx
         if: inputs.externall_call
