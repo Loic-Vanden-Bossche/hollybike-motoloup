@@ -139,7 +139,7 @@ dependencies {
 
 	testImplementation("io.ktor:ktor-server-tests-jvm:2.3.13")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
-	testImplementation("io.ktor:ktor-server-test-host-jvm:3.4.0")
+	testImplementation("io.ktor:ktor-server-test-host-jvm:3.4.1")
 	testImplementation("org.testcontainers:junit-jupiter:1.21.4")
 	testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
 	testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
