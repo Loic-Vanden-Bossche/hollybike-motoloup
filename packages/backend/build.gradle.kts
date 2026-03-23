@@ -134,7 +134,7 @@ dependencies {
 
 	liquibaseRuntime("org.liquibase:liquibase-core:5.0.2")
 	liquibaseRuntime("info.picocli:picocli:4.7.7")
-	liquibaseRuntime("org.yaml:snakeyaml:2.5")
+	liquibaseRuntime("org.yaml:snakeyaml:2.6")
 	liquibaseRuntime("org.postgresql:postgresql:42.7.10")
 
 	testImplementation("io.ktor:ktor-server-tests-jvm:2.3.13")
