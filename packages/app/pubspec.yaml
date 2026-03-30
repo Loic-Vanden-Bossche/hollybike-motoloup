@@ -39,7 +39,7 @@ dependencies:
   bloc: ^9.0.0
   flutter_bloc: ^9.1.0
   auto_route: ^11.1.0
-  shared_preferences: ^2.5.3
+  shared_preferences: ^2.5.5
   flutter_secure_storage: ^10.0.0
   json_annotation: ^4.9.0
   freezed_annotation: ^3.0.0
