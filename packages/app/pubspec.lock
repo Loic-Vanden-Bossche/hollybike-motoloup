@@ -1081,10 +1081,10 @@ packages:
     dependency: "direct main"
     description:
       name: mapbox_maps_flutter
-      sha256: "74eee8ec50a5bdca33e7dec67a05f39be1e4598cf5555ca909c169ca54510427"
+      sha256: be0a69dac143ed4cfa98524c2260ae2d938da157cbd485f9b8c4703b20440ae4
       url: "https://pub.dev"
     source: hosted
-    version: "2.20.0"
+    version: "2.20.1"
   matcher:
     dependency: transitive
     description:
