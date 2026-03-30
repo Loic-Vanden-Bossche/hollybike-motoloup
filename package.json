@@ -1,7 +1,7 @@
 {
   "dependencies": {},
   "devDependencies": {
-    "@moonrepo/cli": "2.1.1",
+    "@moonrepo/cli": "2.1.3",
     "@commitlint/cli": "^20.5.0",
     "@commitlint/config-conventional": "^20.5.0",
     "husky": "^9.1.7",
