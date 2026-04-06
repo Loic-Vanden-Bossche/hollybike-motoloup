@@ -10,7 +10,7 @@ plugins {
 	kotlin("jvm") version "2.3.20"
 	id("com.github.ben-manes.versions") version "0.53.0"
 
-	id("io.ktor.plugin") version "3.4.1"
+	id("io.ktor.plugin") version "3.4.2"
 	id("org.jetbrains.kotlin.plugin.serialization") version "2.3.20"
 	id("org.graalvm.buildtools.native") version "1.0.0"
 	id("com.google.devtools.ksp") version "2.3.6"
@@ -139,7 +139,7 @@ dependencies {
 
 	testImplementation("io.ktor:ktor-server-tests-jvm:2.3.13")
 	testImplementation("org.jetbrains.kotlin:kotlin-test-junit:$kotlinVersion")
-	testImplementation("io.ktor:ktor-server-test-host-jvm:3.4.1")
+	testImplementation("io.ktor:ktor-server-test-host-jvm:3.4.2")
 	testImplementation("org.testcontainers:junit-jupiter:1.21.4")
 	testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
 	testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
