@@ -8,7 +8,7 @@ import 'package:hollybike/ui/widgets/modal/glass_confirmation_dialog.dart';
 import '../../event/types/event.dart';
 
 Future<PlatformFile?> getJourneyFile(BuildContext context, Event event) async {
-  final FilePickerResult? result = await FilePicker.platform.pickFiles(
+  final FilePickerResult? result = await FilePicker.pickFiles(
     type: FileType.any,
   );
 
