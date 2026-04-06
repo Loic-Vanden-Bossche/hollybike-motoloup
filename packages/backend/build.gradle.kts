@@ -144,8 +144,8 @@ dependencies {
 	testImplementation("org.junit.jupiter:junit-jupiter-api:6.0.3")
 	testImplementation("io.ktor:ktor-client-content-negotiation:$ktorVersion")
 	testImplementation("org.testcontainers:postgresql:1.21.4")
-	testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.9")
-	testImplementation("io.kotest:kotest-assertions-core:6.1.9")
+	testImplementation("io.kotest:kotest-runner-junit5-jvm:6.1.11")
+	testImplementation("io.kotest:kotest-assertions-core:6.1.11")
 }
 
 liquibase {
