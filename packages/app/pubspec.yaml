@@ -45,7 +45,7 @@ dependencies:
   freezed_annotation: ^3.0.0
   dio: ^5.8.0+1
   rxdart: ^0.28.0
-  lottie: ^3.3.1
+  lottie: ^3.3.3
   simple_animations: ^5.1.0
   cached_network_image: ^3.4.1
   mapbox_maps_flutter: ^2.21.1
