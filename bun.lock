@@ -6,7 +6,7 @@
       "devDependencies": {
         "@commitlint/cli": "^20.5.0",
         "@commitlint/config-conventional": "^20.5.0",
-        "@moonrepo/cli": "2.1.4",
+        "@moonrepo/cli": "2.2.0",
         "husky": "^9.1.7",
         "lint-staged": "^16.4.0",
       },
@@ -53,19 +53,21 @@
 
     "@conventional-changelog/git-client": ["@conventional-changelog/git-client@2.6.0", "", { "dependencies": { "@simple-libs/child-process-utils": "^1.0.0", "@simple-libs/stream-utils": "^1.2.0", "semver": "^7.5.2" }, "peerDependencies": { "conventional-commits-filter": "^5.0.0", "conventional-commits-parser": "^6.3.0" }, "optionalPeers": ["conventional-commits-filter", "conventional-commits-parser"] }, "sha512-T+uPDciKf0/ioNNDpMGc8FDsehJClZP0yR3Q5MN6wE/Y/1QZ7F+80OgznnTCOlMEG4AV0LvH2UJi3C/nBnaBUg=="],
 
-    "@moonrepo/cli": ["@moonrepo/cli@2.1.4", "", { "dependencies": { "detect-libc": "^2.1.2" }, "optionalDependencies": { "@moonrepo/core-linux-arm64-gnu": "2.1.4", "@moonrepo/core-linux-arm64-musl": "2.1.4", "@moonrepo/core-linux-x64-gnu": "2.1.4", "@moonrepo/core-linux-x64-musl": "2.1.4", "@moonrepo/core-macos-arm64": "2.1.4", "@moonrepo/core-windows-x64-msvc": "2.1.4" }, "bin": { "moon": "moon.js", "moonx": "moonx.js" } }, "sha512-u8PZQIT/k9h/EIQEjEcmtd4vQBr7KqnLaG+uFqhiZTIe++RTtgMlH8GYMoqLwg2VHGIxV0OURMGt9x8Qjm9/EQ=="],
+    "@moonrepo/cli": ["@moonrepo/cli@2.2.0", "", { "dependencies": { "detect-libc": "^2.1.2" }, "optionalDependencies": { "@moonrepo/core-linux-arm64-gnu": "2.2.0", "@moonrepo/core-linux-arm64-musl": "2.2.0", "@moonrepo/core-linux-x64-gnu": "2.2.0", "@moonrepo/core-linux-x64-musl": "2.2.0", "@moonrepo/core-macos-arm64": "2.2.0", "@moonrepo/core-macos-x64": "2.2.0", "@moonrepo/core-windows-x64-msvc": "2.2.0" }, "bin": { "moon": "moon.js", "moonx": "moonx.js" } }, "sha512-a7C0pGp9PV/3a6qsybKBFuUIRvdLJRMY3KCJLyOiZJovRiJ4IluwR2VunnRAYLgmdjQvFDMd14APNrVOLhfvsw=="],
 
-    "@moonrepo/core-linux-arm64-gnu": ["@moonrepo/core-linux-arm64-gnu@2.1.4", "", { "os": "linux", "cpu": "arm64" }, "sha512-pEp0GMHOT5hJrfL4q3zecvbUJ0xYWVqNzWFPFJWTZxbhTWYCbuOTGTPCpT21XY9URIJHUGKc+m8PXMc7DrRYow=="],
+    "@moonrepo/core-linux-arm64-gnu": ["@moonrepo/core-linux-arm64-gnu@2.2.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-W2pZlhfN19FF3jkRJfQSoiIwAG1643Ybc9XseWKWOspdeJx2DAuiJOfbIU4UxDnCkpObz6DYiQ9AAETXqA4DVQ=="],
 
-    "@moonrepo/core-linux-arm64-musl": ["@moonrepo/core-linux-arm64-musl@2.1.4", "", { "os": "linux", "cpu": "arm64" }, "sha512-U42RJD2io986lQQ+uUmWElAIMSWfuoyXpao2aHuMn/ACxOi5xPTozPWkoLb1v53w+irCbsD8WVovJ4wY+vB/VQ=="],
+    "@moonrepo/core-linux-arm64-musl": ["@moonrepo/core-linux-arm64-musl@2.2.0", "", { "os": "linux", "cpu": "arm64" }, "sha512-EkjsNbcEzOjSghnXalaGwggCeix1pkp16/Wmnrdb5IKF+HtM/QTHZZR4j4pPPHKL/gAku/E6YNUIL2yJ/5KC2A=="],
 
-    "@moonrepo/core-linux-x64-gnu": ["@moonrepo/core-linux-x64-gnu@2.1.4", "", { "os": "linux", "cpu": "x64" }, "sha512-NvcevuDLzMeGFAYqNVNHZJ5C2hx5GJerUW5Snwi+28/KcPpNq2z31W5c8EivUzsc1iopV6Oy85FEohNzci9sPw=="],
+    "@moonrepo/core-linux-x64-gnu": ["@moonrepo/core-linux-x64-gnu@2.2.0", "", { "os": "linux", "cpu": "x64" }, "sha512-WVjrahvM6+t6cc4Y7wQuvM4nSss8Tseg44BEcwjncP8uGsH9z1zKjdm9utwLZbILIDrTxZEVHAez3azs8rOnEg=="],
 
-    "@moonrepo/core-linux-x64-musl": ["@moonrepo/core-linux-x64-musl@2.1.4", "", { "os": "linux", "cpu": "x64" }, "sha512-f00vupGU1pUie/ycuj9v6iRL2cP318pS2dxBH4iI6M83xVw3BL2FxIoXklk5Ji3P7EJhIG48j7dKVID6VdrNVA=="],
+    "@moonrepo/core-linux-x64-musl": ["@moonrepo/core-linux-x64-musl@2.2.0", "", { "os": "linux", "cpu": "x64" }, "sha512-LUPSwSBiyp28S8qqCTd5VPI7EeC7puJJhTVGNnNX1dWWez1Ytjxtr/j9jWvodBwjWRxYFSd50vfTxF4IT+W1sA=="],
 
-    "@moonrepo/core-macos-arm64": ["@moonrepo/core-macos-arm64@2.1.4", "", { "os": "darwin", "cpu": "arm64" }, "sha512-4bdSgstioFiBKx26uu6U1G0n5Sk8JpkpxfVj3zsNITFfT3fdS5oBMU8Z18uYIf4v1l3poIQ7r0T2R1MdMOkJyw=="],
+    "@moonrepo/core-macos-arm64": ["@moonrepo/core-macos-arm64@2.2.0", "", { "os": "darwin", "cpu": "arm64" }, "sha512-d97j0Hf71vmu7k0aStTCCBA0mxWevYDEVtOZevfDghiI+svmzQOX6ajWRYtjYKNA9nR5HtNTdFWANNq0gJuuaA=="],
 
-    "@moonrepo/core-windows-x64-msvc": ["@moonrepo/core-windows-x64-msvc@2.1.4", "", { "os": "win32", "cpu": "x64" }, "sha512-KhkxZ1aJVeRsrOOrDlE6oB5gDny0ETOQdIoDFBFR6hDEGZ4OFHrRBScLjwK7RteQGCV1YKo47uIiIbmIN1wMvg=="],
+    "@moonrepo/core-macos-x64": ["@moonrepo/core-macos-x64@2.2.0", "", { "os": "darwin", "cpu": "x64" }, "sha512-vMLNf7amt6PKe9qOwZwWsUCjS72OzbK+zH1YHZtnkh+3xbHUgPpAlwLIvbrWg27VgLpBFn3HG86NRuiTGHe6qA=="],
+
+    "@moonrepo/core-windows-x64-msvc": ["@moonrepo/core-windows-x64-msvc@2.2.0", "", { "os": "win32", "cpu": "x64" }, "sha512-S8rJmhWYQDW+Xgkow2l+EbjrvF3KgHx5BsP7nUKeu7jIzuRgI3CCZV7G/dwx5gnI6IhBz2V9JXtEb/X//BimrQ=="],
 
     "@simple-libs/child-process-utils": ["@simple-libs/child-process-utils@1.0.2", "", { "dependencies": { "@simple-libs/stream-utils": "^1.2.0" } }, "sha512-/4R8QKnd/8agJynkNdJmNw2MBxuFTRcNFnE5Sg/G+jkSsV8/UBgULMzhizWWW42p8L5H7flImV2ATi79Ove2Tw=="],
 
