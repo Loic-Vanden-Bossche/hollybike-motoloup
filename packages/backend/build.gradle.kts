@@ -121,10 +121,10 @@ dependencies {
 
 	implementation("org.postgresql:postgresql:42.7.10")
 	implementation("org.liquibase:liquibase-core:5.0.2")
-	implementation("software.amazon.awssdk:cloudfront:2.42.36") {
+	implementation("software.amazon.awssdk:cloudfront:2.42.41") {
 		exclude(group = "software.amazon.awssdk", module = "netty-nio-client")
 	}
-	implementation("software.amazon.awssdk:url-connection-client:2.42.36")
+	implementation("software.amazon.awssdk:url-connection-client:2.42.41")
 	implementation("org.simplejavamail:simple-java-mail:8.12.6")
 	implementation("com.google.firebase:firebase-admin:9.8.0") {
 		exclude(group = "io.grpc", module = "grpc-netty-shaded")
