@@ -16,7 +16,7 @@
     "clsx": "^2.1.1",
     "echarts": "^6.0.0",
     "lucide-preact": "^1.7.0",
-    "mapbox-gl": "^3.21.0",
+    "mapbox-gl": "^3.22.0",
     "preact": "^10.29.1",
     "qrcode.react": "^4.2.0",
     "react-map-gl": "^8.1.1",
