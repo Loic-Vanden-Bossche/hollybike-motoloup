@@ -15,7 +15,7 @@
     "caniuse-lite": "^1.0.30001788",
     "clsx": "^2.1.1",
     "echarts": "^6.0.0",
-    "lucide-preact": "^1.7.0",
+    "lucide-preact": "^1.14.0",
     "mapbox-gl": "^3.22.0",
     "preact": "^10.29.1",
     "qrcode.react": "^4.2.0",
