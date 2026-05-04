@@ -7,7 +7,7 @@ val awsSdkKotlinVersion: String by project
 plugins {
 	application
 	jacoco
-	kotlin("jvm") version "2.3.20"
+	kotlin("jvm") version "2.3.21"
 	id("com.github.ben-manes.versions") version "0.54.0"
 
 	id("io.ktor.plugin") version "3.4.2"
