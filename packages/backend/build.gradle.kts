@@ -86,7 +86,7 @@ dependencies {
 	implementation("io.ktor:ktor-server-cors:$ktorVersion")
 	implementation("io.ktor:ktor-server-auth:$ktorVersion")
 	implementation("io.ktor:ktor-server-auth-jwt:$ktorVersion")
-	implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.7.1-0.6.x-compat")
+	implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.8.0-0.6.x-compat")
 	implementation("io.ktor:ktor-server-metrics-micrometer-jvm:$ktorVersion")
 	implementation("io.ktor:ktor-server-swagger-jvm:$ktorVersion")
 	implementation("io.ktor:ktor-server-compression-jvm:$ktorVersion")
