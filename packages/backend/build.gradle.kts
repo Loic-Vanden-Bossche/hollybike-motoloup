@@ -114,7 +114,7 @@ dependencies {
 
 	implementation("aws.sdk.kotlin:s3:$awsSdkKotlinVersion")
 
-	implementation("com.squareup.okhttp3:okhttp:5.3.2")
+	implementation("com.squareup.okhttp3:okhttp:5.4.0")
 	implementation("commons-net:commons-net:3.13.0")
 
 	implementation("org.apache.commons:commons-imaging:1.0.0-alpha6")
