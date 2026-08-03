@@ -46,7 +46,7 @@ dependencies:
   dio: ^5.8.0+1
   rxdart: ^0.28.0
   lottie: ^3.3.3
-  simple_animations: ^5.1.0
+  simple_animations: ^5.3.0
   cached_network_image: ^3.4.1
   mapbox_maps_flutter: ^2.23.1
   geojson_vi: ^2.2.5
